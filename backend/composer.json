@@ -1,0 +1,8 @@
+{
+    "require": {
+        "phpmailer/phpmailer": "^6.2",
+        "php-imap/php-imap": "^4.1",
+        "paquettg/php-html-parser": "^3.1",
+        "guzzlehttp/guzzle": "^7.2"
+    }
+}
