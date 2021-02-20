@@ -289,6 +289,7 @@ export default {
     padding: 15px 0;
     .block {
         z-index: 1;
+        width: 100%;
     }
 }
 .packery-drop-placeholder {
@@ -318,58 +319,58 @@ export default {
 .size1x {
     min-width: 350px;
     @media (min-width: 400px) {
-        width: calc(100% - 2px);
+        max-width: calc(100% - 2px);
     }
     @media (min-width: 800px) {
-        width: calc(100% / 2 - 8px);
+        max-width: calc(100% / 2 - 8px);
     }
     @media (min-width: 1200px) {
-        width: calc(100% / 3 - 10.5px);
+        max-width: calc(100% / 3 - 10.5px);
     }
     @media (min-width: 1600px) {
-        width: calc(100% / 4 - 11.5px);
+        max-width: calc(100% / 4 - 11.5px);
     }
     @media (min-width: 2000px) {
-        width: calc(100% / 5 - 12px);
+        max-width: calc(100% / 5 - 12px);
     }
     @media (min-width: 2400px) {
-        width: calc(100% / 6 - 12.5px);
+        max-width: calc(100% / 6 - 12.5px);
     }
     @media (min-width: 2800px) {
-        width: calc(100% / 7 - 13px);
+        max-width: calc(100% / 7 - 13px);
     }
     @media (min-width: 3200px) {
-        width: calc(100% / 8 - 13.2px);
+        max-width: calc(100% / 8 - 13.2px);
     }
     @media (min-width: 3600px) {
-        width: calc(100% / 9 - 13.4px);
+        max-width: calc(100% / 9 - 13.4px);
     }
 }
 .size2x {
     min-width: 350px;
     @media (min-width: 800px) {
-        width: calc(100% - 2px);
+        max-width: calc(100% - 2px);
     }
     @media (min-width: 1200px) {
-        width: calc(200% / 3 - 6px);
+        max-width: calc(200% / 3 - 6px);
     }
     @media (min-width: 1600px) {
-        width: calc(100% / 2 - 8px);
+        max-width: calc(100% / 2 - 8px);
     }
     @media (min-width: 2000px) {
-        width: calc(200% / 5 - 9px);
+        max-width: calc(200% / 5 - 9px);
     }
     @media (min-width: 2400px) {
-        width: calc(100% / 3 - 10px);
+        max-width: calc(100% / 3 - 10px);
     }
     @media (min-width: 2800px) {
-        width: calc(200% / 7 - 11px);
+        max-width: calc(200% / 7 - 11px);
     }
     @media (min-width: 3200px) {
-        width: calc(100% / 4 - 12.2px);
+        max-width: calc(100% / 4 - 12.2px);
     }
     @media (min-width: 3600px) {
-        width: calc(200% / 9 - 13px);
+        max-width: calc(200% / 9 - 13px);
     }
 }
 </style>

@@ -531,7 +531,9 @@ export default {
         openSearch() {
             this.searchOpened = true;
             setTimeout(() => {
-                this.$refs.searchInput.focus();
+                if (this.searchOpened) {
+                    this.$refs.searchInput.focus();
+                }
             }, 350);
         },
     },
@@ -806,6 +808,11 @@ html::-webkit-scrollbar {
         opacity: 1;
         width: 600px;
         pointer-events: auto;
+    }
+}
+@media (max-width: 960px) {
+    .global-search-input {
+        top: 4px;
     }
 }
 @media (max-width: 624px) {
