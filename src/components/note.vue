@@ -177,6 +177,10 @@ import renderMathInElement from 'katex/contrib/auto-render/auto-render';
 import 'katex/contrib/copy-tex/copy-tex';
 import hljs from 'highlight.js/lib/core';
 
+import mdTaskLists from 'markdown-it-task-lists';
+import mdLinkAttr from 'markdown-it-link-attributes';
+import mdMark from 'markdown-it-mark';
+
 import javascript from 'highlight.js/lib/languages/javascript';
 import python from 'highlight.js/lib/languages/python';
 import php from 'highlight.js/lib/languages/php';
@@ -370,7 +374,7 @@ export default {
                     // Render Markdown
                     if (this.$refs.render) {
                         // Make links open in new tab
-                        this.$refs.render.innerHTML = this.md.render(this.code).replace('<a href="', '<a target="_blank" rel="noreferrer noopener" href="');
+                        this.$refs.render.innerHTML = this.md.render(this.code);
                         // Render LaTeX
                         renderMathInElement(this.$refs.render, {
                             delimiters: [
@@ -570,7 +574,7 @@ export default {
             } else {
                 if (this.$refs.render) {
                     // Render Markdown
-                    this.$refs.render.innerHTML = this.md.render(this.code).replace('<a href="', '<a target="_blank" rel="noreferrer noopener" href="');
+                    this.$refs.render.innerHTML = this.md.render(this.code);
                     // Render LaTeX
                     renderMathInElement(this.$refs.render, {
                         delimiters: [
@@ -641,9 +645,19 @@ export default {
             },
         });
 
+        // Register markdown-it plugins
+        this.md.use(mdTaskLists);
+        this.md.use(mdLinkAttr, {
+            attrs: {
+                target: '_blank',
+                rel: 'noreferrer noopener',
+            },
+        });
+        this.md.use(mdMark);
+
         // Render note
         if (this.$refs.render) {
-            this.$refs.render.innerHTML = this.md.render(this.code).replace('<a href="', '<a target="_blank" rel="noreferrer noopener" href="');
+            this.$refs.render.innerHTML = this.md.render(this.code);
             renderMathInElement(this.$refs.render, {
                 delimiters: [
                     { left: '$$', right: '$$', display: true },
