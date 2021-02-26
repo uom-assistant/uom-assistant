@@ -74,6 +74,7 @@ Download latest `backend.zip` from [Releases](https://github.com/yrccondor/uom-a
 
 ```
 $ npm install
+$ npm run build
 ```
 
 ...and deploy the `dist` folder.

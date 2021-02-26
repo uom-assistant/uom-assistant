@@ -391,8 +391,8 @@ export default {
         "min_after": "In %d min",
         "hour_after": "In %d hour",
         "current_is": "Current class is ",
-        "current": "Current class will end in %d mins",
-        "current_plural": "Current class will end in %d min",
+        "current": "Current class will end in %d min",
+        "current_plural": "Current class will end in %d mins",
         "no_current": "There is no class currently",
         "unknown": "Unknown"
     },

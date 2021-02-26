@@ -823,6 +823,7 @@ html::-webkit-scrollbar {
     }
 }
 #app.theme--dark {
+    color-scheme: dark;
     .v-picker__title.primary {
         color: #424242;
         .v-time-picker-title {

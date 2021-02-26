@@ -104,6 +104,13 @@
                             :style="{ top: nowY }"
                             ></div>
                         </template>
+                        <template v-slot:event="{ eventSummary, event }">
+                            <div
+                                class="pl-1"
+                                :class="{ 'text--disabled': event.selfStudy }"
+                                v-html="eventSummary()"
+                            ></div>
+                        </template>
                     </v-calendar>
                     <v-menu
                         v-model="selectedOpen"
@@ -120,9 +127,9 @@
                                 color="#ffffff"
                                 flat
                             >
-                                <v-toolbar-title :class="selectedEvent.color ? `${selectedEvent.color.split(' ')[0] === 'uomtheme' ? 'primary' : selectedEvent.color.split(' ')[0]}--text${selectedEvent.color.split(' ').length > 1 ? ` text--${selectedEvent.color.split(' ')[1]}` : ''}` : ''" class="calendar-selected-name">
+                                <v-toolbar-title :class="selectedEvent.titleColor ? `${selectedEvent.titleColor.split(' ')[0] === 'uomtheme' ? 'primary' : selectedEvent.titleColor.split(' ')[0]}--text${selectedEvent.titleColor.split(' ').length > 1 ? ` text--${selectedEvent.titleColor.split(' ')[1]}` : ''}` : ''" class="calendar-selected-name">
                                     {{ selectedEvent.details === 'Coursework Deadline' ? selectedEvent.name : (selectedEvent.subjectName === '' ? selectedEvent.name.split('/')[0] : selectedEvent.subjectName) }}<br>
-                                    <span class="text--disabled calendar-smaller-font">{{ selectedEvent.details === 'Coursework Deadline' ? (selectedEvent.subjectName === '' ? $t('coursework') : selectedEvent.subjectName) : selectedEvent.rawTitle }}</span>
+                                    <span class="text--disabled calendar-smaller-font">{{ selectedEvent.details === 'Coursework Deadline' ? (selectedEvent.subjectName === '' ? $t('coursework') : selectedEvent.subjectName) : selectedEvent.rawTitle }}{{ selectedEvent.selfStudy ? $t('self_study') : '' }}</span>
                                 </v-toolbar-title>
                                 <v-spacer></v-spacer>
                                 <v-tooltip top v-if="selectedEvent.subjectId !== '' && subjectLinks(selectedEvent.subjectId).homeLink !== false">
@@ -162,7 +169,7 @@
                                             <template>
                                                 <v-list-item-content>
                                                     <v-list-item-title>
-                                                        <v-btn x-small icon :href="meetingLink(link.link, link.passcode)" :title="ifZoomLink(link.link) ? $t('quick_zoom') : $t('quick_teams')" v-if="ifZoomLink(link.link) || ifTeamsLink(link.link)" class="mr-1 text-decoration-none"><v-icon small>{{ ifTeamsLink(link.link) ? 'mdi-microsoft-teams' : 'mdi-dock-window' }}</v-icon></v-btn><a :href="link.link" target="_blank" rel="noopener nofollow" :class="selectedEvent.color ? `${selectedEvent.color.split(' ')[0] === 'uomtheme' ? 'primary' : selectedEvent.color.split(' ')[0]}--text${selectedEvent.color.split(' ').length > 1 ? ` text--${selectedEvent.color.split(' ')[1]}` : ''}` : ''">{{ link.name }}</a><a :href="link.link" target="_blank" rel="noopener nofollow" class="no-underline-link"><v-icon small :color="selectedEvent.color ? (selectedEvent.color === 'uomtheme' ? 'primary' : selectedEvent.color) : ''">mdi-open-in-new</v-icon>
+                                                        <v-btn x-small icon :href="meetingLink(link.link, link.passcode)" :title="ifZoomLink(link.link) ? $t('quick_zoom') : $t('quick_teams')" v-if="ifZoomLink(link.link) || ifTeamsLink(link.link)" class="mr-1 text-decoration-none"><v-icon small>{{ ifTeamsLink(link.link) ? 'mdi-microsoft-teams' : 'mdi-dock-window' }}</v-icon></v-btn><a :href="link.link" target="_blank" rel="noopener nofollow" :class="selectedEvent.titleColor ? `${selectedEvent.titleColor.split(' ')[0] === 'uomtheme' ? 'primary' : selectedEvent.titleColor.split(' ')[0]}--text${selectedEvent.titleColor.split(' ').length > 1 ? ` text--${selectedEvent.titleColor.split(' ')[1]}` : ''}` : ''">{{ link.name }}</a><a :href="link.link" target="_blank" rel="noopener nofollow" class="no-underline-link"><v-icon small :color="selectedEvent.titleColor ? (selectedEvent.titleColor === 'uomtheme' ? 'primary' : selectedEvent.titleColor) : ''">mdi-open-in-new</v-icon>
                                                         </a>
                                                     </v-list-item-title>
                                                 </v-list-item-content>
@@ -489,16 +496,24 @@ export default {
                         // Minus 1 second for adapting to a bug of Vuetify
                         rawEnd.setTime(rawEnd.getTime() - 1000);
 
+                        const selfStudy = item[1][0][3].toUpperCase().includes('EVENT TYPE: INDEPENDENT STUDY');
+                        let color = colorMap[titleName] ? colorMap[titleName] : 'uomtheme';
+                        if (selfStudy) {
+                            color = 'colordark';
+                        }
+
                         const event = {
                             name: `${subjectMap[titleName] ? subjectMap[titleName] : titleName}${titleRemain}`,
                             details: item[1][0][3],
                             start: startTime,
                             end: rawEnd,
-                            color: colorMap[titleName] ? colorMap[titleName] : 'uomtheme',
+                            color,
+                            titleColor: colorMap[titleName] ? colorMap[titleName] : 'uomtheme',
                             timed: true,
                             rawTitle: title,
                             subjectName: `${subjectLongMap[titleName] ? subjectLongMap[titleName] : ''}`,
                             subjectId: subjectIdList.includes(titleName) ? titleName : '',
+                            selfStudy,
                         };
                         this.classEvents.push(event);
                     }
@@ -701,8 +716,14 @@ export default {
                     const titleName = titleSplit[0];
                     titleSplit.shift();
                     const titleRemain = `/${titleSplit.join('/')}`;
+                    let color = colorMap[titleName] ? colorMap[titleName] : 'uomtheme';
+                    if (item.selfStudy) {
+                        color = 'colordark';
+                    }
+
                     item.name = `${subjectMap[titleName] ? subjectMap[titleName] : titleName}${titleRemain}`;
-                    item.color = colorMap[titleName] ? colorMap[titleName] : 'uomtheme';
+                    item.color = color;
+                    item.titleColor = colorMap[titleName] ? colorMap[titleName] : 'uomtheme';
                     item.subjectName = `${subjectLongMap[titleName] ? subjectLongMap[titleName] : ''}`;
                     item.subjectId = subjectIdList.includes(titleName) ? titleName : '';
                 }
@@ -920,12 +941,13 @@ export default {
         "network_error": "Network Error",
         "network_error_body": "Cannot fetch latest events from calendar subscription URL",
         "quick_zoom": "Zoom meeting quick start",
-        "quick_zoom": "Teams meeting quick start",
+        "quick_teams": "Teams meeting quick start",
         "copy_passcode": "Copy passcode",
         "backend_error": "Backend Error",
         "backend_error_body": "The backend has sent some unparseable data. The same error will not be shown again until next successful connection",
         "backend_maintenance": "Backend Maintenance",
-        "backend_maintenance_body": "The backend is being maintenanced. The same warning will not be shown again until next successful connection"
+        "backend_maintenance_body": "The backend is being maintenanced. The same warning will not be shown again until next successful connection",
+        "self_study": " (Independent Study)"
     },
     "zh": {
         "today": "今天",
@@ -947,7 +969,8 @@ export default {
         "backend_error": "后端错误",
         "backend_error_body": "后端发送了无法解析的数据。下次连接成功前相同错误将不再显示",
         "backend_maintenance": "后端维护",
-        "backend_maintenance_body": "后端正在维护。下次连接成功前相同警告将不再显示"
+        "backend_maintenance_body": "后端正在维护。下次连接成功前相同警告将不再显示",
+        "self_study": "（自学）"
     }
 }
 </i18n>

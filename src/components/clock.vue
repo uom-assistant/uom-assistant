@@ -331,7 +331,7 @@ p {
     }
     .slider {
         position: absolute;
-        bottom: -27px;
+        bottom: -32px;
         left: 10px;
         z-index: 1;
         width: calc(100% - 50px);

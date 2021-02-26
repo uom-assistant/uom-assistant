@@ -457,6 +457,7 @@ export default {
                         start: new Date(ddl),
                         end: new Date(ddl),
                         color: 'red darken-4',
+                        titleColor: 'red darken-4',
                         timed: true,
                         rawTitle: item.title,
                         subjectName: `${item.subject ? this.subjectLongNameMap(item.subject) : ''}`,

@@ -786,6 +786,10 @@ export default {
                     color: #888888;
                 }
             }
+            ul.contains-task-list li.task-list-item {
+                list-style: none;
+                margin-left: -24px;
+            }
             img {
                 margin: 0 auto;
                 max-width: 100%;
@@ -927,8 +931,14 @@ export default {
                 border-color: rgba(255, 255, 255, 0.2);
             }
             .hljs {
-                background-color: #cfcfcf;
-                filter: invert(1) hue-rotate(180deg) brightness(1.1);
+                background-color: #272727;
+                color: #c2c2c2;
+                & > span {
+                    filter: invert(1) hue-rotate(180deg) brightness(1.1);
+                    &.hljs-function {
+                        color: #434343;
+                    }
+                }
             }
             blockquote {
                 border-left: 4px solid #3b3b3b;

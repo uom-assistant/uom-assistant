@@ -208,12 +208,6 @@ export default {
 </script>
 
 <style lang="less">
-@keyframes copied {
-    to {
-        transform: scaleX(1.1) scaleY(1.3);
-        opacity: 0;
-    }
-}
 .livelinks-container {
     position: relative;
     padding-left: 0;
