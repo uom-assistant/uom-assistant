@@ -23,10 +23,13 @@ define('UOMA_VERSION', '0.1.0');
 // If ture, the frontend wants to connect to this backend instance will receive a messages says the backend is offline temporarily
 define('UOMA_MAINTENANCE', false);
 
+// Set the user agent used in external HTTP requests. More at https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
+define('UOMA_USER_AGENT', 'UOM-ASSISTANT-BACKEND/'.UOMA_VERSION.' Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.0 Safari/537.36');
+
 // Info needed for MySQL database connection
 define('UOMA_DATABASE', array(
     'host' => 'localhost',
-    'port' => '3306',
+    'port' => 3306,
     'database' => '',
     'username' => '',
     'password' => '',
@@ -41,4 +44,5 @@ define('UOMA_CONFIG', array(
     'welcome_message' => '', // If non-empty, a message will shown in the frontend when a user connect to this backend instance
     'access_control_allow_origin' => '*' // Controls which frontend can connect to this backend. Can be a string or an array (auto match). More at https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
 ));
+
 ?>

@@ -31,12 +31,13 @@ Frontend:
 
 Backend:
 
-- [ ] Ability check API
-- [ ] Attendance API
-- [ ] Calendar API
+- [ ] Database
+- [x] Ability check API
+- [x] Attendance API
+- [x] Calendar API
 - [ ] Inbox API
 - [ ] Send mail API
-- [ ] Grade summary API
+- [x] Grade summary API
 - [ ] Sync settings API
 - [ ] Clear data API
 
@@ -88,7 +89,7 @@ $ cd backend
 ...edit `config.php`, then
 
 ```
-$ composer install
+$ composer install --no-dev --optimize-autoloader
 $ cd ../
 ```
 
