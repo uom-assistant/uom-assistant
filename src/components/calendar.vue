@@ -554,11 +554,10 @@ export default {
          */
         updateTodayEvents() {
             const eventList = [];
-            const now = new Date();
             for (const event of this.events) {
                 if (event.details !== 'Coursework Deadline') {
                     const eventTime = this.convertTimeZone(event.start, 'Europe/London');
-                    const nowTime = this.convertTimeZone(now, 'Europe/London');
+                    const nowTime = this.convertTimeZone(new Date(), 'Europe/London');
                     if (eventTime.getMonth() === nowTime.getMonth() && eventTime.getDate() === nowTime.getDate()) {
                         eventList.push(event);
                     }
@@ -571,12 +570,11 @@ export default {
          */
         updateNextDayFirstEvent() {
             const eventList = [];
-            const now = new Date();
             for (const event of this.events) {
                 if (event.details !== 'Coursework Deadline') {
                     const eventTime = this.convertTimeZone(event.start, 'Europe/London');
-                    const nowTime = this.convertTimeZone(now, 'Europe/London');
-                    if (eventTime.getMonth() === nowTime.getMonth() && eventTime.getDate() === nowTime.getDate() + 1) {
+                    const nowTime = this.convertTimeZone(new Date(new Date().valueOf() + 86400000), 'Europe/London');
+                    if (eventTime.getMonth() === nowTime.getMonth() && eventTime.getDate() === nowTime.getDate()) {
                         eventList.push(event);
                     }
                 }

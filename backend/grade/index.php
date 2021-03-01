@@ -5,6 +5,7 @@ include('../common/cache.php');
 
 use Goutte\Client;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpClient\RetryableHttpClient;
 
 $conn = connect_to_database();
 
@@ -36,12 +37,12 @@ if ($cached_response !== false) {
     $conn->close();
 } else {
     // Set up HTTP client
-    $httpClient = HttpClient::create([
+    $httpClient = new RetryableHttpClient(HttpClient::create([
         'timeout' => 30,
         'headers' => [
             'User-Agent' => UOMA_USER_AGENT,
         ],
-    ]);
+    ]), null, 1);
 
     $client = new Client($httpClient);
 

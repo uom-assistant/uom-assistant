@@ -23,7 +23,7 @@ Frontend:
 - [x] Attendance widget
 - [ ] Overview widget
 - [ ] Inbox widget
-- [ ] Grade summary widget
+- [x] Grade summary widget
 - [ ] Set up guide
 - [ ] Settings page
 - [ ] About page
@@ -40,6 +40,7 @@ Backend:
 - [x] Grade summary API
 - [ ] Sync settings API
 - [ ] Clear data API
+- [ ] CLI tools
 
 ## Introduction
 

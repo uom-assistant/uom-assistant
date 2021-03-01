@@ -48,6 +48,7 @@
             <coursework id="index-8" class="block size1x" v-show="widgets.includes(7)"></coursework>
             <note id="index-9" class="block size1x" v-show="widgets.includes(8)"></note>
             <mail id="index-10" class="block size1x" v-show="widgets.includes(9)"></mail>
+            <grade id="index-11" class="block size1x" v-show="widgets.includes(10)"></grade>
         </div>
     </div>
 </template>
@@ -63,6 +64,7 @@ import calendar from '@/components/calendar.vue';
 import coursework from '@/components/coursework.vue';
 import note from '@/components/note.vue';
 import mail from '@/components/mail.vue';
+import grade from '@/components/grade.vue';
 
 import { mapState } from 'vuex';
 import Packery from 'packery';
@@ -84,6 +86,7 @@ export default {
         coursework,
         note,
         mail,
+        grade,
     },
     data() {
         return {
@@ -221,7 +224,7 @@ export default {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
 
         // Restore widgets' order
-        let indexes = localStorage.getItem('layout') || '[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]';
+        let indexes = localStorage.getItem('layout') || '[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]';
         indexes = JSON.parse(indexes);
         document.getElementById(`index-${indexes.shift()}`).classList.add('layouted');
         const packery = new Packery(document.getElementById('blocks'), {
@@ -229,10 +232,15 @@ export default {
             gutter: 15,
             columnWidth: '.size1x',
             percentPosition: true,
+            transitionDuration: '0.3s',
         });
         for (const index of indexes) {
             document.getElementById(`index-${index}`).classList.add('layouted');
             packery.appended(document.getElementById(`index-${index}`));
+        }
+        for (const ele of document.querySelectorAll('#blocks .block:not(.layouted)')) {
+            ele.classList.add('layouted');
+            packery.appended(ele);
         }
         packery.layout();
         packery.on('layoutComplete', this.orderItems);

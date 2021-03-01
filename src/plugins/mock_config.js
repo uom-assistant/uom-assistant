@@ -107,7 +107,7 @@ export default [
                     },
                     {
                         name: 'Sem2 Week 1',
-                        subject: 'COMP12120',
+                        subject: 'COMP10120',
                         date: '2021-02-12',
                     },
                 ],
@@ -126,13 +126,13 @@ export default [
             maintenance: false,
             data: [
                 {
-                    subject: 'COMP12120',
+                    subject: 'COMP10120',
                     name: 'First Year Team Project',
                     weightedGrade: '35',
                     detail: [
                         [
                             {
-                                rawName: '12120-Quiz1-F-Lab1',
+                                rawName: '10120-Quiz1-F-Lab1',
                                 name: 'Quiz1-Lab1',
                                 summative: false,
                                 grade: '36',
@@ -141,7 +141,7 @@ export default [
                                 late: false,
                             },
                             {
-                                rawName: '12120-Quiz2-F-Lab 2',
+                                rawName: '10120-Quiz2-F-Lab 2',
                                 name: 'Quiz2-Lab 2',
                                 summative: false,
                                 grade: '40',
@@ -150,7 +150,7 @@ export default [
                                 late: false,
                             },
                             {
-                                rawName: '12120-Quiz3-F-Lab 3',
+                                rawName: '10120-Quiz3-F-Lab 3',
                                 name: 'Quiz3-Lab 3',
                                 summative: false,
                                 grade: '50',
@@ -159,7 +159,7 @@ export default [
                                 late: false,
                             },
                             {
-                                rawName: '12120-Quiz4-F-Lab 4',
+                                rawName: '10120-Quiz4-F-Lab 4',
                                 name: 'Quiz4-Lab 4',
                                 summative: false,
                                 grade: '57',
@@ -168,7 +168,7 @@ export default [
                                 late: false,
                             },
                             {
-                                rawName: '12120-Quiz5-F-Lab 5',
+                                rawName: '10120-Quiz5-F-Lab 5',
                                 name: 'Quiz5-Lab 5',
                                 summative: false,
                                 grade: '180',
@@ -178,7 +178,7 @@ export default [
                             },
                         ],
                         {
-                            rawName: '12120-presentation1-S-Sem 1 Presentation',
+                            rawName: '10120-presentation1-S-Sem 1 Presentation',
                             name: 'presentation1-Sem 1 Presentation',
                             summative: true,
                             grade: '15',
@@ -186,11 +186,58 @@ export default [
                             time: '2020-12-16 18:00:00',
                             late: false,
                         },
+                        [
+                            {
+                                rawName: '10120-Quiz1-F-Lab1',
+                                name: 'Quiz1-Lab1',
+                                summative: false,
+                                grade: '36',
+                                gradePercentage: '100',
+                                time: '2021-01-01 17:00:00',
+                                late: false,
+                            },
+                            {
+                                rawName: '10120-Quiz2-F-Lab 2',
+                                name: 'Quiz2-Lab 2',
+                                summative: false,
+                                grade: '40',
+                                gradePercentage: '60',
+                                time: '2021-01-01 17:00:00',
+                                late: false,
+                            },
+                            {
+                                rawName: '10120-Quiz3-F-Lab 3',
+                                name: 'Quiz3-Lab 3',
+                                summative: false,
+                                grade: '50',
+                                gradePercentage: '100',
+                                time: '2021-01-01 17:00:00',
+                                late: false,
+                            },
+                            {
+                                rawName: '10120-Quiz4-F-Lab 4',
+                                name: 'Quiz4-Lab 4',
+                                summative: false,
+                                grade: '57',
+                                gradePercentage: '65',
+                                time: '2021-01-01 17:00:00',
+                                late: false,
+                            },
+                            {
+                                rawName: '10120-Quiz5-F-Lab 5',
+                                name: 'Quiz5-Lab 5',
+                                summative: false,
+                                grade: '180',
+                                gradePercentage: '92',
+                                time: '2021-01-01 17:00:00',
+                                late: false,
+                            },
+                        ],
                         {
-                            rawName: '12120-report-S-Reflective Report',
+                            rawName: '10120-report-S-Reflective Report',
                             name: 'report-Reflective Report',
                             summative: true,
-                            grade: '8',
+                            grade: '9',
                             gradePercentage: '75',
                             time: '2021-02-12 09:00:00',
                             late: false,
@@ -198,19 +245,19 @@ export default [
                     ],
                 },
                 {
-                    subject: 'COMP13222',
+                    subject: 'COMP13212',
                     name: 'Data Science',
                     weightedGrade: '0',
                     detail: [],
                 },
                 {
-                    subject: 'COMP11121',
+                    subject: 'COMP11120',
                     name: 'Mathematical Techniques for Computer Science',
                     weightedGrade: '48',
                     detail: [
                         [
                             {
-                                rawName: '11121-sheet00-F-Sheet 0',
+                                rawName: '11120-sheet00-F-Sheet 0',
                                 name: 'sheet00-Sheet 0',
                                 summative: false,
                                 grade: '4',
@@ -219,7 +266,7 @@ export default [
                                 late: false,
                             },
                             {
-                                rawName: '11121-sheet01-S-Sheet 1',
+                                rawName: '11120-sheet01-S-Sheet 1',
                                 name: 'sheet01-Sheet 1',
                                 summative: true,
                                 grade: '5',
@@ -228,7 +275,7 @@ export default [
                                 late: false,
                             },
                             {
-                                rawName: '11121-sheet02-S-Sheet 2',
+                                rawName: '11120-sheet02-S-Sheet 2',
                                 name: 'sheet02-Sheet 2',
                                 summative: true,
                                 grade: '5',
@@ -237,7 +284,7 @@ export default [
                                 late: false,
                             },
                             {
-                                rawName: '11121-sheet03-S-Sheet 3',
+                                rawName: '11120-sheet03-S-Sheet 3',
                                 name: 'sheet03-Sheet 3',
                                 summative: true,
                                 grade: '2',
@@ -246,7 +293,7 @@ export default [
                                 late: false,
                             },
                             {
-                                rawName: '11121-sheet04-S-Sheet 4',
+                                rawName: '11120-sheet04-S-Sheet 4',
                                 name: 'sheet04-Sheet 4',
                                 summative: true,
                                 grade: '3',
@@ -255,7 +302,7 @@ export default [
                                 late: false,
                             },
                             {
-                                rawName: '11121-sheet05-S-Sheet 5',
+                                rawName: '11120-sheet05-S-Sheet 5',
                                 name: 'sheet05-Sheet 5',
                                 summative: true,
                                 grade: '3',
@@ -264,7 +311,7 @@ export default [
                                 late: false,
                             },
                             {
-                                rawName: '11121-sheet06-S-Sheet 6',
+                                rawName: '11120-sheet06-S-Sheet 6',
                                 name: 'sheet06-Sheet 6',
                                 summative: true,
                                 grade: '4',
@@ -273,7 +320,7 @@ export default [
                                 late: true,
                             },
                             {
-                                rawName: '11121-sheet07-S-Sheet 7',
+                                rawName: '11120-sheet07-S-Sheet 7',
                                 name: 'sheet07-Sheet 7',
                                 summative: true,
                                 grade: '5',
@@ -282,7 +329,7 @@ export default [
                                 late: false,
                             },
                             {
-                                rawName: '11121-sheet08-S-Sheet 8',
+                                rawName: '11120-sheet08-S-Sheet 8',
                                 name: 'sheet08-Sheet 8',
                                 summative: true,
                                 grade: '4',
@@ -291,7 +338,7 @@ export default [
                                 late: false,
                             },
                             {
-                                rawName: '11121-sheet09-S-Sheet 9',
+                                rawName: '11120-sheet09-S-Sheet 9',
                                 name: 'sheet09-Sheet 9',
                                 summative: true,
                                 grade: '4',
@@ -300,7 +347,7 @@ export default [
                                 late: true,
                             },
                             {
-                                rawName: '11121-sheet10-S-Sheet 10',
+                                rawName: '11120-sheet10-S-Sheet 10',
                                 name: 'sheet10-Sheet 10',
                                 summative: true,
                                 grade: '5',
@@ -312,13 +359,13 @@ export default [
                     ],
                 },
                 {
-                    subject: 'COMP15222',
+                    subject: 'COMP15212',
                     name: 'Operating Systems',
                     weightedGrade: '0',
                     detail: [],
                 },
             ],
         },
-        after: 1000,
+        after: 2500,
     },
 ];

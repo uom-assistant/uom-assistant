@@ -284,7 +284,7 @@ export default {
         "nothing": "No link here",
         "no_class": "No subject yet",
         "quick_zoom": "Zoom meeting quick start",
-        "quick_zoom": "Teams meeting quick start",
+        "quick_teams": "Teams meeting quick start",
         "copy_passcode": "Copy passcode"
     },
     "zh": {

@@ -320,7 +320,7 @@
         <div id="alert-space" v-show="displayErrors.length > 0">
             <v-alert
                 v-for="(item, index) in displayErrors"
-                :key="index"
+                :key="item.id"
                 border="left"
                 elevation="6"
                 dismissible
@@ -384,7 +384,7 @@ export default {
                 locale: 'zh',
             },
         ],
-        ifWidgets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        ifWidgets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         widgets: [
             'clock',
             'todo',
@@ -396,6 +396,7 @@ export default {
             'coursework',
             'note',
             'mail',
+            'grade',
         ],
     }),
     methods: {
@@ -582,7 +583,7 @@ export default {
             if (this.backendStatus === true) {
                 this.$store.commit('addError', {
                     title: this.$t('backend_reconnect'),
-                    content: this.$t('backend_reconnect_connect'),
+                    content: this.$t('backend_reconnect_body'),
                     type: 'success',
                 });
             }
@@ -596,9 +597,9 @@ export default {
 
         // Initialize widget status
         try {
-            this.ifWidgets = JSON.parse(localStorage.getItem('if_widgets')) || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+            this.ifWidgets = JSON.parse(localStorage.getItem('if_widgets')) || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         } catch {
-            this.ifWidgets = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+            this.ifWidgets = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         }
         localStorage.setItem('if_widgets', JSON.stringify(this.ifWidgets));
         this.$store.commit('setWidgets', this.ifWidgets);
@@ -661,7 +662,7 @@ html::-webkit-scrollbar {
     }
 }
 .gray-container, .v-window-item > .container, .v-main__wrap > .container {
-    background-color: #F5F5F5;
+    background-color: #F8F8F8;
 }
 .v-main__wrap > .container {
     padding-top: 0;
@@ -924,7 +925,8 @@ html::-webkit-scrollbar {
         "calendar": "Calendar",
         "coursework": "Coursework",
         "note": "Quick Notes",
-        "mail": "Inbox"
+        "mail": "Inbox",
+        "grade": "Grade Summary"
     },
     "zh": {
         "title": "曼大助手",
@@ -964,7 +966,8 @@ html::-webkit-scrollbar {
         "calendar": "日历",
         "coursework": "作业",
         "note": "快速笔记",
-        "mail": "收件箱"
+        "mail": "收件箱",
+        "grade": "成绩概览"
     }
 }
 </i18n>

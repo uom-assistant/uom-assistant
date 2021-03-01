@@ -1,0 +1,958 @@
+<template>
+    <v-card
+        class="mx-auto rounded-lg grade-container"
+        outlined
+    >
+        <v-progress-circular
+            indeterminate
+            color="grey"
+            :width="2"
+            :size="18"
+            class="loading"
+            v-show="loading"
+        ></v-progress-circular>
+        <div class="grade-outer">
+            <h2 class="mr-5 handle">
+                {{ $t('grade') }}
+                <v-btn icon small class="grade-goto" href="https://studentnet.cs.manchester.ac.uk/me/spot/" target="_blank" rel="noopener nofollow">
+                    <v-icon>mdi-chevron-right</v-icon>
+                </v-btn>
+            </h2>
+            <div class="subject-list" ref="list" :class="{ 'detail-expended': showMainChart }">
+                <div class="loading-bg mx-auto mb-2" v-show="!init && loading">
+                    <v-skeleton-loader
+                        class="mx-auto "
+                        type="list-item-two-line, divider, list-item-two-line, list-item"
+                    ></v-skeleton-loader>
+                </div>
+                <div class="not-inited mx-auto mb-2" v-show="!init && !loading">
+                    <span class="text-center pl-6 pr-6">{{ $t('cannot_fetch') }} <a href="https://github.com/yrccondor/uom-assistant/" target="_blank" rel="noreferrer noopener">{{ $t('learn_more') }}</a></span>
+                </div>
+                <v-card
+                    class="mx-auto rounded grade-item mb-2"
+                    outlined
+                    v-for="(subject, index) in gradeListFiltered"
+                    :key="index"
+                >
+                    <div class="subject-summary">
+                        <v-progress-circular
+                            :rotate="-90"
+                            :size="49"
+                            :width="3"
+                            :value="subject.weightedGrade"
+                            color="primary"
+                            class="float-right ml-3"
+                        >
+                            {{ subject.weightedGrade }}<span class="text-caption">%</span>
+                        </v-progress-circular>
+                        <div class="text-truncate">{{ subjectNameMap(subject.subject) === subject.subject ? subject.name : subjectNameMap(subject.subject) }}</div>
+                        <span class="text--disabled text-body-2">
+                            <span :class="subjectColor(subject.subject)" class="subject-color-samll" v-if="subjectNameMap(subject.subject) !== subject.subject"></span>
+                            {{ subject.subject }}
+                        </span>
+                    </div>
+                    <v-divider class="mb-2" :class="{ hide: gradeExpending && gradeExpended === index }"></v-divider>
+                    <v-list flat class="list hide-when-expending" :class="{ hide: gradeExpending && gradeExpended === index }">
+                        <v-list-item v-for="(item, gradeIndex) in latestTwo(subject.detail)" :key="gradeIndex">
+                            <v-list-item-content>
+                                <v-list-item-title><v-icon class="mr-1" dense :title="$t('formative')" v-if="!item.summative">mdi-bookmark-off-outline</v-icon>{{ item.name }}</v-list-item-title>
+                                <v-list-item-subtitle>
+                                    <span>
+                                        <v-icon small>
+                                            mdi-clock-outline
+                                        </v-icon>
+                                        {{ getDate(new Date(item.time.replace(' ', 'T'))) }}
+                                    </span>
+                                    <span class="orange--text ml-2" v-if="item.late">LATE</span>
+                                </v-list-item-subtitle>
+                            </v-list-item-content>
+
+                            <v-list-item-action class="grade">
+                                {{ item.grade }}<span class="text--disabled">/{{ Math.round(parseInt(item.grade, 10) / (parseInt(item.gradePercentage, 10) / 100)) }}</span>
+                                <v-progress-circular
+                                    :rotate="-90"
+                                    :size="17"
+                                    :width="2"
+                                    :value="item.gradePercentage"
+                                    :color="getColorByGrade(parseInt(item.gradePercentage, 10))"
+                                    :title="`${item.gradePercentage}%`"
+                                    class="ml-2"
+                                ></v-progress-circular>
+                            </v-list-item-action>
+                        </v-list-item>
+                        <v-list-item class="more-info" @click="(e) => openDetail(index, e)">
+                            <v-list-item-content>
+                                <v-list-item-title>{{ $t('more_info') }}</v-list-item-title>
+                            </v-list-item-content>
+
+                            <v-list-item-action>
+                                <v-icon small>
+                                    mdi-arrow-right
+                                </v-icon>
+                            </v-list-item-action>
+                        </v-list-item>
+                    </v-list>
+                </v-card>
+                <div class="text--secondary text-caption more-click" :class="{ 'more-shown': moreShown }" v-show="gradeListEmpty.length > 0">
+                    <span @click="moreShown = !moreShown">
+                        <span class="d-inline-block mr-1">{{ $t('empty_subject') }}</span>
+                        <v-icon x-small class="icon-more" :class="{ 'more-shown': moreShown }">
+                            mdi-chevron-down
+                        </v-icon>
+                    </span>
+                </div>
+                <div class="more-container" :style="{ height: moreShown ? `${gradeListEmpty.length * 82}px` : '0' }">
+                    <v-card
+                        class="mx-auto rounded grade-item mb-2"
+                        outlined
+                        v-for="(subject, index) in gradeListEmpty"
+                        :key="index"
+                    >
+                        <div class="subject-summary">
+                            <v-progress-circular
+                                :rotate="-90"
+                                :size="49"
+                                :width="3"
+                                :value="subject.weightedGrade"
+                                color="grey"
+                                class="float-right ml-3"
+                            >
+                                0<span class="text-caption">%</span>
+                            </v-progress-circular>
+                            <div class="text-truncate">{{ subjectNameMap(subject.subject) === subject.subject ? subject.name : subjectNameMap(subject.subject) }}</div>
+                            <span class="text--disabled text-body-2">
+                                <span :class="subjectColor(subject.subject)" class="subject-color-samll" v-if="subjectNameMap(subject.subject) !== subject.subject"></span>
+                                {{ subject.subject }}
+                            </span>
+                        </div>
+                    </v-card>
+                </div>
+            </div>
+        </div>
+        <div class="subject-detail" :class="{ shown: gradeExpending }" :style="{ top: `${detailLayer.top}px`, left: `${detailLayer.left}px`, width: `${detailLayer.width}px`, height: `${detailLayer.height}px` }">
+            <v-btn icon class="icon-close" @click="closeDetail" :class="{ 'shown': showMainChart }">
+                <v-icon>
+                    mdi-close
+                </v-icon>
+            </v-btn>
+            <div>
+                <chart
+                    v-if="!(gradeExpended < 0 || gradeExpended > gradeListFiltered.length - 1)"
+                    class="main-chart"
+                    :width="3"
+                    :class="{ 'show-chart': showMainChart }"
+                    :value="allGradeNumbers(gradeListFiltered[gradeExpended].detail)"
+                    :key="`chart-${gradeExpended}-${$vuetify.theme.dark + 1}`"
+                ></chart>
+                <div
+                    class="subject-summary"
+                    v-if="!(gradeExpended < 0 || gradeExpended > gradeListFiltered.length - 1)"
+                    :class="{ 'shown': showMainChart }"
+                >
+                    <v-progress-circular
+                        :rotate="-90"
+                        :size="49"
+                        :width="3"
+                        :value="gradeListFiltered[gradeExpended].weightedGrade"
+                        color="primary"
+                        class="float-right ml-3"
+                    >
+                        {{ gradeListFiltered[gradeExpended].weightedGrade }}<span class="text-caption">%</span>
+                    </v-progress-circular>
+                    <div class="text-truncate">{{ subjectNameMap(gradeListFiltered[gradeExpended].subject) === gradeListFiltered[gradeExpended].subject ? gradeListFiltered[gradeExpended].name : subjectNameMap(gradeListFiltered[gradeExpended].subject) }}</div>
+                    <span class="text--disabled text-body-2">
+                        <span :class="subjectColor(gradeListFiltered[gradeExpended].subject)" class="subject-color-samll" v-if="subjectNameMap(gradeListFiltered[gradeExpended].subject) !== gradeListFiltered[gradeExpended].subject"></span>
+                        {{ gradeListFiltered[gradeExpended].subject }}
+                    </span>
+                </div>
+            </div>
+            <v-divider v-if="!(gradeExpended < 0 || gradeExpended > gradeListFiltered.length - 1) && gradeListFiltered[gradeExpended].detail.length > 0" class="mt-3"></v-divider>
+            <div class="detail-grades-list" :class="{ shown: listOverflow }" v-if="!(gradeExpended < 0 || gradeExpended > gradeListFiltered.length - 1) && gradeListFiltered[gradeExpended].detail.length > 0">
+                <v-list
+                    flat
+                    class="list"
+                    :class="{ 'shown': showMainChart }"
+                    v-if="!(gradeExpended < 0 || gradeExpended > gradeListFiltered.length - 1)"
+                >
+                    <v-list-item v-for="(item, gradeIndex) in reverseList(gradeListFiltered[gradeExpended].detail)" :key="gradeIndex">
+                        <div v-if="!Array.isArray(item)" class="list-item-warpper">
+                            <v-list-item-content>
+                                <v-list-item-title><v-icon class="mr-1" dense :title="$t('formative')" v-if="!item.summative">mdi-bookmark-off-outline</v-icon>{{ item.name }}</v-list-item-title>
+                                <v-list-item-subtitle>
+                                    <span>
+                                        <v-icon small>
+                                            mdi-clock-outline
+                                        </v-icon>
+                                        {{ getDate(new Date(item.time.replace(' ', 'T'))) }}
+                                    </span>
+                                    <span class="orange--text ml-2" v-if="item.late">LATE</span>
+                                </v-list-item-subtitle>
+                            </v-list-item-content>
+
+                            <v-list-item-action class="grade">
+                                {{ item.grade }}<span class="text--disabled">/{{ Math.round(parseInt(item.grade, 10) / (parseInt(item.gradePercentage, 10) / 100)) }}</span>
+                                <v-progress-circular
+                                    :rotate="-90"
+                                    :size="17"
+                                    :width="2"
+                                    :value="item.gradePercentage"
+                                    :color="getColorByGrade(parseInt(item.gradePercentage, 10))"
+                                    :title="`${item.gradePercentage}%`"
+                                    class="ml-2"
+                                ></v-progress-circular>
+                            </v-list-item-action>
+                        </div>
+
+                        <div v-if="Array.isArray(item)" class="list-item-warpper expendable" @click="toggleSubTree(gradeIndex)">
+                            <v-list-item-icon>
+                                <v-icon :class="{ opened: expendingSubTree.includes(gradeIndex) }">mdi-chevron-right</v-icon>
+                            </v-list-item-icon>
+
+                            <v-list-item-content>
+                                <v-list-item-title>{{ reverseList(item)[0].name }} {{ $t('etc') }}</v-list-item-title>
+                                <v-list-item-subtitle>
+                                    <span>
+                                        {{ formatString($t('total'), [item.length]) }}
+                                    </span>
+                                </v-list-item-subtitle>
+                            </v-list-item-content>
+
+                            <v-list-item-action class="grade">
+                                <chart
+                                    class="mini-chart"
+                                    :width="6"
+                                    :value="allGradeNumbers(item)"
+                                    :key="`chart-mini-${gradeIndex}-${$vuetify.theme.dark + 1}`"
+                                ></chart>
+                            </v-list-item-action>
+                        </div>
+
+                        <v-list
+                            flat
+                            class="list"
+                            v-if="Array.isArray(item)"
+                            :style="{ height: expendingSubTree.includes(gradeIndex) ? `${52 * item.length}px` : '0' }"
+                        >
+                            <v-list-item v-for="(gradeItem, gradeItemIndex) in reverseList(item)" :key="gradeItemIndex">
+                                <div class="list-item-warpper">
+                                    <v-list-item-content>
+                                        <v-list-item-title><v-icon class="mr-1" dense :title="$t('formative')" v-if="!gradeItem.summative">mdi-bookmark-off-outline</v-icon>{{ gradeItem.name }}</v-list-item-title>
+                                        <v-list-item-subtitle>
+                                            <span>
+                                                <v-icon small>
+                                                    mdi-clock-outline
+                                                </v-icon>
+                                                {{ getDate(new Date(gradeItem.time.replace(' ', 'T'))) }}
+                                            </span>
+                                            <span class="orange--text ml-2" v-if="gradeItem.late">LATE</span>
+                                        </v-list-item-subtitle>
+                                    </v-list-item-content>
+
+                                    <v-list-item-action class="grade">
+                                        {{ gradeItem.grade }}<span class="text--disabled">/{{ Math.round(parseInt(gradeItem.grade, 10) / (parseInt(gradeItem.gradePercentage, 10) / 100)) }}</span>
+                                        <v-progress-circular
+                                            :rotate="-90"
+                                            :size="17"
+                                            :width="2"
+                                            :value="gradeItem.gradePercentage"
+                                            :color="getColorByGrade(parseInt(gradeItem.gradePercentage, 10))"
+                                            :title="`${gradeItem.gradePercentage}%`"
+                                            class="ml-2"
+                                        ></v-progress-circular>
+                                    </v-list-item-action>
+                                </div>
+                            </v-list-item>
+                        </v-list>
+                    </v-list-item>
+                </v-list>
+            </div>
+        </div>
+    </v-card>
+</template>
+
+<script>
+import { mapState } from 'vuex';
+import { vsprintf } from 'sprintf-js';
+
+import chart from './chart.vue';
+
+import betterFetch from '../tools/betterFetch';
+import formatDate from '../tools/formatDate';
+
+export default {
+    name: 'grade',
+    components: {
+        chart,
+    },
+    data() {
+        return {
+            loading: false,
+            init: false,
+            timer: null,
+            gradeList: [],
+            moreShown: false,
+            gradeExpended: -1,
+            detailLayer: {
+                top: 0,
+                left: 0,
+                width: 0,
+                height: 0,
+            },
+            targetSize: {
+                top: 0,
+                width: 0,
+                height: 0,
+            },
+            gradeExpending: false,
+            showMainChart: false,
+            listOverflow: false,
+            expendingSubTree: [],
+        };
+    },
+    methods: {
+        /**
+         * Update grade data from backend
+         */
+        async updateGrade() {
+            if (!this.backend.url || !this.account.username || !this.account.password) {
+                return;
+            }
+            this.loading = true;
+            let requestFailed = false;
+            // Send request
+            const response = await betterFetch(`https://${this.backend.url}/grade/`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    username: this.account.username,
+                    password: this.account.password,
+                    token: this.backend.token ? this.backend.token : '',
+                }),
+            }).catch(() => {
+                // Network error
+                this.loading = false;
+                this.$store.commit('addError', {
+                    title: this.$t('network_error'),
+                    content: this.$t('network_error_body'),
+                    type: 'warning',
+                });
+                requestFailed = true;
+            });
+
+            if (requestFailed) {
+                return;
+            }
+
+            if (!(Object.prototype.toString.call(response) === '[object Object]') || !response.uomabVersion || !response.success) {
+                // Not a valid UoM Assistant backend
+                if (this.backendStatus) {
+                    this.$store.commit('addError', {
+                        title: this.$t('backend_error'),
+                        content: this.$t('backend_error_body'),
+                        type: 'error',
+                    });
+                    this.$store.commit('setBackendStatus', false);
+                }
+                this.loading = false;
+                return;
+            }
+
+            if (response.maintenance) {
+                // Backend maintenance
+                if (this.backendStatus) {
+                    this.$store.commit('addError', {
+                        title: this.$t('backend_maintenance'),
+                        content: this.$t('backend_maintenance_body'),
+                        type: 'warning',
+                    });
+                    this.$store.commit('setBackendStatus', false);
+                }
+                this.loading = false;
+                return;
+            }
+
+            if (response.data.tokenRequired) {
+                // Wrong Token
+                if (this.backendStatus) {
+                    this.$store.commit('addError', {
+                        title: this.$t('token_error'),
+                        content: this.$t('token_error_body'),
+                        type: 'error',
+                    });
+                    this.$store.commit('setBackendStatus', false);
+                }
+                this.loading = false;
+                return;
+            }
+
+            // Update data
+            this.$store.commit('setBackendStatus', true);
+            this.init = true;
+            this.loading = false;
+            this.gradeList = response.data;
+            this.relocate();
+        },
+        /**
+         * Map from subject ID to subject color
+         * @param {string} subject subject ID
+         * @returns {string} subject color name or ''
+         */
+        subjectColor(subject) {
+            if (!this.subjects) {
+                return '';
+            }
+            for (const item of this.subjects) {
+                if (item.id === subject) {
+                    if (item.color) {
+                        return item.color;
+                    }
+                }
+            }
+            return '';
+        },
+        /**
+         * Map from subject ID to subject short name
+         * @param {string} subject subject ID
+         * @returns {string} subject short name or raw ID (if none matched)
+         */
+        subjectNameMap(subject) {
+            if (!this.subjects) {
+                return subject;
+            }
+            for (const item of this.subjects) {
+                if (item.id === subject) {
+                    return item.name;
+                }
+            }
+            return subject;
+        },
+        /**
+         * Format a date object to a string based on locale
+         * @param {Date} dateObj Date object
+         * @returns {string} formatted a date string
+         */
+        getDate(dateObj) {
+            return formatDate(dateObj, this.locale, false);
+        },
+        /**
+         * Format strings like `printf()`
+         * @param {string} str string template
+         * @param {array} args arguments
+         * @returns {string} formated string
+         */
+        formatString(str, args) {
+            return vsprintf(str, args);
+        },
+        /**
+         * Update layout after animation
+         */
+        relocate() {
+            this.$nextTick(() => {
+                this.packery.shiftLayout();
+            });
+        },
+        /**
+         * Get latest 2 grade items from a grade list
+         * @param {array} grades grade list
+         * @returns {array} a grade list that conatins latest 2 grade items
+         */
+        latestTwo(grades) {
+            const sortedList = grades.flat().sort((a, b) => new Date(b.time.replace(' ', 'T')).valueOf() - new Date(a.time.replace(' ', 'T')).valueOf());
+            if (sortedList.length <= 2) {
+                return sortedList;
+            }
+            return [sortedList[0], sortedList[1]];
+        },
+        /**
+         * Get latest 2 grade items from a grade list
+         * @param {array} grades grade list
+         * @returns {array} a grade list that conatins latest 2 grade items
+         */
+        allGradeNumbers(grades) {
+            return grades.flat().map((item) => parseInt(item.gradePercentage, 10));
+        },
+        /**
+         * Fet grade color by grade
+         * @param {number} grade grade (max 100)
+         * @returns {string} color keyword
+         */
+        getColorByGrade(grade) {
+            if (grade >= 80) {
+                return 'green';
+            }
+            if (grade >= 40) {
+                return 'orange';
+            }
+            return 'red';
+        },
+        /**
+         * Open a layer to show details of a subject
+         * @param {number} index subject index
+         * @param {Event} e click event
+         */
+        openDetail(index, e) {
+            const ele = e.target.closest('.grade-item');
+            this.detailLayer.top = ele.offsetTop - this.$refs.list.scrollTop;
+            this.detailLayer.left = 20;
+            this.detailLayer.width = ele.clientWidth + 2;
+            this.detailLayer.height = ele.clientHeight + 2;
+
+            this.targetSize.top = ele.offsetTop - this.$refs.list.scrollTop;
+            this.targetSize.width = ele.clientWidth + 2;
+            this.targetSize.height = ele.clientHeight + 2;
+
+            if (this.gradeListFiltered[index].detail.length === 1 && Array.isArray(this.gradeListFiltered[index].detail[0])) {
+                this.expendingSubTree = [0];
+            } else {
+                this.expendingSubTree = [];
+            }
+
+            this.$nextTick(() => {
+                this.gradeExpended = index;
+                this.gradeExpending = true;
+                this.$nextTick(() => {
+                    this.showMainChart = true;
+                    this.detailLayer.top = 0;
+                    this.detailLayer.left = 0;
+                    this.detailLayer.width = document.getElementsByClassName('grade-container')[0].clientWidth;
+                    this.detailLayer.height = 560.25;
+                    setTimeout(() => {
+                        this.listOverflow = true;
+                    }, 600);
+                });
+            });
+        },
+        closeDetail() {
+            this.detailLayer.top = this.targetSize.top;
+            this.detailLayer.left = 20;
+            this.detailLayer.width = this.targetSize.width;
+            this.detailLayer.height = this.targetSize.height;
+            this.showMainChart = false;
+            this.listOverflow = false;
+            setTimeout(() => {
+                this.gradeExpended = -1;
+                this.gradeExpending = false;
+            }, 600);
+        },
+        reverseList(list) {
+            const newList = [];
+            for (let i = 0; i < list.length; i += 1) {
+                newList.push(list[i]);
+            }
+            return newList.sort((a, b) => {
+                let targetA = a;
+                let targetB = b;
+                if (Array.isArray(a)) {
+                    targetA = a[a.length - 1];
+                }
+                if (Array.isArray(b)) {
+                    targetB = b[b.length - 1];
+                }
+                return new Date(targetB.time.replace(' ', 'T')).valueOf() - new Date(targetA.time.replace(' ', 'T')).valueOf();
+            });
+        },
+        toggleSubTree(index) {
+            if (this.expendingSubTree.includes(index)) {
+                this.expendingSubTree.splice(this.expendingSubTree.indexOf(index), 1);
+            } else {
+                this.expendingSubTree.push(index);
+            }
+        },
+    },
+    watch: {
+        locale() {
+            this.$i18n.locale = this.locale;
+        },
+        init() {
+            // Layout
+            this.$nextTick(() => {
+                this.packery.shiftLayout();
+            });
+        },
+        moreShown() {
+            // Layout
+            setTimeout(() => {
+                this.relocate();
+            }, 300);
+        },
+        showMainChart() {
+            setTimeout(() => {
+                this.relocate();
+            }, 600);
+        },
+    },
+    computed: {
+        ...mapState({
+            locale: (state) => state.locale,
+            backend: (state) => state.backend,
+            backendStatus: (state) => state.backendStatus,
+            account: (state) => state.account,
+            packery: (state) => state.packery,
+            subjects: (state) => state.subjects,
+        }),
+        gradeListFiltered() {
+            // Filter out empty subjects
+            return this.gradeList.filter((item) => (item.weightedGrade !== '0' || item.detail.length !== 0));
+        },
+        gradeListEmpty() {
+            // Filter out non-empty subjects
+            return this.gradeList.filter((item) => (item.weightedGrade === '0' && item.detail.length === 0));
+        },
+    },
+    mounted() {
+        this.$i18n.locale = localStorage.getItem('language') || 'en';
+
+        // Fetch grade data
+        this.$nextTick(() => {
+            this.updateGrade();
+        });
+
+        // Update grade data every 3 hours
+        this.timer = setInterval(() => {
+            this.updateGrade();
+        }, 10800000);
+    },
+    beforeDestroy() {
+        clearInterval(this.timer);
+    },
+};
+</script>
+
+<style lang="less">
+.grade-container {
+    position: relative;
+    padding-left: 0;
+    padding-right: 0;
+    overflow: hidden;
+    background-color: #F8F8F8!important;
+    border-color: #E0E0E0;
+    .loading {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+    h2 {
+        font-size: 18px;
+        font-weight: normal;
+        opacity: .87;
+        margin-top: 18px;
+        margin-left: 20px;
+        .clickable {
+            cursor: pointer;
+            transition: all .2s;
+        }
+    }
+    .subject-list {
+        margin-top: 12px;
+        padding: 0 20px 12px 20px;
+        min-height: 126px;
+        max-height: 500px;
+        overflow-y: auto;
+        transition: min-height .5s .3s;
+        &.detail-expended {
+            min-height: 500px;
+            transition: min-height .5s 0s;
+        }
+        .loading-bg {
+            background-color: white;
+            border-radius: 6px;
+            border: thin solid rgba(0, 0, 0, 0.12);
+            & > div > .v-skeleton-loader__bone:not(.v-skeleton-loader__divider) {
+                background-color: transparent;
+            }
+        }
+    }
+    .subject-summary {
+        padding: 12px 12px 12px 15px;
+        .subject-color-samll {
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+            border-radius: 50%;
+            margin: 0;
+            margin-right: 3px;
+        }
+    }
+    .hide-when-expending {
+        opacity: 1;
+        transition: opacity .1s;
+        &.hide {
+            opacity: 0;
+        }
+    }
+    .grade-item {
+        background-color: white;
+        border-radius: 6px!important;
+        overflow: hidden;
+    }
+    .list {
+        padding-top: 0;
+        padding-bottom: 0;
+        background-color: transparent;
+        .v-list-item__action {
+            margin: 6px 16px 6px 0;
+        }
+        .grade {
+            margin: 0 0 0 5px;
+            justify-content: end;
+            align-items: center;
+            flex-direction: row;
+        }
+        .v-list-item {
+            background-color: transparent;
+            min-height: 20px;
+            .v-list-item__title {
+                font-size: .9rem;
+                i.mr-1 {
+                    vertical-align: middle;
+                    font-size: 16px;
+                }
+            }
+        }
+        .v-list-item__subtitle {
+            font-size: .75rem;
+            & > span > i {
+                transform-origin: left center;
+                transform: scale(.8) translateY(-.1rem);
+                vertical-align: text-top;
+                margin-right: -3px;
+            }
+        }
+        .v-list-item__content {
+            padding: 4px 0;
+        }
+        .more-info {
+            background-color: transparent;
+            transition: background-color .2s;
+            margin-top: -2px;
+            &:hover, &:focus {
+                background-color: rgba(0, 0, 0, .04);
+            }
+            .v-list-item__action {
+                margin: 6px 0 6px 0;
+                align-items: center;
+                flex-direction: row-reverse;
+            }
+            .v-list-item__content {
+                padding: 10px 0;
+            }
+        }
+    }
+    .more-click {
+        text-align: center;
+        margin-bottom: -2px;
+        transition: margin-bottom .1s .2s;
+        & > span {
+            opacity: .7;
+            cursor: pointer;
+            user-select: none;
+            transition: opacity .2s;
+            .icon-more {
+                transform: rotate(0) translateY(0);
+                transition: transform .2s;
+                &.more-shown {
+                    transform: rotate(180deg) translateY(1px);
+                }
+            }
+            &:hover {
+                opacity: 1;
+            }
+        }
+        &.more-shown {
+            margin-bottom: 6px;
+            transition: margin-bottom 0s;
+        }
+    }
+    .more-container {
+        overflow: hidden;
+        transition: height .3s;
+    }
+    .subject-detail {
+        position: absolute;
+        background-color: white;
+        border-radius: 6px;
+        left: 20px;
+        opacity: 0;
+        pointer-events: none;
+        z-index: -1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        .subject-summary {
+            padding: 0 13px 0 16px;
+            transition: padding .5s .1s cubic-bezier(0.77, 0, 0.175, 1);
+            .v-progress-circular__overlay {
+                transition: all 0s;
+            }
+            &.shown {
+                padding: 0 17px 0 20px;
+            }
+        }
+        .main-chart {
+            margin-top: calc(-32.2% + 13px);
+            transition: all .5s .1s cubic-bezier(0.77, 0, 0.175, 1);
+            &.show-chart {
+                margin-top: 50px;
+            }
+        }
+        .icon-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 12;
+            opacity: 0;
+            transition: opacity .2s 0s;
+            &.shown {
+                opacity: 1;
+                transition: opacity .2s .6s;
+            }
+        }
+        .detail-grades-list {
+            overflow: hidden;
+            padding-bottom: 10px;
+            &.shown {
+                overflow: auto;
+            }
+        }
+        .list {
+            margin-top: 8px;
+            opacity: 0;
+            transition: opacity .2s .3s;
+            .v-list-item {
+                padding: 0 20px;
+                flex-direction: column;
+                .list-item-warpper {
+                    display: flex;
+                    flex-direction: row;
+                    width: 100%;
+                    &.expendable{
+                        cursor: pointer;
+                        &:hover .v-list-item__icon {
+                            opacity: 1;
+                        }
+                    }
+                }
+                .list {
+                    margin-top: 0;
+                    width: 100%;
+                    opacity: 1;
+                    overflow: hidden;
+                    transition: height .3s;
+                    .v-list-item {
+                        padding-right: 0;
+                    }
+                }
+                .v-list-item__icon {
+                    margin: 13px 3px 13px -8px!important;
+                    opacity: .6;
+                    cursor: pointer;
+                    transition: opacity .2s;
+                    i {
+                        transition: transform .3s;
+                    }
+                    i.opened {
+                        transform: rotate(90deg);
+                    }
+                }
+                .v-list-item__title {
+                    font-size: .95rem;
+                }
+                &::after {
+                    min-height: 0;
+                }
+            }
+            .v-list-item__subtitle {
+                font-size: .82rem;
+                & > span > i {
+                    transform: scale(.85);
+                    margin-right: -2px;
+                }
+            }
+            .v-list-item__content {
+                padding: 8px 0;
+            }
+            &.shown {
+                opacity: 1;
+            }
+        }
+        .mini-chart {
+            width: 72px;
+        }
+        &.shown {
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 10;
+            transition: opacity .2s, height .5s .1s cubic-bezier(0.77, 0, 0.175, 1), width .5s .1s cubic-bezier(0.77, 0, 0.175, 1), top .5s .1s cubic-bezier(0.77, 0, 0.175, 1), left .5s .1s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+    }
+    .not-inited {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 200px;
+        opacity: 0.5;
+    }
+}
+#app.theme--dark .grade-container {
+    background-color: #1E1E1E!important;
+    border-color: #393939;
+    .subject-list{
+        .loading-bg {
+            background-color: #272727;
+            border: thin solid rgba(255, 255, 255, 0.12);
+            & > div > .v-skeleton-loader__bone:not(.v-skeleton-loader__divider) {
+                background: transparent;
+            }
+        }
+    }
+    .grade-item {
+        background-color: #272727;
+        .more-info {
+            &:hover, &:focus {
+                background-color: rgba(255, 255, 255, .04);
+            }
+        }
+    }
+    .subject-detail {
+        background-color: #272727;
+    }
+}
+</style>
+
+<i18n>
+{
+    "en": {
+        "grade": "Grade Summary",
+        "network_error": "Network Error",
+        "network_error_body": "Cannot fetch latest grade data from backend",
+        "backend_error": "Backend Error",
+        "backend_error_body": "The backend has sent some unparseable data. The same error will not be shown again until next successful connection",
+        "backend_maintenance": "Backend Maintenance",
+        "backend_maintenance_body": "The backend is being maintenanced. The same warning will not be shown again until next successful connection",
+        "at": "at",
+        "cannot_fetch": "Unable to get grade data, probably you are not properly configured backend information or the backend does not allow this.",
+        "learn_more": "Learn more",
+        "empty_subject": "Subjects with empty grade data",
+        "more_info": "More info",
+        "etc": "etc.",
+        "total": "%d total",
+        "formative": "Formative"
+    },
+    "zh": {
+        "grade": "成绩概览",
+        "network_error": "网络错误",
+        "network_error_body": "无法从后端获取最新成绩信息",
+        "backend_error": "后端错误",
+        "backend_error_body": "后端发送了无法解析的数据。下次连接成功前相同错误将不再显示",
+        "backend_maintenance": "后端维护",
+        "backend_maintenance_body": "后端正在维护。下次连接成功前相同警告将不再显示",
+        "at": "于",
+        "cannot_fetch": "无法获取成绩信息，可能是没有正确配置后端信息或后端不允许。",
+        "learn_more": "了解更多",
+        "empty_subject": "暂无成绩信息的课程",
+        "more_info": "更多信息",
+        "etc": "等",
+        "total": "共 %d 项",
+        "formative": "不计入总分"
+    }
+}
+</i18n>

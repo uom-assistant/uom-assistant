@@ -48,7 +48,9 @@ export default new Vuex.Store({
             state.courseworks = courseworks;
         },
         addError(state, error) {
-            state.errorList.push(error);
+            const errorItem = error;
+            errorItem.id = new Date().valueOf();
+            state.errorList.push(errorItem);
         },
         removeError(state, index) {
             state.errorList.splice(index, 1);

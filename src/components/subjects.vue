@@ -694,7 +694,7 @@ export default {
         "same_id": "This subject ID is already linked to another subject. Changes not saved.",
         "ok": "OK",
         "quick_zoom": "Zoom meeting quick start",
-        "quick_zoom": "Teams meeting quick start"
+        "quick_teams": "Teams meeting quick start"
     },
     "zh": {
         "subjects": "科目管理",
