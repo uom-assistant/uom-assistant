@@ -651,7 +651,7 @@ export default {
     padding-right: 0;
     overflow: hidden;
     background-color: #F8F8F8!important;
-    border-color: #E0E0E0;
+    border-color: #E0E0E0!important;
     .loading {
         position: absolute;
         top: 10px;

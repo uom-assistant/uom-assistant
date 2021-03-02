@@ -24,6 +24,7 @@ Frontend:
 - [ ] Overview widget
 - [ ] Inbox widget
 - [x] Grade summary widget
+- [ ] Search
 - [ ] Set up guide
 - [ ] Settings page
 - [ ] About page
