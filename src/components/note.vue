@@ -323,8 +323,8 @@ export default {
             }
 
             if (!skip) {
-                // Show a warning when the number of notes larger than 50
-                if (this.notes.length >= 50) {
+                // Show a warning when the number of notes larger than 30
+                if (this.notes.length >= 30) {
                     this.tooManyWarning = true;
                     return;
                 }
@@ -1024,7 +1024,7 @@ export default {
         "want_remove_plural": "Do you sure to delete %d notes that are selected?",
         "remove_all": "Do you sure to delete all notes?",
         "too_many_title": "Maybe too many notes",
-        "too_many_body": "This is not an error. You are creating more than 50 notes, which is not a good idea. Please consider moving them to a better place like a note management app. You can continue using quick notes anyway.",
+        "too_many_body": "This is not an error. You are creating more than 30 notes, which is not a good idea. Please consider moving them to a better place like a note management app. You can continue using quick notes anyway.",
         "hl_error": "Error when highlighting code",
         "at": "at"
     },
@@ -1054,7 +1054,7 @@ export default {
         "want_remove_plural": "你确定要删除选中的 %d 个笔记吗？",
         "remove_all": "你确定要删除所有笔记吗？",
         "too_many_title": "太多笔记了",
-        "too_many_body": "这不是一个错误。你正在创建超过 50 个笔记，这不是一个好主意。请考虑将它们移动到笔记管理应用等更合适的地方。无论如何，你仍然可以继续使用快速笔记。",
+        "too_many_body": "这不是一个错误。你正在创建超过 30 个笔记，这不是一个好主意。请考虑将它们移动到笔记管理应用等更合适的地方。无论如何，你仍然可以继续使用快速笔记。",
         "hl_error": "在创建代码高亮时出错",
         "at": "于"
     }

@@ -68,7 +68,7 @@
                             </v-list-item-content>
 
                             <v-list-item-action class="grade">
-                                {{ item.grade }}<span class="text--disabled">/{{ Math.round(parseInt(item.grade, 10) / (parseInt(item.gradePercentage, 10) / 100)) }}</span>
+                                {{ item.grade }}<span class="text--disabled">/{{ parseFloat((parseInt(item.grade, 10) / (parseInt(item.gradePercentage, 10) / 100)).toFixed(1)) }}</span>
                                 <v-progress-circular
                                     :rotate="-90"
                                     :size="17"
@@ -190,7 +190,7 @@
                             </v-list-item-content>
 
                             <v-list-item-action class="grade">
-                                {{ item.grade }}<span class="text--disabled">/{{ Math.round(parseInt(item.grade, 10) / (parseInt(item.gradePercentage, 10) / 100)) }}</span>
+                                {{ item.grade }}<span class="text--disabled">/{{ parseFloat((parseInt(item.grade, 10) / (parseInt(item.gradePercentage, 10) / 100)).toFixed(1)) }}</span>
                                 <v-progress-circular
                                     :rotate="-90"
                                     :size="17"
@@ -249,7 +249,7 @@
                                     </v-list-item-content>
 
                                     <v-list-item-action class="grade">
-                                        {{ gradeItem.grade }}<span class="text--disabled">/{{ Math.round(parseInt(gradeItem.grade, 10) / (parseInt(gradeItem.gradePercentage, 10) / 100)) }}</span>
+                                        {{ gradeItem.grade }}<span class="text--disabled">/{{ parseFloat((parseInt(gradeItem.grade, 10) / (parseInt(gradeItem.gradePercentage, 10) / 100)).toFixed(1)) }}</span>
                                         <v-progress-circular
                                             :rotate="-90"
                                             :size="17"
@@ -512,8 +512,8 @@ export default {
 
             this.$nextTick(() => {
                 this.gradeExpended = index;
-                this.gradeExpending = true;
                 this.$nextTick(() => {
+                    this.gradeExpending = true;
                     this.showMainChart = true;
                     this.detailLayer.top = 0;
                     this.detailLayer.left = 0;
@@ -960,7 +960,7 @@ export default {
         "cannot_fetch": "Unable to get grade data, probably you are not properly configured backend information or the backend does not allow this.",
         "learn_more": "Learn more",
         "empty_subject": "Subjects with empty grade data",
-        "more_info": "More info",
+        "more_info": "More",
         "etc": "etc.",
         "total": "%d total",
         "formative": "Formative"
@@ -977,7 +977,7 @@ export default {
         "cannot_fetch": "无法获取成绩信息，可能是没有正确配置后端信息或后端不允许。",
         "learn_more": "了解更多",
         "empty_subject": "暂无成绩信息的课程",
-        "more_info": "更多信息",
+        "more_info": "更多",
         "etc": "等",
         "total": "共 %d 项",
         "formative": "不计入总分"

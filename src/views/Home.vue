@@ -37,6 +37,7 @@
             </div>
         </v-card>
         <div id="blocks">
+            <div id="sizer" class="block size1x layouted"></div>
             <!-- Main widgets -->
             <clock id="index-1" class="block size1x" v-show="widgets.includes(0)"></clock>
             <calendar id="index-2" class="block size2x" v-show="widgets.includes(6)"></calendar>
@@ -213,8 +214,17 @@ export default {
          */
         orderItems() {
             const indexes = [];
+            let skipFlag = false;
             this.packery.getItemElements().forEach((itemElem, i) => {
-                indexes[i] = parseInt(itemElem.id.split('-')[1], 10);
+                if (!skipFlag) {
+                    if (itemElem.id.includes('index-')) {
+                        indexes[i] = parseInt(itemElem.id.split('-')[1], 10);
+                    } else {
+                        skipFlag = true;
+                    }
+                } else {
+                    indexes[i - 1] = parseInt(itemElem.id.split('-')[1], 10);
+                }
             });
             localStorage.setItem('layout', JSON.stringify(indexes));
         },
@@ -322,6 +332,11 @@ export default {
         width: 350px;
         float: right;
     }
+}
+#sizer {
+    height: 0;
+    pointer-events: none;
+    margin-bottom: -15px;
 }
 
 .size1x {

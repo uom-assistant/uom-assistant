@@ -38,7 +38,7 @@ export default {
 <style lang="less" scoped>
 .chart-container {
     overflow: hidden;
-    padding-top: 32.2%;
+    padding-top: 32%;
     position: relative;
     .chart {
         position: absolute;
