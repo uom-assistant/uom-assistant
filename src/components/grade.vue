@@ -19,12 +19,12 @@
                 </v-btn>
             </h2>
             <div class="subject-list" ref="list" :class="{ 'detail-expended': showMainChart }">
-                <div class="loading-bg mx-auto mb-2" v-show="!init && loading">
+                <v-card class="loading-bg mx-auto mb-2" v-show="!init && loading" outlined>
                     <v-skeleton-loader
                         class="mx-auto "
                         type="list-item-two-line, divider, list-item-two-line, list-item"
                     ></v-skeleton-loader>
-                </div>
+                </v-card>
                 <div class="not-inited mx-auto mb-2" v-show="!init && !loading">
                     <span class="text-center pl-6 pr-6">{{ $t('cannot_fetch') }} <a href="https://github.com/yrccondor/uom-assistant/" target="_blank" rel="noreferrer noopener">{{ $t('learn_more') }}</a></span>
                 </div>
@@ -129,7 +129,7 @@
                 </div>
             </div>
         </div>
-        <div class="subject-detail" :class="{ shown: gradeExpending }" :style="{ top: `${detailLayer.top}px`, left: `${detailLayer.left}px`, width: `${detailLayer.width}px`, height: `${detailLayer.height}px` }">
+        <div class="subject-detail" :class="{ shown: gradeExpending }" :style="{ top: `${detailLayer.top}px`, left: `${detailLayer.left}px`, width: (listOverflow ? '100%' : `${detailLayer.width}px`), height: `${detailLayer.height}px` }">
             <v-btn icon class="icon-close" @click="closeDetail" :class="{ 'shown': showMainChart }">
                 <v-icon>
                     mdi-close
@@ -174,7 +174,7 @@
                     :class="{ 'shown': showMainChart }"
                     v-if="!(gradeExpended < 0 || gradeExpended > gradeListFiltered.length - 1)"
                 >
-                    <v-list-item v-for="(item, gradeIndex) in reverseList(gradeListFiltered[gradeExpended].detail)" :key="gradeIndex">
+                    <v-list-item v-for="(item, gradeIndex) in sortListByDate(gradeListFiltered[gradeExpended].detail)" :key="gradeIndex">
                         <div v-if="!Array.isArray(item)" class="list-item-warpper">
                             <v-list-item-content>
                                 <v-list-item-title><v-icon class="mr-1" dense :title="$t('formative')" v-if="!item.summative">mdi-bookmark-off-outline</v-icon>{{ item.name }}</v-list-item-title>
@@ -209,7 +209,7 @@
                             </v-list-item-icon>
 
                             <v-list-item-content>
-                                <v-list-item-title>{{ reverseList(item)[0].name }} {{ $t('etc') }}</v-list-item-title>
+                                <v-list-item-title>{{ sortListByDate(item)[0].name }} {{ $t('etc') }}</v-list-item-title>
                                 <v-list-item-subtitle>
                                     <span>
                                         {{ formatString($t('total'), [item.length]) }}
@@ -233,7 +233,7 @@
                             v-if="Array.isArray(item)"
                             :style="{ height: expendingSubTree.includes(gradeIndex) ? `${52 * item.length}px` : '0' }"
                         >
-                            <v-list-item v-for="(gradeItem, gradeItemIndex) in reverseList(item)" :key="gradeItemIndex">
+                            <v-list-item v-for="(gradeItem, gradeItemIndex) in sortListByDate(item)" :key="gradeItemIndex">
                                 <div class="list-item-warpper">
                                     <v-list-item-content>
                                         <v-list-item-title><v-icon class="mr-1" dense :title="$t('formative')" v-if="!gradeItem.summative">mdi-bookmark-off-outline</v-icon>{{ gradeItem.name }}</v-list-item-title>
@@ -303,6 +303,7 @@ export default {
                 width: 0,
                 height: 0,
             },
+            targetEle: null,
             gradeExpending: false,
             showMainChart: false,
             listOverflow: false,
@@ -456,7 +457,7 @@ export default {
          * @returns {array} a grade list that conatins latest 2 grade items
          */
         latestTwo(grades) {
-            const sortedList = grades.flat().sort((a, b) => new Date(b.time.replace(' ', 'T')).valueOf() - new Date(a.time.replace(' ', 'T')).valueOf());
+            const sortedList = grades.flat().sort((a, b) => ((new Date(b.time.replace(' ', 'T')).valueOf() - new Date(a.time.replace(' ', 'T')).valueOf()) <= 0 ? -1 : 1));
             if (sortedList.length <= 2) {
                 return sortedList;
             }
@@ -490,16 +491,19 @@ export default {
          * @param {Event} e click event
          */
         openDetail(index, e) {
+            // Set size for detail layer
             const ele = e.target.closest('.grade-item');
             this.detailLayer.top = ele.offsetTop - this.$refs.list.scrollTop;
             this.detailLayer.left = 20;
             this.detailLayer.width = ele.clientWidth + 2;
             this.detailLayer.height = ele.clientHeight + 2;
 
+            this.targetEle = ele;
             this.targetSize.top = ele.offsetTop - this.$refs.list.scrollTop;
             this.targetSize.width = ele.clientWidth + 2;
             this.targetSize.height = ele.clientHeight + 2;
 
+            // If there is only one group, expend it
             if (this.gradeListFiltered[index].detail.length === 1 && Array.isArray(this.gradeListFiltered[index].detail[0])) {
                 this.expendingSubTree = [0];
             } else {
@@ -521,23 +525,42 @@ export default {
                 });
             });
         },
+        /**
+         * Close detail layer
+         */
         closeDetail() {
+            // Try to recover size
+            if (this.targetEle) {
+                this.detailLayer.width = this.targetEle.clientWidth + 2;
+            } else {
+                this.detailLayer.width = this.targetSize.width;
+            }
+
             this.detailLayer.top = this.targetSize.top;
             this.detailLayer.left = 20;
-            this.detailLayer.width = this.targetSize.width;
             this.detailLayer.height = this.targetSize.height;
+
             this.showMainChart = false;
             this.listOverflow = false;
+
             setTimeout(() => {
                 this.gradeExpended = -1;
                 this.gradeExpending = false;
             }, 600);
         },
-        reverseList(list) {
+        /**
+         * Sort the given list by date with deepth 1 and return a new list
+         * @param {array} list the list to be sorted
+         * @returns {array} sorted new list
+         */
+        sortListByDate(list) {
+            // Copy list
             const newList = [];
             for (let i = 0; i < list.length; i += 1) {
                 newList.push(list[i]);
             }
+
+            // Sort by date
             return newList.sort((a, b) => {
                 let targetA = a;
                 let targetB = b;
@@ -547,9 +570,13 @@ export default {
                 if (Array.isArray(b)) {
                     targetB = b[b.length - 1];
                 }
-                return new Date(targetB.time.replace(' ', 'T')).valueOf() - new Date(targetA.time.replace(' ', 'T')).valueOf();
+                return (new Date(targetB.time.replace(' ', 'T')).valueOf() - new Date(targetA.time.replace(' ', 'T')).valueOf()) <= 0 ? -1 : 1;
             });
         },
+        /**
+         * Expend a subtree in detail layer by index
+         * @param {number} index subtree index
+         */
         toggleSubTree(index) {
             if (this.expendingSubTree.includes(index)) {
                 this.expendingSubTree.splice(this.expendingSubTree.indexOf(index), 1);
@@ -653,11 +680,13 @@ export default {
             transition: min-height .5s 0s;
         }
         .loading-bg {
-            background-color: white;
             border-radius: 6px;
-            border: thin solid rgba(0, 0, 0, 0.12);
             & > div > .v-skeleton-loader__bone:not(.v-skeleton-loader__divider) {
                 background-color: transparent;
+            }
+            & > div > .v-skeleton-loader__divider {
+                border-radius: 0;
+                height: 1px;
             }
         }
     }
@@ -898,7 +927,6 @@ export default {
     .subject-list{
         .loading-bg {
             background-color: #272727;
-            border: thin solid rgba(255, 255, 255, 0.12);
             & > div > .v-skeleton-loader__bone:not(.v-skeleton-loader__divider) {
                 background: transparent;
             }
