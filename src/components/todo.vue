@@ -62,6 +62,9 @@ import { mapState } from 'vuex';
 
 export default {
     name: 'todo',
+    props: {
+        searchid: Number,
+    },
     data() {
         return {
             loading: false,
@@ -134,6 +137,29 @@ export default {
                 this.loading = false;
             }, 1000);
         },
+        /**
+         * Build search index
+         */
+        buildSearchIndex() {
+            const index = [];
+            for (let i = 0; i < this.todos.length; i += 1) {
+                index.push({
+                    content: this.todos[i],
+                    id: `todo-${i}`,
+                    rawIndex: i,
+                    done: this.ifTodos.includes(i),
+                });
+            }
+            this.$store.commit('setSearchIndex', {
+                id: this.searchid,
+                payload: {
+                    name: 'todo',
+                    key: 'id',
+                    indexes: ['content'],
+                    data: index,
+                },
+            });
+        },
     },
     watch: {
         locale() {
@@ -142,16 +168,41 @@ export default {
         todos() {
             // Store if TO-DO list changed
             this.store();
+            this.buildSearchIndex();
         },
         ifTodos() {
             // Store if TO-DOs' states changed
             this.store();
+            this.buildSearchIndex();
+        },
+        searchNotification() {
+            // Handle search actions
+            if (this.searchNotification.target === 'todo') {
+                if (this.searchNotification.payload.action === 'syncDone') {
+                    // Sync states
+                    for (const item of this.searchNotification.payload.payload) {
+                        if (item.done) {
+                            if (!this.ifTodos.includes(item.rawIndex)) {
+                                this.ifTodos.push(item.rawIndex);
+                            }
+                        } else {
+                            if (this.ifTodos.includes(item.rawIndex)) {
+                                this.ifTodos.splice(this.ifTodos.indexOf(item.rawIndex), 1);
+                            }
+                        }
+                    }
+                } else if (this.searchNotification.payload.action === 'delete') {
+                    // Delete one
+                    this.removeTodo(this.searchNotification.payload.index);
+                }
+            }
         },
     },
     computed: {
         ...mapState({
             locale: (state) => state.locale,
             packery: (state) => state.packery,
+            searchNotification: (state) => state.searchNotification,
         }),
     },
     mounted() {
@@ -169,6 +220,8 @@ export default {
         this.timer = setInterval(() => {
             this.sync();
         }, 1800000);
+
+        this.buildSearchIndex();
     },
     beforeDestroy() {
         clearInterval(this.timer);

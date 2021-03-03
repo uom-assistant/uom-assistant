@@ -101,6 +101,9 @@ import tzList from '@/tools/tzList';
 
 export default {
     name: 'clock',
+    props: {
+        searchid: Number,
+    },
     data() {
         return {
             min: '00',
@@ -122,14 +125,31 @@ export default {
          */
         updateList() {
             const timezoneList = [];
+            const searchIndex = [];
             for (const item of tzList) {
                 timezoneList.push({
                     name: this.locale === 'en' ? `${this.$t(item.mainCity)}, ${this.$t(item.countryName)}` : `${this.$t(item.countryName)} ${this.$t(item.mainCity)}`,
                     code: item.name,
-                    dispaly: item.mainCity,
+                    display: item.mainCity,
+                });
+                searchIndex.push({
+                    code: item.name,
+                    display: this.$t(item.mainCity),
+                    mainCity: item.mainCity === this.$t(item.mainCity) ? item.mainCity : [item.mainCity, this.$t(item.mainCity)],
                 });
             }
             this.timeZoneList = timezoneList;
+
+            // Commit search index
+            this.$store.commit('setSearchIndex', {
+                id: this.searchid,
+                payload: {
+                    name: 'clock',
+                    key: 'code',
+                    indexes: ['mainCity', 'code'],
+                    data: searchIndex,
+                },
+            });
         },
         /**
          * Store timezone settings
@@ -193,7 +213,7 @@ export default {
         getCity() {
             for (const item of this.timeZoneList) {
                 if (item.code === this.timeZone) {
-                    return item.dispaly;
+                    return item.display;
                 }
             }
             return 'London';
@@ -223,7 +243,7 @@ export default {
             this.timeZoneList.push({
                 name: this.locale === 'en' ? `${this.$t(item.mainCity)}, ${this.$t(item.countryName)}` : `${this.$t(item.countryName)} ${this.$t(item.mainCity)}`,
                 code: item.name,
-                dispaly: item.mainCity,
+                display: item.mainCity,
             });
         }
 

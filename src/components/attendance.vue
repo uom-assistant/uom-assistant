@@ -288,10 +288,10 @@ export default {
             this.updateAttendance();
         });
 
-        // Update attendance data every 3 hours
+        // Update attendance data every 5 hours
         this.timer = setInterval(() => {
             this.updateAttendance();
-        }, 10800000);
+        }, 18000000);
     },
     beforeDestroy() {
         clearInterval(this.timer);

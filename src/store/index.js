@@ -5,9 +5,9 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        locale: localStorage.getItem('language') || 'zh',
+        locale: localStorage.getItem('language') || 'en',
         packery: null,
-        widgets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        widgets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         subjects: [],
         timerMin: '00',
         timerHour: '00',
@@ -18,6 +18,12 @@ export default new Vuex.Store({
         backend: {},
         backendStatus: true,
         account: {},
+        searchIndex: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
+        searchNotification: {
+            target: '',
+            payload: null,
+        },
+        searchIndexChecker: 0,
     },
     mutations: {
         setLocale(state, language) {
@@ -63,6 +69,16 @@ export default new Vuex.Store({
         },
         setAccount(state, account) {
             state.account = account;
+        },
+        setSearchIndex(state, data) {
+            state.searchIndex[data.id] = data.payload;
+            state.searchIndexChecker = new Date().valueOf();
+        },
+        setSearchNotification(state, data) {
+            state.searchNotification = {
+                target: data.target,
+                payload: data.payload,
+            };
         },
     },
     actions: {

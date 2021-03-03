@@ -39,17 +39,17 @@
         <div id="blocks">
             <div id="sizer" class="block size1x layouted"></div>
             <!-- Main widgets -->
-            <clock id="index-1" class="block size1x" v-show="widgets.includes(0)"></clock>
-            <calendar id="index-2" class="block size2x" v-show="widgets.includes(6)"></calendar>
-            <todo id="index-3" class="block size1x" v-show="widgets.includes(1)"></todo>
-            <bblinks id="index-4" class="block size1x" v-show="widgets.includes(2)"></bblinks>
-            <livelinks id="index-5" class="block size1x" v-show="widgets.includes(3)"></livelinks>
-            <subjects id="index-6" class="block size1x" v-show="widgets.includes(4)"></subjects>
-            <attendance id="index-7" class="block size1x" v-show="widgets.includes(5)"></attendance>
-            <coursework id="index-8" class="block size1x" v-show="widgets.includes(7)"></coursework>
-            <note id="index-9" class="block size1x" v-show="widgets.includes(8)"></note>
-            <mail id="index-10" class="block size1x" v-show="widgets.includes(9)"></mail>
-            <grade id="index-11" class="block size1x" v-show="widgets.includes(10)"></grade>
+            <clock id="index-1" class="block size1x" v-show="widgets.includes(0)" :searchid="0"></clock>
+            <calendar id="index-2" class="block size2x" v-show="widgets.includes(6)" :searchid="6"></calendar>
+            <todo id="index-3" class="block size1x" v-show="widgets.includes(1)" :searchid="1"></todo>
+            <bblinks id="index-4" class="block size1x" v-show="widgets.includes(2)" :searchid="2"></bblinks>
+            <livelinks id="index-5" class="block size1x" v-show="widgets.includes(3)" :searchid="3"></livelinks>
+            <subjects id="index-6" class="block size1x" v-show="widgets.includes(4)" :searchid="4"></subjects>
+            <attendance id="index-7" class="block size1x" v-show="widgets.includes(5)" :searchid="5"></attendance>
+            <coursework id="index-8" class="block size1x" v-show="widgets.includes(7)" :searchid="7"></coursework>
+            <note id="index-9" class="block size1x" v-show="widgets.includes(8)" :searchid="8"></note>
+            <mail id="index-10" class="block size1x" v-show="widgets.includes(9)" :searchid="9"></mail>
+            <grade id="index-11" class="block size1x" v-show="widgets.includes(10)" :searchid="10"></grade>
         </div>
     </div>
 </template>

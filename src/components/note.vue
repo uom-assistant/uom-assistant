@@ -59,20 +59,23 @@
                                 <v-list-item-content>
                                     <v-list-item-title>{{ note.title === '' ? '' : note.title }}<em v-if="note.title === ''">{{ $t('untitled') }}</em></v-list-item-title>
                                     <v-list-item-subtitle>
-                                        <v-icon
-                                            small
-                                            class="time-icon"
-                                        >
-                                            mdi-clock-outline
-                                        </v-icon>
-                                        {{ getDate(new Date(note.update)) }}
+                                        <span :class="{ hide: previews[index] !== '' }">
+                                            <v-icon
+                                                small
+                                                class="time-icon"
+                                            >
+                                                mdi-clock-outline
+                                            </v-icon>
+                                            {{ getDate(new Date(note.update)) }}
+                                        </span>
+                                        <div class="text-truncate" v-if="previews[index] !== ''">{{ previews[index] }}</div>
                                     </v-list-item-subtitle>
                                 </v-list-item-content>
 
                                 <v-list-item-action class="delete" v-show="!multi">
                                     <div>
-                                        <v-btn icon :title="$t('download')">
-                                            <v-icon @click.stop="downloadNote(index)" color="grey">mdi-arrow-collapse-down</v-icon>
+                                        <v-btn icon @click.stop="downloadNote(index)" :title="$t('download')">
+                                            <v-icon color="grey">mdi-arrow-collapse-down</v-icon>
                                         </v-btn>
                                         <v-btn icon @click.stop="removeNote(index)" :title="$t('delete')">
                                             <v-icon color="grey">mdi-delete-outline</v-icon>
@@ -94,7 +97,7 @@
                 <v-icon class="mr-2 md-icon">
                     mdi-file-document-edit-outline
                 </v-icon>
-                <input type="text" v-model="notes[editing].title" class="title-input" v-if="notes[editing]" :placeholder="$t('title_placeholder')">
+                <input type="text" v-model="editingTitle" class="title-input" v-if="notes[editing]" :placeholder="$t('title_placeholder')">
                 <v-btn icon @click.stop="layerOpened = false" small class="float-right mr-4">
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
@@ -133,6 +136,37 @@
                     color="primary"
                     text
                     @click="removeSelected"
+                >
+                    {{ $t('confirm') }}
+                </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog
+            v-model="removeNoteConfirm"
+            max-width="400"
+            persistent
+            v-if="notes[toRemove]"
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('confirm') }}
+                </v-card-title>
+                <v-card-text>
+                    {{ formatString($t('want_remove_single'), [notes[toRemove].title || $t('untitled')]) }}
+                </v-card-text>
+                <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                    text
+                    @click="removeNoteConfirm = false"
+                >
+                    {{ $t('cancel') }}
+                </v-btn>
+                <v-btn
+                    color="primary"
+                    text
+                    @click="removeConfirmed"
                 >
                     {{ $t('confirm') }}
                 </v-btn>
@@ -258,6 +292,9 @@ export default {
     components: {
         codemirror,
     },
+    props: {
+        searchid: Number,
+    },
     data() {
         return {
             disableNew: false,
@@ -276,6 +313,10 @@ export default {
             multi: false,
             removeConfirm: false,
             tooManyWarning: false,
+            editingTitle: '',
+            previews: [],
+            removeNoteConfirm: false,
+            toRemove: -1,
             cmOption: {
                 tabSize: 4,
                 indentUnit: 4,
@@ -337,8 +378,10 @@ export default {
                 content: '',
                 update: new Date().valueOf(),
             });
+            this.previews.unshift('');
             this.code = '';
             this.editing = 0;
+            this.editingTitle = this.notes[this.editing].title;
             this.mode = 'edit';
             this.scrollPercentage = 0;
             this.disableNew = true;
@@ -363,6 +406,7 @@ export default {
          */
         openNote(index) {
             this.editing = index;
+            this.editingTitle = this.notes[this.editing].title;
             this.code = this.notes[index].content;
             if (this.code !== '') {
                 // If the note is not empty, switch to view mode
@@ -404,13 +448,33 @@ export default {
             });
         },
         /**
-         * Remove a note from note list
+         * Show a dialog before remove a note from note list
          * @param {number} index note index
          */
         removeNote(index) {
+            this.removeNoteConfirm = true;
+            this.toRemove = index;
+        },
+        /**
+         * Remove a note from note list
+         */
+        removeConfirmed() {
+            if (this.toRemove < 0) {
+                return;
+            }
+            if (this.layerOpened) {
+                this.layerOpened = false;
+                setTimeout(() => {
+                    this.removeConfirmed();
+                }, 350);
+                return;
+            }
             this.editing = 0;
+            this.editingTitle = '';
             this.scrollPercentage = 0;
-            this.notes.splice(index, 1);
+            this.notes.splice(this.toRemove, 1);
+            this.previews.splice(this.toRemove, 1);
+            this.removeNoteConfirm = false;
         },
         /**
          * Download a note
@@ -485,12 +549,15 @@ export default {
                 this.removeNote(this.ifNotes[0]);
             } else {
                 const newNotes = [];
+                const newPreviews = [];
                 for (let index = 0; index < this.notes.length; index += 1) {
                     if (!this.ifNotes.includes(index)) {
                         newNotes.push(this.notes[index]);
+                        newPreviews.push(this.previews[index]);
                     }
                 }
                 this.notes = newNotes;
+                this.previews = newPreviews;
             }
             this.ifNotes = [];
         },
@@ -500,6 +567,7 @@ export default {
         store() {
             localStorage.setItem('notes', JSON.stringify(this.notes));
             // this.sync();
+            this.buildSearchIndex();
         },
         /**
          * Sync data with backend
@@ -509,6 +577,58 @@ export default {
             setTimeout(() => {
                 this.loading = false;
             }, 1000);
+        },
+        /**
+         * Build search index
+         */
+        buildSearchIndex() {
+            this.$store.commit('setSearchIndex', {
+                id: this.searchid,
+                payload: {
+                    name: 'note',
+                    key: 'update',
+                    indexes: ['title', 'content'],
+                    data: this.getSearchIndexArray(),
+                },
+            });
+        },
+        /**
+         * Get search index array
+         * @returns {array} search index
+         */
+        getSearchIndexArray() {
+            const searchIndex = [];
+            const tempDOM = document.createElement('div');
+            for (let i = 0; i < this.notes.length; i += 1) {
+                tempDOM.innerHTML = this.md.render(this.notes[i].content);
+                searchIndex.push({
+                    title: this.notes[i].title === '' ? this.$t('untitled') : this.notes[i].title,
+                    rawTitle: this.notes[i].title,
+                    content: this.previews[i],
+                    rawIndex: i,
+                    update: this.notes[i].update,
+                });
+            }
+            return searchIndex;
+        },
+        /**
+         * Build plain text preview for notes
+         * @param {number?} index index of note to be updated or update all
+         */
+        buildPreviews(index = -1) {
+            if (index < 0) {
+                const previews = [];
+                const tempDOM = document.createElement('div');
+                for (const note of this.notes) {
+                    tempDOM.innerHTML = this.md.render(note.content);
+                    previews.push(tempDOM.textContent);
+                }
+                this.previews = previews;
+            } else {
+                const tempDOM = document.createElement('div');
+                tempDOM.innerHTML = this.md.render(this.notes[index].content);
+                this.previews[index] = tempDOM.textContent;
+            }
         },
         /**
          * Format strings like `printf()`
@@ -546,22 +666,29 @@ export default {
     watch: {
         locale() {
             this.$i18n.locale = this.locale;
+            this.buildSearchIndex();
         },
-        notes: {
-            handler() {
-                // Update updated time of a note
-                if (this.layerOpened) {
-                    this.notes[this.editing].update = new Date().valueOf();
-                }
-                // Store
+        notes() {
+            // Update updated time of a note
+            if (this.layerOpened) {
+                this.notes[this.editing].update = new Date().valueOf();
+            }
+            this.debouncedSave();
+        },
+        editingTitle() {
+            // Store notes when title changed
+            if (this.layerOpened) {
+                this.notes[this.editing].title = this.editingTitle;
                 this.debouncedSave();
-            },
-            deep: true,
+            }
         },
         code() {
             // Store notes when changed
-            this.notes[this.editing].content = this.code;
-            this.debouncedSave();
+            if (this.layerOpened) {
+                this.notes[this.editing].content = this.code;
+                this.buildPreviews(this.editing);
+                this.debouncedSave();
+            }
         },
         mode() {
             if (this.mode === 'edit') {
@@ -594,10 +721,17 @@ export default {
         multi() {
             this.ifNotes = [];
         },
+        searchNotification() {
+            // Handle search actions
+            if (this.searchNotification.target === 'note') {
+                this[this.searchNotification.payload.action](this.searchNotification.payload.index);
+            }
+        },
     },
     computed: {
         ...mapState({
             locale: (state) => state.locale,
+            searchNotification: (state) => state.searchNotification,
         }),
         allSelected() {
             if (this.notes.length === 0) {
@@ -655,18 +789,8 @@ export default {
         });
         this.md.use(mdMark);
 
-        // Render note
-        if (this.$refs.render) {
-            this.$refs.render.innerHTML = this.md.render(this.code);
-            renderMathInElement(this.$refs.render, {
-                delimiters: [
-                    { left: '$$', right: '$$', display: true },
-                    { left: '$', right: '$', display: false },
-                    { left: '\\(', right: '\\)', display: false },
-                    { left: '\\[', right: '\\]', display: true },
-                ],
-            });
-        }
+        this.buildPreviews();
+        this.buildSearchIndex();
     },
     beforeDestroy() {
         clearInterval(this.timer);
@@ -865,6 +989,12 @@ export default {
         .v-list-item__icon {
             margin: 15px 16px 0 0;
         }
+        .v-list-item__subtitle {
+            & > div {
+                display: none;
+                margin-top: 1px;
+            }
+        }
         .delete {
             margin: 0 0 0 8px;
             opacity: 0;
@@ -877,6 +1007,14 @@ export default {
                 background-color: rgba(0, 0, 0, .04);
                 .delete {
                     opacity: 1;
+                }
+                .v-list-item__subtitle {
+                    & > span.hide {
+                        display: none;
+                    }
+                    & > div {
+                        display: block;
+                    }
                 }
             }
         }
@@ -1021,6 +1159,7 @@ export default {
         "cancel": "Cancel",
         "ok": "OK",
         "want_remove": "Do you sure to delete %d note that is selected?",
+        "want_remove_single": "Do you sure to delete note \"%s\" 吗？",
         "want_remove_plural": "Do you sure to delete %d notes that are selected?",
         "remove_all": "Do you sure to delete all notes?",
         "too_many_title": "Maybe too many notes",
@@ -1051,6 +1190,7 @@ export default {
         "cancel": "取消",
         "ok": "好",
         "want_remove": "你确定要删除选中的 %d 个笔记吗？",
+        "want_remove_single": "你确定要删除笔记“%s”吗？",
         "want_remove_plural": "你确定要删除选中的 %d 个笔记吗？",
         "remove_all": "你确定要删除所有笔记吗？",
         "too_many_title": "太多笔记了",

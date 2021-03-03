@@ -566,7 +566,7 @@ export default {
             opacity: 1;
         }
         .edit-icons {
-            min-width: 96px;
+            width: 96px;
             padding-right: 6px;
             padding-left: 12px;
         }

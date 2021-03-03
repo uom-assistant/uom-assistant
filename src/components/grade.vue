@@ -33,6 +33,7 @@
                     outlined
                     v-for="(subject, index) in gradeListFiltered"
                     :key="index"
+                    :ref="`subject-${subject.subject}`"
                 >
                     <div class="subject-summary">
                         <v-progress-circular
@@ -284,6 +285,9 @@ export default {
     components: {
         chart,
     },
+    props: {
+        searchid: Number,
+    },
     data() {
         return {
             loading: false,
@@ -490,9 +494,9 @@ export default {
          * @param {number} index subject index
          * @param {Event} e click event
          */
-        openDetail(index, e) {
+        openDetail(index, e, selected = false) {
             // Set size for detail layer
-            const ele = e.target.closest('.grade-item');
+            const ele = selected ? e[0].$el : e.target.closest('.grade-item') || e.target;
             this.detailLayer.top = ele.offsetTop - this.$refs.list.scrollTop;
             this.detailLayer.left = 20;
             this.detailLayer.width = ele.clientWidth + 2;
@@ -524,6 +528,9 @@ export default {
                     }, 600);
                 });
             });
+        },
+        openDetailFromSearch(index, subject) {
+            this.openDetail(index, this.$refs[`subject-${subject}`], true);
         },
         /**
          * Close detail layer
@@ -602,9 +609,28 @@ export default {
             }, 300);
         },
         showMainChart() {
+            // Layout
             setTimeout(() => {
                 this.relocate();
             }, 600);
+        },
+        gradeList() {
+            // Commit search index
+            this.$store.commit('setSearchIndex', {
+                id: this.searchid,
+                payload: {
+                    name: 'grade',
+                    key: 'name',
+                    indexes: ['name', 'subject'],
+                    data: this.searchIndexMap,
+                },
+            });
+        },
+        searchNotification() {
+            // Handle search actions
+            if (this.searchNotification.target === 'grade') {
+                this.openDetailFromSearch(this.searchNotification.payload.index, this.searchNotification.payload.subject);
+            }
         },
     },
     computed: {
@@ -615,6 +641,7 @@ export default {
             account: (state) => state.account,
             packery: (state) => state.packery,
             subjects: (state) => state.subjects,
+            searchNotification: (state) => state.searchNotification,
         }),
         gradeListFiltered() {
             // Filter out empty subjects
@@ -623,6 +650,29 @@ export default {
         gradeListEmpty() {
             // Filter out non-empty subjects
             return this.gradeList.filter((item) => (item.weightedGrade === '0' && item.detail.length === 0));
+        },
+        searchIndexMap() {
+            // Build subject index
+            let newList = [];
+            for (let i = 0; i < this.gradeListFiltered.length; i += 1) {
+                newList.push(this.gradeListFiltered[i]);
+                newList[i].searchType = 'subject';
+                newList[i].rawIndex = i;
+            }
+
+            // Build coursework grade index
+            let courseworks = [];
+            for (const subject of newList) {
+                const newDetailList = subject.detail.flat().sort((a, b) => ((new Date(b.time.replace(' ', 'T')).valueOf() - new Date(a.time.replace(' ', 'T')).valueOf()) <= 0 ? -1 : 1));
+                for (const item of newDetailList) {
+                    item.searchType = 'grade';
+                    item.subject = '';
+                }
+                courseworks = courseworks.concat(newDetailList);
+            }
+
+            newList = newList.concat(courseworks);
+            return newList;
         },
     },
     mounted() {
@@ -923,7 +973,7 @@ export default {
 }
 #app.theme--dark .grade-container {
     background-color: #1E1E1E!important;
-    border-color: #393939;
+    border-color: #393939!important;
     .subject-list{
         .loading-bg {
             background-color: #272727;

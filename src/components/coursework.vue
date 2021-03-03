@@ -183,6 +183,9 @@ import formatDateTime from '../tools/formatDateTime';
 
 export default {
     name: 'coursework',
+    props: {
+        searchid: Number,
+    },
     data() {
         return {
             loading: false,
@@ -474,6 +477,32 @@ export default {
         getDate(dateObj) {
             return formatDateTime(dateObj, this.locale, false);
         },
+        /**
+         * Build search index
+         */
+        buildSearchIndex() {
+            const index = [];
+            for (let i = 0; i < this.courseworks.length; i += 1) {
+                index.push({
+                    title: this.courseworks[i].title,
+                    deadline: this.courseworks[i].deadline,
+                    subject: this.courseworks[i].subject,
+                    subjectName: this.courseworks[i].subject === false ? [] : [this.subjectNameMap(this.courseworks[i].subject), this.subjectLongNameMap(this.courseworks[i].subject)],
+                    id: `coursework-${i}`,
+                    rawIndex: i,
+                    done: this.ifCourseworks.includes(i),
+                });
+            }
+            this.$store.commit('setSearchIndex', {
+                id: this.searchid,
+                payload: {
+                    name: 'coursework',
+                    key: 'id',
+                    indexes: ['title', 'subject', 'subjectName'],
+                    data: index,
+                },
+            });
+        },
     },
     watch: {
         locale() {
@@ -483,14 +512,38 @@ export default {
             // Store data when coursework changed
             this.store();
             this.storeEvents();
+            this.buildSearchIndex();
         },
         ifCourseworks() {
             // Store data when coursework state changed
             this.store();
             this.storeEvents();
+            this.buildSearchIndex();
         },
         timerMin() {
             this.updateListKey = this.timerMin;
+        },
+        searchNotification() {
+            // Handle search actions
+            if (this.searchNotification.target === 'coursework') {
+                if (this.searchNotification.payload.action === 'syncDone') {
+                    // Sync states
+                    for (const item of this.searchNotification.payload.payload) {
+                        if (item.done) {
+                            if (!this.ifCourseworks.includes(item.rawIndex)) {
+                                this.ifCourseworks.push(item.rawIndex);
+                            }
+                        } else {
+                            if (this.ifCourseworks.includes(item.rawIndex)) {
+                                this.ifCourseworks.splice(this.ifCourseworks.indexOf(item.rawIndex), 1);
+                            }
+                        }
+                    }
+                } else if (this.searchNotification.payload.action === 'delete') {
+                    // Delete one
+                    this.removeCoursework(this.searchNotification.payload.index);
+                }
+            }
         },
     },
     computed: {
@@ -499,6 +552,7 @@ export default {
             packery: (state) => state.packery,
             subjects: (state) => state.subjects,
             timerMin: (state) => state.timerMin,
+            searchNotification: (state) => state.searchNotification,
         }),
         allSubjects() {
             if (!this.subjects) {
@@ -525,6 +579,8 @@ export default {
         this.timer = setInterval(() => {
             this.sync();
         }, 1800000);
+
+        this.buildSearchIndex();
     },
     beforeDestroy() {
         clearInterval(this.timer);

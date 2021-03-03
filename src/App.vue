@@ -81,6 +81,7 @@
             </v-btn>
             <v-text-field
                 solo
+                v-model="searching"
                 :label="$t('search')"
                 :class="{ open: searchOpened }"
                 hide-details="auto"
@@ -91,6 +92,30 @@
                 @click:append="searchOpened = false"
             ></v-text-field>
         </v-app-bar>
+        <div id="search-result" class="elevation-3" :class="{ open: searchOpened }" v-show="searching !== '' && searching !== null && searchIndexFiltered.filter((item) => item).flat().length > 0">
+            <div>
+                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[8] && searchIndexFiltered[8].length > 0">
+                    {{ $t('note') }}
+                </div>
+                <noteSearch :notes="searchIndexFiltered[8]" v-if="searchIndexFiltered[8] && searchIndexFiltered[8].length > 0"></noteSearch>
+                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0">
+                    {{ $t('coursework') }}
+                </div>
+                <courseworkSearch :courseworks="searchIndexFiltered[7]" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0"></courseworkSearch>
+                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[1] && searchIndexFiltered[1].length > 0">
+                    {{ $t('todo') }}
+                </div>
+                <todoSearch :todos="searchIndexFiltered[1]" v-if="searchIndexFiltered[1] && searchIndexFiltered[1].length > 0"></todoSearch>
+                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[10] && searchIndexFiltered[10].length > 0">
+                    {{ $t('grade') }}
+                </div>
+                <gradeSearch :grades="searchIndexFiltered[10]" v-if="searchIndexFiltered[10] && searchIndexFiltered[10].length > 0"></gradeSearch>
+                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[0] && searchIndexFiltered[0].length > 0">
+                    {{ $t('clock') }}
+                </div>
+                <clockSearch v-if="searchIndexFiltered[0] && searchIndexFiltered[0].length > 0" :city="searchIndexFiltered[0][0].display" :timezone="searchIndexFiltered[0][0].code"></clockSearch>
+            </div>
+        </div>
         <v-navigation-drawer
             v-model="drawer"
             absolute
@@ -140,7 +165,7 @@
         </v-navigation-drawer>
         <v-main>
             <v-container fluid>
-                <router-view></router-view>
+                <router-view ref="view"></router-view>
             </v-container>
         </v-main>
         <v-dialog
@@ -341,7 +366,15 @@
 
 <script>
 import { mapState } from 'vuex';
+import * as JsSearch from 'js-search';
+
 import settings from '@/components/settings.vue';
+import noteSearch from '@/components/search/note.vue';
+import courseworkSearch from '@/components/search/coursework.vue';
+import todoSearch from '@/components/search/todo.vue';
+import gradeSearch from '@/components/search/grade.vue';
+import clockSearch from '@/components/search/clock.vue';
+
 import betterFetch from '@/tools/betterFetch';
 import formatDateTime from './tools/formatDateTime';
 
@@ -349,6 +382,11 @@ export default {
     name: 'App',
     components: {
         settings,
+        noteSearch,
+        courseworkSearch,
+        todoSearch,
+        gradeSearch,
+        clockSearch,
     },
     data: () => ({
         welcome: true,
@@ -398,6 +436,9 @@ export default {
             'mail',
             'grade',
         ],
+        searching: '',
+        searchIndexFiltered: [null, null, null, null, null, null, null, null, null, null, null],
+        searchers: [null, null, null, null, null, null, null, null, null, null, null],
     }),
     methods: {
         /**
@@ -531,17 +572,61 @@ export default {
          */
         openSearch() {
             this.searchOpened = true;
+            if (this.searching !== '' && this.searching !== null) {
+                this.searchResult();
+            }
             setTimeout(() => {
                 if (this.searchOpened) {
                     this.$refs.searchInput.focus();
                 }
             }, 350);
         },
+        /**
+         * Rebuild searchers from search indexes when search indexes changed
+         */
+        rebuildSearchIndex() {
+            for (let i = 0; i < this.searchIndex.length; i += 1) {
+                const item = this.searchIndex[i];
+                if (item.name) {
+                    const searcher = new JsSearch.Search(item.key);
+
+                    searcher.tokenizer = {
+                        tokenize: (text) => [].concat(...text.split(/([\u4E00-\u9FA5\uF900-\uFA2D])/).map((textMap) => textMap.split(' '))).filter((textFilter) => textFilter !== ''),
+                    };
+                    searcher.indexStrategy = new JsSearch.AllSubstringsIndexStrategy();
+                    for (let j = 0; j < item.indexes.length; j += 1) {
+                        searcher.addIndex(item.indexes[j]);
+                    }
+                    searcher.addDocuments(item.data);
+
+                    this.searchers[i] = searcher;
+                } else {
+                    this.searchers[i] = null;
+                }
+            }
+        },
+        /**
+         * Search result from search index based on input
+         */
+        searchResult() {
+            const result = [];
+            for (let i = 0; i < this.searchIndex.length; i += 1) {
+                const item = this.searchIndex[i];
+                if (item.name) {
+                    result.push(this.searchers[i].search(this.searching).slice(0, 7));
+                } else {
+                    result.push(null);
+                }
+            }
+            this.searchIndexFiltered = result;
+        },
     },
     computed: {
         ...mapState({
             displayErrors: (state) => state.errorList,
             backendStatus: (state) => state.backendStatus,
+            searchIndex: (state) => state.searchIndex,
+            searchIndexChecker: (state) => state.searchIndexChecker,
         }),
         /**
          * Check if the URL field is valid
@@ -578,6 +663,9 @@ export default {
             this.$i18n.locale = this.locale;
             localStorage.setItem('language', this.locale);
             this.$store.commit('setLocale', this.locale);
+            this.$nextTick(() => {
+                this.searchResult();
+            });
         },
         backendStatus() {
             if (this.backendStatus === true) {
@@ -586,6 +674,16 @@ export default {
                     content: this.$t('backend_reconnect_body'),
                     type: 'success',
                 });
+            }
+        },
+        searching() {
+            this.searchResult();
+        },
+        searchIndexChecker() {
+            // Search indexes changed
+            this.rebuildSearchIndex();
+            if (this.searching !== '' && this.searching !== null && this.searchOpened) {
+                this.searchResult();
             }
         },
     },
@@ -624,6 +722,8 @@ export default {
             this.account = {};
         }
         this.$store.commit('setAccount', this.account);
+
+        this.rebuildSearchIndex();
     },
     errorCaptured(err) {
         // Handle uncaught errors
@@ -805,6 +905,34 @@ html::-webkit-scrollbar {
     z-index: 5;
     pointer-events: none;
     transition: all .2s;
+    .v-input__slot {
+        border-radius: 6px;
+    }
+    &.open {
+        opacity: 1;
+        width: 600px;
+        pointer-events: auto;
+    }
+}
+#search-result {
+    position: absolute;
+    top: 64px;
+    right: 12px;
+    opacity: 0;
+    width: 52px;
+    z-index: 5;
+    background-color: #F8F8F8;
+    max-height: ~"min(700px, calc(100vh - 100px))";
+    overflow: hidden;
+    border-radius: 6px;
+    pointer-events: none;
+    transition: all .2s;
+    & > div {
+        width: 600px;
+        padding: 10px 15px 7px 15px;
+        max-height: ~"min(700px, calc(100vh - 200px))";
+        overflow: auto;
+    }
     &.open {
         opacity: 1;
         width: 600px;
@@ -815,12 +943,18 @@ html::-webkit-scrollbar {
     .global-search-input {
         top: 4px;
     }
+    #search-result {
+        top: 58px;
+    }
 }
 @media (max-width: 624px) {
-    .global-search-input {
+    .global-search-input, #search-result {
         &.open {
             width: calc(100% - 24px);
         }
+    }
+    #search-result > div {
+        width: calc(100vw - 24px);
     }
 }
 #app.theme--dark {
@@ -881,6 +1015,9 @@ html::-webkit-scrollbar {
     }
     .v-data-table > .v-data-table__wrapper > table > tbody > tr:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper) {
         background: #333333;
+    }
+    #search-result {
+        background-color: #1E1E1E;
     }
 }
 </style>
