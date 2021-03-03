@@ -211,10 +211,10 @@ export default {
                 let deadline = false;
                 if (this.date !== null && this.date.length > 0) {
                     if (this.time !== null && this.time.length > 0) {
-                        deadline = `${this.date}T${this.time}`;
+                        deadline = new Date(`${this.date}T${this.time}`).valueOf();
                     } else {
                         // If time is missing, set to 00:00
-                        deadline = `${this.date}T00:00`;
+                        deadline = new Date(`${this.date}T00:00`).valueOf();
                     }
                 } else if (this.time !== null && this.time.length > 0) {
                     // If date is missing
@@ -231,7 +231,7 @@ export default {
                         // Time later than current time, set to today
                         nowDate = `${todayObj.getFullYear()}-${String(todayObj.getMonth() + 1).padStart(2, '0')}-${String(todayObj.getDate()).padStart(2, '0')}`;
                     }
-                    deadline = `${nowDate} ${this.time}`;
+                    deadline = new Date(`${nowDate} ${this.time}`).valueOf();
                 }
                 this.courseworks.push({
                     title: this.addText,
@@ -351,7 +351,7 @@ export default {
         },
         /**
          * Calculate the remaining time of a coursework and format it as a string
-         * @param {string} deadline deadline
+         * @param {number} deadline deadline
          * @param {number} index coursework index of the list
          * @returns {string} formatted string or ''
          */
@@ -361,12 +361,7 @@ export default {
             }
 
             const now = new Date().valueOf();
-            let ddl = null;
-            try {
-                ddl = new Date(deadline).valueOf();
-            } catch {
-                return '';
-            }
+            const ddl = deadline;
 
             // More than 1 day
             if (ddl - now >= 86400000) {
@@ -391,7 +386,7 @@ export default {
         },
         /**
          * Check if the coursework is urgent and return color classes
-         * @param {string} deadline deadline
+         * @param {number} deadline deadline
          * @param {number} index coursework index of the list
          * @returns {string} color classes or ''
          */
@@ -401,12 +396,7 @@ export default {
             }
 
             const now = new Date().valueOf();
-            let ddl = null;
-            try {
-                ddl = new Date(deadline).valueOf();
-            } catch {
-                return 'd-none';
-            }
+            const ddl = deadline;
 
             // More than 1 day
             if (ddl - now >= 86400000) {
@@ -425,7 +415,7 @@ export default {
         },
         /**
          * Check if the coursework is expired and return the classes for text
-         * @param {string} deadline deadline
+         * @param {number} deadline deadline
          * @param {number} index coursework index of the list
          * @returns {string} color classes or ''
          */
@@ -435,13 +425,7 @@ export default {
             }
 
             const now = new Date().valueOf();
-            let ddl = null;
-            try {
-                ddl = new Date(deadline).valueOf();
-            } catch {
-                return 'text--secondary';
-            }
-            if (ddl - now < 0) {
+            if (deadline - now < 0) {
                 return 'red--text text-darken-3';
             }
             return 'text--secondary';
@@ -453,7 +437,7 @@ export default {
             const eventList = [];
             for (const item of this.courseworks) {
                 if (!this.ifCourseworks.includes(this.courseworks.indexOf(item)) && item.deadline !== false) {
-                    const ddl = item.deadline.replace('00:00', '00:01').replace(' 23:5', ' 23:4');
+                    const ddl = new Date(item.deadline).toISOString().replace(':00.000Z', '').replace('00:00', '00:01').replace(' 23:5', ' 23:4');
                     eventList.push({
                         name: item.title,
                         details: 'Coursework Deadline',

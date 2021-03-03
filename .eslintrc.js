@@ -20,6 +20,7 @@ module.exports = {
         'no-lonely-if': 'off',
         'guard-for-in': 'off',
         'func-names': 'off',
+        'newline-per-chained-call': 'off',
         'prefer-destructuring': 'off',
         'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
         'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',

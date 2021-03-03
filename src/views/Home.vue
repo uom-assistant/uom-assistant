@@ -51,6 +51,30 @@
             <mail id="index-10" class="block size1x" v-show="widgets.includes(9)" :searchid="9"></mail>
             <grade id="index-11" class="block size1x" v-show="widgets.includes(10)" :searchid="10"></grade>
         </div>
+        <v-dialog
+            v-model="timezoneChanged"
+            max-width="400"
+            persistent
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('timezone_changed_title') }}
+                </v-card-title>
+                <v-card-text>
+                    {{ $t('timezone_changed_body') }}
+                </v-card-text>
+                <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                    color="primary"
+                    text
+                    @click="timezoneChanged = false"
+                >
+                    {{ $t('ok') }}
+                </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -101,6 +125,7 @@ export default {
             hourAfter: 0,
             nextEvent: null,
             currentName: '',
+            timezoneChanged: false,
         };
     },
     watch: {
@@ -232,6 +257,20 @@ export default {
     mounted() {
         // Initialize language
         this.$i18n.locale = localStorage.getItem('language') || 'en';
+
+        // Check timezone
+        let currentTimeZone = '';
+        if (localStorage.getItem('current_timezone')) {
+            currentTimeZone = localStorage.getItem('current_timezone');
+        }
+
+        const clientTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (currentTimeZone !== clientTimeZone) {
+            if (currentTimeZone !== '') {
+                this.timezoneChanged = true;
+            }
+            localStorage.setItem('current_timezone', clientTimeZone);
+        }
 
         // Restore widgets' order
         let indexes = localStorage.getItem('layout') || '[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]';
@@ -423,7 +462,10 @@ export default {
         "current": "Current class will end in %d min",
         "current_plural": "Current class will end in %d mins",
         "no_current": "There is no class currently",
-        "unknown": "Unknown"
+        "unknown": "Unknown",
+        "timezone_changed_title": "Time zone change detected",
+        "timezone_changed_body": "Don't worry, all time-related content will still be displayed correctly, times that need to be converted will be converted automatically as well. You can still trust everything on your dashboard.",
+        "ok": "OK"
     },
     "zh": {
         "overview": "总览",
@@ -442,7 +484,10 @@ export default {
         "current": "当前课程会在 %d 分钟后结束",
         "current_plural": "当前课程会在 %d 分钟后结束",
         "no_current": "现在没有课程",
-        "unknown": "未知"
+        "unknown": "未知",
+        "timezone_changed_title": "检测到时区更改",
+        "timezone_changed_body": "别担心，所有时间相关的内容仍会正确显示，需要被转换的时间会被自动转换。你仍然可以信任曼大助手显示的所有内容。",
+        "ok": "好"
     }
 }
 </i18n>

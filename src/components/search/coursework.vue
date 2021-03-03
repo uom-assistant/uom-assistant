@@ -110,7 +110,7 @@ export default {
         },
         /**
          * Calculate the remaining time of a coursework and format it as a string
-         * @param {string} deadline deadline
+         * @param {number} deadline deadline
          * @param {number} index coursework index of the list
          * @returns {string} formatted string or ''
          */
@@ -120,12 +120,7 @@ export default {
             }
 
             const now = new Date().valueOf();
-            let ddl = null;
-            try {
-                ddl = new Date(deadline).valueOf();
-            } catch {
-                return '';
-            }
+            const ddl = deadline;
 
             // More than 1 day
             if (ddl - now >= 86400000) {
@@ -150,7 +145,7 @@ export default {
         },
         /**
          * Check if the coursework is urgent and return color classes
-         * @param {string} deadline deadline
+         * @param {number} deadline deadline
          * @param {number} index coursework index of the list
          * @returns {string} color classes or ''
          */
@@ -160,12 +155,7 @@ export default {
             }
 
             const now = new Date().valueOf();
-            let ddl = null;
-            try {
-                ddl = new Date(deadline).valueOf();
-            } catch {
-                return 'd-none';
-            }
+            const ddl = deadline;
 
             // More than 1 day
             if (ddl - now >= 86400000) {
@@ -184,7 +174,7 @@ export default {
         },
         /**
          * Check if the coursework is expired and return the classes for text
-         * @param {string} deadline deadline
+         * @param {number} deadline deadline
          * @param {number} index coursework index of the list
          * @returns {string} color classes or ''
          */
@@ -194,13 +184,7 @@ export default {
             }
 
             const now = new Date().valueOf();
-            let ddl = null;
-            try {
-                ddl = new Date(deadline).valueOf();
-            } catch {
-                return 'text--secondary';
-            }
-            if (ddl - now < 0) {
+            if (deadline - now < 0) {
                 return 'red--text text-darken-3';
             }
             return 'text--secondary';
