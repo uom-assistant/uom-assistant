@@ -72,7 +72,7 @@
             hide-details
             class="slider"
             :class="{ opened: adjust }"
-            @mouseup="onUp"
+            @mouseup="base = 0"
         ></v-slider>
         <div class="clock-outer handle">
             <div class="time-label label-left" :class="$vuetify.breakpoint.xs ? 'small-screen' : ''">
@@ -158,18 +158,6 @@ export default {
             localStorage.setItem('timezone', this.timeZone);
         },
         /**
-         * Reset time travel base time
-         */
-        onUp() {
-            this.base = 0;
-        },
-        /**
-         * Pad string
-         */
-        pad(val) {
-            return val < 10 ? `0${val}` : `${val}`;
-        },
-        /**
          * Convert a Date object to a specified time zone
          * @param {Date} date Date object
          * @param {string} tzString timezone name
@@ -219,16 +207,16 @@ export default {
             return 'London';
         },
         localMin() {
-            return this.pad(this.nowObj.getMinutes());
+            return `${this.nowObj.getMinutes()}`.padStart(2, '0');
         },
         otherMin() {
-            return this.pad(this.otherObj.getMinutes());
+            return `${this.otherObj.getMinutes()}`.padStart(2, '0');
         },
         localHour() {
-            return this.pad(this.nowObj.getHours());
+            return `${this.nowObj.getHours()}`.padStart(2, '0');
         },
         otherHour() {
-            return this.pad(this.otherObj.getHours());
+            return `${this.otherObj.getHours()}`.padStart(2, '0');
         },
     },
     mounted() {
@@ -252,8 +240,8 @@ export default {
             const now = new Date(new Date().valueOf() + this.base * 3600000);
             this.nowObj = now;
             this.otherObj = this.convertTimeZone(now, this.timeZone);
-            this.sec = this.pad(now.getSeconds());
-            this.min = this.pad(now.getMinutes());
+            this.sec = `${now.getSeconds()}`.padStart(2, '0');
+            this.min = `${now.getMinutes()}`.padStart(2, '0');
         }, 1000);
         this.updateList();
     },

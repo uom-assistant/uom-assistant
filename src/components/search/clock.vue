@@ -35,12 +35,6 @@ export default {
     },
     methods: {
         /**
-         * Pad string
-         */
-        pad(val) {
-            return val < 10 ? `0${val}` : `${val}`;
-        },
-        /**
          * Convert a Date object to a specified time zone
          * @param {Date} date Date object
          * @param {string} tzString timezone name
@@ -55,8 +49,8 @@ export default {
         updateTime() {
             const now = new Date(new Date().valueOf());
             this.otherObj = this.convertTimeZone(now, this.timezone);
-            this.sec = this.pad(now.getSeconds());
-            this.min = this.pad(now.getMinutes());
+            this.sec = `${now.getSeconds()}`.padStart(2, '0');
+            this.min = `${now.getMinutes()}`.padStart(2, '0');
         },
     },
     watch: {
@@ -72,10 +66,10 @@ export default {
             locale: (state) => state.locale,
         }),
         otherMin() {
-            return this.pad(this.otherObj.getMinutes());
+            return `${this.otherObj.getMinutes()}`.padStart(2, '0');
         },
         otherHour() {
-            return this.pad(this.otherObj.getHours());
+            return `${this.otherObj.getHours()}`.padStart(2, '0');
         },
     },
     mounted() {
