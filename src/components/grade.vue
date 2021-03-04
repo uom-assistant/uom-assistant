@@ -69,14 +69,14 @@
                             </v-list-item-content>
 
                             <v-list-item-action class="grade">
-                                {{ item.grade }}<span class="text--disabled">/{{ parseFloat((parseInt(item.grade, 10) / (parseInt(item.gradePercentage, 10) / 100)).toFixed(1)) }}</span>
+                                {{ item.grade }}<span class="text--disabled">/{{ item.gradeAll }}</span>
                                 <v-progress-circular
                                     :rotate="-90"
                                     :size="17"
                                     :width="2"
-                                    :value="item.gradePercentage"
-                                    :color="getColorByGrade(parseInt(item.gradePercentage, 10))"
-                                    :title="`${item.gradePercentage}%`"
+                                    :value="(parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100"
+                                    :color="getColorByGrade((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100)"
+                                    :title="`${parseFloat(((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100).toFixed(2))}%`"
                                     class="ml-2"
                                 ></v-progress-circular>
                             </v-list-item-action>
@@ -191,14 +191,14 @@
                             </v-list-item-content>
 
                             <v-list-item-action class="grade">
-                                {{ item.grade }}<span class="text--disabled">/{{ parseFloat((parseInt(item.grade, 10) / (parseInt(item.gradePercentage, 10) / 100)).toFixed(1)) }}</span>
+                                {{ item.grade }}<span class="text--disabled">/{{ item.gradeAll }}</span>
                                 <v-progress-circular
                                     :rotate="-90"
                                     :size="17"
                                     :width="2"
-                                    :value="item.gradePercentage"
-                                    :color="getColorByGrade(parseInt(item.gradePercentage, 10))"
-                                    :title="`${item.gradePercentage}%`"
+                                    :value="(parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100"
+                                    :color="getColorByGrade((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100)"
+                                    :title="`${parseFloat(((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100).toFixed(2))}%`"
                                     class="ml-2"
                                 ></v-progress-circular>
                             </v-list-item-action>
@@ -250,14 +250,14 @@
                                     </v-list-item-content>
 
                                     <v-list-item-action class="grade">
-                                        {{ gradeItem.grade }}<span class="text--disabled">/{{ parseFloat((parseInt(gradeItem.grade, 10) / (parseInt(gradeItem.gradePercentage, 10) / 100)).toFixed(1)) }}</span>
+                                        {{ gradeItem.grade }}<span class="text--disabled">/{{ gradeItem.gradeAll }}</span>
                                         <v-progress-circular
                                             :rotate="-90"
                                             :size="17"
                                             :width="2"
-                                            :value="gradeItem.gradePercentage"
-                                            :color="getColorByGrade(parseInt(gradeItem.gradePercentage, 10))"
-                                            :title="`${gradeItem.gradePercentage}%`"
+                                            :value="(parseFloat(gradeItem.grade) / parseFloat(gradeItem.gradeAll)) * 100"
+                                            :color="getColorByGrade((parseFloat(gradeItem.grade) / parseFloat(gradeItem.gradeAll)) * 100)"
+                                            :title="`${parseFloat(((parseFloat(gradeItem.grade) / parseFloat(gradeItem.gradeAll)) * 100).toFixed(2))}%`"
                                             class="ml-2"
                                         ></v-progress-circular>
                                     </v-list-item-action>
@@ -473,7 +473,7 @@ export default {
          * @returns {array} a grade list that conatins latest 2 grade items
          */
         allGradeNumbers(grades) {
-            return grades.flat().map((item) => parseInt(item.gradePercentage, 10));
+            return grades.flat().map((item) => (parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100);
         },
         /**
          * Fet grade color by grade

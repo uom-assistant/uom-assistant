@@ -81,7 +81,7 @@ if ($cached_response !== false) {
                             'name' => $display_name,
                             'summative' => strpos($name, '-S-') !== false,
                             'grade' => explode(' /', $grade)[0],
-                            'gradePercentage' => strpos($grade, 'LATE') !== false ? substr(explode('(', $grade)[1], 0, -7) : substr(explode('(', $grade)[1], 0, -2),
+                            'gradeAll' => trim(explode('(', explode(' /', $grade)[1])[0]),
                             'time' => date_format(date_create_from_format('d-M-y H:i', trim($tr->filter('td')->eq(2)->text())), 'Y-m-d H:i:s'),
                             'late' => strpos($grade, 'LATE') !== false,
                         );

@@ -822,6 +822,13 @@ export default {
     .theme--light.v-calendar-events .v-event-more {
         background-color: transparent;
     }
+    .v-calendar .v-event-timed-container {
+        margin-right: 1px;
+    }
+    .v-event.v-event-start.v-event-end {
+        width: 97%!important;
+        margin-left: 1%;
+    }
     .v-current-time {
         height: 2px;
         background-color: #ea4335;
