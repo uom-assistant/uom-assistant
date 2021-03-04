@@ -679,6 +679,7 @@ export default {
             // Store notes when title changed
             if (this.layerOpened) {
                 this.notes[this.editing].title = this.editingTitle;
+                this.notes[this.editing].update = new Date().valueOf();
                 this.debouncedSave();
             }
         },
@@ -686,6 +687,7 @@ export default {
             // Store notes when changed
             if (this.layerOpened) {
                 this.notes[this.editing].content = this.code;
+                this.notes[this.editing].update = new Date().valueOf();
                 this.buildPreviews(this.editing);
                 this.debouncedSave();
             }
