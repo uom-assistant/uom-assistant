@@ -437,7 +437,8 @@ export default {
             const eventList = [];
             for (const item of this.courseworks) {
                 if (!this.ifCourseworks.includes(this.courseworks.indexOf(item)) && item.deadline !== false) {
-                    const ddl = new Date(item.deadline).toISOString().replace(':00.000Z', '').replace('00:00', '00:01').replace(' 23:5', ' 23:4');
+                    const rawDdl = new Date(item.deadline);
+                    const ddl = `${rawDdl.getFullYear()}-${`${rawDdl.getMonth() + 1}`.padStart(2, '0')}-${`${rawDdl.getDate()}`.padStart(2, '0')}T${`${rawDdl.getHours()}`.padStart(2, '0')}:${`${rawDdl.getMinutes()}`.padStart(2, '0')}`.replace('00:00', '00:01').replace(' 23:5', ' 23:4');
                     eventList.push({
                         name: item.title,
                         details: 'Coursework Deadline',
