@@ -1,6 +1,7 @@
 <?php
 include('../common/functions.php');
 include('../common/cache.php');
+include('../common/general_rate_limit.php');
 
 $conn = connect_to_database();
 

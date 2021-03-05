@@ -2,10 +2,15 @@
 require('../vendor/autoload.php');
 include('../common/functions.php');
 include('../common/cache.php');
+include('../common/general_rate_limit.php');
 
 use Goutte\Client;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\RetryableHttpClient;
+
+use RateLimit\Exception\LimitExceeded;
+use RateLimit\Rate;
+use RateLimit\RedisRateLimiter;
 
 $conn = connect_to_database();
 
@@ -28,6 +33,25 @@ if (!UOMA_CONFIG['allow_unauthenticated']) {
 
 // Get cahced data (if exists)
 $user = get_user();
+
+// Rate limit
+if (UOMA_RATE_LIMIT) {
+    $redis = new Redis();
+    if ($redis->connect(UOMA_REDIS['host'], UOMA_REDIS['port'])) {
+        $rateLimiter = new RedisRateLimiter($redis);
+
+        $apiKey = 'get-grade-'.$user['username'];
+    
+        try {
+            $rateLimiter->limit($apiKey, Rate::custom(2, 10));
+        } catch (LimitExceeded $exception) {
+            rest_die('Rate limit exceeded.');
+        }
+    } else {
+        rest_die('Rate limit error.');
+    }
+}
+
 $cached_response = get_cache('grade', $user['username'], $conn);
 
 if ($cached_response !== false) {

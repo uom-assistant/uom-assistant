@@ -23,6 +23,15 @@ define('UOMA_VERSION', '0.1.0');
 // If ture, the frontend wants to connect to this backend instance will receive a messages says the backend is offline temporarily
 define('UOMA_MAINTENANCE', false);
 
+// **Requires Redis and PHP Redis extension.** If ture, the built-in rate limiter will be activated. **Requires Redis and PHP Redis extension.** Not recommended since this needs PHP. A server-level rate limiter like Ngnix is better
+define('UOMA_RATE_LIMIT', false);
+
+// Config Redis connection if needed
+define('UOMA_REDIS', array(
+    'host' => 'localhost',
+    'port' => 6379,
+));
+
 // Set the user agent used in external HTTP requests. More at https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
 define('UOMA_USER_AGENT', 'UOM-ASSISTANT-BACKEND/'.UOMA_VERSION.' Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.0 Safari/537.36');
 
@@ -37,12 +46,23 @@ define('UOMA_DATABASE', array(
 
 // Other configurations
 define('UOMA_CONFIG', array(
-    'allow_account' => false, // If true, users can access to widgets like grade overview, attendance and mail which need an UoM account
-    'allow_sync' => false, // If true, users can sync settings and data between devices through this backend instance using their UoM accounts (which means this backend instance will store UoM account informations)
-    'allow_unauthenticated' => false, // Allow all users to connect to this backend instance even they don't hava a valid token
-    'allow_mail_server' => false, // If true, users can access to mail widget in the frontend, which they can fetch and send mails using their UoM maill addresses
-    'welcome_message' => '', // If non-empty, a message will shown in the frontend when a user connect to this backend instance
-    'access_control_allow_origin' => '*' // Controls which frontend can connect to this backend. Can be a string or an array (auto match). More at https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
+    // If true, users can access to widgets like grade overview, attendance and mail which need an UoM account
+    'allow_account' => false,
+
+    // If true, users can sync settings and data between devices through this backend instance using their UoM accounts (which means this backend instance will store UoM account informations except UoM passwords)
+    'allow_sync' => false,
+
+    // Allow all users to connect to this backend instance even they don't hava a valid token
+    'allow_unauthenticated' => false,
+
+    // If true, users can access to mail widget in the frontend, which they can fetch and send mails using their UoM maill addresses
+    'allow_mail_server' => false,
+
+    // If non-empty, a message will shown in the frontend when a user connect to this backend instance
+    'welcome_message' => '',
+
+    // Controls which frontend can connect to this backend. Can be a string or an array (auto match). More at https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
+    'access_control_allow_origin' => '*'
 ));
 
 ?>

@@ -176,7 +176,7 @@ export default {
             // Broadcast minute and hour change
             this.$store.commit('setTimerMin', this.min);
             if (this.min === '00') {
-                this.$store.commit('setTimerHour', `${this.pad(new Date().getHours())}${new Date().valueOf()}`);
+                this.$store.commit('setTimerHour', `${`${new Date().getHours()}`.padStart(2, '0')}${new Date().valueOf()}`);
             }
         },
         timeZone() {

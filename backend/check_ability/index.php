@@ -1,5 +1,6 @@
 <?php
 include('../common/functions.php');
+include('../common/general_rate_limit.php');
 
 if (UOMA_CONFIG['allow_unauthenticated']) {
     rest_response(array(

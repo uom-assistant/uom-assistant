@@ -8,7 +8,7 @@ if (basename($_SERVER['PHP_SELF']) == basename(__FILE__)) {
     die();
 }
 
-require('../config.php');
+require(dirname(__FILE__).'/../config.php');
 
 /**
  * Get HTTP Referer header value or ''

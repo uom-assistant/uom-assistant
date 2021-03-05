@@ -36,8 +36,8 @@ Backend:
 - [x] Ability check API
 - [x] Attendance API
 - [x] Calendar API
-- [ ] Inbox API
-- [ ] Send mail API
+- [x] Inbox API
+- [x] Send mail API
 - [x] Grade summary API
 - [ ] Sync settings API
 - [ ] Clear data API

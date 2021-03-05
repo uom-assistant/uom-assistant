@@ -8,7 +8,7 @@ if (basename($_SERVER['PHP_SELF']) == basename(__FILE__)) {
     die();
 }
 
-require('read_config.php');
+require(dirname(__FILE__).'/read_config.php');
 
 // set_exception_handler('exception_handler');
 
