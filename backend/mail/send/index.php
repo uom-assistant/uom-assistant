@@ -94,7 +94,7 @@ if (count($to_list) === 0) {
 }
 
 foreach ($to_list as $item) {
-    if (preg_match('/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@(([a-z])+\.)*manchester\.ac\.uk$/', $item['address'])) {
+    if (validate_data('email', $item['address'])) {
         $mail->addAddress($item['address'], isset($item['name']) ? $item['name'] : get_name($item['address']));
     } else if (preg_match('/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/', $item['address'])) {
         $mail->addAddress($item['address'], isset($item['name']) ? $item['name'] : $item['address']);
@@ -104,7 +104,7 @@ foreach ($to_list as $item) {
 }
 
 foreach ($data['cc'] as $item) {
-    if (preg_match('/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@(([a-z])+\.)*manchester\.ac\.uk$/', $item['address'])) {
+    if (validate_data('email', $item['address'])) {
         $mail->addCC($item['address'], get_name($item['address']));
     } else if (preg_match('/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/', $item['address'])) {
         $mail->addCC($item['address'], $item['address']);
