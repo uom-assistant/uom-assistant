@@ -118,8 +118,10 @@ if ($data['reply'] !== '' && preg_match('/^<(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\
     $mail->addCustomHeader('References', $data['reply']);
 }
 
+$purifier = new HTMLPurifier(HTMLPurifier_HTML5Config::createDefault());
+
 $mail->Subject = $data['subject'];
-$mail->msgHTML($data['body']);
+$mail->msgHTML($purifier->purify($data['body']));
 $mail->AltBody = $data['altbody'];
 
 if (!$mail->send()) {
