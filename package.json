@@ -36,7 +36,6 @@
   },
   "devDependencies": {
     "@intlify/vue-i18n-loader": "^1.0.0",
-    "@kazupon/vue-i18n-loader": "^0.5.0",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-plugin-pwa": "~4.5.0",

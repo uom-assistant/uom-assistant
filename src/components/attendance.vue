@@ -421,6 +421,7 @@ export default {
 }
 </style>
 
+<i18n src="../locales/network.json"></i18n>
 <i18n>
 {
     "en": {
@@ -428,15 +429,7 @@ export default {
         "annual": "Annual",
         "last_month": "Last month",
         "nothing": "No absent record",
-        "network_error": "Network Error",
         "network_error_body": "Cannot fetch latest attendance data from backend",
-        "backend_error": "Backend Error",
-        "backend_error_body": "The backend has sent some unparseable data. The same error will not be shown again until next successful connection",
-        "version_error": "Unsupported backend version, please try updating your frontend and contact the administrator. The same error will not be shown again until next successful connection",
-        "request_error": "Request Error",
-        "backend_maintenance": "Backend Maintenance",
-        "backend_maintenance_body": "The backend is being maintenanced. The same warning will not be shown again until next successful connection",
-        "at": "at",
         "cannot_fetch": "Unable to get attendance data, probably you are not properly configured backend information or the backend does not allow this.",
         "learn_more": "Learn more",
         "absent": "Absent"
@@ -446,15 +439,7 @@ export default {
         "annual": "本年度",
         "last_month": "上月",
         "nothing": "没有缺勤记录",
-        "network_error": "网络错误",
         "network_error_body": "无法从后端获取最新出勤信息",
-        "backend_error": "后端错误",
-        "backend_error_body": "后端发送了无法解析的数据。下次连接成功前相同错误将不再显示",
-        "version_error": "不支持的后端版本，请尝试更新前端并联系管理员。下次连接成功前相同错误将不再显示",
-        "request_error": "请求错误",
-        "backend_maintenance": "后端维护",
-        "backend_maintenance_body": "后端正在维护。下次连接成功前相同警告将不再显示",
-        "at": "于",
         "cannot_fetch": "无法获取出勤信息，可能是没有正确配置后端信息或后端不允许。",
         "learn_more": "了解更多",
         "absent": "缺勤"

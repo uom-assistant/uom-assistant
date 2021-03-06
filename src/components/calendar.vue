@@ -960,6 +960,7 @@ export default {
 }
 </style>
 
+<i18n src="../locales/network.json"></i18n>
 <i18n>
 {
     "en": {
@@ -973,18 +974,10 @@ export default {
         "coursework": "Coursework",
         "subject_home": "Subject Home Page",
         "ical_error": "Cannot parse ical file",
-        "at": "at",
-        "network_error": "Network Error",
         "network_error_body": "Cannot fetch latest events from calendar subscription URL",
         "quick_zoom": "Zoom meeting quick start",
         "quick_teams": "Teams meeting quick start",
         "copy_passcode": "Copy passcode",
-        "backend_error": "Backend Error",
-        "backend_error_body": "The backend has sent some unparseable data. The same error will not be shown again until next successful connection",
-        "version_error": "Unsupported backend version, please try updating your frontend and contact the administrator. The same error will not be shown again until next successful connection",
-        "request_error": "Request Error",
-        "backend_maintenance": "Backend Maintenance",
-        "backend_maintenance_body": "The backend is being maintenanced. The same warning will not be shown again until next successful connection",
         "self_study": " (Independent Study)"
     },
     "zh": {
@@ -998,18 +991,10 @@ export default {
         "coursework": "作业",
         "subject_home": "科目主页",
         "ical_error": "无法解析 ical 文件",
-        "at": "于",
-        "network_error": "网络错误",
         "network_error_body": "无法从日历订阅 URL 获取最新事件",
         "quick_zoom": "快速启动 Zoom 会议",
         "quick_teams": "快速启动 Teams 会议",
         "copy_passcode": "复制密码",
-        "backend_error": "后端错误",
-        "backend_error_body": "后端发送了无法解析的数据。下次连接成功前相同错误将不再显示",
-        "version_error": "不支持的后端版本，请尝试更新前端并联系管理员。下次连接成功前相同错误将不再显示",
-        "request_error": "请求错误",
-        "backend_maintenance": "后端维护",
-        "backend_maintenance_body": "后端正在维护。下次连接成功前相同警告将不再显示",
         "self_study": "（自学）"
     }
 }
