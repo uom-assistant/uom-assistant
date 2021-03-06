@@ -375,6 +375,7 @@ import todoSearch from '@/components/search/todo.vue';
 import gradeSearch from '@/components/search/grade.vue';
 import clockSearch from '@/components/search/clock.vue';
 
+import checkBackendVersion from '@/tools/checkBackendVersion';
 import betterFetch from '@/tools/betterFetch';
 import formatDateTime from './tools/formatDateTime';
 
@@ -508,7 +509,7 @@ export default {
                 return;
             }
 
-            if (response.maintenance) {
+            if (response.maintenance || !checkBackendVersion(response.uomabVersion)) {
                 // Backend maintenance
                 this.urlErrorTemp = true;
                 this.urlError = true;

@@ -277,6 +277,7 @@ import { vsprintf } from 'sprintf-js';
 
 import chart from './chart.vue';
 
+import checkBackendVersion from '../tools/checkBackendVersion';
 import betterFetch from '../tools/betterFetch';
 import formatDate from '../tools/formatDate';
 
@@ -347,7 +348,7 @@ export default {
                 return;
             }
 
-            if (!(Object.prototype.toString.call(response) === '[object Object]') || !response.uomabVersion || !response.success) {
+            if (!(Object.prototype.toString.call(response) === '[object Object]') || !response.uomabVersion) {
                 // Not a valid UoM Assistant backend
                 if (this.backendStatus) {
                     this.$store.commit('addError', {
@@ -357,6 +358,28 @@ export default {
                     });
                     this.$store.commit('setBackendStatus', false);
                 }
+                this.loading = false;
+                return;
+            }
+
+            if (!checkBackendVersion(response.uomabVersion)) {
+                // Version error
+                this.$store.commit('addError', {
+                    title: this.$t('backend_error'),
+                    content: this.$t('version_error'),
+                    type: 'error',
+                });
+                this.loading = false;
+                return;
+            }
+
+            if (!response.success) {
+                // Request error
+                this.$store.commit('addError', {
+                    title: this.$t('request_error'),
+                    content: response.reason,
+                    type: 'error',
+                });
                 this.loading = false;
                 return;
             }
@@ -1004,6 +1027,8 @@ export default {
         "network_error_body": "Cannot fetch latest grade data from backend",
         "backend_error": "Backend Error",
         "backend_error_body": "The backend has sent some unparseable data. The same error will not be shown again until next successful connection",
+        "version_error": "Unsupported backend version, please try updating your frontend and contact the administrator. The same error will not be shown again until next successful connection",
+        "request_error": "Request Error",
         "backend_maintenance": "Backend Maintenance",
         "backend_maintenance_body": "The backend is being maintenanced. The same warning will not be shown again until next successful connection",
         "at": "at",
@@ -1021,6 +1046,8 @@ export default {
         "network_error_body": "无法从后端获取最新成绩信息",
         "backend_error": "后端错误",
         "backend_error_body": "后端发送了无法解析的数据。下次连接成功前相同错误将不再显示",
+        "version_error": "不支持的后端版本，请尝试更新前端并联系管理员。下次连接成功前相同错误将不再显示",
+        "request_error": "请求错误",
         "backend_maintenance": "后端维护",
         "backend_maintenance_body": "后端正在维护。下次连接成功前相同警告将不再显示",
         "at": "于",

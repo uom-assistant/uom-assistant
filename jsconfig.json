@@ -1,5 +1,8 @@
 {
     "include": [
         "./src/**/*"
-    ]
+    ],
+    "compilerOptions":{
+        "resolveJsonModule": true
+    }
 }
