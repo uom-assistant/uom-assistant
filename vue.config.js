@@ -20,6 +20,16 @@ module.exports = {
         workboxOptions: {
             skipWaiting: true,
             clientsClaim: true,
+            runtimeCaching: [
+                {
+                    urlPattern: new RegExp('https://fonts.googleapis.com/'),
+                    handler: 'StaleWhileRevalidate',
+                },
+                {
+                    urlPattern: new RegExp('https://cdn.jsdelivr.net/npm/@mdi/font@latest/'),
+                    handler: 'StaleWhileRevalidate',
+                },
+            ],
         },
     },
 
