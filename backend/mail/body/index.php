@@ -43,7 +43,7 @@ if (UOMA_RATE_LIMIT) {
         $apiKey = 'get-mail-body-'.$user['email'];
     
         try {
-            $rateLimiter->limit($apiKey, Rate::custom(2, 10));
+            $rateLimiter->limit($apiKey, Rate::custom(2, 5));
         } catch (LimitExceeded $exception) {
             rest_die('Rate limit exceeded.');
         }

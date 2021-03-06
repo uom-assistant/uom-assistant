@@ -216,6 +216,7 @@
 <script>
 import { mapState } from 'vuex';
 import ICAL from 'ical.js';
+import localForage from 'localforage';
 import Vue from 'vue';
 import VueClipboard from 'vue-clipboard2';
 
@@ -521,6 +522,7 @@ export default {
             }
             // Concat with cousework events
             this.events = this.classEvents.concat(this.courseworkEvents);
+            await localForage.setItem('calendar', this.events);
 
             // Refresh calendar
             this.loading = false;
@@ -767,8 +769,14 @@ export default {
             return this.locale === 'zh' ? 'cn' : 'en';
         },
     },
-    mounted() {
+    async mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
+
+        // Restore notes from localstorage
+        const storaged = await localForage.getItem('calendar');
+        if (storaged !== null) {
+            this.events = storaged;
+        }
 
         // Fetch events from backend
         this.$nextTick(() => {
