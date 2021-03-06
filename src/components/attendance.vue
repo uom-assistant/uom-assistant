@@ -292,6 +292,16 @@ export default {
                 this.packery.shiftLayout();
             });
         },
+        loadingQueue() {
+            // Fetch attendance data after grade
+            if (this.loadingQueue.substr(0, 10) === 'attendance') {
+                if (!this.init) {
+                    setTimeout(() => {
+                        this.updateAttendance();
+                    }, 1000);
+                }
+            }
+        },
     },
     computed: {
         ...mapState({
@@ -301,15 +311,15 @@ export default {
             account: (state) => state.account,
             packery: (state) => state.packery,
             subjects: (state) => state.subjects,
+            loadingQueue: (state) => state.loadingQueue,
         }),
     },
     mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
 
-        // Fetch attendance data
-        this.$nextTick(() => {
-            this.updateAttendance();
-        });
+        if (!this.init) {
+            this.loading = true;
+        }
 
         // Update attendance data every 5 hours
         this.timer = setInterval(() => {

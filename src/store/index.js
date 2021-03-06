@@ -24,6 +24,7 @@ export default new Vuex.Store({
             payload: null,
         },
         searchIndexChecker: 0,
+        loadingQueue: '',
     },
     mutations: {
         setLocale(state, language) {
@@ -79,6 +80,9 @@ export default new Vuex.Store({
                 target: data.target,
                 payload: data.payload,
             };
+        },
+        setLoadingQueue(state, name) {
+            state.loadingQueue = name;
         },
     },
     actions: {

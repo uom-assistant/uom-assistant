@@ -412,6 +412,10 @@ export default {
                 return;
             }
 
+            if (!this.init) {
+                this.$store.commit('setLoadingQueue', `attendance-${new Date().valueOf()}`);
+            }
+
             // Update data
             this.$store.commit('setBackendStatus', true);
             this.init = true;
