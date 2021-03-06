@@ -321,6 +321,9 @@ export default {
          */
         async updateGrade() {
             if (!this.backend.url || !this.account.username || !this.account.password) {
+                if (!this.init) {
+                    this.$store.commit('setLoadingQueue', `attendance-${new Date().valueOf()}`);
+                }
                 return;
             }
             this.loading = true;
@@ -412,16 +415,14 @@ export default {
                 return;
             }
 
-            if (!this.init) {
-                this.$store.commit('setLoadingQueue', `attendance-${new Date().valueOf()}`);
-            }
-
             // Update data
             this.$store.commit('setBackendStatus', true);
-            this.init = true;
             this.loading = false;
             this.gradeList = response.data;
             this.relocate();
+            this.$nextTick(() => {
+                this.init = true;
+            });
         },
         /**
          * Map from subject ID to subject color
@@ -657,6 +658,11 @@ export default {
             // Handle search actions
             if (this.searchNotification.target === 'grade') {
                 this.openDetailFromSearch(this.searchNotification.payload.index, this.searchNotification.payload.subject);
+            }
+        },
+        loading() {
+            if (!this.loading && !this.init) {
+                this.$store.commit('setLoadingQueue', `attendance-${new Date().valueOf()}`);
             }
         },
     },
