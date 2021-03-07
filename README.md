@@ -67,15 +67,42 @@ This project was originally a personal project, born during the pandemic with al
 
 Download latest `frontend.zip` from [Releases](https://github.com/yrccondor/uom-assistant/releases), and decompress the files to the root directory of your site. Note that UoM Assistant must be deployed to the root directory of a site.
 
+To make router working properly, you need to update the config of your server. If you are using Nginx, you can add these lines to your config file:
+
+```nginx
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+
+or maybe you are using Apache:
+
+```apache
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+```
+
 ### Backend
 
 Download latest `backend.zip` from [Releases](https://github.com/yrccondor/uom-assistant/releases), and decompress the files to the right place of your site. Edit `config.php`, and your backend is on. Note that to enable mail related features you need to install following PHP extentions: `fileinfo`, `imap` and `mbstring`.
 
+### Deploy with Docker
+
+If you are using docker, `docker-compose.yml` has already offered you a good start. Check out the file and modify it as you want.
+
 ## Build and deploy from source
+
+Make sure you have `npm` and `composer` installed.
 
 ### Frontend
 
-```
+```shell
 $ npm install
 $ npm run build
 ```
@@ -84,13 +111,13 @@ $ npm run build
 
 ### Backend
 
-```
+```shell
 $ cd backend
 ```
 
 ...edit `config.php`, then
 
-```
+```shell
 $ composer install --no-dev --optimize-autoloader
 $ cd ../
 ```

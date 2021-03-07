@@ -3,7 +3,4 @@ ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/do
 RUN chmod +x /usr/local/bin/install-php-extensions && sync && \
     install-php-extensions redis gmp opcache imap
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-RUN rm -rf /var/www
-COPY backend /var/www
-WORKDIR /var/www
 ENTRYPOINT [ "php-fpm" ]
