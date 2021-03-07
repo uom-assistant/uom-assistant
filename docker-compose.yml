@@ -1,0 +1,38 @@
+version: '3'
+services:
+  ngnix:
+    image: nginx:stable-alpine
+    restart: always
+    volumes:
+      - ./dist:/usr/share/nginx/html
+      - ./backend:/usr/share/nginx/html/backend
+      - ./configs:/etc/nginx
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - app
+  php:
+    build: .
+    restart: always
+    networks:
+      - app
+  redis:
+    image: redis:6-alpine
+    restart: always
+    networks:
+      - app
+  mysql:
+    image: mysql:5
+    restart: always
+    volumes:
+      - /data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_DATABASE=
+      - MYSQL_USER=
+      - MYSQL_PASSWORD=
+    networks:
+      - app
+  networks:
+    app:
