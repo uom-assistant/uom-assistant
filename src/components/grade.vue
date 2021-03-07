@@ -321,15 +321,13 @@ export default {
          */
         async updateGrade() {
             if (!this.backend.url || !this.account.username || !this.account.password) {
-                if (!this.init) {
-                    this.$store.commit('setLoadingQueue', `attendance-${new Date().valueOf()}`);
-                }
+                this.$store.commit('setAttendance', false);
                 return;
             }
             this.loading = true;
             let requestFailed = false;
             // Send request
-            const response = await betterFetch(`https://${this.backend.url}/grade/`, {
+            const response = await betterFetch(`https://${this.backend.url}/grade_attendance/`, {
                 method: 'POST',
                 body: JSON.stringify({
                     username: this.account.username,
@@ -339,6 +337,7 @@ export default {
             }).catch(() => {
                 // Network error
                 this.loading = false;
+                this.$store.commit('setAttendance', false);
                 this.$store.commit('addError', {
                     title: this.$t('network_error'),
                     content: this.$t('network_error_body'),
@@ -362,6 +361,7 @@ export default {
                     this.$store.commit('setBackendStatus', false);
                 }
                 this.loading = false;
+                this.$store.commit('setAttendance', false);
                 return;
             }
 
@@ -373,6 +373,7 @@ export default {
                     type: 'error',
                 });
                 this.loading = false;
+                this.$store.commit('setAttendance', false);
                 return;
             }
 
@@ -384,6 +385,7 @@ export default {
                     type: 'error',
                 });
                 this.loading = false;
+                this.$store.commit('setAttendance', false);
                 return;
             }
 
@@ -398,6 +400,7 @@ export default {
                     this.$store.commit('setBackendStatus', false);
                 }
                 this.loading = false;
+                this.$store.commit('setAttendance', false);
                 return;
             }
 
@@ -412,17 +415,44 @@ export default {
                     this.$store.commit('setBackendStatus', false);
                 }
                 this.loading = false;
+                this.$store.commit('setAttendance', false);
+                return;
+            }
+
+            if (!response.data.grade) {
+                // Not a valid UoM Assistant backend
+                if (this.backendStatus) {
+                    this.$store.commit('addError', {
+                        title: this.$t('backend_error'),
+                        content: this.$t('backend_error_body'),
+                        type: 'error',
+                    });
+                    this.$store.commit('setBackendStatus', false);
+                }
+                this.loading = false;
+                this.$store.commit('setAttendance', false);
+                return;
+            }
+
+            if (!response.data.attendance) {
+                // Cannnot login
+                this.$store.commit('addError', {
+                    title: this.$t('request_error'),
+                    content: 'Unable to login',
+                    type: 'error',
+                });
+                this.loading = false;
+                this.$store.commit('setAttendance', false);
                 return;
             }
 
             // Update data
             this.$store.commit('setBackendStatus', true);
             this.loading = false;
-            this.gradeList = response.data;
+            this.init = true;
+            this.gradeList = response.data.grade;
+            this.$store.commit('setAttendance', response.data.attendance);
             this.relocate();
-            this.$nextTick(() => {
-                this.init = true;
-            });
         },
         /**
          * Map from subject ID to subject color
@@ -658,11 +688,6 @@ export default {
             // Handle search actions
             if (this.searchNotification.target === 'grade') {
                 this.openDetailFromSearch(this.searchNotification.payload.index, this.searchNotification.payload.subject);
-            }
-        },
-        loading() {
-            if (!this.loading && !this.init) {
-                this.$store.commit('setLoadingQueue', `attendance-${new Date().valueOf()}`);
             }
         },
     },
@@ -1034,8 +1059,8 @@ export default {
 {
     "en": {
         "grade": "Grade Summary",
-        "network_error_body": "Cannot fetch latest grade data from backend",
-        "cannot_fetch": "Unable to get grade data, probably you are not properly configured backend information or the backend does not allow this.",
+        "network_error_body": "Cannot fetch latest grade and attendance data from backend",
+        "cannot_fetch": "Unable to get grade and attendance data, probably you are not properly configured backend information or the backend does not allow this.",
         "learn_more": "Learn more",
         "empty_subject": "Subjects with empty grade data",
         "more_info": "More",
@@ -1045,8 +1070,8 @@ export default {
     },
     "zh": {
         "grade": "成绩概览",
-        "network_error_body": "无法从后端获取最新成绩信息",
-        "cannot_fetch": "无法获取成绩信息，可能是没有正确配置后端信息或后端不允许。",
+        "network_error_body": "无法从后端获取最新成绩和出勤信息",
+        "cannot_fetch": "无法获取成绩和出勤信息，可能是没有正确配置后端信息或后端不允许。",
         "learn_more": "了解更多",
         "empty_subject": "暂无成绩信息的课程",
         "more_info": "更多",

@@ -24,7 +24,8 @@ export default new Vuex.Store({
             payload: null,
         },
         searchIndexChecker: 0,
-        loadingQueue: '',
+        attendance: false,
+        attendanceUpdated: 0,
     },
     mutations: {
         setLocale(state, language) {
@@ -81,8 +82,9 @@ export default new Vuex.Store({
                 payload: data.payload,
             };
         },
-        setLoadingQueue(state, name) {
-            state.loadingQueue = name;
+        setAttendance(state, data) {
+            state.attendance = data;
+            state.attendanceUpdated = new Date().valueOf();
         },
     },
     actions: {

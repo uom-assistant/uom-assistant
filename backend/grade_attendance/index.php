@@ -40,7 +40,7 @@ if (UOMA_RATE_LIMIT) {
     if ($redis->connect(UOMA_REDIS['host'], UOMA_REDIS['port'])) {
         $rateLimiter = new RedisRateLimiter($redis);
 
-        $apiKey = 'get-grade-'.$user['username'];
+        $apiKey = 'get-grade-attendance-'.$user['username'];
     
         try {
             $rateLimiter->limit($apiKey, Rate::custom(2, 10));
@@ -170,8 +170,42 @@ if ($cached_response !== false) {
         );
     });
 
+    $crawler = $client->request(
+        'GET',
+        'https://studentnet.cs.manchester.ac.uk/ugt/attendance/'
+    );
+
+    if (strpos($crawler->html(), 'additionalattendancetableid') === false) {
+        rest_response(array(
+            'grade' => $grade_list,
+            'attendance' => false,
+        ));
+    }
+
+    // Check absent
+    $absent_list = array_values(array_filter($crawler->filter('#additionalattendancetableid > tbody > tr')->each(function(\Symfony\Component\DomCrawler\Crawler $node, $i) {
+        if ($node->filter('td')->eq(3)->text() !== 'Present') {
+            return array(
+                'name' => $node->filter('td')->eq(2)->text(),
+                'subject' => $node->filter('td')->eq(1)->text(),
+                'date' => $node->filter('td')->eq(0)->text()
+            );
+        }
+        return false;
+    })));
+
     // Response
-    rest_response($grade_list);
+    $response = array(
+        'lastMonth' => substr(explode('h: ', $crawler->filter('.mainContentContainer .curved .indentdiv > div')->first()->filter('div > div')->eq(2)->filter('ul')->eq(1)->filter('li')->eq(1)->text())[1], 0, -1),
+        'annual' => substr(explode('l: ', $crawler->filter('.mainContentContainer .curved .indentdiv > div')->first()->filter('div > div')->eq(2)->filter('ul')->eq(1)->filter('li')->first()->text())[1], 0, -1),
+        'absentRecord' => $absent_list,
+    );
+
+    // Response
+    rest_response(array(
+        'grade' => $grade_list,
+        'attendance' => $response,
+    ));
 
     // Set cache
     set_cache('grade', $user['username'], $grade_list, '+3 hours', $conn);

@@ -79,8 +79,6 @@
 
 <script>
 import { mapState } from 'vuex';
-import checkBackendVersion from '../tools/checkBackendVersion';
-import betterFetch from '../tools/betterFetch';
 import formatDate from '../tools/formatDate';
 
 export default {
@@ -99,140 +97,6 @@ export default {
         };
     },
     methods: {
-        /**
-         * Update attendance data from backend
-         */
-        async updateAttendance() {
-            if (!this.backend.url || !this.account.username || !this.account.password) {
-                return;
-            }
-            this.loading = true;
-            let requestFailed = false;
-            // Send request
-            const response = await betterFetch(`https://${this.backend.url}/attendance/`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    username: this.account.username,
-                    password: this.account.password,
-                    token: this.backend.token ? this.backend.token : '',
-                }),
-            }).catch(() => {
-                // Network error
-                this.loading = false;
-                this.$store.commit('addError', {
-                    title: this.$t('network_error'),
-                    content: this.$t('network_error_body'),
-                    type: 'warning',
-                });
-                requestFailed = true;
-            });
-
-            if (requestFailed) {
-                return;
-            }
-
-            if (!(Object.prototype.toString.call(response) === '[object Object]') || !response.uomabVersion) {
-                // Not a valid UoM Assistant backend
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('backend_error'),
-                        content: this.$t('backend_error_body'),
-                        type: 'error',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
-                this.loading = false;
-                return;
-            }
-
-            if (!checkBackendVersion(response.uomabVersion)) {
-                // Version error
-                this.$store.commit('addError', {
-                    title: this.$t('backend_error'),
-                    content: this.$t('version_error'),
-                    type: 'error',
-                });
-                this.loading = false;
-                return;
-            }
-
-            if (!response.success) {
-                // Request error
-                this.$store.commit('addError', {
-                    title: this.$t('request_error'),
-                    content: response.reason,
-                    type: 'error',
-                });
-                this.loading = false;
-                return;
-            }
-
-            if (response.maintenance) {
-                // Backend maintenance
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('backend_maintenance'),
-                        content: this.$t('backend_maintenance_body'),
-                        type: 'warning',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
-                this.loading = false;
-                return;
-            }
-
-            if (response.data.tokenRequired) {
-                // Wrong Token
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('token_error'),
-                        content: this.$t('token_error_body'),
-                        type: 'error',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
-                this.loading = false;
-                return;
-            }
-
-            if (!response.data.lastMonth || !response.data.annual || !response.data.absentRecord) {
-                // Wrong data
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('backend_error'),
-                        content: this.$t('backend_error_body'),
-                        type: 'error',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
-                this.loading = false;
-                return;
-            }
-
-            // Update data
-            this.$store.commit('setBackendStatus', true);
-            this.lastMonth = response.data.lastMonth;
-            this.annual = response.data.annual;
-            this.absentRecord = response.data.absentRecord;
-            this.init = true;
-            this.loading = false;
-
-            // Update status
-            if (this.lastMonth === '-1') {
-                this.statusLastMonth = 'unknown';
-            } else if (parseInt(this.lastMonth, 10) > 95) {
-                this.statusLastMonth = 'ok';
-            } else {
-                this.statusLastMonth = 'warning';
-            }
-            if (this.annual === '-1') {
-                this.statusAnnual = 'unknown';
-            } else if (parseInt(this.annual, 10) > 95) {
-                this.statusAnnual = 'ok';
-            } else {
-                this.statusAnnual = 'warning';
-            }
-        },
         /**
          * Map from subject ID to subject color
          * @param {string} subject subject ID
@@ -292,15 +156,31 @@ export default {
                 this.packery.shiftLayout();
             });
         },
-        loadingQueue() {
-            // Fetch attendance data after grade
-            if (this.loadingQueue.substr(0, 10) === 'attendance') {
-                if (!this.init) {
-                    setTimeout(() => {
-                        this.updateAttendance();
-                    }, 1000);
+        attendanceUpdated() {
+            // Update attendance
+            if (this.attendance) {
+                this.lastMonth = this.attendance.lastMonth;
+                this.annual = this.attendance.annual;
+                this.absentRecord = this.attendance.absentRecord;
+
+                // Update status
+                if (this.lastMonth === '-1') {
+                    this.statusLastMonth = 'unknown';
+                } else if (parseInt(this.lastMonth, 10) > 95) {
+                    this.statusLastMonth = 'ok';
+                } else {
+                    this.statusLastMonth = 'warning';
+                }
+                if (this.annual === '-1') {
+                    this.statusAnnual = 'unknown';
+                } else if (parseInt(this.annual, 10) > 95) {
+                    this.statusAnnual = 'ok';
+                } else {
+                    this.statusAnnual = 'warning';
                 }
             }
+            this.init = true;
+            this.loading = false;
         },
     },
     computed: {
@@ -311,7 +191,8 @@ export default {
             account: (state) => state.account,
             packery: (state) => state.packery,
             subjects: (state) => state.subjects,
-            loadingQueue: (state) => state.loadingQueue,
+            attendance: (state) => state.attendance,
+            attendanceUpdated: (state) => state.attendanceUpdated,
         }),
     },
     mounted() {
@@ -320,11 +201,6 @@ export default {
         if (!this.init) {
             this.loading = true;
         }
-
-        // Update attendance data every 5 hours
-        this.timer = setInterval(() => {
-            this.updateAttendance();
-        }, 18000000);
     },
     beforeDestroy() {
         clearInterval(this.timer);
@@ -439,7 +315,6 @@ export default {
         "annual": "Annual",
         "last_month": "Last month",
         "nothing": "No absent record",
-        "network_error_body": "Cannot fetch latest attendance data from backend",
         "cannot_fetch": "Unable to get attendance data, probably you are not properly configured backend information or the backend does not allow this.",
         "learn_more": "Learn more",
         "absent": "Absent"
@@ -449,7 +324,6 @@ export default {
         "annual": "本年度",
         "last_month": "上月",
         "nothing": "没有缺勤记录",
-        "network_error_body": "无法从后端获取最新出勤信息",
         "cannot_fetch": "无法获取出勤信息，可能是没有正确配置后端信息或后端不允许。",
         "learn_more": "了解更多",
         "absent": "缺勤"
