@@ -294,6 +294,7 @@ export default {
                 display: inline-block;
                 border-radius: 50%;
                 margin: 0;
+                margin-right: 2px;
             }
         }
         .v-list-item__content {

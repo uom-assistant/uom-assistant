@@ -36,7 +36,7 @@
                             :key="`${index}${item.name}${item.id}`"
                             :class="{ hide: item.hide }"
                         >
-                            <td><span :class="item.color" class="subject-color-samll mr-2"></span>{{ item.name }}<br><span class="subject-id">{{ item.id }}</span></td>
+                            <td>{{ item.name }}<br><span :class="item.color" class="subject-color-samll mr-2"></span><span class="subject-id">{{ item.id }}</span></td>
                             <td class="edit-icons">
                                 <v-btn icon @click.stop="updateSubject(item)">
                                     <v-icon>mdi-pencil-outline</v-icon>
@@ -51,7 +51,7 @@
                             :key="`${index}${item.name}${item.id}`"
                             :class="{ hide: item.hide }"
                         >
-                            <td><span :class="item.color" class="subject-color-samll mr-2 subject-color-hidden"></span>{{ item.name }}<br><span class="subject-id">{{ item.id }}</span></td>
+                            <td>{{ item.name }}<br><span class="subject-id"><span :class="item.color" class="subject-color-samll mr-2 subject-color-hidden"></span>{{ item.id }}</span></td>
                             <td class="edit-icons">
                                 <v-btn icon @click.stop="updateSubject(item)">
                                     <v-icon>mdi-pencil-outline</v-icon>
@@ -547,7 +547,7 @@ export default {
         }
     }
     .subject-id {
-        opacity: .4;
+        opacity: .5;
     }
     .subject-table {
         .v-data-table__wrapper {
