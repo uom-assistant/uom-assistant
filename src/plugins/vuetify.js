@@ -11,6 +11,7 @@ export default new Vuetify({
                 secondary: '#E1BEE7',
                 accent: '#D500F9',
                 uomtheme: '#660099',
+                uomthemelight: '#D099E0',
                 colordark: '#DDDDDD',
             },
             dark: {
@@ -18,6 +19,7 @@ export default new Vuetify({
                 secondary: '#E1BEE7',
                 accent: '#D500F9',
                 uomtheme: '#660099',
+                uomthemelight: '#D099E0',
                 colordark: '#555555',
             },
         },

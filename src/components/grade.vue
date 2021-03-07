@@ -736,10 +736,15 @@ export default {
     mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
 
-        // Fetch grade data
-        this.$nextTick(() => {
-            this.updateGrade();
-        });
+        // Check if updating
+        if ((localStorage.getItem('update_frontend') || 'false') !== 'true') {
+            // Fetch grade data
+            this.$nextTick(() => {
+                this.updateGrade();
+            });
+        } else {
+            this.loading = true;
+        }
 
         // Update grade data every 3 hours
         this.timer = setInterval(() => {

@@ -342,7 +342,24 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <div id="alert-space" v-show="displayErrors.length > 0">
+        <v-dialog
+            v-model="updating"
+            max-width="400"
+            persistent
+        >
+            <v-card>
+                <v-card-title class="headline text-center d-block">
+                    {{ $t('updating') }}
+                </v-card-title>
+                <v-card-text>
+                    <v-progress-linear
+                        indeterminate
+                        color="primary"
+                    ></v-progress-linear>
+                </v-card-text>
+            </v-card>
+        </v-dialog>
+        <div id="alert-space" v-show="displayErrors.length > 0" :style="{ bottom: updateReady ? '135px' : '5px' }">
             <v-alert
                 v-for="(item, index) in displayErrors"
                 :key="item.id"
@@ -361,11 +378,41 @@
                 <strong>{{ item.title }}</strong><br><span class="text-body-2">{{ item.content }}</span>
             </v-alert>
         </div>
+        <v-snackbar
+            v-model="updateReady"
+            vertical
+            timeout="-1"
+            right
+        >
+            <div>
+                <strong class="mb-2 d-block update-title">{{ $t('title') }} {{ updateReadyVersion }}</strong>
+                {{ $t('front_end_update_ready') }}
+            </div>
+            <template v-slot:action="{ attrs }">
+                <v-btn
+                    color="grey lighten-1"
+                    text
+                    v-bind="attrs"
+                    @click="updateReady = false"
+                >
+                    {{ $t('front_end_ignore') }}
+                </v-btn>
+                <v-btn
+                    color="uomthemelight"
+                    text
+                    v-bind="attrs"
+                    @click="updateFrontend"
+                >
+                    {{ $t('front_end_update') }}
+                </v-btn>
+            </template>
+        </v-snackbar>
     </v-app>
 </template>
 
 <script>
 import { mapState } from 'vuex';
+import semVerCmp from 'semver-compare';
 import * as JsSearch from 'js-search';
 
 import settings from '@/components/settings.vue';
@@ -378,6 +425,7 @@ import clockSearch from '@/components/search/clock.vue';
 import checkBackendVersion from '@/tools/checkBackendVersion';
 import betterFetch from '@/tools/betterFetch';
 import formatDateTime from './tools/formatDateTime';
+import * as version from '../public/version.json';
 
 export default {
     name: 'App',
@@ -440,6 +488,10 @@ export default {
         searching: '',
         searchIndexFiltered: [null, null, null, null, null, null, null, null, null, null, null],
         searchers: [null, null, null, null, null, null, null, null, null, null, null],
+        timer: null,
+        updateReady: false,
+        updateReadyVersion: '',
+        updating: false,
     }),
     methods: {
         /**
@@ -621,6 +673,33 @@ export default {
             }
             this.searchIndexFiltered = result;
         },
+        /**
+         * Check if there is a new version of the frontend
+         */
+        async checkFrontEndUpdate() {
+            let requestFailed = false;
+            // Send request
+            const response = await betterFetch('/version.json').catch(() => {
+                // Network error
+                requestFailed = true;
+            });
+
+            if (requestFailed) {
+                return;
+            }
+
+            if (semVerCmp(version.version, response.version) < 0) {
+                this.updateReady = true;
+                this.updateReadyVersion = response.version;
+            }
+        },
+        /**
+         * Update frontend
+         */
+        updateFrontend() {
+            localStorage.setItem('update_frontend', 'true');
+            window.location.reload(true);
+        },
     },
     computed: {
         ...mapState({
@@ -694,6 +773,20 @@ export default {
         this.$i18n.locale = this.locale;
         localStorage.setItem('language', this.$i18n.locale);
 
+        // Check if updating
+        const updating = localStorage.getItem('update_frontend') || 'false';
+        if (updating === 'true') {
+            localStorage.setItem('update_frontend', 'remove');
+            this.updating = true;
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 10000);
+            });
+        } else if (updating === 'remove') {
+            localStorage.removeItem('update_frontend');
+        }
+
         // Initialize widget status
         try {
             this.ifWidgets = JSON.parse(localStorage.getItem('if_widgets')) || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -725,6 +818,17 @@ export default {
         this.$store.commit('setAccount', this.account);
 
         this.rebuildSearchIndex();
+
+        if (updating !== 'true') {
+            // Check update for front-end every 2 hours
+            this.checkFrontEndUpdate();
+            this.timer = setInterval(() => {
+                this.checkFrontEndUpdate();
+            }, 7200000);
+        }
+    },
+    beforeDestroy() {
+        clearInterval(this.timer);
     },
     errorCaptured(err) {
         // Handle uncaught errors
@@ -753,7 +857,6 @@ html::-webkit-scrollbar {
     #alert-space {
         width: calc(100% - 50px);
         right: 25px;
-        bottom: 5px;
         max-width: 350px;
         position: fixed;
         z-index: 9999;
@@ -940,6 +1043,9 @@ html::-webkit-scrollbar {
         pointer-events: auto;
     }
 }
+.update-title {
+    font-size: 1rem;
+}
 @media (max-width: 960px) {
     .global-search-input {
         top: 4px;
@@ -1029,6 +1135,10 @@ html::-webkit-scrollbar {
         "title": "UoM Assistant",
         "dark_mode": "Switch to dark mode",
         "light_mode": "Switch to light mode",
+        "front_end_update_ready": "New version of the frontend is available",
+        "front_end_update": "Update",
+        "front_end_ignore": "Ignore",
+        "updating": "Updating...",
         "dashboard": "Dashboard",
         "settings": "Settings",
         "about": "About",
@@ -1070,6 +1180,10 @@ html::-webkit-scrollbar {
         "title": "曼大助手",
         "dark_mode": "切换到暗色模式",
         "light_mode": "切换到亮色模式",
+        "front_end_update_ready": "新版本的前端已经可用",
+        "front_end_update": "更新",
+        "front_end_ignore": "忽略",
+        "updating": "正在更新…",
         "dashboard": "仪表板",
         "settings": "设置",
         "about": "关于",

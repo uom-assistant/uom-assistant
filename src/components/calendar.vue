@@ -550,7 +550,9 @@ export default {
             // Refresh calendar
             this.loading = false;
             this.updateTime();
-            this.$refs.calendar.checkChange();
+            if (this.$refs.calendar) {
+                this.$refs.calendar.checkChange();
+            }
             this.refreshId = `${new Date().valueOf()}`;
 
             // Broadcast latest events
@@ -801,10 +803,13 @@ export default {
             this.events = storaged;
         }
 
-        // Fetch events from backend
-        this.$nextTick(() => {
-            this.checkUpdate();
-        });
+        // Check if updating
+        if ((localStorage.getItem('update_frontend') || 'false') !== 'true') {
+            // Fetch events from backend
+            this.$nextTick(() => {
+                this.checkUpdate();
+            });
+        }
 
         // Update events every 6 hours
         this.updateTimer = setInterval(() => {
