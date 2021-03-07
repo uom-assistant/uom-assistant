@@ -133,11 +133,11 @@
                     {{ $t('cancel') }}
                 </v-btn>
                 <v-btn
-                    color="primary"
+                    color="red"
                     text
                     @click="removeSelected"
                 >
-                    {{ $t('confirm') }}
+                    {{ $t('delete') }}
                 </v-btn>
                 </v-card-actions>
             </v-card>
@@ -164,11 +164,11 @@
                     {{ $t('cancel') }}
                 </v-btn>
                 <v-btn
-                    color="primary"
+                    color="red"
                     text
                     @click="removeConfirmed"
                 >
-                    {{ $t('confirm') }}
+                    {{ $t('delete') }}
                 </v-btn>
                 </v-card-actions>
             </v-card>

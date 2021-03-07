@@ -192,7 +192,7 @@
         <v-dialog
             v-model="deleteDialog"
             persistent
-            max-width="315"
+            max-width="400"
             v-if="editingIndex !== -1"
         >
             <v-card>
