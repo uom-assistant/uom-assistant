@@ -44,7 +44,7 @@
                         <v-progress-circular
                             :rotate="-90"
                             :size="17"
-                            :width="2"
+                            :width="2.3"
                             :value="(parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100"
                             :color="getColorByGrade((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100)"
                             :title="`${parseFloat(((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100).toFixed(2))}%`"
@@ -91,7 +91,7 @@
                         <v-progress-circular
                             :rotate="-90"
                             :size="17"
-                            :width="2"
+                            :width="2.3"
                             :value="(parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100"
                             :color="getColorByGrade((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100)"
                             :title="`${parseFloat(((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100).toFixed(2))}%`"

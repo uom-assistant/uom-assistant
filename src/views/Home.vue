@@ -23,7 +23,7 @@
                         {{ nowDate }}
                     </v-list-item-title>
                     <v-list-item-subtitle class="mb-2">
-                        {{ formatString($t(classNum === 0 ? 'class_overview_none' : (classNum > 1 ? 'class_overview_plural' : 'class_overview')) + $t(classNum > 0 ? 'class_remian' : 'class_remian_none'), classNum > 0 ? [classNum, classRemain] : []) }}
+                        {{ formatString($t(classNum === 0 ? 'class_overview_none' : (classNum > 1 ? 'class_overview_plural' : 'class_overview')) + $t(classNum > 0 ? 'class_remian' : 'class_remian_none'), classNum > 0 ? [classNum, classRemain] : []) }}<span v-show="tomorrowFirst !== '' && (classNum === 0 || classRemain === 0)">{{ formatString($t('tomorrow_first'), [tomorrowFirst]) }}</span>
                     </v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>
@@ -126,6 +126,7 @@ export default {
             nextEvent: null,
             currentName: '',
             timezoneChanged: false,
+            tomorrowFirst: '',
         };
     },
     watch: {
@@ -205,6 +206,12 @@ export default {
                 if (this.nextDayFirstEvent !== null && this.nextDayFirstEvent.start.valueOf() - now <= 86400000) {
                     nextEvent = this.nextDayFirstEvent;
                 }
+            }
+
+            if (this.nextDayFirstEvent !== null) {
+                this.tomorrowFirst = `${`${this.nextDayFirstEvent.start.getHours()}`.padStart(2, '0')}:${`${this.nextDayFirstEvent.start.getMinutes()}`.padStart(2, '0')}`;
+            } else {
+                this.tomorrowFirst = '';
             }
 
             this.classRemain = remain;
@@ -378,12 +385,12 @@ export default {
         float: right;
     }
 }
+
 #sizer {
     height: 0;
     pointer-events: none;
     margin-bottom: -15px;
 }
-
 .size1x {
     min-width: 350px;
     @media (min-width: 400px) {
@@ -447,21 +454,22 @@ export default {
 {
     "en": {
         "overview": "OVERVIEW",
-        "class_overview": "You have %d class today",
-        "class_overview_none": "You have no class today",
-        "class_overview_plural": "You have %d classes today",
+        "class_overview": "You have %d session today",
+        "class_overview_none": "You have no session today, ",
+        "class_overview_plural": "You have %d sessions today",
         "class_remian": ", %d remaining.",
         "class_remian_none": ".",
+        "tomorrow_first": " Tomorrow's first session will start at %s.",
         "next": "Coming up",
         "no_next": "No class in a day",
         "min_after_plural": "In %d mins",
         "hour_after_plural": "In %d hours",
         "min_after": "In %d min",
         "hour_after": "In %d hour",
-        "current_is": "Current class is ",
-        "current": "Current class will end in %d min",
-        "current_plural": "Current class will end in %d mins",
-        "no_current": "There is no class currently",
+        "current_is": "Current session is ",
+        "current": "Current session will end in %d min",
+        "current_plural": "Current session will end in %d mins",
+        "no_current": "There is no session currently",
         "unknown": "Unknown",
         "timezone_changed_title": "Time zone change detected",
         "timezone_changed_body": "Don't worry, all time-related content will still be displayed correctly, times that need to be converted will be converted automatically as well. You can still trust everything on your dashboard.",
@@ -474,6 +482,7 @@ export default {
         "class_overview_plural": "你今天有 %d 节课",
         "class_remian": "，还剩 %d 节。",
         "class_remian_none": "。",
+        "tomorrow_first": "明天的第一节课将于 %s 开始。",
         "next": "下一节",
         "no_next": "一天之内没有课程",
         "min_after_plural": "%d 分钟后",

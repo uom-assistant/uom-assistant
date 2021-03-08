@@ -92,6 +92,7 @@
                         :type="type"
                         :locale="calendarLocale"
                         :key="`calendar-${refreshId}`"
+                        :interval-height="40"
                         @click:event="showEvent"
                         @click:more="viewDay"
                         @click:date="viewDay"
