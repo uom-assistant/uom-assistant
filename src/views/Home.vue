@@ -23,7 +23,7 @@
                         {{ nowDate }}
                     </v-list-item-title>
                     <v-list-item-subtitle class="mb-2">
-                        <span v-if="tomorrowFirst !== '' && (classNum === 0 || classRemain === 0)">{{ formatString($t('tomorrow_first'), [tomorrowFirst]) }}</span>
+                        <span v-if="(tomorrowFirst !== '' && classNum === 0) || classRemain === 0">{{ tomorrowFirst !== '' ? formatString($t('tomorrow_first'), [tomorrowFirst]) : (classNum === 0 ? $t('tomorrow_first_none') : $t('tomorrow_first_none_rest')) }}</span>
                         <span v-else>{{ formatString($t(classNum === 0 ? 'class_overview_none' : (classNum > 1 ? 'class_overview_plural' : 'class_overview')) + $t(classNum > 0 ? 'class_remian' : 'class_remian_none'), classNum > 0 ? [classNum, classRemain] : []) }}</span>
                     </v-list-item-subtitle>
                 </v-list-item-content>
@@ -461,6 +461,8 @@ export default {
         "class_remian": ", %d remaining.",
         "class_remian_none": ".",
         "tomorrow_first": " Tomorrow's first session will start at %s.",
+        "tomorrow_first_none": "You have no session tomorrow.",
+        "tomorrow_first_none_rest": "You have no session tomorrow, have a rest!",
         "next": "Coming up",
         "no_next": "No class in a day",
         "min_after_plural": "In %d mins",
@@ -484,6 +486,8 @@ export default {
         "class_remian": "，还剩 %d 节。",
         "class_remian_none": "。",
         "tomorrow_first": "明天的第一节课将于 %s 开始。",
+        "tomorrow_first_none": "你明天没有课。",
+        "tomorrow_first_none_rest": "你明天没有课，休息一下吧。",
         "next": "下一节",
         "no_next": "一天之内没有课程",
         "min_after_plural": "%d 分钟后",
