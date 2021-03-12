@@ -97,7 +97,7 @@
                 <v-icon class="mr-2 md-icon">
                     mdi-file-document-edit-outline
                 </v-icon>
-                <input type="text" v-model="editingTitle" class="title-input" v-if="notes[editing]" :placeholder="$t('title_placeholder')">
+                <input type="text" v-model.trim="editingTitle" class="title-input" v-if="notes[editing]" :placeholder="$t('title_placeholder')">
                 <v-btn icon @click.stop="layerOpened = false" small class="float-right mr-4">
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
