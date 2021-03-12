@@ -23,8 +23,8 @@
                         {{ nowDate }}
                     </v-list-item-title>
                     <v-list-item-subtitle class="mb-2">
-                        <span v-if="(tomorrowFirst !== '' && classNum === 0) || classRemain === 0">{{ tomorrowFirst !== '' ? formatString($t('tomorrow_first'), [tomorrowFirst]) : (classNum === 0 ? $t('tomorrow_first_none') : $t('tomorrow_first_none_rest')) }}</span>
-                        <span v-else>{{ formatString($t(classNum === 0 ? 'class_overview_none' : (classNum > 1 ? 'class_overview_plural' : 'class_overview')) + $t(classNum > 0 ? 'class_remian' : 'class_remian_none'), classNum > 0 ? [classNum, classRemain] : []) }}</span>
+                        <span v-if="classNum !== 0 && classRemain === 0">{{ tomorrowFirst !== '' ? formatString($t('tomorrow_first'), [tomorrowFirst]) : $t('tomorrow_first_none_rest') }}</span>
+                        <span v-else>{{ formatString(`${$t(classNum === 0 ? 'class_overview_none' : (classNum > 1 ? 'class_overview_plural' : 'class_overview'))}${$t(classNum > 0 ? 'class_remian' : 'class_remian_none')}`, classNum > 0 ? [classNum, classRemain] : []) }}</span>
                     </v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>
@@ -456,7 +456,7 @@ export default {
     "en": {
         "overview": "OVERVIEW",
         "class_overview": "You have %d session today",
-        "class_overview_none": "You have no session today, ",
+        "class_overview_none": "You have no session today",
         "class_overview_plural": "You have %d sessions today",
         "class_remian": ", %d remaining.",
         "class_remian_none": ".",
