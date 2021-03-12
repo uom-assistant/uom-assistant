@@ -28,7 +28,7 @@
                         </v-btn>
                     </template>
                     <v-list flat class="shown-list pt-0 pb-0">
-                        <v-list-item class="pt-2 pb-2 mail-all-read" @click="markAllAsRead" :disabled="loading || loadingFlag.length > 0 || downloading !== ''">
+                        <v-list-item class="pt-2 pb-2 mail-all-read" @click="markAllAsRead" :disabled="!init || loading || loadingFlag.length > 0 || downloading !== ''">
                             <v-list-item-icon>
                                 <v-icon>mdi-email-open-multiple-outline</v-icon>
                             </v-list-item-icon>
@@ -56,7 +56,7 @@
                 </v-menu>
                 <audio class="new-mail-audio" ref="audio">
                     <source src="@/assets/audios/new_mail.mp3" type="audio/mpeg">
-                    <source src="@/assets/audios/new_mail.ogg" type="audio/ogg; codecs=vorbis">
+                    <source src="@/assets/audios/new_mail.ogg" type="audio/ogg">
                 </audio>
                 <v-btn icon @click.stop="manualRefresh" small class="float-right mr-1" :title="$t('refresh')" :disabled="loading || loadingFlag.length > 0 || downloading !== ''" v-if="init" :loading="refreshLoding">
                     <v-icon>mdi-sync</v-icon>
@@ -580,12 +580,13 @@ export default {
             downloading: '',
             downloadProgress: 0,
             mails: [],
-            ifNotify: [],
+            ifNotify: [0],
             layerOpened: false,
             viewerOpened: false,
             mode: 'view',
             md: null,
             init: false,
+            isSettingSound: false,
             cmRefresh: `${new Date().valueOf()}`,
             code: '',
             scrollPercentage: 0,
@@ -1975,15 +1976,17 @@ export default {
         },
         ifNotify() {
             // Toggle sound
-            if (this.ifNotify.length === 1) {
-                if (this.init) {
+            if (!this.isSettingSound) {
+                if (this.ifNotify.length === 1) {
                     this.$refs.audio.currentTime = 0;
                     this.$refs.audio.volume = 0.3;
                     this.$refs.audio.play();
+                    localStorage.setItem('new_mail_sound', 'true');
+                } else {
+                    localStorage.setItem('new_mail_sound', 'false');
                 }
-                localStorage.setItem('new_mail_sound', 'true');
             } else {
-                localStorage.setItem('new_mail_sound', 'false');
+                this.isSettingSound = false;
             }
         },
         timerMin() {
@@ -2026,6 +2029,7 @@ export default {
         });
 
         // Restore settings
+        this.isSettingSound = true;
         if (localStorage.getItem('new_mail_sound') === 'true') {
             this.ifNotify = [0];
         }
