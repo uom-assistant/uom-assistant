@@ -978,7 +978,7 @@ export default {
         "to": "To: ",
         "course_ddl": "Coursework Deadline",
         "coursework": "Coursework",
-        "subject_home": "Subject Home Page",
+        "subject_home": "Course Home Page",
         "ical_error": "Cannot parse ical file",
         "network_error_body": "Cannot fetch latest events from calendar subscription URL",
         "quick_zoom": "Zoom meeting quick start",

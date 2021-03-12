@@ -153,7 +153,7 @@ export default {
                 },
                 {
                     title: 'CS Student Intranet',
-                    link: 'http://studentnet.cs.manchester.ac.uk/ugt/',
+                    link: 'https://studentnet.cs.manchester.ac.uk/ugt/',
                 },
                 {
                     title: 'CS Wiki',
@@ -345,8 +345,8 @@ export default {
         "quick_links": "Quick Links",
         "add_link": "Add a link",
         "nothing": "No link here",
-        "no_class": "No subject yet",
-        "subjects": "Subjects",
+        "no_class": "No sourse yet",
+        "subjects": "Courses",
         "portals": "Portals",
         "custom": "Custom"
     },

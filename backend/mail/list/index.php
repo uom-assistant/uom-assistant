@@ -51,6 +51,23 @@ if (UOMA_RATE_LIMIT) {
     }
 }
 
+/**
+ * Encode UTF-8 data from imap
+ * 
+ * @param string $data raw data
+ * @return string encoded data
+ */
+function mime_encode($data) {
+    $resp = imap_utf8(trim($data));
+    if(preg_match("/=\?/", $resp)) {
+        $resp = iconv_mime_decode($data, ICONV_MIME_DECODE_CONTINUE_ON_ERROR, 'ISO-8859-15');
+    }
+    if(json_encode($resp) == 'null') {
+        $resp = utf8_encode($resp);
+    }
+    return $resp;
+}
+
 if ($user['email'] === false) {
     rest_die('Invalid request.', $conn);
 }
@@ -78,12 +95,12 @@ if ($cached_response !== false) {
 
     $headers = [];
     foreach ($all as $item) {
-        $mail_header = json_decode(json_encode(imap_header($imap, $item)), true);
+        $mail_header = json_decode(json_encode(imap_headerinfo($imap, $item)), true);
         $to = [];
         if (isset($mail_header['to'])) {
             foreach ($mail_header['to'] as $item) {
                 $to[] = array(
-                    'name' => isset($item['personal']) ? trim($item['personal']) : false,
+                    'name' => isset($item['personal']) ? mime_encode(trim($item['personal'])) : false,
                     'address' => trim($item['mailbox']).'@'.trim($item['host'])
                 );
             }
@@ -93,16 +110,16 @@ if ($cached_response !== false) {
         if (isset($mail_header['cc'])) {
             foreach ($mail_header['cc'] as $item) {
                 $cc[] = array(
-                    'name' => isset($item['personal']) ? trim($item['personal']) : false,
+                    'name' => isset($item['personal']) ? mime_encode(trim($item['personal'])) : false,
                     'address' => trim($item['mailbox']).'@'.trim($item['host'])
                 );
             }
         }
         $headers[] = array(
-            'subject' => isset($mail_header['subject']) ? trim($mail_header['subject']) : false,
-            'from' => trim($mail_header['from'][0]['personal']) === '' ? false : trim($mail_header['from'][0]['personal']),
+            'subject' => isset($mail_header['subject']) ? mime_encode(trim($mail_header['subject'])) : false,
+            'from' => trim($mail_header['from'][0]['personal']) === '' ? false : mime_encode(trim($mail_header['from'][0]['personal'])),
             'fromAddress' => trim($mail_header['from'][0]['mailbox']).'@'.trim($mail_header['from'][0]['host']),
-            'replyTo' => isset($mail_header['reply_to'][0]['personal']) ? trim($mail_header['reply_to'][0]['personal']) : false,
+            'replyTo' => isset($mail_header['reply_to'][0]['personal']) ? mime_encode(trim($mail_header['reply_to'][0]['personal'])) : false,
             'replyToAddress' => isset($mail_header['reply_to'][0]) ? trim($mail_header['reply_to'][0]['mailbox']).'@'.trim($mail_header['reply_to'][0]['host']) : false,
             'to' => $to,
             'cc' => $cc,

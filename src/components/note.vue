@@ -302,7 +302,6 @@ export default {
             loading: false,
             notes: [],
             ifNotes: [],
-            addText: '',
             layerOpened: false,
             timer: null,
             mode: 'view',
@@ -843,7 +842,7 @@ export default {
         position: absolute;
         top: 561px;
         left: 0;
-        z-index: 3;
+        z-index: 4;
         width: 100%;
         height: 561px;
         background-color: white;

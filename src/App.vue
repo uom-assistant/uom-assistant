@@ -24,7 +24,7 @@
                     </v-btn>
                 </template>
                 <v-list flat class="shown-list pt-0">
-                    <v-list-item key="daynight" class="pt-2 pb-2 daynight" @click="toggleDark">
+                    <v-list-item class="pt-2 pb-2 daynight" @click="toggleDark">
                         <v-list-item-icon>
                             <v-icon>{{ $vuetify.theme.dark ? 'mdi-white-balance-sunny' : 'mdi-weather-night' }}</v-icon>
                         </v-list-item-icon>
@@ -202,7 +202,7 @@
                     </v-stepper-header>
                 </v-stepper>
                 <v-card-text :class="{ 'hide-0': stage !== 0 }">
-                    <img src="@/assets/img/welcome/welcome.svg" :class="{ 'small-screen': $vuetify.breakpoint.xs, animation: welcome }">
+                    <img src="@/assets/img/welcome/welcome.svg" :class="{ 'small-screen': $vuetify.breakpoint.xs, animation: welcome }" alt="Welcome!">
                     <h1 class="text-h4" :class="$vuetify.breakpoint.xs ? 'mb-4' : 'mb-6'">{{ $t('welcome') }}</h1>
                     <v-select
                         v-model="locale"
@@ -618,6 +618,7 @@ export default {
          */
         toggleDark() {
             this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+            this.$store.commit('setDarkMode', this.$vuetify.theme.dark);
             localStorage.setItem('dark', this.$vuetify.theme.dark ? 'true' : 'false');
         },
         /**
@@ -741,6 +742,7 @@ export default {
         locale() {
             // Store language settings to local storage
             this.$i18n.locale = this.locale;
+            document.documentElement.lang = this.locale;
             localStorage.setItem('language', this.locale);
             this.$store.commit('setLocale', this.locale);
             this.$nextTick(() => {
@@ -799,6 +801,7 @@ export default {
         // Initialize dark mode status
         const darkMode = localStorage.getItem('dark');
         this.$vuetify.theme.dark = darkMode ? (darkMode === 'true') : false;
+        this.$store.commit('setDarkMode', this.$vuetify.theme.dark);
 
         // Initialize backend connection
         try {
@@ -1168,7 +1171,7 @@ html::-webkit-scrollbar {
         "todo": "TO-DO",
         "bblinks": "Quick Links",
         "livelinks": "Online Session Links",
-        "subjects": "Subject Manage",
+        "subjects": "Course Manage",
         "attendance": "Attendance",
         "calendar": "Calendar",
         "coursework": "Coursework",

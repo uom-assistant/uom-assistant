@@ -28,6 +28,9 @@
                 <div class="not-inited mx-auto mb-2" v-show="!init && !loading">
                     <span class="text-center pl-6 pr-6">{{ $t('cannot_fetch') }} <a href="https://github.com/yrccondor/uom-assistant/" target="_blank" rel="noreferrer noopener">{{ $t('learn_more') }}</a></span>
                 </div>
+                <div class="not-inited mx-auto mb-2" v-if="init && !loading && gradeListFiltered.length === 0">
+                    <span>{{ $t('nothing') }}</span>
+                </div>
                 <v-card
                     class="mx-auto rounded grade-item mb-2"
                     outlined
@@ -102,32 +105,34 @@
                         </v-icon>
                     </span>
                 </div>
-                <div class="more-container" :style="{ height: moreShown ? `${gradeListEmpty.length * 82}px` : '0' }">
-                    <v-card
-                        class="mx-auto rounded grade-item mb-2"
-                        outlined
-                        v-for="(subject, index) in gradeListEmpty"
-                        :key="index"
-                    >
-                        <div class="subject-summary">
-                            <v-progress-circular
-                                :rotate="-90"
-                                :size="49"
-                                :width="3"
-                                :value="subject.weightedGrade"
-                                color="grey"
-                                class="float-right ml-3"
-                            >
-                                0<span class="text-caption">%</span>
-                            </v-progress-circular>
-                            <div class="text-truncate">{{ subjectNameMap(subject.subject) === subject.subject ? subject.name : subjectNameMap(subject.subject) }}</div>
-                            <span class="text--disabled text-body-2">
-                                <span :class="subjectColor(subject.subject)" class="subject-color-samll" v-if="subjectNameMap(subject.subject) !== subject.subject"></span>
-                                {{ subject.subject }}
-                            </span>
-                        </div>
-                    </v-card>
-                </div>
+                <v-expand-transition>
+                    <div class="more-container" v-show="moreShown">
+                        <v-card
+                            class="mx-auto rounded grade-item mb-2"
+                            outlined
+                            v-for="(subject, index) in gradeListEmpty"
+                            :key="index"
+                        >
+                            <div class="subject-summary">
+                                <v-progress-circular
+                                    :rotate="-90"
+                                    :size="49"
+                                    :width="3"
+                                    :value="subject.weightedGrade"
+                                    color="grey"
+                                    class="float-right ml-3"
+                                >
+                                    0<span class="text-caption">%</span>
+                                </v-progress-circular>
+                                <div class="text-truncate">{{ subjectNameMap(subject.subject) === subject.subject ? subject.name : subjectNameMap(subject.subject) }}</div>
+                                <span class="text--disabled text-body-2">
+                                    <span :class="subjectColor(subject.subject)" class="subject-color-samll" v-if="subjectNameMap(subject.subject) !== subject.subject"></span>
+                                    {{ subject.subject }}
+                                </span>
+                            </div>
+                        </v-card>
+                    </div>
+                </v-expand-transition>
             </div>
         </div>
         <div class="subject-detail" :class="{ shown: gradeExpending }" :style="{ top: `${detailLayer.top}px`, left: `${detailLayer.left}px`, width: (listOverflow ? '100%' : `${detailLayer.width}px`), height: `${detailLayer.height}px` }">
@@ -228,42 +233,44 @@
                             </v-list-item-action>
                         </div>
 
-                        <v-list
-                            flat
-                            class="list"
-                            v-if="Array.isArray(item)"
-                            :style="{ height: expendingSubTree.includes(gradeIndex) ? `${52 * item.length}px` : '0' }"
-                        >
-                            <v-list-item v-for="(gradeItem, gradeItemIndex) in sortListByDate(item)" :key="gradeItemIndex">
-                                <div class="list-item-warpper">
-                                    <v-list-item-content>
-                                        <v-list-item-title><v-icon class="mr-1" dense :title="$t('formative')" v-if="!gradeItem.summative">mdi-bookmark-off-outline</v-icon>{{ gradeItem.name }}</v-list-item-title>
-                                        <v-list-item-subtitle>
-                                            <span>
-                                                <v-icon small>
-                                                    mdi-clock-outline
-                                                </v-icon>
-                                                {{ getDate(new Date(gradeItem.time.replace(' ', 'T'))) }}
-                                            </span>
-                                            <span class="orange--text ml-2" v-if="gradeItem.late">LATE</span>
-                                        </v-list-item-subtitle>
-                                    </v-list-item-content>
+                        <v-expand-transition>
+                            <v-list
+                                flat
+                                class="list"
+                                v-if="Array.isArray(item)"
+                                v-show="expendingSubTree.includes(gradeIndex)"
+                            >
+                                <v-list-item v-for="(gradeItem, gradeItemIndex) in sortListByDate(item)" :key="gradeItemIndex">
+                                    <div class="list-item-warpper">
+                                        <v-list-item-content>
+                                            <v-list-item-title><v-icon class="mr-1" dense :title="$t('formative')" v-if="!gradeItem.summative">mdi-bookmark-off-outline</v-icon>{{ gradeItem.name }}</v-list-item-title>
+                                            <v-list-item-subtitle>
+                                                <span>
+                                                    <v-icon small>
+                                                        mdi-clock-outline
+                                                    </v-icon>
+                                                    {{ getDate(new Date(gradeItem.time.replace(' ', 'T'))) }}
+                                                </span>
+                                                <span class="orange--text ml-2" v-if="gradeItem.late">LATE</span>
+                                            </v-list-item-subtitle>
+                                        </v-list-item-content>
 
-                                    <v-list-item-action class="grade">
-                                        {{ gradeItem.grade }}<span class="text--disabled">/{{ gradeItem.gradeAll }}</span>
-                                        <v-progress-circular
-                                            :rotate="-90"
-                                            :size="17"
-                                            :width="2.3"
-                                            :value="(parseFloat(gradeItem.grade) / parseFloat(gradeItem.gradeAll)) * 100"
-                                            :color="getColorByGrade((parseFloat(gradeItem.grade) / parseFloat(gradeItem.gradeAll)) * 100)"
-                                            :title="`${parseFloat(((parseFloat(gradeItem.grade) / parseFloat(gradeItem.gradeAll)) * 100).toFixed(2))}%`"
-                                            class="ml-2"
-                                        ></v-progress-circular>
-                                    </v-list-item-action>
-                                </div>
-                            </v-list-item>
-                        </v-list>
+                                        <v-list-item-action class="grade">
+                                            {{ gradeItem.grade }}<span class="text--disabled">/{{ gradeItem.gradeAll }}</span>
+                                            <v-progress-circular
+                                                :rotate="-90"
+                                                :size="17"
+                                                :width="2.3"
+                                                :value="(parseFloat(gradeItem.grade) / parseFloat(gradeItem.gradeAll)) * 100"
+                                                :color="getColorByGrade((parseFloat(gradeItem.grade) / parseFloat(gradeItem.gradeAll)) * 100)"
+                                                :title="`${parseFloat(((parseFloat(gradeItem.grade) / parseFloat(gradeItem.gradeAll)) * 100).toFixed(2))}%`"
+                                                class="ml-2"
+                                            ></v-progress-circular>
+                                        </v-list-item-action>
+                                    </div>
+                                </v-list-item>
+                            </v-list>
+                        </v-expand-transition>
                     </v-list-item>
                 </v-list>
             </div>
@@ -473,9 +480,9 @@ export default {
             return '';
         },
         /**
-         * Map from subject ID to subject short name
+         * Map from subject ID to subject name
          * @param {string} subject subject ID
-         * @returns {string} subject short name or raw ID (if none matched)
+         * @returns {string} subject name or raw ID (if none matched)
          */
         subjectNameMap(subject) {
             if (!this.subjects) {
@@ -904,10 +911,6 @@ export default {
             transition: margin-bottom 0s;
         }
     }
-    .more-container {
-        overflow: hidden;
-        transition: height .3s;
-    }
     .subject-detail {
         position: absolute;
         background-color: white;
@@ -1064,10 +1067,11 @@ export default {
 {
     "en": {
         "grade": "Grade Summary",
+        "nothing": "No grade data yet",
         "network_error_body": "Cannot fetch latest grade and attendance data from backend",
         "cannot_fetch": "Unable to get grade and attendance data, probably you are not properly configured backend information or the backend does not allow this.",
         "learn_more": "Learn more",
-        "empty_subject": "Subjects with empty grade data",
+        "empty_subject": "Courses with empty grade data",
         "more_info": "More",
         "etc": "etc.",
         "total": "%d total",
@@ -1075,6 +1079,7 @@ export default {
     },
     "zh": {
         "grade": "成绩概览",
+        "nothing": "还没有成绩信息",
         "network_error_body": "无法从后端获取最新成绩和出勤信息",
         "cannot_fetch": "无法获取成绩和出勤信息，可能是没有正确配置后端信息或后端不允许。",
         "learn_more": "了解更多",

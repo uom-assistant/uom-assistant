@@ -326,7 +326,7 @@ export default {
 <i18n>
 {
     "en": {
-        "more_info": "View subject",
+        "more_info": "View course",
         "formative": "Formative"
     },
     "zh": {

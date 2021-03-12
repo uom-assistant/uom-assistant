@@ -22,10 +22,10 @@
                 <template v-slot:default>
                     <thead>
                         <tr>
-                            <th class="text-left">
+                            <th class="text-left" scope="col">
                                 {{ $t('name') }}
                             </th>
-                            <th class="text-left">
+                            <th class="text-left" scope="col">
                                 {{ $t('actions') }}
                             </th>
                         </tr>
@@ -606,7 +606,6 @@ export default {
     max-height: 500px;
     overflow: auto;
     .list {
-        padding-top: 0;
         background-color: transparent;
         padding-top: 15px;
         &.non-empty {
@@ -667,31 +666,31 @@ export default {
 <i18n>
 {
     "en": {
-        "subjects": "Subject Manage",
-        "nothing": "No subject yet",
+        "subjects": "Course Manage",
+        "nothing": "No course yet",
         "name": "Name",
         "actions": "Actions",
-        "add_subject": "Add Subject",
-        "edit_subject": "Edit Subject",
+        "add_subject": "Add Course",
+        "edit_subject": "Edit Course",
         "cancel": "Cancel",
         "save": "Save",
         "add": "Add",
         "delete": "Delete",
-        "subject_name": "Subject Name *",
+        "subject_name": "Course Name *",
         "subject_name_hint": "E.g. Mathematical Techniques",
         "short_name": "Short Name *",
         "short_name_hint": "E.g. Math",
-        "subject_number": "Subject Number *",
+        "subject_number": "Course Number *",
         "subject_number_hint": "E.g. COMP11120",
-        "subject_home": "Subject Home Page *",
-        "subject_color": "Subject Color",
-        "hide_subject": "Hide this subject",
+        "subject_home": "Course Home Page *",
+        "subject_color": "Course Color",
+        "hide_subject": "Hide this course",
         "add_link": "Add a live session link",
-        "delete_subject": "Delete subject",
-        "delete_subject_text": "Do you want to delete subject ",
+        "delete_subject": "Delete course",
+        "delete_subject_text": "Do you want to delete course ",
         "delete_subject_mark": "?",
         "error": "Cannot Save",
-        "same_id": "This subject ID is already linked to another subject. Changes not saved.",
+        "same_id": "This course ID is already linked to another course. Changes not saved.",
         "ok": "OK",
         "quick_zoom": "Zoom meeting quick start",
         "quick_teams": "Teams meeting quick start"

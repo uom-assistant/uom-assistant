@@ -26,6 +26,7 @@ export default new Vuex.Store({
         searchIndexChecker: 0,
         attendance: false,
         attendanceUpdated: 0,
+        darkMode: false,
     },
     mutations: {
         setLocale(state, language) {
@@ -85,6 +86,9 @@ export default new Vuex.Store({
         setAttendance(state, data) {
             state.attendance = data;
             state.attendanceUpdated = new Date().valueOf();
+        },
+        setDarkMode(state, darkMode) {
+            state.darkMode = darkMode;
         },
     },
     actions: {

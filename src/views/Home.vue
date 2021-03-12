@@ -23,7 +23,8 @@
                         {{ nowDate }}
                     </v-list-item-title>
                     <v-list-item-subtitle class="mb-2">
-                        {{ formatString($t(classNum === 0 ? 'class_overview_none' : (classNum > 1 ? 'class_overview_plural' : 'class_overview')) + $t(classNum > 0 ? 'class_remian' : 'class_remian_none'), classNum > 0 ? [classNum, classRemain] : []) }}<span v-show="tomorrowFirst !== '' && (classNum === 0 || classRemain === 0)">{{ formatString($t('tomorrow_first'), [tomorrowFirst]) }}</span>
+                        <span v-if="tomorrowFirst !== '' && (classNum === 0 || classRemain === 0)">{{ formatString($t('tomorrow_first'), [tomorrowFirst]) }}</span>
+                        <span v-else>{{ formatString($t(classNum === 0 ? 'class_overview_none' : (classNum > 1 ? 'class_overview_plural' : 'class_overview')) + $t(classNum > 0 ? 'class_remian' : 'class_remian_none'), classNum > 0 ? [classNum, classRemain] : []) }}</span>
                     </v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>

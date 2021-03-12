@@ -1,7 +1,7 @@
 {
     "require": {
         "phpmailer/phpmailer": "^6.2",
-        "php-imap/php-imap": "^4.1",
+        "php-imap/php-imap": "dev-develop",
         "fabpot/goutte": "^4.0",
         "ezyang/htmlpurifier": "^4.13",
         "xemlock/htmlpurifier-html5": "^0.1.11",

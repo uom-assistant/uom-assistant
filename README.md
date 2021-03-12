@@ -15,14 +15,14 @@ Frontend:
 - [x] Clock widget
 - [x] TO-DO widget
 - [x] Coursework widget
-- [x] Subject manage widget
+- [x] Course manage widget
 - [x] Calendar widget
 - [x] Quick links widget
 - [x] Online session links widget
 - [x] Quick notes widget
 - [x] Attendance widget
-- [ ] Overview widget
-- [ ] Inbox widget
+- [x] Overview widget
+- [x] Inbox widget
 - [x] Grade summary widget
 - [ ] Search
 - [ ] Set up guide
@@ -119,6 +119,7 @@ $ cd backend
 
 ```shell
 $ composer install --no-dev --optimize-autoloader
+$ chmod -R 0777 vendor/ezyang/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer
 $ cd ../
 ```
 
