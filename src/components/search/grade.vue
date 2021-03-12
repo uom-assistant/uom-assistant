@@ -68,11 +68,10 @@
         <v-card
             class="mx-auto rounded grade-item mb-2"
             outlined
-            v-for="(item, index) in courseworkList"
-            :key="`grade-${index}`"
+            v-show="courseworkList.length > 0"
         >
-            <v-list flat class="list mt-3 mb-3">
-                <v-list-item>
+            <v-list flat class="list single-item-list mt-1 mb-1">
+                <v-list-item v-for="(item, index) in courseworkList" :key="`grade-${index}`">
                     <v-list-item-content>
                         <v-list-item-title><v-icon class="mr-1" dense :title="$t('formative')" v-if="!item.summative">mdi-bookmark-off-outline</v-icon>{{ item.name }}</v-list-item-title>
                         <v-list-item-subtitle>
@@ -306,6 +305,11 @@ export default {
             .v-list-item__content {
                 padding: 10px 0;
             }
+        }
+    }
+    .single-item-list {
+        .v-list-item__content {
+            padding: 10px 0;
         }
     }
 }
