@@ -115,6 +115,9 @@
                     </v-calendar>
                     <v-menu
                         v-model="selectedOpen"
+                        nudge-right="5"
+                        transition="slide-x-transition"
+                        content-class="large-radius"
                         :close-on-content-click="false"
                         :activator="selectedElement"
                         offset-x
@@ -408,7 +411,7 @@ export default {
                 return;
             }
 
-            if (!(Object.prototype.toString.call(response) === '[object Object]') || !response.uomabVersion) {
+            if (Object.prototype.toString.call(response) !== '[object Object]' || !response.uomabVersion) {
                 // Not a valid UoM Assistant backend
                 if (this.backendStatus) {
                     this.$store.commit('addError', {
@@ -901,18 +904,18 @@ export default {
         margin-bottom: 3px;
     }
 }
-.calendar-selected-name {
-    line-height: 17px;
-    margin-top: 10px;
-    .calendar-smaller-font {
-        font-size: 0.875rem;
-    }
-}
 .event-card {
+    .calendar-selected-name {
+        line-height: 17px;
+        margin-top: 10px;
+        .calendar-smaller-font {
+            font-size: 0.875rem;
+        }
+    }
     .list {
         margin-bottom: 20px;
         background-color: #f3f3f3;
-        border-radius: 8px;
+        border-radius: 6px;
         .v-list-item {
             cursor: default;
             min-height: 28px;
@@ -952,8 +955,8 @@ export default {
     .list {
         background-color: #2c2c2c;
     }
-    .v-toolbar__content {
-        background-color: #1E1E1E;
+    .v-toolbar {
+        background-color: #1E1E1E!important;
     }
 }
 #app.theme--dark .v-calendar-events .v-event-more {

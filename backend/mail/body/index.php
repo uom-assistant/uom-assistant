@@ -160,7 +160,7 @@ $attachment_list = [];
 if (!empty($attachments)) {
     foreach ($attachments as $attachment) {
         if ('attachment' == \mb_strtolower((string) $attachment->disposition)) {
-            $attachment_list[] = (string) $attachment->name;
+            $attachment_list[] = [(string) $attachment->name, (int) strlen($attachment->getContents())];
         }
     }
 }

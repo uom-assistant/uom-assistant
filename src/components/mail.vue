@@ -13,7 +13,7 @@
                     :width="2"
                     :size="18"
                     class="loading ml-3"
-                    v-show="loading || loadingFlag.length > 0"
+                    v-show="loading || loadingFlag.length > 0 || downloading !== ''"
                 ></v-progress-circular>
                 <v-menu
                     offset-y
@@ -28,7 +28,7 @@
                         </v-btn>
                     </template>
                     <v-list flat class="shown-list pt-0 pb-0">
-                        <v-list-item class="pt-2 pb-2 mail-all-read" @click="markAllAsRead" :disabled="loading || loadingFlag.length > 0">
+                        <v-list-item class="pt-2 pb-2 mail-all-read" @click="markAllAsRead" :disabled="loading || loadingFlag.length > 0 || downloading !== ''">
                             <v-list-item-icon>
                                 <v-icon>mdi-email-open-multiple-outline</v-icon>
                             </v-list-item-icon>
@@ -58,7 +58,7 @@
                     <source src="@/assets/audios/new_mail.mp3" type="audio/mpeg">
                     <source src="@/assets/audios/new_mail.ogg" type="audio/ogg; codecs=vorbis">
                 </audio>
-                <v-btn icon @click.stop="manualRefresh" small class="float-right mr-1" :title="$t('refresh')" :disabled="loading || loadingFlag.length > 0" v-if="init" :loading="refreshLoding">
+                <v-btn icon @click.stop="manualRefresh" small class="float-right mr-1" :title="$t('refresh')" :disabled="loading || loadingFlag.length > 0 || downloading !== ''" v-if="init" :loading="refreshLoding">
                     <v-icon>mdi-sync</v-icon>
                     <template v-slot:loader>
                         <span class="refresh-loading">
@@ -77,8 +77,8 @@
             ></v-skeleton-loader>
             <div class="scroll" v-if="mails.length > 0">
                 <v-list flat class="list">
-                    <v-list-item v-for="(mail, index) in mails" :key="mail.id" @click.stop="openMail(mail.id)" :class="{ flaged: mail.flagged, unseen: mail.unseen }">
-                        <v-list-item-avatar :color="(mail.flagged || mail.unseen) ? 'uomthemelight' : ($vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2')" v-if="subjectColor(getSubjectId(mail.subject, mail.from)) === ''" :class="{ 'black--text': ((mail.flagged || mail.unseen) && $vuetify.theme.dark) }">
+                    <v-list-item v-for="(mail, index) in mails" :key="mail.id" @click.stop="openMail(mail.id)" :class="{ flaged: mail.flagged, unseen: mail.unseen }" @contextmenu.prevent="(e) => showListMenu(e, mail.id)">
+                        <v-list-item-avatar :color="(mail.flagged || mail.unseen) ? 'uomthemelight' : ($vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2')" v-if="getSubjectId(mail.subject, mail.from) === false" :class="{ 'black--text': ((mail.flagged || mail.unseen) && $vuetify.theme.dark) }">
                             <span v-if="getMailAvatar(mail.subject, mail.from, mail.fromAddress) === false">{{ getTwoLetterSenderName(mail.from ? mail.from : mail.fromAddress) }}</span>
                             <v-img v-else :src="require(`@/assets/img/mail-avatars/${getMailAvatar(mail.subject, mail.from, mail.fromAddress)}`)"></v-img>
                         </v-list-item-avatar>
@@ -115,7 +115,7 @@
                                 >
                                     mdi-flag
                                 </v-icon>
-                                <span v-if="subjectColor(getSubjectId(mail.subject, mail.from)) !== ''" class="ml-3">
+                                <span v-if="getSubjectId(mail.subject, mail.from) !== false" class="ml-3">
                                     <span :class="subjectColor(getSubjectId(mail.subject, mail.from))" class="subject-color-samll"></span>
                                     {{ subjectNameMap(getSubjectId(mail.subject, mail.from)) }}
                                 </span>
@@ -137,7 +137,7 @@
         <div class="viewer-layer-mask" :class="{ opened: viewerOpened }"></div>
         <div class="viewer-layer" :class="{ opened: viewerOpened }">
             <h2 class="handle">
-                <v-avatar v-if="subjectColor(getSubjectId(viewer.subject, viewer.from)) === ''" :color="$vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2'" size="27" class="mr-3 layer-title-avatar">
+                <v-avatar v-if="getSubjectId(viewer.subject, viewer.from) === false" :color="$vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2'" size="27" class="mr-3 layer-title-avatar">
                     <span v-if="getMailAvatar(viewer.subject, viewer.from, viewer.fromAddress) === false">{{ getTwoLetterSenderName(viewer.from ? viewer.from : viewer.fromAddress) }}</span>
                     <v-img v-else :src="require(`@/assets/img/mail-avatars/${getMailAvatar(viewer.subject, viewer.from, viewer.fromAddress)}`)"></v-img>
                 </v-avatar>
@@ -161,7 +161,7 @@
                             <v-icon>mdi-dots-vertical</v-icon>
                         </v-btn>
                     </template>
-                    <v-list flat class="mail-menu-list">
+                    <v-list class="mail-menu-list">
                         <v-list-item @click="sendMail">
                             <v-list-item-icon>
                                 <v-icon>mdi-share-outline</v-icon>
@@ -170,7 +170,7 @@
                                 <v-list-item-title>{{ $t('forward') }}</v-list-item-title>
                             </v-list-item-content>
                         </v-list-item>
-                        <v-list-item @click="markAsJunk(viewing)" :disabled="loading || loadingFlag.length > 0">
+                        <v-list-item @click="markAsJunk(viewing)" :disabled="loading || loadingFlag.length > 0 || downloading !== ''">
                             <v-list-item-icon>
                                 <v-icon>mdi-cancel</v-icon>
                             </v-list-item-icon>
@@ -178,7 +178,7 @@
                                 <v-list-item-title>{{ $t('mark_junk') }}</v-list-item-title>
                             </v-list-item-content>
                         </v-list-item>
-                        <v-list-item @click="deleteMail(viewing)" :disabled="loading || loadingFlag.length > 0">
+                        <v-list-item @click="deleteMail(viewing)" :disabled="loading || loadingFlag.length > 0 || downloading !== ''">
                             <v-list-item-icon>
                                 <v-icon>mdi-delete-outline</v-icon>
                             </v-list-item-icon>
@@ -188,7 +188,7 @@
                         </v-list-item>
                     </v-list>
                 </v-menu>
-                <v-btn icon @click.stop="flagMail(viewing)" small class="float-right mr-1" :title="$t('flag')" v-show="!loadingBody" :loading="isLoadingFlag(viewing)" :disabled="isLoadingFlag(viewing)">
+                <v-btn icon @click.stop="flagMail(viewing)" small class="float-right mr-1" :title="viewer.flagged ? $t('unflag') : $t('flag')" v-show="!loadingBody" :loading="isLoadingFlag(viewing)" :disabled="isLoadingFlag(viewing)">
                     <v-icon :color="viewer.flagged ? 'primary' : ''">
                         {{ viewer.flagged ? 'mdi-flag' : 'mdi-flag-outline' }}
                     </v-icon>
@@ -198,8 +198,102 @@
                 </v-btn>
             </h2>
             <v-divider></v-divider>
-            <div class="viewer">
+            <div class="viewer" ref="viewerDom">
                 <h1 class="text-subtitle-1 px-5 py-3 mail-view-subject"><span v-if="viewer.subject !== false">{{ viewer.subject }}</span><em v-else>{{ $t('no_subject') }}</em></h1>
+                <div v-show="viewer.courseId !== ''" class="subject-subtitle mx-5 text--disabled text-body-2 pb-3">
+                    <v-menu
+                        :close-on-content-click="false"
+                        nudge-bottom="5"
+                        transition="slide-y-transition"
+                        content-class="large-radius"
+                        offset-y
+                    >
+                        <template v-slot:activator="{ on, attrs }">
+                            <span v-on="on" v-bind="attrs">
+                                <span :class="subjectColor(viewer.courseId)" class="subject-color-samll"></span>
+                                {{ subjectLongNameMap(viewer.courseId) }}
+                            </span>
+                        </template>
+                        <v-card
+                            class="mail-course-card"
+                            min-width="350px"
+                            flat
+                        >
+                            <v-toolbar
+                                color="#ffffff"
+                                flat
+                            >
+                                <v-toolbar-title :class="subjectColor(viewer.courseId) ? `${subjectColor(viewer.courseId).split(' ')[0]}--text${subjectColor(viewer.courseId).split(' ').length > 1 ? ` text--${subjectColor(viewer.courseId).split(' ')[1]}` : ''}` : ''" class="course-name">
+                                    {{ subjectLongNameMap(viewer.courseId) }}<br>
+                                    <span class="text--disabled course-smaller-font">{{ viewer.courseId }}</span>
+                                </v-toolbar-title>
+                                <v-spacer></v-spacer>
+                                <v-tooltip top v-if="viewer.courseId !== '' && subjectLinks(viewer.courseId).homeLink !== false">
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-btn
+                                            icon
+                                            small
+                                            class="mr-0 ml-2"
+                                            target="_blank"
+                                            :href="subjectLinks(viewer.courseId).homeLink"
+                                            color="grey"
+                                            v-bind="attrs"
+                                            v-on="on"
+                                        >
+                                            <v-icon>mdi-home-outline</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>{{ $t('subject_home') }}</span>
+                                </v-tooltip>
+                            </v-toolbar>
+                            <v-card-text>
+                                <v-list flat class="list" v-if="viewer.courseId !== '' && subjectLinks(viewer.courseId).sessionLinks.length > 0">
+                                    <v-list-item-group>
+                                        <v-list-item
+                                            v-for="(link, index) in subjectLinks(viewer.courseId).sessionLinks"
+                                            :key="`subject-link-${index}`"
+                                            :ripple="false"
+                                        >
+                                            <template>
+                                                <v-list-item-content>
+                                                    <v-list-item-title>
+                                                        <v-btn x-small icon :href="meetingLink(link.link, link.passcode)" :title="ifZoomLink(link.link) ? $t('quick_zoom') : $t('quick_teams')" v-if="ifZoomLink(link.link) || ifTeamsLink(link.link)" class="mr-1 text-decoration-none"><v-icon small>{{ ifTeamsLink(link.link) ? 'mdi-microsoft-teams' : 'mdi-dock-window' }}</v-icon></v-btn><a :href="link.link" target="_blank" rel="noopener nofollow" :class="subjectColor(viewer.courseId) ? `${subjectColor(viewer.courseId).split(' ')[0]}--text${subjectColor(viewer.courseId).split(' ').length > 1 ? ` text--${subjectColor(viewer.courseId).split(' ')[1]}` : ''}` : ''">{{ link.name }}</a><a :href="link.link" target="_blank" rel="noopener nofollow" class="no-underline-link"><v-icon small :color="subjectColor(viewer.courseId) ? subjectColor(viewer.courseId) : ''">mdi-open-in-new</v-icon>
+                                                        </a>
+                                                    </v-list-item-title>
+                                                </v-list-item-content>
+                                                <v-list-item-action class="copy">
+                                                    <v-btn
+                                                        @click="copyingIndex = index"
+                                                        v-if="link.passcode"
+                                                        v-clipboard:copy="link.passcode"
+                                                        v-clipboard:success="onCopy"
+                                                        small
+                                                        text
+                                                        class="pr-2"
+                                                        :color="(copySuccess && copyingIndex === index) ? 'green' : ''"
+                                                        :class="(copySuccess && copyingIndex === index) ? 'copied' : ''"
+                                                        :title="$t('copy_passcode')"
+                                                    >
+                                                        <v-icon
+                                                            left
+                                                            dark
+                                                            small
+                                                            :color="(copySuccess && copyingIndex === index) ? 'green' : 'gray'"
+                                                            :class="(copySuccess && copyingIndex === index) ? 'mr-0' : ''"
+                                                        >
+                                                            {{ (copySuccess && copyingIndex === index) ? 'mdi-check' : 'mdi-content-copy' }}
+                                                        </v-icon>
+                                                        {{ (copySuccess && copyingIndex === index) ? '' : link.passcode }}
+                                                    </v-btn>
+                                                </v-list-item-action>
+                                            </template>
+                                        </v-list-item>
+                                    </v-list-item-group>
+                                </v-list>
+                            </v-card-text>
+                        </v-card>
+                    </v-menu>
+                </div>
                 <div class="mail-detail mx-5 pa-3 pr-2">
                     <div class="mail-from-line">
                         <v-icon class="mr-1" :title="$t('from')">mdi-account-arrow-right</v-icon>
@@ -280,11 +374,29 @@
                     <v-expand-transition>
                         <div class="expand attachment-list" v-show="viewAttachmentExpanded">
                             <div class="d-flex flex-wrap mt-1">
-                                <div class="attachment-item d-flex justify-space-between align-center mt-2 mr-2" v-for="(name, index) in viewer.attachments" :key="`attachment-${name}-${index}`" :class="{ 'full-width': viewer.attachments.length === 1 }">
-                                    <v-icon class="ml-2 mr-1">{{ `mdi-${getFileIcon(name)}` }}</v-icon>
-                                    <div class="text-body-2 file-name text-truncate" :title="name">{{ name }}</div>
-                                    <v-btn icon @click="downloadFile(viewing, name)" small class="mr-1" :loading="isDownloading(viewing, name)" :disabled="downloading.length > 0">
+                                <div class="attachment-item d-flex justify-space-between align-center mt-2 mr-2" v-for="(file, index) in viewer.attachments" :key="`attachment-${file[0]}-${index}`" :class="{ 'full-width': viewer.attachments.length === 1 }">
+                                    <v-icon class="ml-2 mr-1">{{ `mdi-${getFileIcon(file[0])}` }}</v-icon>
+                                    <div class="text-body-2 file-name text-truncate" :title="file[0]">{{ file[0] }}<div class="text--disabled text-caption">{{ formatBytes(file[1]) }}</div></div>
+                                    <v-btn icon @click="downloadFile(viewing, file[0], file[1])" small class="mr-1" :loading="downloading === `${viewing}-${file[0]}`" :disabled="downloading !== ''">
                                         <v-icon small>mdi-arrow-collapse-down</v-icon>
+                                        <template v-slot:loader>
+                                            <v-progress-circular
+                                                indeterminate
+                                                color="grey"
+                                                :width="2"
+                                                :size="20"
+                                                v-show="downloadProgress < 5"
+                                            ></v-progress-circular>
+                                            <v-progress-circular
+                                                color="primary"
+                                                class="rotating"
+                                                :rotate="-90"
+                                                :width="2.3"
+                                                :size="20"
+                                                :value="downloadProgress"
+                                                v-show="downloadProgress >= 5"
+                                            ></v-progress-circular>
+                                        </template>
                                     </v-btn>
                                 </div>
                             </div>
@@ -311,7 +423,7 @@
                             small
                             color="red"
                             class="my-1 ml-2"
-                            :disabled="loading || loadingFlag.length > 0"
+                            :disabled="loading || loadingFlag.length > 0 || downloading !== ''"
                             @click="markAsJunk(viewing)"
                         >
                             {{ $t('mark_junk') }}
@@ -374,6 +486,59 @@
             <codemirror v-model="code" :options="cmOption" class="md-editor" v-show="mode === 'edit'" :key="cmRefresh" ref="codemirror" @scroll="onScroll"></codemirror>
             <div class="render-result" v-show="mode === 'view'" @dblclick="mode = 'edit'" @scroll="onScrollView" ref="renderScroll"><div ref="render"></div></div>
         </div>
+        <v-menu
+            v-model="listMenu"
+            :position-x="listMenuX"
+            :position-y="listMenuY"
+            absolute
+            offset-y
+            close-on-click
+            close-on-content-click
+        >
+            <v-list class="mail-menu-list">
+                <v-list-item v-show="isUnseen(selectedId)" @click="markAsRead(selectedId)" :disabled="loading || loadingFlag.length > 0 || downloading !== ''">
+                    <v-list-item-icon>
+                        <v-icon>mdi-email-open-outline</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                        <v-list-item-title>{{ $t('mark_seen') }}</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+                <v-list-item @click="flagMail(selectedId)" :disabled="loading || loadingFlag.length > 0 || downloading !== ''">
+                    <v-list-item-icon>
+                        <v-icon :color="isFlagged(selectedId) ? 'primary' : ''" v-show="!isLoadingFlag(selectedId)">
+                            {{ isFlagged(selectedId) ? 'mdi-flag' : 'mdi-flag-outline' }}
+                        </v-icon>
+                        <v-progress-circular
+                            indeterminate
+                            color="grey"
+                            :width="2"
+                            :size="22"
+                             v-show="isLoadingFlag(selectedId)"
+                        ></v-progress-circular>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                        <v-list-item-title>{{ isFlagged(selectedId) ? $t('unflag') : $t('flag') }}</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+                <v-list-item @click="markAsJunk(selectedId)" :disabled="loading || loadingFlag.length > 0 || downloading !== ''">
+                    <v-list-item-icon>
+                        <v-icon>mdi-cancel</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                        <v-list-item-title>{{ $t('mark_junk') }}</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+                <v-list-item @click="deleteMail(selectedId)" :disabled="loading || loadingFlag.length > 0 || downloading !== ''">
+                    <v-list-item-icon>
+                        <v-icon>mdi-delete-outline</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                        <v-list-item-title>{{ $t('delete') }}</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+            </v-list>
+        </v-menu>
     </v-card>
 </template>
 
@@ -383,6 +548,7 @@ import Vue from 'vue';
 import VueClipboard from 'vue-clipboard2';
 import { codemirror } from 'vue-codemirror';
 import { vsprintf } from 'sprintf-js';
+import { saveAs } from 'file-saver';
 import localForage from 'localforage';
 import markdown from 'markdown-it';
 
@@ -393,6 +559,7 @@ import 'codemirror/addon/edit/matchbrackets';
 
 import checkBackendVersion from '../tools/checkBackendVersion';
 import betterFetch from '../tools/betterFetch';
+import fetchDownload from '../tools/fetchDownload';
 import formatDateTime from '../tools/formatDateTime';
 
 import 'codemirror/theme/xq-light.css';
@@ -410,7 +577,8 @@ export default {
             loading: false,
             loadingBody: false,
             loadingFlag: [],
-            downloading: [],
+            downloading: '',
+            downloadProgress: 0,
             mails: [],
             ifNotify: [],
             layerOpened: false,
@@ -429,6 +597,12 @@ export default {
             viewDetailExpanded: false,
             viewAttachmentExpanded: false,
             sandboxHeight: 0,
+            listMenu: false,
+            listMenuX: 0,
+            listMenuY: 0,
+            selectedId: -1,
+            copySuccess: false,
+            copyingIndex: -1,
             cachedMails: [],
             fileIconMap: {
                 pdf: 'file-pdf-outline',
@@ -515,6 +689,7 @@ export default {
                 allowHTML: false,
                 untrust: false,
                 attachments: [],
+                courseId: '',
             },
             trustedHosts: [
                 'manchester.ac.uk',
@@ -730,8 +905,7 @@ export default {
          * @param {boolean} update update or fetch
          */
         async updateMailList(update = false) {
-            if (!this.backend.url || !this.account.username || !this.account.password) {
-                this.$store.commit('setAttendance', false);
+            if (!this.backend.url || !this.account.username || !this.account.password || !this.account.email) {
                 return;
             }
 
@@ -758,7 +932,6 @@ export default {
             }).catch(() => {
                 // Network error
                 this.loading = false;
-                this.$store.commit('setAttendance', false);
                 this.$store.commit('addError', {
                     title: this.$t('network_error'),
                     content: this.$t('network_error_body'),
@@ -782,7 +955,6 @@ export default {
                     this.$store.commit('setBackendStatus', false);
                 }
                 this.loading = false;
-                this.$store.commit('setAttendance', false);
                 return;
             }
 
@@ -794,7 +966,6 @@ export default {
                     type: 'error',
                 });
                 this.loading = false;
-                this.$store.commit('setAttendance', false);
                 return;
             }
 
@@ -806,7 +977,6 @@ export default {
                     type: 'error',
                 });
                 this.loading = false;
-                this.$store.commit('setAttendance', false);
                 return;
             }
 
@@ -821,7 +991,6 @@ export default {
                     this.$store.commit('setBackendStatus', false);
                 }
                 this.loading = false;
-                this.$store.commit('setAttendance', false);
                 return;
             }
 
@@ -836,7 +1005,6 @@ export default {
                     this.$store.commit('setBackendStatus', false);
                 }
                 this.loading = false;
-                this.$store.commit('setAttendance', false);
                 return;
             }
 
@@ -891,8 +1059,7 @@ export default {
          * @param {string} action action
          */
         async doAction(mailId, action) {
-            if (!this.backend.url || !this.account.username || !this.account.password) {
-                this.$store.commit('setAttendance', false);
+            if (!this.backend.url || !this.account.username || !this.account.password || !this.account.email) {
                 return;
             }
 
@@ -929,7 +1096,6 @@ export default {
                         this.loadingFlag.splice(this.loadingFlag.indexOf(mailId), 1);
                     }
                 }
-                this.$store.commit('setAttendance', false);
                 this.$store.commit('addError', {
                     title: this.$t('network_error'),
                     content: this.$t('network_error_body'),
@@ -960,7 +1126,6 @@ export default {
                         this.loadingFlag.splice(this.loadingFlag.indexOf(mailId), 1);
                     }
                 }
-                this.$store.commit('setAttendance', false);
                 return;
             }
 
@@ -979,7 +1144,6 @@ export default {
                         this.loadingFlag.splice(this.loadingFlag.indexOf(mailId), 1);
                     }
                 }
-                this.$store.commit('setAttendance', false);
                 return;
             }
 
@@ -998,7 +1162,6 @@ export default {
                         this.loadingFlag.splice(this.loadingFlag.indexOf(mailId), 1);
                     }
                 }
-                this.$store.commit('setAttendance', false);
                 return;
             }
 
@@ -1020,7 +1183,6 @@ export default {
                         this.loadingFlag.splice(this.loadingFlag.indexOf(mailId), 1);
                     }
                 }
-                this.$store.commit('setAttendance', false);
                 return;
             }
 
@@ -1042,7 +1204,6 @@ export default {
                         this.loadingFlag.splice(this.loadingFlag.indexOf(mailId), 1);
                     }
                 }
-                this.$store.commit('setAttendance', false);
                 return;
             }
 
@@ -1095,18 +1256,19 @@ export default {
          * Download an attachment by mail ID and file name
          * @param {number} mailId mail ID
          * @param {string} fileName file name
+         * @param {number} totalSize file size
          */
-        async downloadFile(mailId, fileName) {
-            if (!this.backend.url || !this.account.username || !this.account.password) {
-                this.$store.commit('setAttendance', false);
+        async downloadFile(mailId, fileName, totalSize) {
+            if (!this.backend.url || !this.account.username || !this.account.password || !this.account.email) {
                 return;
             }
 
             this.loading = true;
-            this.downloading.push(`${mailId}-${fileName}`);
+            this.downloading = `${mailId}-${fileName}`;
+            this.downloadProgress = 0;
             let requestFailed = false;
             // Send request
-            const response = await betterFetch(`https://${this.backend.url}/mail/attachment/`, {
+            const response = await fetchDownload(`https://${this.backend.url}/mail/attachment/`, {
                 method: 'POST',
                 body: JSON.stringify({
                     username: this.account.username,
@@ -1116,12 +1278,19 @@ export default {
                     mailId,
                     token: this.backend.token ? this.backend.token : '',
                 }),
-            }, 'blob').catch(() => {
+            }, (size) => {
+                let percentage = (size / totalSize) * 100;
+                if (percentage > 100) {
+                    percentage = 100;
+                }
+                if (percentage < 0) {
+                    percentage = 0;
+                }
+                this.downloadProgress = percentage;
+            }).catch(() => {
                 // Network error
                 this.loading = false;
-                if (this.downloading.indexOf(`${mailId}-${fileName}`) !== -1) {
-                    this.downloading.splice(this.downloading.indexOf(`${mailId}-${fileName}`), 1);
-                }
+                this.downloading = '';
                 this.$store.commit('addError', {
                     title: this.$t('network_error'),
                     content: this.$t('cannot_download'),
@@ -1135,17 +1304,11 @@ export default {
             }
 
             // Downloaded
-            const linkEle = document.createElement('a');
-            linkEle.download = fileName;
-            linkEle.style.display = 'none';
-            linkEle.href = URL.createObjectURL(response);
-            document.body.appendChild(linkEle);
-            linkEle.click();
-            document.body.removeChild(linkEle);
-            this.loading = false;
-            if (this.downloading.indexOf(`${mailId}-${fileName}`) !== -1) {
-                this.downloading.splice(this.downloading.indexOf(`${mailId}-${fileName}`), 1);
-            }
+            saveAs(response, fileName);
+            setTimeout(() => {
+                this.loading = false;
+                this.downloading = '';
+            }, 500);
         },
         /**
          * Manually refresh the mail list
@@ -1153,6 +1316,20 @@ export default {
         manualRefresh() {
             this.refreshLoding = true;
             this.updateMailList(true);
+        },
+        /**
+         * Show context menu in mail list
+         * @param {Event} e context menu event
+         * @param {number} mailId selected mail ID
+         */
+        showListMenu(e, mailId) {
+            this.selectedId = mailId;
+            this.listMenu = false;
+            this.listMenuX = e.clientX;
+            this.listMenuY = e.clientY;
+            this.$nextTick(() => {
+                this.listMenu = true;
+            });
         },
         /**
          * Get inner text from a mail content element
@@ -1223,6 +1400,8 @@ export default {
             this.viewer.textContent = '';
             this.viewer.allowHTML = false;
             this.viewer.untrust = false;
+            this.$refs.viewerDom.scrollTop = 0;
+            this.viewer.courseId = this.getSubjectId(mail.subject, mail.from) || '';
             this.$nextTick(() => {
                 this.viewerOpened = true;
             });
@@ -1275,9 +1454,6 @@ export default {
          * @param {number} id mail ID
          */
         flagMail(id) {
-            if (id !== this.viewing) {
-                return;
-            }
             const mail = this.mails.findIndex((item) => item.id === id);
             if (mail === -1) {
                 return;
@@ -1293,13 +1469,28 @@ export default {
             return this.loadingFlag.includes(id);
         },
         /**
-         * Check if the file is downloading by mail ID and file name
-         * @param {number} mailId mail ID
-         * @param {string} fileName file name
-         * @returns {boolean} if the file is downloading by mail ID and file name
+         * Check if a mail is unseen
+         * @param {number} id mail ID
+         * @returns {boolean} if the given mail is unseen
          */
-        isDownloading(mailId, fileName) {
-            return this.downloading.includes(`${mailId}-${fileName}`);
+        isUnseen(id) {
+            const mail = this.mails.find((item) => item.id === id);
+            if (!mail) {
+                return false;
+            }
+            return mail.unseen;
+        },
+        /**
+         * Check if a mail is flagged
+         * @param {number} id mail ID
+         * @returns {boolean} if the given mail is flagged
+         */
+        isFlagged(id) {
+            const mail = this.mails.find((item) => item.id === id);
+            if (!mail) {
+                return false;
+            }
+            return mail.flagged;
         },
         /**
          * Mark all mail as read
@@ -1309,6 +1500,18 @@ export default {
             for (let i = 0; i < this.mails.length; i += 1) {
                 this.mails[i].unseen = false;
             }
+        },
+        /**
+         * Mark a mail as read by mail ID
+         * @param {number} id mail ID
+         */
+        markAsRead(id) {
+            const mail = this.mails.findIndex((item) => item.id === id);
+            if (mail === -1) {
+                return;
+            }
+            this.mails[mail].unseen = false;
+            this.doAction(id, 'seen');
         },
         /**
          * Mark a mail as junk
@@ -1473,14 +1676,22 @@ export default {
          */
         getSubjectId(subject, from) {
             if (subject !== false) {
-                const match = subject.match(/[A-Z]{3,4}( |-|_){0,1}\d{5}/);
+                const match = subject.toUpperCase().match(/[A-Z]{3,4}( |-|_){0,1}\d{5}/);
                 if (match !== null) {
-                    return match[0].replace(/( |-|_)/, '');
+                    const id = match[0].replace(/( |-|_)/, '');
+                    if (this.subjects.findIndex((item) => item.id === id)) {
+                        return id;
+                    }
                 }
             }
             if (from !== false) {
-                const fromMatch = from.match(/[A-Z]{3,4}( |-|_){0,1}\d{5}/);
-                return fromMatch === null ? false : fromMatch[0].replace(/( |-|_)/, '');
+                const fromMatch = from.toUpperCase().match(/[A-Z]{3,4}( |-|_){0,1}\d{5}/);
+                if (fromMatch !== null) {
+                    const fromId = fromMatch[0].replace(/( |-|_)/, '');
+                    if (this.subjects.findIndex((item) => item.id === fromId)) {
+                        return fromId;
+                    }
+                }
             }
             return false;
         },
@@ -1527,6 +1738,25 @@ export default {
             return vsprintf(str, args);
         },
         /**
+         * Format bytes to file size unit
+         * @param {number} bytes file byte length
+         * @param {number?} decimals file size decimal number
+         * @returns {string} formated string
+         */
+        formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) {
+                return '0 Bytes';
+            }
+
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+            return `${parseFloat((bytes / k ** i).toFixed(dm))} ${sizes[i]}`;
+        },
+        /**
          * Map from subject ID to subject color
          * @param {string|boolean} subject subject ID or false
          * @returns {string} subject color name or ''
@@ -1559,6 +1789,102 @@ export default {
                 }
             }
             return subject;
+        },
+        /**
+         * Map from subject ID to subject name
+         * @param {string} subject subject ID
+         * @returns {string} subject name or raw ID (if none matched)
+         */
+        subjectLongNameMap(subject) {
+            if (!this.subjects) {
+                return subject;
+            }
+            for (const item of this.subjects) {
+                if (item.id === subject) {
+                    return item.name;
+                }
+            }
+            return subject;
+        },
+        /**
+         * Map from subject ID to subject links
+         * @param {string} subject subject ID
+         * @returns {object} subject links, `object.homeLine`: string, `object.sessionLinks`: array
+         */
+        subjectLinks(id) {
+            for (const subject of this.subjects) {
+                if (subject.id === id) {
+                    return {
+                        homeLink: subject.homeLink,
+                        sessionLinks: subject.sessionLinks,
+                    };
+                }
+            }
+            return {
+                homeLink: false,
+                sessionLinks: [],
+            };
+        },
+        /**
+         * Show an animation on the copy button if copy succeeded
+         */
+        onCopy() {
+            this.copySuccess = true;
+            setTimeout(() => {
+                this.copySuccess = false;
+            }, 500);
+        },
+        /**
+         * Get direct link to meeting apps, supports Zoom and Teams
+         * @param {string} link original link
+         * @param {string} passcode passcode for the meeting or ''
+         * @returns {string} converted direct link or the original link
+         */
+        meetingLink(link, passcode) {
+            if (this.ifZoomLink(link)) {
+                const linkSplit = link.split('/j/');
+                return `${this.zoomProtocol()}://zoom.us/join?action=join&confno=${linkSplit[linkSplit.length - 1].split('#')[0]}${passcode ? `&pwd=${passcode}` : ''}&zc=0`;
+            }
+            if (this.ifTeamsLink(link)) {
+                const linkSplit = link.split('://');
+                linkSplit.shift();
+                return `msteams://${linkSplit.join('://')}`;
+            }
+            return link;
+        },
+        /**
+         * Check if it's a Zoom link
+         * @param {string} link original link
+         * @returns {boolean} whether it's a Zoom link
+         */
+        ifZoomLink(link) {
+            return (link.indexOf('https://zoom.us/j/') === 0 || link.indexOf('http://zoom.us/j/') === 0);
+        },
+        /**
+         * Check if it's a Teams link
+         * @param {string} link original link
+         * @returns {boolean} whether it's a Teams link
+         */
+        ifTeamsLink(link) {
+            return (link.indexOf('https://teams.microsoft.com/l/') === 0 || link.indexOf('http://teams.microsoft.com/l/') === 0);
+        },
+        /**
+         * Get Zoom's direct link protocol based on device
+         * @returns {string} protocol
+         */
+        zoomProtocol() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            if (/windows phone/i.test(userAgent) || /android/i.test(userAgent) || ([
+                'iPad Simulator',
+                'iPhone Simulator',
+                'iPod Simulator',
+                'iPad',
+                'iPhone',
+                'iPod',
+            ].includes(navigator.platform) || (navigator.userAgent.includes('Mac') && 'ontouchend' in document))) {
+                return 'zoomus';
+            }
+            return 'zoommtg';
         },
         /**
          * Calculate the time of a mail and format it as a string
@@ -1833,6 +2159,22 @@ export default {
             max-height: 503px;
             overflow: auto;
         }
+        .subject-subtitle {
+            user-select: none;
+            margin-top: -5px;
+            & > span {
+                cursor: pointer;
+            }
+            .subject-color-samll {
+                width: 8px;
+                height: 8px;
+                display: inline-block;
+                border-radius: 50%;
+                margin: 0;
+                margin-right: 3px;
+                margin-bottom: 1px;
+            }
+        }
         .mail-view-subject {
             font-size: 1.2rem !important;
             line-height: 1.7rem;
@@ -1908,7 +2250,7 @@ export default {
             .attachment-list {
                 .attachment-item {
                     width: calc(50% - 6px);
-                    height: 50px;
+                    height: 55px;
                     border-radius: 6px;
                     border: 1px solid #E0E0E0;
                     transition: background-color .2s;
@@ -1917,7 +2259,18 @@ export default {
                     }
                     .file-name {
                         width: calc(100% - 72px);
-                        margin-top: 2px;
+                        margin-top: 3px;
+                        .text-caption {
+                            margin-top: -4px;
+                        }
+                    }
+                    button {
+                        .rotating {
+                            animation: progress-circular-rotate 1.4s linear infinite;
+                            .v-progress-circular__underlay {
+                                stroke: transparent;
+                            }
+                        }
                     }
                     &.full-width {
                         width: calc(100% - 4px);
@@ -2159,6 +2512,53 @@ export default {
         min-height: 30px;
     }
 }
+.mail-course-card {
+    .course-name {
+        line-height: 17px;
+        margin-top: 10px;
+        .course-smaller-font {
+            font-size: 0.875rem;
+        }
+    }
+    .v-card__text {
+        padding-top: 5px;
+    }
+    .list {
+        margin-bottom: 0;
+        background-color: #f3f3f3;
+        border-radius: 6px;
+        .v-list-item {
+            cursor: default;
+            min-height: 28px;
+        }
+        a {
+            cursor: pointer;
+            text-decoration: none;
+            &:hover, &:focus {
+                text-decoration: underline;
+            }
+        }
+        a.no-underline-link {
+            text-decoration: none;
+            padding-left: 5px;
+        }
+        .v-list-item__content {
+            padding: 0;
+        }
+        .copy {
+            margin: 0;
+            margin-left: 8px!important;
+            .v-btn {
+                font-family: monospace, monospace;
+                width: 90px;
+                margin-right: -4px;
+                .v-icon--left {
+                    margin-right: 4px;
+                }
+            }
+        }
+    }
+}
 #app.theme--dark .mail-container {
     h2 {
         .num-badge {
@@ -2256,6 +2656,14 @@ export default {
         background-color: rgba(255, 255, 255, .025);
     }
 }
+#app.theme--dark .mail-course-card {
+    .v-toolbar {
+        background-color: #1E1E1E!important;
+    }
+    .list {
+        background-color: #2c2c2c;
+    }
+}
 </style>
 
 <i18n src="../locales/network.json"></i18n>
@@ -2266,7 +2674,7 @@ export default {
         "nothing": "No mail",
         "cannot_fetch": "Unable to fetch mail list, probably you are not properly configured backend information or the backend does not allow this.",
         "network_error_body": "Cannot fetch related mail data from backend",
-        "cannot_download": "Unable to download attachment from the back end",
+        "cannot_download": "Unable to download attachment from the backend",
         "learn_more": "Learn more",
         "new_mail": "New Mail",
         "md_support": "Markdown supported",
@@ -2276,6 +2684,7 @@ export default {
         "refresh": "Refresh",
         "more": "More",
         "all_read": "Mark all as read",
+        "mark_seen": "Mark as read",
         "sound_notification": "New mail sound notification",
         "no_subject": "No Subject",
         "mail_view": "Mail",
@@ -2289,6 +2698,7 @@ export default {
         "just_now": "Just now",
         "flagged": "Flagged",
         "flag": "Flag",
+        "unflag": "Unflag",
         "reply": "Reply",
         "close": "Close",
         "forward": "Forward",
@@ -2306,7 +2716,11 @@ export default {
         "untrusted_content": "This email may not be credible",
         "this_is_safe": "This email is safe",
         "expand": "Expand",
-        "attachment_num": "%d attachments"
+        "attachment_num": "%d attachments",
+        "subject_home": "Course Home Page",
+        "quick_zoom": "Zoom meeting quick start",
+        "quick_teams": "Teams meeting quick start",
+        "copy_passcode": "Copy passcode"
     },
     "zh": {
         "mail": "收件箱",
@@ -2323,6 +2737,7 @@ export default {
         "refresh": "刷新",
         "more": "更多",
         "all_read": "全部标记已读",
+        "mark_seen": "标记为已读",
         "sound_notification": "新邮件声音通知",
         "no_subject": "无主题",
         "mail_view": "邮件",
@@ -2335,8 +2750,9 @@ export default {
         "remain_min": "%d 分钟前",
         "remain_min_plural": "%d 分钟前",
         "just_now": "刚刚",
-        "flagged": "已标记",
+        "flagged": "已旗标",
         "flag": "旗标",
+        "unflag": "取消旗标",
         "reply": "回复",
         "close": "关闭",
         "forward": "转发",
@@ -2354,7 +2770,11 @@ export default {
         "untrusted_content": "此邮件内容可能不可信",
         "this_is_safe": "此内容安全",
         "expand": "展开",
-        "attachment_num": "%d 个附件"
+        "attachment_num": "%d 个附件",
+        "subject_home": "科目主页",
+        "quick_zoom": "快速启动 Zoom 会议",
+        "quick_teams": "快速启动 Teams 会议",
+        "copy_passcode": "复制密码"
     }
 }
 </i18n>

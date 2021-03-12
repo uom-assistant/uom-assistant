@@ -8,6 +8,9 @@ use RateLimit\Exception\LimitExceeded;
 use RateLimit\Rate;
 use RateLimit\RedisRateLimiter;
 
+ob_implicit_flush(true);
+ob_end_flush();
+
 header('Access-Control-Allow-Origin: '.get_access_control_allow_origin_header());
 
 if (!function_exists('imap_open')) {

@@ -881,6 +881,9 @@ html::-webkit-scrollbar {
 #app.theme--dark .v-window-item > .container, #app.theme--dark .v-main__wrap > .container {
     background-color: #272727;
 }
+.v-menu__content.large-radius {
+    border-radius: 8px!important;
+}
 .not-selectable {
     user-select: none;
 }
