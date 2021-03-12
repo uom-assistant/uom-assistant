@@ -16,7 +16,7 @@
                         </v-list-item-action>
 
                         <v-list-item-content>
-                            <v-list-item-title><span v-if="coursework.deadline !== false" class="d-inline-block time-remain" :class="checkExpired(coursework.deadline, index)"><v-icon :class="checkUrgent(coursework.deadline, index)" class="mr-1 urgent-icon" dense>mdi-clock-alert-outline</v-icon>{{ displayRemain(coursework.deadline, index) }}</span>{{ coursework.title }}</v-list-item-title>
+                            <v-list-item-title><span v-if="coursework.deadline !== false && displayRemain(coursework.deadline, index) !== ''" class="d-inline-block time-remain" :class="checkExpired(coursework.deadline, index)"><v-icon :class="checkUrgent(coursework.deadline, index)" class="mr-1 urgent-icon" dense>mdi-clock-alert-outline</v-icon>{{ displayRemain(coursework.deadline, index) }}</span>{{ coursework.title }}</v-list-item-title>
                             <v-list-item-subtitle v-if="coursework.deadline !== false || coursework.subject !== false">
                                 <span v-if="coursework.deadline !== false" class="mr-2">
                                     <v-icon
@@ -116,7 +116,7 @@ export default {
          */
         displayRemain(deadline, index) {
             if (this.ifCourseworks.includes(index)) {
-                return this.$t('done');
+                return '';
             }
 
             const now = new Date().valueOf();
@@ -345,8 +345,7 @@ export default {
         "remain_hour_plural": "%d hours",
         "remain_min": "%d min",
         "remain_min_plural": "%d mins",
-        "expired": "Expired",
-        "done": "Done"
+        "expired": "Expired"
     },
     "zh": {
         "remain_day": "%d 天",
@@ -355,8 +354,7 @@ export default {
         "remain_hour_plural": "%d 小时",
         "remain_min": "%d 分钟",
         "remain_min_plural": "%d 分钟",
-        "expired": "已过期",
-        "done": "完成"
+        "expired": "已过期"
     }
 }
 </i18n>
