@@ -553,7 +553,7 @@ export default {
                 return;
             }
 
-            if (!(Object.prototype.toString.call(response) === '[object Object]') || !response.uomabVersion || !response.success) {
+            if (Object.prototype.toString.call(response) !== '[object Object]' || !response.uomabVersion || !response.success) {
                 // Not a valid UoM Assistant backend
                 this.urlErrorTemp = false;
                 this.urlError = true;

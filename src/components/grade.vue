@@ -357,7 +357,7 @@ export default {
                 return;
             }
 
-            if (!(Object.prototype.toString.call(response) === '[object Object]') || !response.uomabVersion) {
+            if (Object.prototype.toString.call(response) !== '[object Object]' || !response.uomabVersion) {
                 // Not a valid UoM Assistant backend
                 if (this.backendStatus) {
                     this.$store.commit('addError', {
