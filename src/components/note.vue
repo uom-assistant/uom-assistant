@@ -20,7 +20,7 @@
                 <v-btn icon small class="float-right mr-4" :title="$t('new')" @click.stop="addOne(false)">
                     <v-icon>mdi-plus</v-icon>
                 </v-btn>
-                <v-btn icon small class="float-right mr-2" :title="$t('select')" @click.stop="multi = true">
+                <v-btn icon small class="float-right mr-2" :title="$t('select')" @click.stop="multi = true" v-show="notes.length > 0">
                     <v-icon>mdi-checkbox-multiple-blank-outline</v-icon>
                 </v-btn>
             </h2>
