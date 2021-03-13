@@ -341,7 +341,7 @@ export default {
             this.editingId = '';
             this.editingHomePage = '';
             this.editingHide = false;
-            this.editingColor = 'blue';
+            this.editingColor = this.colors[0];
             this.editingSessionLink = '';
             this.editingSessionLinks = [];
             this.dialog = true;

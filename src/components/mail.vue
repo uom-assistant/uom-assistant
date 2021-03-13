@@ -1751,7 +1751,7 @@ export default {
 
             const k = 1024;
             const dm = decimals < 0 ? 0 : decimals;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
 
             const i = Math.floor(Math.log(bytes) / Math.log(k));
 
@@ -2614,7 +2614,7 @@ export default {
                 color: white!important;
             }
             .cm-s-xq-light .CodeMirror-activeline-background {
-                background-color: #444444;
+                background-color: #303030;
             }
             .cm-s-xq-light span.cm-comment {
                 color: #777777;

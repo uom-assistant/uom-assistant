@@ -1094,7 +1094,7 @@ export default {
                 color: white!important;
             }
             .cm-s-xq-light .CodeMirror-activeline-background {
-                background-color: #444444;
+                background-color: #303030;
             }
             .cm-s-xq-light span.cm-comment {
                 color: #777777;
