@@ -2,10 +2,10 @@
  * Use fetch to download a file with progress monitor
  * @param {string} url url
  * @param {object?} option `fetch` options
- * @param {Function} callback callback function when progress updated
+ * @param {Function?} callback callback function when progress updated
  * @returns {Promise<object|string>} response data or response object when error
  */
-export default async (url, option = {}, callback) => {
+export default async (url, option = {}, callback = null) => {
     const response = await fetch(url, option);
     const reader = response.body.getReader();
 
@@ -22,7 +22,9 @@ export default async (url, option = {}, callback) => {
 
         chunks.push(value);
         receivedLength += value.length;
-        callback(receivedLength);
+        if (callback !== null) {
+            callback(receivedLength);
+        }
     }
 
     const chunksAll = new Uint8Array(receivedLength);

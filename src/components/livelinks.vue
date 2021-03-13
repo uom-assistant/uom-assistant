@@ -249,7 +249,7 @@ export default {
             margin: 0;
             margin-left: 8px!important;
             .v-btn {
-                font-family: monospace, monospace;
+                font-family: monospace;
                 width: 90px;
                 margin-right: -4px;
                 .v-icon--left {

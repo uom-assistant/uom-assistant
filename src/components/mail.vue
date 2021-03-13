@@ -462,7 +462,7 @@
                     </v-alert>
                     <div class="body-text ma-5 mb-5">{{ viewer.bodyText }}</div>
                 </div>
-                <iframe sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" :srcdoc="((!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML) ? '' : viewer.bodyHTML" v-show="!loadingBody && !((!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML)" class="sandbox ma-5 mt-4" frameborder="0" ref="sandbox" allowtransparency="true" :height="`${sandboxHeight < 10 ? 0 : (sandboxHeight + 16)}px`"></iframe>
+                <iframe :title="$t('mail_body')" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" :srcdoc="((!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML) ? '' : viewer.bodyHTML" v-show="!loadingBody && !((!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML)" class="sandbox ma-5 mt-4" frameborder="0" ref="sandbox" allowtransparency="true" :height="`${sandboxHeight < 10 ? 0 : (sandboxHeight + 16)}px`"></iframe>
             </div>
         </div>
         <div class="editor-layer-mask" :class="{ opened: layerOpened }"></div>
@@ -2553,7 +2553,7 @@ export default {
             margin: 0;
             margin-left: 8px!important;
             .v-btn {
-                font-family: monospace, monospace;
+                font-family: monospace;
                 width: 90px;
                 margin-right: -4px;
                 .v-icon--left {
@@ -2724,7 +2724,8 @@ export default {
         "subject_home": "Course Home Page",
         "quick_zoom": "Zoom meeting quick start",
         "quick_teams": "Teams meeting quick start",
-        "copy_passcode": "Copy passcode"
+        "copy_passcode": "Copy passcode",
+        "mail_body": "Mail body"
     },
     "zh": {
         "mail": "收件箱",
@@ -2778,7 +2779,8 @@ export default {
         "subject_home": "科目主页",
         "quick_zoom": "快速启动 Zoom 会议",
         "quick_teams": "快速启动 Teams 会议",
-        "copy_passcode": "复制密码"
+        "copy_passcode": "复制密码",
+        "mail_body": "邮件正文"
     }
 }
 </i18n>
