@@ -178,8 +178,8 @@ export default {
                 } else {
                     this.statusAnnual = 'warning';
                 }
+                this.init = true;
             }
-            this.init = true;
             this.loading = false;
         },
     },

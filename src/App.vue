@@ -699,7 +699,7 @@ export default {
          */
         updateFrontend() {
             localStorage.setItem('update_frontend', 'true');
-            window.location.reload(true);
+            window.location.replace(window.location.href);
         },
     },
     computed: {
@@ -782,8 +782,8 @@ export default {
             this.updating = true;
             window.addEventListener('load', () => {
                 setTimeout(() => {
-                    window.location.reload(true);
-                }, 10000);
+                    window.location.replace(window.location.href);
+                }, 15000);
             });
         } else if (updating === 'remove') {
             localStorage.removeItem('update_frontend');
@@ -1051,6 +1051,9 @@ html::-webkit-scrollbar {
 }
 .update-title {
     font-size: 1rem;
+}
+.v-application--is-ltr .v-toolbar__content > .v-btn.v-btn--icon:first-child + .v-toolbar__title {
+    padding-left: 12px!important;
 }
 @media (max-width: 960px) {
     .global-search-input {
