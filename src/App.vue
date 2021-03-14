@@ -89,7 +89,7 @@
                 append-icon="mdi-close"
                 class="global-search-input"
                 ref="searchInput"
-                @click:append="searchOpened = false"
+                @click:append="closeSearch"
             ></v-text-field>
         </v-app-bar>
         <div id="search-result" class="elevation-3" :class="{ open: searchOpened }" v-show="searching !== '' && searching !== null && searchIndexFiltered.filter((item) => item).flat().length > 0">
@@ -636,6 +636,13 @@ export default {
             }, 350);
         },
         /**
+         * Close search bar and blur the input field
+         */
+        closeSearch() {
+            this.searchOpened = false;
+            this.$refs.searchInput.blur();
+        },
+        /**
          * Rebuild searchers from search indexes when search indexes changed
          */
         rebuildSearchIndex() {
@@ -1054,6 +1061,18 @@ html::-webkit-scrollbar {
 }
 .v-application--is-ltr .v-toolbar__content > .v-btn.v-btn--icon:first-child + .v-toolbar__title {
     padding-left: 12px!important;
+}
+.v-slider__thumb:after {
+    transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+    content: '';
+    color: inherit;
+    width: 300%;
+    height: 300%;
+    border-radius: 50%;
+    background: transparent;
+    position: absolute;
+    left: -100%;
+    top: -100%;
 }
 @media (max-width: 960px) {
     .global-search-input {

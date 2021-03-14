@@ -219,7 +219,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import ICAL from 'ical.js';
+import { parse } from 'ical.js';
 import localForage from 'localforage';
 import Vue from 'vue';
 import VueClipboard from 'vue-clipboard2';
@@ -490,7 +490,7 @@ export default {
             // Parse ical file
             let rawData = [[], [], []];
             try {
-                rawData = ICAL.parse(response.data);
+                rawData = parse(response.data);
             } catch (icalerr) {
                 this.$store.commit('addError', {
                     title: this.$t('ical_error'),
@@ -866,8 +866,7 @@ export default {
         margin-right: 1px;
     }
     .v-event.v-event-start.v-event-end {
-        width: 97%!important;
-        margin-left: 1%;
+        margin-left: 2.5%;
     }
     .v-current-time {
         height: 2px;

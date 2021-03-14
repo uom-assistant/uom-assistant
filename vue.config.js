@@ -33,6 +33,9 @@ module.exports = {
                 },
             ],
         },
+        manifestOptions: {
+            background_color: '#FFFFFF',
+        },
     },
 
     configureWebpack: {
