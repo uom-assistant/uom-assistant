@@ -546,7 +546,8 @@ export default {
                 return;
             }
             if (this.ifNotes.length === 1) {
-                this.removeNote(this.ifNotes[0]);
+                this.toRemove = this.ifNotes[0];
+                this.removeConfirmed();
             } else {
                 const newNotes = [];
                 const newPreviews = [];
