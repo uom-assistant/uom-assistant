@@ -665,7 +665,7 @@ export default {
          * @param {Event} e scroll event
          */
         onScrollView(e) {
-            this.scrollPercentage = e.target.scrollTop / (this.$refs.render.clientHeight - 475);
+            this.scrollPercentage = e.target.scrollTop / (this.$refs.render.clientHeight - 480);
         },
     },
     watch: {
@@ -703,7 +703,12 @@ export default {
                 this.cmRefresh = `${new Date().valueOf()}`;
                 this.$nextTick(() => {
                     // Sync scroll between to views
-                    this.$refs.codemirror.codemirror.scrollTo(null, this.scrollPercentage * (this.$refs.codemirror.codemirror.getScrollInfo().height - 500));
+                    const savedPercentage = this.scrollPercentage;
+                    this.$refs.codemirror.codemirror.scrollTo(null, savedPercentage * (this.$refs.codemirror.codemirror.getScrollInfo().height - 500));
+                    // Since codemirror cannot get correct height at first, re-position after the first scrollTo
+                    this.$nextTick(() => {
+                        this.$refs.codemirror.codemirror.scrollTo(null, savedPercentage * (this.$refs.codemirror.codemirror.getScrollInfo().height - 500));
+                    });
                 });
             } else {
                 if (this.$refs.render) {
@@ -719,8 +724,8 @@ export default {
                         ],
                     });
                     this.$nextTick(() => {
-                    // Sync scroll between to views
-                        this.$refs.renderScroll.scrollTo(null, this.scrollPercentage * (this.$refs.render.clientHeight - 475));
+                        // Sync scroll between to views
+                        this.$refs.renderScroll.scrollTo(null, this.scrollPercentage * (this.$refs.render.clientHeight - 480));
                     });
                 }
             }
@@ -882,92 +887,95 @@ export default {
             overflow: auto;
             overscroll-behavior: contain;
             padding: 10px 20px;
-            h1 {
-                border-bottom: 1px solid #eaecef;
-            }
-            h2 {
-                display: block;
-                font-size: 1.5em;
-                margin-block-start: 0.83em;
-                margin-block-end: 0.83em;
-                margin-inline-start: 0px;
-                margin-inline-end: 0px;
-                margin: 0;
-                font-weight: bold;
-                border-bottom: 1px solid #eaecef;
-            }
-            h1, h2, h3, h4, h5, h6 {
-                margin-bottom: 0.3em;
-            }
-            hr {
-                display: block;
-                flex: 1 1 0px;
-                max-width: 100%;
-                height: 0px;
-                max-height: 0px;
-                border: solid;
-                border-width: thin 0 0 0;
-                border-color: rgba(0, 0, 0, 0.2);
-                margin-bottom: 12px;
-            }
-            .hljs {
-                margin: 5px 0 12px 0;
-                border-radius: 5px;
-                font-size: 14px;
-                padding: 10px 12px;
-                background-color: #f8f8f8;
-                .hljs-comment {
-                    color: #888888;
+            & > div {
+                overflow: hidden;
+                h1 {
+                    border-bottom: 1px solid #eaecef;
                 }
-            }
-            ul.contains-task-list li.task-list-item {
-                list-style: none;
-                margin-left: -24px;
-            }
-            img + em {
-                color: #a1a1a1;
-                display: inline-block;
-                font-size: 14px;
-                text-align: center;
-                width: 100%;
-            }
-            .accent {
-                background-color: transparent!important;
-                border: none!important;
-                border-color: transparent!important;
-            }
-            blockquote {
-                padding-left: 12px;
-                border-left: 4px solid #EEEEEE;
-                color: #999999;
-            }
-            table {
-                border-collapse: collapse;
-                border-spacing: 0;
-                margin: 16px 0;
-                text-align: left;
-                width: 100%;
-                td, th {
-                    border-bottom: 1px solid #EEEEEE;
-                    padding: 8px 4px;
+                h2 {
+                    display: block;
+                    font-size: 1.5em;
+                    margin-block-start: 0.83em;
+                    margin-block-end: 0.83em;
+                    margin-inline-start: 0px;
+                    margin-inline-end: 0px;
+                    margin: 0;
+                    font-weight: bold;
+                    border-bottom: 1px solid #eaecef;
                 }
-                th {
-                    border-bottom-width: 2px;
+                h1, h2, h3, h4, h5, h6 {
+                    margin-bottom: 0.5em;
                 }
-            }
-            @import (less) "../../backend/css/md.css";
-            [mask] {
-                background-color: #1E1E1E;
-                color: #1E1E1E;
-                &:hover {
-                    color: white;
+                hr {
+                    display: block;
+                    flex: 1 1 0px;
+                    max-width: 100%;
+                    height: 0px;
+                    max-height: 0px;
+                    border: solid;
+                    border-width: thin 0 0 0;
+                    border-color: rgba(0, 0, 0, 0.2);
+                    margin-bottom: 12px;
                 }
-            }
-            [blur] {
-                filter: blur(7px);
-                transition: filter .2s;
-                &:hover {
-                    filter: blur(0);
+                .hljs {
+                    margin: 5px 0 12px 0;
+                    border-radius: 5px;
+                    font-size: 14px;
+                    padding: 10px 12px;
+                    background-color: #f8f8f8;
+                    .hljs-comment {
+                        color: #888888;
+                    }
+                }
+                ul.contains-task-list li.task-list-item {
+                    list-style: none;
+                    margin-left: -24px;
+                }
+                img + em {
+                    color: #a1a1a1;
+                    display: inline-block;
+                    font-size: 14px;
+                    text-align: center;
+                    width: 100%;
+                }
+                .accent {
+                    background-color: transparent!important;
+                    border: none!important;
+                    border-color: transparent!important;
+                }
+                blockquote {
+                    padding-left: 12px;
+                    border-left: 4px solid #EEEEEE;
+                    color: #999999;
+                }
+                table {
+                    border-collapse: collapse;
+                    border-spacing: 0;
+                    margin: 16px 0;
+                    text-align: left;
+                    width: 100%;
+                    td, th {
+                        border-bottom: 1px solid #EEEEEE;
+                        padding: 8px 4px;
+                    }
+                    th {
+                        border-bottom-width: 2px;
+                    }
+                }
+                @import (less) "../../backend/css/md.css";
+                [mask] {
+                    background-color: #1E1E1E;
+                    color: #1E1E1E;
+                    &:hover {
+                        color: white;
+                    }
+                }
+                [blur] {
+                    filter: blur(7px);
+                    transition: filter .2s;
+                    &:hover {
+                        filter: blur(0);
+                    }
                 }
             }
         }
