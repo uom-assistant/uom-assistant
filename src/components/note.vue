@@ -215,6 +215,10 @@ import hljs from 'highlight.js/lib/core';
 import mdTaskLists from 'markdown-it-task-lists';
 import mdLinkAttr from 'markdown-it-link-attributes';
 import mdMark from 'markdown-it-mark';
+import mdSub from 'markdown-it-sub';
+import mdSup from 'markdown-it-sup';
+import mdSpan from 'markdown-it-bracketed-spans';
+import mdAttrs from 'markdown-it-attrs';
 
 import javascript from 'highlight.js/lib/languages/javascript';
 import python from 'highlight.js/lib/languages/python';
@@ -791,6 +795,12 @@ export default {
             },
         });
         this.md.use(mdMark);
+        this.md.use(mdSub);
+        this.md.use(mdSup);
+        this.md.use(mdSpan);
+        this.md.use(mdAttrs, {
+            allowedAttributes: ['red', 'orange', 'yellow', 'green', 'teal', 'blue', 'purple', 'grey', 'bg-red', 'bg-orange', 'bg-yellow', 'bg-green', 'bg-teal', 'bg-blue', 'bg-purple', 'bg-grey', 'big', 'small', 'mask', 'blur', 'style'],
+        });
 
         this.buildPreviews();
         this.buildSearchIndex();
@@ -889,9 +899,6 @@ export default {
             h1, h2, h3, h4, h5, h6 {
                 margin-bottom: 0.3em;
             }
-            ul, ol, p {
-                margin-bottom: 12px;
-            }
             hr {
                 display: block;
                 flex: 1 1 0px;
@@ -917,9 +924,12 @@ export default {
                 list-style: none;
                 margin-left: -24px;
             }
-            img {
-                margin: 0 auto;
-                max-width: 100%;
+            img + em {
+                color: #a1a1a1;
+                display: inline-block;
+                font-size: 14px;
+                text-align: center;
+                width: 100%;
             }
             .accent {
                 background-color: transparent!important;
@@ -930,6 +940,35 @@ export default {
                 padding-left: 12px;
                 border-left: 4px solid #EEEEEE;
                 color: #999999;
+            }
+            table {
+                border-collapse: collapse;
+                border-spacing: 0;
+                margin: 16px 0;
+                text-align: left;
+                width: 100%;
+                td, th {
+                    border-bottom: 1px solid #EEEEEE;
+                    padding: 8px 4px;
+                }
+                th {
+                    border-bottom-width: 2px;
+                }
+            }
+            @import (less) "../../backend/css/md.css";
+            [mask] {
+                background-color: #1E1E1E;
+                color: #1E1E1E;
+                &:hover {
+                    color: white;
+                }
+            }
+            [blur] {
+                filter: blur(7px);
+                transition: filter .2s;
+                &:hover {
+                    filter: blur(0);
+                }
             }
         }
         .md-editor {
@@ -1084,6 +1123,24 @@ export default {
             blockquote {
                 border-left: 4px solid #3b3b3b;
                 color: #999999;
+            }
+            table {
+                td, th {
+                    border-bottom: 1px solid #3b3b3b;
+                }
+                th {
+                    border-bottom-width: 2px;
+                }
+            }
+            [purple] {
+                color: #D099E0;
+            }
+            [mask] {
+                background-color: white;
+                color: white;
+                &:hover {
+                    color: #1E1E1E;
+                }
             }
         }
         .md-editor {

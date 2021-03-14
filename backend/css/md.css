@@ -1,0 +1,76 @@
+
+ul, ol, p {
+    margin-bottom: 12px;
+}
+img {
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+}
+blockquote {
+    padding-left: 12px;
+    border-left: 4px solid #EEEEEE;
+    color: #999999;
+}
+[red] {
+    color: #F44336;
+}
+[orange] {
+    color: #FF9800;
+}
+[yellow] {
+    color: #FDD835;
+}
+[green] {
+    color: #4CAF50;
+}
+[teal] {
+    color: #26A69A;
+}
+[blue] {
+    color: #2196F3;
+}
+[purple] {
+    color: #660099;
+}
+[grey] {
+    color: #9E9E9E;
+}
+[bg-red] {
+    color: white;
+    background-color: #F44336;
+}
+[bg-orange] {
+    color: white;
+    background-color: #FF9800;
+}
+[bg-yellow] {
+    color: white;
+    background-color: #FBC02D;
+}
+[bg-green] {
+    color: white;
+    background-color: #4CAF50;
+}
+[bg-teal] {
+    color: white;
+    background-color: #26A69A;
+}
+[bg-blue] {
+    color: white;
+    background-color: #2196F3;
+}
+[bg-purple] {
+    color: white;
+    background-color: #660099;
+}
+[bg-grey] {
+    color: white;
+    background-color: #757575;
+}
+[big] {
+    font-size: 1.35rem;
+}
+[small] {
+    font-size: 12px;
+}

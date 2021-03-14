@@ -552,6 +552,11 @@ import { saveAs } from 'file-saver';
 import localForage from 'localforage';
 import markdown from 'markdown-it';
 
+import mdSub from 'markdown-it-sub';
+import mdSup from 'markdown-it-sup';
+import mdSpan from 'markdown-it-bracketed-spans';
+import mdAttrs from 'markdown-it-attrs';
+
 import 'codemirror/mode/markdown/markdown';
 import 'codemirror/addon/selection/active-line';
 import 'codemirror/addon/edit/closebrackets';
@@ -2038,6 +2043,12 @@ export default {
             typographer: false,
             highlight: '',
         });
+        this.md.use(mdSub);
+        this.md.use(mdSup);
+        this.md.use(mdSpan);
+        this.md.use(mdAttrs, {
+            allowedAttributes: ['red', 'orange', 'yellow', 'green', 'teal', 'blue', 'purple', 'grey', 'bg-red', 'bg-orange', 'bg-yellow', 'bg-green', 'bg-teal', 'bg-blue', 'bg-purple', 'bg-grey', 'big', 'small', 'style'],
+        });
 
         // Restore settings
         this.isSettingSound = true;
@@ -2333,51 +2344,12 @@ export default {
             overflow: auto;
             overscroll-behavior: contain;
             padding: 10px 20px;
-            h1 {
-                border-bottom: 1px solid #eaecef;
-            }
-            h2 {
-                display: block;
-                font-size: 1.5em;
-                margin-block-start: 0.83em;
-                margin-block-end: 0.83em;
-                margin-inline-start: 0px;
-                margin-inline-end: 0px;
-                margin: 0;
-                font-weight: bold;
-                border-bottom: 1px solid #eaecef;
-            }
-            h1, h2, h3, h4, h5, h6 {
-                margin-bottom: 0.3em;
-            }
-            ul, ol, p {
-                margin-bottom: 12px;
-            }
-            hr {
-                display: block;
-                flex: 1 1 0px;
-                max-width: 100%;
-                height: 0px;
-                max-height: 0px;
-                border: solid;
-                border-width: thin 0 0 0;
-                border-color: rgba(0, 0, 0, 0.2);
-                margin-bottom: 12px;
-            }
-            img {
-                margin: 0 auto;
-                max-width: 100%;
-            }
             .accent {
                 background-color: transparent!important;
                 border: none!important;
                 border-color: transparent!important;
             }
-            blockquote {
-                padding-left: 12px;
-                border-left: 4px solid #EEEEEE;
-                color: #999999;
-            }
+            @import (less) "../../backend/css/md.css";
         }
         .md-editor {
             height: 500px;
@@ -2602,18 +2574,12 @@ export default {
         }
         .render-result {
             color: rgba(255, 255, 255, .87);
-            h1 {
-                border-bottom: 1px solid #3A3A3A;
-            }
-            h2 {
-                border-bottom: 1px solid #3A3A3A;
-            }
-            hr {
-                border-color: rgba(255, 255, 255, 0.2);
-            }
             blockquote {
                 border-left: 4px solid #3b3b3b;
                 color: #999999;
+            }
+            [purple] {
+                color: #D099E0;
             }
         }
         .md-editor {
