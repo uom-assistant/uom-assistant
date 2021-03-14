@@ -57,7 +57,7 @@
                                 </v-list-item-icon>
 
                                 <v-list-item-content>
-                                    <v-list-item-title>{{ note.title === '' ? '' : note.title }}<em v-if="note.title === ''">{{ $t('untitled') }}</em></v-list-item-title>
+                                    <v-list-item-title :title="note.title === $t('untitled') ? '' : note.title">{{ note.title === '' ? '' : note.title }}<em v-if="note.title === ''">{{ $t('untitled') }}</em></v-list-item-title>
                                     <v-list-item-subtitle>
                                         <span :class="{ hide: previews[index] !== '' }">
                                             <v-icon
@@ -1046,7 +1046,7 @@ export default {
             }
         }
         .delete {
-            margin: 0 0 0 8px;
+            margin: 0 0 0 8px!important;
             opacity: 0;
             transition: .2s;
         }

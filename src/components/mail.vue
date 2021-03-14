@@ -200,7 +200,7 @@
             <v-divider></v-divider>
             <div class="viewer" ref="viewerDom">
                 <h1 class="text-subtitle-1 px-5 py-3 mail-view-subject"><span v-if="viewer.subject !== false">{{ viewer.subject }}</span><em v-else>{{ $t('no_subject') }}</em></h1>
-                <div v-show="viewer.courseId !== ''" class="subject-subtitle mx-5 text--disabled text-body-2 pb-3">
+                <div v-show="viewer.courseId !== ''" class="subject-subtitle mx-5 text--disabled text-body-2 pb-3 text-truncate">
                     <v-menu
                         :close-on-content-click="false"
                         nudge-bottom="5"
@@ -233,7 +233,7 @@
                                         <v-btn
                                             icon
                                             small
-                                            class="mr-0 ml-2"
+                                            class="mr-0 ml-2 course-home"
                                             target="_blank"
                                             :href="subjectLinks(viewer.courseId).homeLink"
                                             color="grey"
@@ -246,7 +246,7 @@
                                     <span>{{ $t('subject_home') }}</span>
                                 </v-tooltip>
                             </v-toolbar>
-                            <v-card-text>
+                            <v-card-text :class="{ empty: subjectLinks(viewer.courseId).sessionLinks.length === 0 }">
                                 <v-list flat class="list" v-if="viewer.courseId !== '' && subjectLinks(viewer.courseId).sessionLinks.length > 0">
                                     <v-list-item-group>
                                         <v-list-item
@@ -1779,7 +1779,7 @@ export default {
          * @returns {string} subject color name or ''
          */
         subjectColor(subject) {
-            if (!this.subjects || subject === false) {
+            if (!this.subjects) {
                 return '';
             }
             for (const item of this.subjects) {
@@ -2507,8 +2507,14 @@ export default {
             font-size: 0.875rem;
         }
     }
+    .course-home {
+        margin-top: 10px;
+    }
     .v-card__text {
         padding-top: 5px;
+        &.empty {
+            padding: 4.5px;
+        }
     }
     .list {
         margin-bottom: 0;

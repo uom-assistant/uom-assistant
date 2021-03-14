@@ -141,7 +141,7 @@
                                         <v-btn
                                             icon
                                             small
-                                            class="mr-0 ml-2"
+                                            class="mr-0 ml-2 course-home"
                                             target="_blank"
                                             :href="subjectLinks(selectedEvent.subjectId).homeLink"
                                             color="grey"

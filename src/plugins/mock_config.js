@@ -557,7 +557,7 @@ export default [
                     unseen: false,
                 },
                 {
-                    subject: 'COMP16412 Programming 2 2077-78 2nd Semester: Week N Materials for COMP16412 now available',
+                    subject: 'COMP15212 Programming 2 2077-78 2nd Semester: Week N Materials for COMP16412 now available',
                     from: 'Aaaaa Bbbbb - aaaaa.bbbbb@manchester.ac.uk',
                     fromAddress: 'do-not-reply@blackboard.com',
                     replyTo: 'Aaaaa Bbbbb - aaaaa.bbbbb@manchester.ac.uk',
