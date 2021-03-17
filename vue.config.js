@@ -31,6 +31,10 @@ module.exports = {
                     urlPattern: new RegExp('https://cdn.jsdelivr.net/npm/@mdi/font@latest/'),
                     handler: 'StaleWhileRevalidate',
                 },
+                {
+                    urlPattern: new RegExp('/version.json'),
+                    handler: 'NetworkOnly',
+                },
             ],
         },
         manifestOptions: {

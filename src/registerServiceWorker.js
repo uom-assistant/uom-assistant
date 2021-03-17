@@ -18,6 +18,11 @@ if (process.env.NODE_ENV === 'production') {
         },
         updated() {
             console.log('New content is available; please refresh.');
+            const updating = localStorage.getItem('update_frontend') || 'false';
+            if (updating === 'true') {
+                localStorage.setItem('update_frontend', 'remove');
+                window.location.replace(window.location.href);
+            }
         },
         offline() {
             console.log('No internet connection found. App is running in offline mode.');

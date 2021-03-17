@@ -394,14 +394,14 @@ export default {
         font-size: 0.875rem;
     }
     .subject-color-samll {
-        width: 10px;
-        height: 10px;
+        width: 9px;
+        height: 9px;
         display: inline-block;
         border-radius: 50%;
         margin: 0;
         margin-right: 2px;
         margin-left: 2px;
-        margin-bottom: 1px;
+        margin-bottom: 1.5px;
     }
     &.normal {
         padding: 16px;

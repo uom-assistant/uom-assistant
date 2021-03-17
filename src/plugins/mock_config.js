@@ -571,7 +571,7 @@ export default [
                     unseen: true,
                 },
                 {
-                    subject: 'SOMETHING UNSAFE',
+                    subject: 'COMP11120 Mathematical Techniques for Computer Science 2020-21 Full Year: COMP111 this week',
                     from: 'Aaaaa Ccccc',
                     fromAddress: 'aaaaa.cccccc@hotmail.com',
                     replyTo: 'Aaaaa Ccccc',

@@ -18,7 +18,7 @@
                     v-for="(item, index) in shownSubjects"
                     :key="`${index}`"
                 >
-                    {{ item.shortName }}
+                    <span><span :class="item.color" class="subject-color-samll"></span> {{ item.shortName }}</span>
                 </v-tab>
 
                 <v-tab-item
@@ -224,6 +224,15 @@ export default {
         opacity: .87;
         margin-top: 18px;
         margin-left: 20px;
+    }
+    .subject-color-samll {
+        width: 9px;
+        height: 9px;
+        display: inline-block;
+        border-radius: 50%;
+        margin: 0;
+        margin-right: 3px;
+        margin-left: -1px;
     }
     .list {
         padding-top: 0;

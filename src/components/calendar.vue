@@ -11,7 +11,7 @@
                     >
                         <v-btn
                             outlined
-                            class="mr-4"
+                            class="mr-2"
                             :color="$vuetify.theme.dark ? 'grey lighten-1' : 'grey darken-2'"
                             @click="setToday"
                         >
@@ -33,6 +33,7 @@
                             text
                             small
                             :color="$vuetify.theme.dark ? 'grey lighten-1' : 'grey darken-2'"
+                            class="mr-2"
                             @click="next"
                         >
                             <v-icon small>
@@ -795,7 +796,7 @@ export default {
             account: (state) => state.account,
         }),
         calendarLocale() {
-            return this.locale === 'zh' ? 'cn' : 'en';
+            return this.locale === 'zh' ? 'zhHans' : 'en';
         },
     },
     async mounted() {

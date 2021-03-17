@@ -164,6 +164,14 @@
                     <v-list class="mail-menu-list">
                         <v-list-item @click="sendMail">
                             <v-list-item-icon>
+                                <v-icon>mdi-reply-all-outline</v-icon>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                                <v-list-item-title>{{ $t('reply_all') }}</v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-list-item @click="sendMail">
+                            <v-list-item-icon>
                                 <v-icon>mdi-share-outline</v-icon>
                             </v-list-item-icon>
                             <v-list-item-content>
@@ -468,12 +476,15 @@
         <div class="editor-layer-mask" :class="{ opened: layerOpened }"></div>
         <div class="editor-layer" :class="{ opened: layerOpened }">
             <h2 class="handle">
-                <span class="layer-title">{{ $t('new_mail') }}</span>
-                <v-icon class="ml-1 md-icon" :title="$t('md_support')">
+                <v-icon class="mr-3 md-icon" :title="$t('md_support')">
                     mdi-language-markdown
                 </v-icon>
+                <input type="text" v-model.trim="editingSubject" class="title-input" :placeholder="$t('no_subject')">
                 <v-btn icon @click.stop="layerOpened = false" small class="float-right mr-4" :title="$t('close')">
                     <v-icon>mdi-close</v-icon>
+                </v-btn>
+                <v-btn icon @click.stop="mode = 'view'" small class="float-right mr-1" :title="$t('send')" :disabled="(editingTo.length === 0 && editingCc.length === 0)">
+                    <v-icon>mdi-send</v-icon>
                 </v-btn>
                 <v-btn icon @click.stop="mode = 'view'" v-show="mode === 'edit'" small class="float-right mr-2" :title="$t('view')">
                     <v-icon>mdi-eye</v-icon>
@@ -483,8 +494,120 @@
                 </v-btn>
             </h2>
             <v-divider></v-divider>
-            <codemirror v-model="code" :options="cmOption" class="md-editor" v-show="mode === 'edit'" :key="cmRefresh" ref="codemirror" @scroll="onScroll"></codemirror>
-            <div class="render-result" v-show="mode === 'view'" @dblclick="mode = 'edit'" @scroll="onScrollView" ref="renderScroll"><div ref="render"></div></div>
+            <div class="all-height" v-show="mode === 'edit'">
+                <v-combobox
+                    v-model="editingTo"
+                    :items="mailHostListTo"
+                    :search-input.sync="editingToInput"
+                    :title="$t('to')"
+                    multiple
+                    small-chips
+                    deletable-chips
+                    hide-details
+                    hide-no-data
+                    auto-select-first
+                    hide-selected
+                    prepend-inner-icon="mdi-account-arrow-left-outline"
+                    class="send-mail-input"
+                    ref="from"
+                    @input="checkEmail('editingTo')"
+                ></v-combobox>
+                <v-divider></v-divider>
+                <v-combobox
+                    v-model="editingCc"
+                    :items="mailHostListCc"
+                    :search-input.sync="editingCcInput"
+                    :title="$t('cc')"
+                    multiple
+                    small-chips
+                    deletable-chips
+                    hide-details
+                    hide-no-data
+                    auto-select-first
+                    hide-selected
+                    prepend-inner-icon="mdi-closed-caption-outline"
+                    class="send-mail-input"
+                    @input="checkEmail('editingCc')"
+                ></v-combobox>
+                <v-divider></v-divider>
+                <codemirror v-model="code" :options="cmOption" class="md-editor" :key="cmRefresh" ref="codemirror"></codemirror>
+            </div>
+            <div class="render-result" v-show="mode === 'view'" ref="renderScroll"><div ref="render"></div></div>
+            <div class="expand-layer-mask" :class="{ clickable: expandLayerOpened }"></div>
+            <div class="expand-layer" :style="{ top: `${521 - expandLayerPosition}px` }" :class="{ animation: !isDargging }" @dragover.prevent @drop.prevent>
+                <h2><div class="expand-handle"></div></h2>
+                <v-tabs
+                    v-model="expandTab"
+                    height="42"
+                    background-color="transparent"
+                    color="primary"
+                    fixed-tabs
+                >
+                    <v-tab>{{ $t('attachment') }}</v-tab>
+                    <v-tab>{{ $t('reply_forward') }}</v-tab>
+                </v-tabs>
+                <v-tabs-items v-model="expandTab">
+                    <v-tab-item class="expand-tab-item pa-5" :class="{ 'drag-over': isDragOver }" @dragleave="isDragOver = false" @dragover="isDragOver = true" @drop="handleFileDrop">
+                        <div class="drop-layer">
+                            <v-icon x-large color="primary" class="mb-3">mdi-file-hidden</v-icon>
+                            <span class="primary--text">{{ $t('drop_file') }}</span>
+                        </div>
+                        <v-btn
+                            text
+                            block
+                            color="primary"
+                            class="add-btn"
+                            @click="$refs.attachmentInput.click()"
+                        >
+                            <v-icon class="mr-2">mdi-plus-circle-outline</v-icon>
+                            {{ $t('add_attachment') }}
+                        </v-btn>
+                        <input type="file" multiple id="add-attachment" name="add-attachment" class="d-none" ref="attachmentInput" @change="handleFileInput">
+                        <div class="attachment-add-list">
+                            <div class="attachment-add-item d-flex justify-space-between align-center mt-2" v-for="(file, index) in editingAttachments" :key="`attachment-add--${index}`">
+                                <v-icon class="ml-3 mr-3">{{ `mdi-${getFileIcon(file.name)}` }}</v-icon>
+                                <div class="text-body-2 file-name text-truncate" :title="file.name">{{ file.name }}<div class="text--disabled text-caption">{{ formatBytes(file.size) }}</div></div>
+                                <v-btn icon @click="removeAttachment(index)" small class="mr-3">
+                                    <v-icon>mdi-delete-outline</v-icon>
+                                    <template v-slot:loader>
+                                        <v-progress-circular
+                                            indeterminate
+                                            color="grey"
+                                            :width="2"
+                                            :size="20"
+                                            v-show="true"
+                                        ></v-progress-circular>
+                                        <v-progress-circular
+                                            color="primary"
+                                            class="rotating"
+                                            :rotate="-90"
+                                            :width="2.3"
+                                            :size="20"
+                                            :value="0"
+                                            v-show="false"
+                                        ></v-progress-circular>
+                                    </template>
+                                </v-btn>
+                            </div>
+                        </div>
+                    </v-tab-item>
+                    <v-tab-item class="expand-tab-item pa-5">
+                        <div class="not-reply"><span class="text--disabled">{{ $t('not_reply_forward') }}</span></div>
+                    </v-tab-item>
+                </v-tabs-items>
+            </div>
+            <v-slider
+                v-model="expandLayerPosition"
+                height="460"
+                max="460"
+                min="0"
+                thumb-size="0"
+                class="expand-handle-fake"
+                :class="{ grabbing: isDargging }"
+                @start="isDargging = true"
+                @end="rePositionExpandLayer"
+                vertical
+            ></v-slider>
         </div>
         <v-menu
             v-model="listMenu"
@@ -539,6 +662,30 @@
                 </v-list-item>
             </v-list>
         </v-menu>
+        <v-dialog
+            v-model="tooManyAttachments"
+            max-width="400"
+            persistent
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('too_many_attachments') }}
+                </v-card-title>
+                <v-card-text>
+                    {{ $t('too_many_attachments_body') }}
+                </v-card-text>
+                <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                    color="primary"
+                    text
+                    @click="tooManyAttachments = false"
+                >
+                    {{ $t('ok') }}
+                </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-card>
 </template>
 
@@ -588,13 +735,27 @@ export default {
             ifNotify: [0],
             layerOpened: false,
             viewerOpened: false,
+            expandLayerPosition: 0,
+            expandLayerOpened: false,
+            isDargging: false,
+            editingSubject: '',
+            editingTo: [],
+            editingCc: [],
+            editingToInput: null,
+            editingCcInput: null,
+            mailHostListTo: [],
+            mailHostListCc: [],
+            expandTab: 0,
+            isDragOver: false,
+            editingAttachments: [],
+            editingAttachmentsSize: 0,
+            tooManyAttachments: false,
             mode: 'view',
             md: null,
             init: false,
             isSettingSound: false,
             cmRefresh: `${new Date().valueOf()}`,
             code: '',
-            scrollPercentage: 0,
             timer: null,
             keyMin: '',
             refreshLoding: false,
@@ -690,6 +851,22 @@ export default {
                 css: 'language-css3',
                 vue: 'vuejs',
                 dockerfile: 'docker',
+                dockerignore: 'docker',
+                gitignore: 'git',
+                psd: 'drawing-box',
+                svg: 'svg',
+                woff: 'format-size',
+                woff2: 'format-size',
+                ttf: 'format-size',
+                otf: 'format-size',
+                vsix: 'microsoft-visual-studio-code',
+                csv: 'file-table-outline',
+                sql: 'database-search',
+                ipynb: 'notebook-outline',
+                exe: 'console-line',
+                apk: 'android',
+                dmg: 'package-down',
+                ics: 'calendar-month-outline',
             },
             viewer: {
                 subject: '',
@@ -719,6 +896,7 @@ export default {
                 'gitlab.com',
                 'email.teams.microsoft.com',
                 'piazza.com',
+                'microsoft.com',
             ],
             cmOption: {
                 tabSize: 4,
@@ -1380,12 +1558,18 @@ export default {
         sendMail() {
             this.code = '';
             this.mode = 'edit';
-            this.scrollPercentage = 0;
+            this.expandTab = 0;
+            this.editingAttachments = [];
+            this.editingAttachmentsSize = 0;
             this.$nextTick(() => {
                 this.layerOpened = true;
                 setTimeout(() => {
                     this.$refs.codemirror.codemirror.scrollTo(null, 0);
-                    this.$refs.codemirror.codemirror.focus();
+                    if (this.editingTo.length === 0 && this.editingCc.length === 0) {
+                        this.$refs.from.focus();
+                    } else {
+                        this.$refs.codemirror.codemirror.focus();
+                    }
                 }, 500);
             });
         },
@@ -1659,10 +1843,10 @@ export default {
             if (fromAddr.includes('.su@manchester.ac.uk')) {
                 return 'su.gif';
             }
-            if (from !== false && (from.includes('My Manchester ') || from === 'The University of Manchester' || from === 'University of Manchester') && fromAddr.split('@')[1].substr(-16) === 'manchester.ac.uk') {
+            if (from !== false && (from.toLowerCase().includes('my manchester ') || from.toLowerCase() === 'the university of manchester' || from.toLowerCase() === 'university of manchester') && fromAddr.split('@')[1].substr(-16) === 'manchester.ac.uk') {
                 return 'man.gif';
             }
-            if (from !== false && from === 'University of Manchester Student Services' && fromAddr.split('@')[1].substr(-20) === 'ssc@manchester.ac.uk') {
+            if (from !== false && from.toLowerCase() === 'university of manchester student services' && fromAddr.split('@')[1].substr(-20) === 'ssc@manchester.ac.uk') {
                 return 'man.gif';
             }
             if (from === false && fromAddr.includes('@blackboard.com')) {
@@ -1670,6 +1854,12 @@ export default {
             }
             if (fromAddr.includes('@email.teams.microsoft.com')) {
                 return 'teams.gif';
+            }
+            if (from !== false && from.toLowerCase() === 'cortana' && fromAddr.includes('@microsoft.com')) {
+                return 'cortana.gif';
+            }
+            if (fromAddr.includes('@microsoft.com')) {
+                return 'microsoft.gif';
             }
             if (fromAddr.includes('@github.com')) {
                 return 'github.gif';
@@ -1696,7 +1886,7 @@ export default {
                 const match = subject.toUpperCase().match(/[A-Z]{3,4}( |-|_){0,1}\d{5}/);
                 if (match !== null) {
                     const id = match[0].replace(/( |-|_)/, '');
-                    if (this.subjects.findIndex((item) => item.id === id)) {
+                    if (this.subjects.findIndex((item) => item.id === id) !== -1) {
                         return id;
                     }
                 }
@@ -1705,7 +1895,7 @@ export default {
                 const fromMatch = from.toUpperCase().match(/[A-Z]{3,4}( |-|_){0,1}\d{5}/);
                 if (fromMatch !== null) {
                     const fromId = fromMatch[0].replace(/( |-|_)/, '');
-                    if (this.subjects.findIndex((item) => item.id === fromId)) {
+                    if (this.subjects.findIndex((item) => item.id === fromId) !== -1) {
                         return fromId;
                     }
                 }
@@ -1772,6 +1962,128 @@ export default {
             const i = Math.floor(Math.log(bytes) / Math.log(k));
 
             return `${parseFloat((bytes / k ** i).toFixed(dm))} ${sizes[i]}`;
+        },
+        /**
+         * Open expand layer
+         */
+        rePositionExpandLayer() {
+            this.isDargging = false;
+            if (this.expandLayerOpened) {
+                if (this.expandLayerPosition < 400) {
+                    this.expandLayerPosition = 0;
+                    this.expandLayerOpened = false;
+                } else {
+                    this.expandLayerPosition = 460;
+                }
+            } else {
+                if (this.expandLayerPosition > 60) {
+                    this.expandLayerPosition = 460;
+                    this.expandLayerOpened = true;
+                } else {
+                    this.expandLayerPosition = 0;
+                }
+            }
+        },
+        /**
+         * Check if input is a valid email
+         * @param {string} name input name
+         */
+        checkEmail(name) {
+            if (!/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i.test(this[name][this[name].length - 1])) {
+                const data = this[name].pop();
+                this.$nextTick(() => {
+                    this.$nextTick(() => {
+                        this[`${name}Input`] = data;
+                    });
+                });
+            }
+        },
+        /**
+         * Handle file drop event
+         * @param {Event} e file drop event
+         */
+        handleFileDrop(e) {
+            this.isDragOver = false;
+            if (!e.dataTransfer.files) {
+                return;
+            }
+            this.addAttachment(e.dataTransfer.files);
+        },
+        /**
+         * Handle file input event
+         * @param {Event} e file input event
+         */
+        handleFileInput(e) {
+            if (!e.target.files) {
+                return;
+            }
+            this.addAttachment(e.target.files);
+        },
+        /**
+         * Remove a attachment from attachment list
+         * @param {number} index attachment index
+         */
+        removeAttachment(index) {
+            this.editingAttachmentsSize -= this.editingAttachments[index].size;
+            this.editingAttachments.splice(index, 1);
+        },
+        /**
+         * Add a attachment to attachment list
+         * @param {array} list file list to be added
+         */
+        addAttachment(list) {
+            [...list].forEach(async (file) => {
+                if (file.size > 0 && this.editingAttachments.findIndex((item) => item.name === file.name && item.size === file.size) === -1) {
+                    if (file.type === '') {
+                        // Check if it's a dir
+                        try {
+                            await file.slice(0, 1).arrayBuffer();
+                            if (this.editingAttachments.length === 10 || (this.editingAttachmentsSize + file.size) > 15728640) {
+                                this.tooManyAttachments = true;
+                                return;
+                            }
+                            this.editingAttachments.push(file);
+                            this.editingAttachmentsSize += file.size;
+                        } catch (err) {
+                            console.warn(err);
+                        }
+                    } else {
+                        if (this.editingAttachments.length === 10 || (this.editingAttachmentsSize + file.size) > 15728640) {
+                            this.tooManyAttachments = true;
+                            return;
+                        }
+                        this.editingAttachments.push(file);
+                        this.editingAttachmentsSize += file.size;
+                    }
+                }
+            });
+        },
+        /** Build recommend mail host list
+         * @param {string} user mail user
+         * @returns {list} recommend mail host list
+         */
+        buildMailHostList(user) {
+            return [
+                `${user}@manchester.com`,
+                `${user}@student.manchester.com`,
+                `${user}@postgrad.manchester.com`,
+                `${user}@gmail.com`,
+                `${user}@outlook.com`,
+                `${user}@hotmail.com`,
+                `${user}@yahoo.com`,
+                `${user}@qq.com`,
+                `${user}@163.com`,
+                `${user}@mail.ru`,
+                `${user}@yandex.ru`,
+                `${user}@mail.ru`,
+                `${user}@rawagegypt.com`,
+                `${user}@dnet.net.id`,
+                `${user}@tm.net.my`,
+                `${user}@cwgsy.net`,
+                `${user}@btinternet.com`,
+                `${user}@spark.net.gr`,
+                `${user}@otenet.gr`,
+            ];
         },
         /**
          * Map from subject ID to subject color
@@ -1949,44 +2261,49 @@ export default {
         getDate(dateObj) {
             return formatDateTime(dateObj, this.locale, false);
         },
-        /**
-         * Update scroll percentage when editor scrolls
-         * @param {Event} e scroll event
-         */
-        onScroll(e) {
-            const scroller = e.getScrollInfo();
-            this.scrollPercentage = scroller.top / (scroller.height - 500);
-        },
-        /**
-         * Update scroll percentage when viewer scrolls
-         * @param {Event} e scroll event
-         */
-        onScrollView(e) {
-            this.scrollPercentage = e.target.scrollTop / (this.$refs.render.clientHeight - 475);
-        },
     },
     watch: {
         locale() {
             this.$i18n.locale = this.locale;
         },
-        code() {
-            this.mails[this.editing].content = this.code;
+        editingToInput() {
+            if (this.editingToInput === '') {
+                this.editingToInput = null;
+                this.mailHostListTo = [];
+            } else if (this.editingToInput !== null && typeof this.editingToInput !== 'undefined' && this.editingToInput.includes('@')) {
+                const user = this.editingToInput.split('@')[0];
+                if (user.length > 0) {
+                    this.mailHostListTo = this.buildMailHostList(user);
+                } else {
+                    this.mailHostListTo = [];
+                }
+            } else {
+                this.mailHostListTo = [];
+            }
+        },
+        editingCcInput() {
+            if (this.editingCcInput === '') {
+                this.editingCcInput = null;
+                this.mailHostListCc = [];
+            } else if (this.editingCcInput !== null && typeof this.editingCcInput !== 'undefined' && this.editingCcInput.includes('@')) {
+                const user = this.editingCcInput.split('@')[0];
+                if (user.length > 0) {
+                    this.mailHostListCc = this.buildMailHostList(user);
+                } else {
+                    this.mailHostListCc = [];
+                }
+            } else {
+                this.mailHostListCc = [];
+            }
         },
         mode() {
             if (this.mode === 'edit') {
                 // Refresh editor otherwise it will not shown
                 this.cmRefresh = `${new Date().valueOf()}`;
-                this.$nextTick(() => {
-                    // Sync scroll between to views
-                    this.$refs.codemirror.codemirror.scrollTo(null, this.scrollPercentage * (this.$refs.codemirror.codemirror.getScrollInfo().height - 500));
-                });
             } else {
                 if (this.$refs.render) {
                     // Render Markdown
-                    this.$refs.render.innerHTML = this.md.render(this.code).replace('<a href="', '<a target="_blank" rel="noreferrer noopener" href="');
-                    this.$nextTick(() => {
-                        this.$refs.renderScroll.scrollTo(null, this.scrollPercentage * (this.$refs.render.clientHeight - 475));
-                    });
+                    this.$refs.render.innerHTML = this.md.render(this.code);
                 }
             }
         },
@@ -2127,7 +2444,7 @@ export default {
     .new-mail-audio {
         display: none;
     }
-    .viewer-layer-mask, .editor-layer-mask {
+    .viewer-layer-mask, .editor-layer-mask, .expand-layer-mask {
         position: absolute;
         top: 0;
         left: 0;
@@ -2141,10 +2458,15 @@ export default {
         &.opened {
             opacity: .4;
         }
-    }.editor-layer-mask {
+    }
+    .editor-layer-mask {
         z-index: 5;
     }
-    .viewer-layer, .editor-layer {
+    .expand-layer-mask.clickable {
+        pointer-events: auto;
+        opacity: .4;
+    }
+    .viewer-layer, .editor-layer, .expand-layer {
         position: absolute;
         top: 561px;
         left: 0;
@@ -2165,6 +2487,11 @@ export default {
             .layer-title {
                 vertical-align: middle;
             }
+            .title-input {
+                -webkit-appearance: none;
+                width: calc(100% - 155px);
+                outline: transparent;
+            }
             .layer-title-avatar{
                 & > span {
                     font-size: 12px;
@@ -2178,6 +2505,138 @@ export default {
         &.opened {
             top: 0;
             pointer-events: auto;
+        }
+    }
+    .expand-layer {
+        background-color: #fafafa;
+        border-radius: 8px;
+        top: 521px;
+        box-shadow: 0px -5px 25px -4px rgba(0, 0, 0, 0.2);
+        pointer-events: auto;
+        will-change: top;
+        transform: translateZ(0);
+        transition: none;
+        h2 {
+            margin: 0;
+            display: flex;
+            height: 40px;
+            justify-content: center;
+            align-items: center;
+            cursor: grabbing;
+            .expand-handle {
+                width: 40px;
+                height: 5px;
+                border-radius: 2.5px;
+                background-color: rgba(0, 0, 0, .2);
+            }
+        }
+        &.animation {
+            transition: top 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+            h2 {
+                cursor: grab;
+            }
+        }
+        .expand-tab-item {
+            height: 418px;
+            overflow: auto;
+            .not-reply {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .add-btn {
+                height: 48px;
+                border-radius: 6px;
+                background-color: fade(#660099, 12%);
+                transition: filter .2s;
+            }
+            .attachment-add-list {
+                .attachment-add-item {
+                    width: 100%;
+                    margin-right: 0!important;
+                    height: 55px;
+                    border-radius: 6px;
+                    border: 1px solid #E0E0E0;
+                    transition: background-color .2s;
+                    .file-name {
+                        width: calc(100% - 72px);
+                        margin-top: 3px;
+                        .text-caption {
+                            margin-top: -4px;
+                        }
+                    }
+                    button {
+                        .rotating {
+                            animation: progress-circular-rotate 1.4s linear infinite;
+                            .v-progress-circular__underlay {
+                                stroke: transparent;
+                            }
+                        }
+                    }
+                    &:hover {
+                        background-color: rgba(0, 0, 0, .03);
+                    }
+                }
+            }
+            .drop-layer {
+                position: absolute;
+                display: flex;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: fade(#660099, 30%);
+                z-index: 3;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                opacity: 0;
+                transition: opacity .2s;
+                pointer-events: none;
+                user-select: none;
+                & > i {
+                    font-size: 80px!important;
+                }
+            }
+            &.drag-over {
+                .add-btn {
+                    filter: grayscale(1);
+                }
+                .drop-layer {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+    .expand-handle-fake {
+        position: absolute;
+        height: 460px;
+        width: 20px;
+        bottom: 20px;
+        left: -30px;
+        z-index: 10;
+        opacity: 0;
+        .v-slider {
+            height: 100%;
+        }
+        .v-slider__thumb:after {
+            transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+            content: '';
+            width: 4260%;
+            height: 300%;
+            border-radius: 0;
+            background: transparent;
+            position: absolute;
+            left: 220%;
+            top: -100%;
+            cursor: grab;
+        }
+        &.grabbing {
+            .v-slider__thumb:after {
+                cursor: grabbing;
+            }
         }
     }
     .viewer-layer {
@@ -2339,22 +2798,82 @@ export default {
     }
     .editor-layer {
         z-index: 6;
+        .all-height {
+            display: flex;
+            flex-direction: column;
+            height: 460px;
+            overflow: hidden;
+        }
         .render-result {
-            height: 500px;
+            height: 460px;
             overflow: auto;
             overscroll-behavior: contain;
             padding: 10px 20px;
-            .accent {
-                background-color: transparent!important;
-                border: none!important;
-                border-color: transparent!important;
+            & > div {
+                overflow: hidden;
+                .accent {
+                    background-color: transparent!important;
+                    border: none!important;
+                    border-color: transparent!important;
+                }
+                @import (less) "../../backend/css/md.css";
             }
-            @import (less) "../../backend/css/md.css";
+        }
+        .send-mail-input {
+            margin: 0;
+            padding: 0;
+            min-height: 44px;
+            flex-grow: 0;
+            flex-shrink: 0;
+            .v-input__slot {
+                &::before, &::after {
+                    display: none;
+                }
+                .v-input__prepend-inner {
+                    margin-top: 10px;
+                    margin-left: 12px;
+                    padding-right: 0;
+                }
+                .v-select__selections {
+                    padding: 6px 4px;
+                    .v-chip {
+                        width: fit-content;
+                        max-width: 100%;
+                        position: relative;
+                        .v-chip__content {
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            margin-right: 18px;
+                            display: inline-block;
+                            line-height: 24px;
+                            button {
+                                position: absolute;
+                                right: 12px;
+                                top: 3px;
+                            }
+                        }
+                    }
+                }
+                input {
+                    padding: 4px 8px;
+                    height: 32px;
+                    max-height: 32px;
+                }
+            }
+            .v-input__append-inner {
+                display: none;
+            }
+            .v-select__selections {
+                max-height: 150px;
+                overflow: auto;
+            }
         }
         .md-editor {
-            height: 500px;
+            flex-grow: 1;
+            min-height: 0;
+            overflow: hidden;
             .CodeMirror {
-                height: 500px;
+                height: 100%;
                 padding: 0;
                 font-family: Consolas, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
                 line-height: 20px;
@@ -2571,7 +3090,7 @@ export default {
             }
         }
     }
-    .viewer-layer, .editor-layer {
+    .viewer-layer, .editor-layer, .expand-layer {
         background-color: #1E1E1E;
         h2 {
             .title-input {
@@ -2623,6 +3142,31 @@ export default {
             }
         }
     }
+    .expand-layer {
+        background-color: #252525;
+        h2 {
+            .expand-handle {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+        }
+        .add-btn {
+            background-color: fade(#D099E0, 12%);
+            .theme--dark.v-icon {
+                color: #D099E0;
+            }
+        }
+        .attachment-add-list {
+            .attachment-add-item {
+                border: 1px solid #414141;
+                &:hover {
+                    background-color: rgba(255, 255, 255, .03);
+                }
+            }
+        }
+        .drop-layer {
+            background-color: fade(#D099E0, 30%);
+        }
+    }
     .list {
         .v-list-item {
             &:hover, &:focus {
@@ -2665,7 +3209,7 @@ export default {
         "learn_more": "Learn more",
         "new_mail": "New Mail",
         "md_support": "Markdown supported",
-        "view": "View",
+        "view": "Preview",
         "edit": "Edit",
         "write": "Write mail",
         "refresh": "Refresh",
@@ -2687,6 +3231,7 @@ export default {
         "flag": "Flag",
         "unflag": "Unflag",
         "reply": "Reply",
+        "reply_all": "Reply all",
         "close": "Close",
         "forward": "Forward",
         "mark_junk": "Mark as junk",
@@ -2708,7 +3253,16 @@ export default {
         "quick_zoom": "Zoom meeting quick start",
         "quick_teams": "Teams meeting quick start",
         "copy_passcode": "Copy passcode",
-        "mail_body": "Mail body"
+        "mail_body": "Mail body",
+        "send": "Send",
+        "attachment": "Attachment",
+        "reply_forward": "Reply & Forward",
+        "not_reply_forward": "This is not a reply or forward email",
+        "add_attachment": "Click or drag & drop to add",
+        "too_many_attachments": "Too many attachments",
+        "too_many_attachments_body": "You can add up to 10 attachments or 15 MB in total.",
+        "ok": "OK",
+        "drop_file": "Drop your files here"
     },
     "zh": {
         "mail": "收件箱",
@@ -2719,7 +3273,7 @@ export default {
         "learn_more": "了解更多",
         "new_mail": "新邮件",
         "md_support": "支持 Markdown",
-        "view": "查看",
+        "view": "预览",
         "edit": "编辑",
         "write": "写邮件",
         "refresh": "刷新",
@@ -2742,6 +3296,7 @@ export default {
         "flag": "旗标",
         "unflag": "取消旗标",
         "reply": "回复",
+        "reply_all": "回复全部",
         "close": "关闭",
         "forward": "转发",
         "mark_junk": "标记为垃圾邮件",
@@ -2763,7 +3318,16 @@ export default {
         "quick_zoom": "快速启动 Zoom 会议",
         "quick_teams": "快速启动 Teams 会议",
         "copy_passcode": "复制密码",
-        "mail_body": "邮件正文"
+        "mail_body": "邮件正文",
+        "send": "发送",
+        "attachment": "附件",
+        "reply_forward": "回复与转发",
+        "not_reply_forward": "这不是一封回复或转发的邮件",
+        "add_attachment": "点击或拖拽以添加附件",
+        "too_many_attachments": "太多附件了",
+        "too_many_attachments_body": "你可以添加最多 10 个或总大小不超过 15MB 的附件。",
+        "ok": "好",
+        "drop_file": "在此放下文件"
     }
 }
 </i18n>

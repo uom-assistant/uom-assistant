@@ -72,7 +72,7 @@
             hide-details
             class="slider"
             :class="{ opened: adjust }"
-            @mouseup="base = 0"
+            @end="base = 0"
         ></v-slider>
         <div class="clock-outer handle">
             <div class="time-label label-left" :class="$vuetify.breakpoint.xs ? 'small-screen' : ''">

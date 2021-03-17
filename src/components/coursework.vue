@@ -546,7 +546,7 @@ export default {
             return this.subjects.filter((subject) => !subject.hide);
         },
         selectLocale() {
-            return this.locale === 'zh' ? 'cn' : 'en';
+            return this.locale === 'zh' ? 'zhHans' : 'en';
         },
     },
     mounted() {

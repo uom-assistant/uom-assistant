@@ -29,7 +29,7 @@
                                 >
                                     <template>
                                         <v-list-item-content>
-                                            <v-list-item-title><a :href="subject.homeLink" target="_blank" rel="noopener nofollow">{{ subject.name }}</a><a :href="subject.homeLink" target="_blank" rel="noopener nofollow" class="no-underline-link"><v-icon small color="primary">mdi-open-in-new</v-icon></a></v-list-item-title>
+                                            <v-list-item-title><span :class="subject.color" class="subject-color-samll"></span> <a :href="subject.homeLink" target="_blank" rel="noopener nofollow">{{ subject.name }}</a><a :href="subject.homeLink" target="_blank" rel="noopener nofollow" class="no-underline-link"><v-icon small color="primary">mdi-open-in-new</v-icon></a></v-list-item-title>
                                         </v-list-item-content>
                                     </template>
                                 </v-list-item>
@@ -282,6 +282,16 @@ export default {
         opacity: .87;
         margin-top: 18px;
         margin-left: 20px;
+    }
+    .subject-color-samll {
+        width: 10px;
+        height: 10px;
+        display: inline-block;
+        border-radius: 50%;
+        margin: 0;
+        margin-right: 6px;
+        margin-left: 0;
+        margin-bottom: 1px;
     }
     .input {
         width: calc(100% - 32px);
