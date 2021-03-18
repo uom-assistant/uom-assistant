@@ -50,7 +50,6 @@
                         v-model="date"
                         color="primary"
                         @input="dateMenu = false"
-                        :locale="selectLocale"
                     ></v-date-picker>
                 </v-menu>
                 <v-menu
@@ -544,9 +543,6 @@ export default {
                 return [];
             }
             return this.subjects.filter((subject) => !subject.hide);
-        },
-        selectLocale() {
-            return this.locale === 'zh' ? 'zhHans' : 'en';
         },
     },
     mounted() {
