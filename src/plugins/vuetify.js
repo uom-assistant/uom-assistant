@@ -29,5 +29,6 @@ export default new Vuetify({
     },
     lang: {
         locales: { en, zhHans },
+        current: 'en',
     },
 });

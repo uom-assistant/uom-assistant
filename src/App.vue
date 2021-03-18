@@ -749,6 +749,7 @@ export default {
         locale() {
             // Store language settings to local storage
             this.$i18n.locale = this.locale;
+            this.$vuetify.lang.current = this.locale === 'zh' ? 'zhHans' : 'en';
             document.documentElement.lang = this.locale;
             localStorage.setItem('language', this.locale);
             this.$store.commit('setLocale', this.locale);
