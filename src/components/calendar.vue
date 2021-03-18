@@ -91,6 +91,7 @@
                         :events="events"
                         :event-color="getEventColor"
                         :type="type"
+                        :locale="calendarLocale"
                         :key="`calendar-${refreshId}`"
                         :interval-height="40"
                         @click:event="showEvent"
@@ -794,6 +795,9 @@ export default {
             backendStatus: (state) => state.backendStatus,
             account: (state) => state.account,
         }),
+        calendarLocale() {
+            return this.locale === 'zh' ? 'zh-CN' : 'en-GB';
+        },
     },
     async mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
