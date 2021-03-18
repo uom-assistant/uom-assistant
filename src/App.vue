@@ -1199,7 +1199,7 @@ html::-webkit-scrollbar {
         "todo": "TO-DO",
         "bblinks": "Quick Links",
         "livelinks": "Online Session Links",
-        "subjects": "Course Manage",
+        "subjects": "Manage Course",
         "attendance": "Attendance",
         "calendar": "Calendar",
         "coursework": "Coursework",

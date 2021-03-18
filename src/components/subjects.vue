@@ -666,7 +666,7 @@ export default {
 <i18n>
 {
     "en": {
-        "subjects": "Course Manage",
+        "subjects": "Manage Course",
         "nothing": "No course yet",
         "name": "Name",
         "actions": "Actions",

@@ -358,7 +358,7 @@ export default {
         "no_class": "No sourse yet",
         "subjects": "Courses",
         "portals": "Portals",
-        "custom": "Custom"
+        "custom": "Customize"
     },
     "zh": {
         "quick_links": "快速链接",

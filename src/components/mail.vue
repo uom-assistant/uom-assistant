@@ -470,7 +470,7 @@
                     </v-alert>
                     <div class="body-text ma-5 mb-5">{{ viewer.bodyText }}</div>
                 </div>
-                <iframe :title="$t('mail_body')" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" :srcdoc="((!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML) ? '' : viewer.bodyHTML" v-show="!loadingBody && !((!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML)" class="sandbox ma-5 mt-4" frameborder="0" ref="sandbox" allowtransparency="true" :height="`${sandboxHeight < 10 ? 0 : (sandboxHeight + 16)}px`"></iframe>
+                <iframe :title="$t('mail_body')" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" :srcdoc="((!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML) ? '' : viewer.bodyHTML" v-show="!loadingBody && !((!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML)" class="sandbox ma-5 mt-4" frameborder="0" ref="sandbox" allowtransparency="true" :height="`${sandboxHeight < 10 ? 0 : (sandboxHeight + 16)}px`" @load="updateSandboxHeight"></iframe>
             </div>
         </div>
         <div class="editor-layer-mask" :class="{ opened: layerOpened }"></div>
@@ -533,9 +533,10 @@
                 <codemirror v-model="code" :options="cmOption" class="md-editor" :key="cmRefresh" ref="codemirror"></codemirror>
             </div>
             <div class="render-result" v-show="mode === 'view'" ref="renderScroll"><div ref="render"></div></div>
-            <div class="expand-layer-mask" :class="{ clickable: expandLayerOpened }"></div>
-            <div class="expand-layer" :style="{ top: `${521 - expandLayerPosition}px` }" :class="{ animation: !isDargging }" @dragover.prevent @drop.prevent>
-                <h2><div class="expand-handle"></div></h2>
+            <div ref="expendPositioner" class="expend-positioner"></div>
+            <div class="expand-layer-mask" :class="{ clickable: expandLayerOpened }" :style="{ opacity: expandLayerMaskOpacity  }"></div>
+            <div class="expand-layer" :style="{ top: `${521 - mouseMoveDistance}px` }" :class="{ animation: !isDargging }" @dragover.prevent @drop.prevent>
+                <h2 @mousedown="dragMouseDown" @touchstart.prevent="dragTouchStart" @mousewheel.prevent="onMouseWheel"><div class="expand-handle"></div></h2>
                 <v-tabs
                     v-model="expandTab"
                     height="42"
@@ -547,8 +548,8 @@
                     <v-tab>{{ $t('reply_forward') }}</v-tab>
                 </v-tabs>
                 <v-tabs-items v-model="expandTab">
-                    <v-tab-item class="expand-tab-item pa-5" :class="{ 'drag-over': isDragOver }" @dragleave="isDragOver = false" @dragover="isDragOver = true" @drop="handleFileDrop">
-                        <div class="drop-layer">
+                    <v-tab-item class="expand-tab-item pa-5" :class="{ 'drag-over': isDragOver }" @dragover="isDragOver = true">
+                        <div class="drop-layer" @dragleave="isDragOver = false" @drop="handleFileDrop">
                             <v-icon x-large color="primary" class="mb-3">mdi-file-hidden</v-icon>
                             <span class="primary--text">{{ $t('drop_file') }}</span>
                         </div>
@@ -595,19 +596,8 @@
                         <div class="not-reply"><span class="text--disabled">{{ $t('not_reply_forward') }}</span></div>
                     </v-tab-item>
                 </v-tabs-items>
+                <div class="background-filler"></div>
             </div>
-            <v-slider
-                v-model="expandLayerPosition"
-                height="460"
-                max="460"
-                min="0"
-                thumb-size="0"
-                class="expand-handle-fake"
-                :class="{ grabbing: isDargging }"
-                @start="isDargging = true"
-                @end="rePositionExpandLayer"
-                vertical
-            ></v-slider>
         </div>
         <v-menu
             v-model="listMenu"
@@ -713,6 +703,7 @@ import checkBackendVersion from '../tools/checkBackendVersion';
 import betterFetch from '../tools/betterFetch';
 import fetchDownload from '../tools/fetchDownload';
 import formatDateTime from '../tools/formatDateTime';
+import debounce from '../tools/debounce';
 
 import 'codemirror/theme/xq-light.css';
 import 'codemirror/lib/codemirror.css';
@@ -735,9 +726,11 @@ export default {
             ifNotify: [0],
             layerOpened: false,
             viewerOpened: false,
-            expandLayerPosition: 0,
             expandLayerOpened: false,
             isDargging: false,
+            mouseMoveOrigin: 0,
+            mouseMoveDistance: 0,
+            expandLayerMaskOpacity: 0,
             editingSubject: '',
             editingTo: [],
             editingCc: [],
@@ -1092,6 +1085,9 @@ export default {
                 a {
                     color: #D099E0;
                 }`,
+            debouncedWheelEnd: debounce.debounce(function () {
+                this.mouseWheelEnd();
+            }, 200),
         };
     },
     methods: {
@@ -1561,6 +1557,7 @@ export default {
             this.expandTab = 0;
             this.editingAttachments = [];
             this.editingAttachmentsSize = 0;
+            this.mouseMoveDistance = 0;
             this.$nextTick(() => {
                 this.layerOpened = true;
                 setTimeout(() => {
@@ -1964,24 +1961,137 @@ export default {
             return `${parseFloat((bytes / k ** i).toFixed(dm))} ${sizes[i]}`;
         },
         /**
-         * Open expand layer
+         * Handle drag on mouse events
+         * @param {Event} event mousedown event
          */
-        rePositionExpandLayer() {
+        dragMouseDown(event) {
+            event.preventDefault();
+            if (event.button === 0) {
+                const elePosition = this.$refs.expendPositioner.getBoundingClientRect();
+                this.mouseMoveOrigin = elePosition.top + 20;
+                this.updateMouseMoveDistance(this.mouseMoveOrigin - event.clientY);
+                document.documentElement.addEventListener('mousemove', this.dragMove);
+                document.documentElement.addEventListener('mouseup', this.removeEventsMouse);
+                this.isDargging = true;
+            }
+        },
+        /**
+         * Handle drag on mouse events
+         * @param {Event} event mousemove event
+         */
+        dragMove(event) {
+            event.preventDefault();
+            this.updateMouseMoveDistance(this.mouseMoveOrigin - event.clientY);
+        },
+        /**
+         * Handle drag end
+         */
+        dragEnd() {
             this.isDargging = false;
             if (this.expandLayerOpened) {
-                if (this.expandLayerPosition < 400) {
-                    this.expandLayerPosition = 0;
+                if (this.mouseMoveDistance < 360) {
+                    this.mouseMoveDistance = 0;
                     this.expandLayerOpened = false;
+                    this.expandLayerMaskOpacity = 0;
                 } else {
-                    this.expandLayerPosition = 460;
+                    this.mouseMoveDistance = 460;
                 }
             } else {
-                if (this.expandLayerPosition > 60) {
-                    this.expandLayerPosition = 460;
+                if (this.mouseMoveDistance > 100) {
+                    this.mouseMoveDistance = 460;
                     this.expandLayerOpened = true;
+                    this.expandLayerMaskOpacity = 0.4;
                 } else {
-                    this.expandLayerPosition = 0;
+                    this.mouseMoveDistance = 0;
                 }
+            }
+        },
+        /**
+         * Handle drag on touch events
+         * @param {Event} event touchstart event
+         */
+        dragTouchStart(event) {
+            const elePosition = this.$refs.expendPositioner.getBoundingClientRect();
+            this.mouseMoveOrigin = elePosition.top + 20;
+            this.updateMouseMoveDistance(this.mouseMoveOrigin - event.touches[0].clientY);
+            document.documentElement.addEventListener('touchmove', this.touchDragMove, { passive: false });
+            document.documentElement.addEventListener('touchend', this.removeEventsTouch, { passive: false });
+            document.documentElement.addEventListener('touchcancel', this.removeEventsTouch, { passive: false });
+            this.isDargging = true;
+        },
+        /**
+         * Handle drag on touch events
+         * @param {Event} event touchmove event
+         */
+        touchDragMove(event) {
+            event.preventDefault();
+            this.updateMouseMoveDistance(this.mouseMoveOrigin - event.touches[0].clientY);
+        },
+        /**
+         * Remove event listeners on mouse events
+         */
+        removeEventsMouse() {
+            document.documentElement.removeEventListener('mousemove', this.dragMove);
+            document.documentElement.removeEventListener('mouseup', this.removeEventsMouse);
+            this.dragEnd();
+        },
+        /**
+         * Remove event listeners on touch events
+         */
+        removeEventsTouch() {
+            document.documentElement.removeEventListener('touchmove', this.touchDragMove, { passive: false });
+            document.documentElement.removeEventListener('touchend', this.removeEventsTouch, { passive: false });
+            document.documentElement.removeEventListener('touchcancel', this.removeEventsTouch, { passive: false });
+            this.dragEnd();
+        },
+        /**
+         * Handle mousewheel events
+         * @param {Event} event mousewheel event
+         */
+        onMouseWheel(event) {
+            const delta = Math.sign(event.deltaY) * 10;
+            if (this.expandLayerOpened && this.mouseMoveDistance <= 460) {
+                if (this.mouseMoveDistance > 440) {
+                    this.mouseMoveDistance -= delta;
+                    this.expandLayerMaskOpacity = (this.mouseMoveDistance / 460) * 0.4;
+                    this.debouncedWheelEnd();
+                } else {
+                    this.mouseMoveDistance = 0;
+                    this.expandLayerOpened = false;
+                    this.expandLayerMaskOpacity = 0;
+                }
+            } else if (!this.expandLayerOpened && this.mouseMoveDistance >= 0) {
+                if (this.mouseMoveDistance < 20) {
+                    this.mouseMoveDistance -= delta;
+                    this.expandLayerMaskOpacity = (this.mouseMoveDistance / 460) * 0.4;
+                    this.debouncedWheelEnd();
+                } else {
+                    this.mouseMoveDistance = 460;
+                    this.expandLayerOpened = true;
+                    this.expandLayerMaskOpacity = 0.4;
+                }
+            }
+        },
+        /**
+         * Handle the end of mousewheel events
+         */
+        mouseWheelEnd() {
+            this.mouseMoveDistance = this.expandLayerOpened ? 460 : 0;
+        },
+        /**
+         * Update mouse move distance by raw input
+         * @param {number} distance mouse move distance
+         */
+        updateMouseMoveDistance(distance) {
+            if (distance >= 0 && distance <= 460) {
+                this.mouseMoveDistance = distance;
+                this.expandLayerMaskOpacity = (distance / 460) * 0.4;
+            } else if (distance < 0) {
+                this.mouseMoveDistance = (800 / (0.3 * (0 - distance) + 26.65)) - 30;
+                this.expandLayerMaskOpacity = 0;
+            } else if (distance > 460) {
+                this.mouseMoveDistance = 490 - (800 / (0.3 * (distance - 460) + 26.65));
+                this.expandLayerMaskOpacity = 0.4;
             }
         },
         /**
@@ -2018,6 +2128,7 @@ export default {
                 return;
             }
             this.addAttachment(e.target.files);
+            e.target.value = '';
         },
         /**
          * Remove a attachment from attachment list
@@ -2388,14 +2499,11 @@ export default {
             this.updateMailList(true);
         }, 600000);
 
-        this.$refs.sandbox.addEventListener('load', this.updateSandboxHeight);
-
         // Restore cache
         this.cachedMails = await localForage.getItem('mail_cache') || [];
     },
     beforeDestroy() {
         clearInterval(this.timer);
-        this.$refs.sandbox.removeEventListener('load', this.updateSandboxHeight);
     },
 };
 </script>
@@ -2462,9 +2570,12 @@ export default {
     .editor-layer-mask {
         z-index: 5;
     }
-    .expand-layer-mask.clickable {
-        pointer-events: auto;
-        opacity: .4;
+    .expand-layer-mask {
+        will-change: opacity;
+        transform: translateZ(0);
+        .clickable {
+            pointer-events: auto;
+        }
     }
     .viewer-layer, .editor-layer, .expand-layer {
         position: absolute;
@@ -2531,7 +2642,7 @@ export default {
             }
         }
         &.animation {
-            transition: top 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+            transition: top 0.25s cubic-bezier(0.25, 0.8, 0.5, 1);
             h2 {
                 cursor: grab;
             }
@@ -2554,6 +2665,7 @@ export default {
             }
             .attachment-add-list {
                 .attachment-add-item {
+                    user-select: none;
                     width: 100%;
                     margin-right: 0!important;
                     height: 55px;
@@ -2594,49 +2706,28 @@ export default {
                 flex-direction: column;
                 opacity: 0;
                 transition: opacity .2s;
-                pointer-events: none;
                 user-select: none;
+                pointer-events: none;
                 & > i {
                     font-size: 80px!important;
                 }
             }
             &.drag-over {
+                * {
+                    pointer-events: none;
+                }
                 .add-btn {
                     filter: grayscale(1);
                 }
                 .drop-layer {
                     opacity: 1;
+                    pointer-events: auto;
                 }
             }
         }
-    }
-    .expand-handle-fake {
-        position: absolute;
-        height: 460px;
-        width: 20px;
-        bottom: 20px;
-        left: -30px;
-        z-index: 10;
-        opacity: 0;
-        .v-slider {
-            height: 100%;
-        }
-        .v-slider__thumb:after {
-            transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
-            content: '';
-            width: 4260%;
-            height: 300%;
-            border-radius: 0;
-            background: transparent;
-            position: absolute;
-            left: 220%;
-            top: -100%;
-            cursor: grab;
-        }
-        &.grabbing {
-            .v-slider__thumb:after {
-                cursor: grabbing;
-            }
+        .background-filler {
+            height: 40px;
+            background-color: white;
         }
     }
     .viewer-layer {
@@ -2734,6 +2825,7 @@ export default {
             }
             .attachment-list {
                 .attachment-item {
+                    user-select: none;
                     width: calc(50% - 6px);
                     height: 55px;
                     border-radius: 6px;
@@ -2818,6 +2910,12 @@ export default {
                 }
                 @import (less) "../../backend/css/md.css";
             }
+        }
+        .expend-positioner {
+            width: 100%;
+            height: 0;
+            pointer-events: none;
+            opacity: 0;
         }
         .send-mail-input {
             margin: 0;
@@ -3165,6 +3263,9 @@ export default {
         }
         .drop-layer {
             background-color: fade(#D099E0, 30%);
+        }
+        .background-filler {
+            background-color: #1E1E1E;
         }
     }
     .list {

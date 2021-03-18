@@ -1,6 +1,9 @@
 import Vue from 'vue';
 import Vuetify from 'vuetify/lib';
 
+import en from 'vuetify/es5/locale/en';
+import zhHans from 'vuetify/es5/locale/zh-Hans';
+
 Vue.use(Vuetify);
 
 export default new Vuetify({
@@ -23,5 +26,8 @@ export default new Vuetify({
                 colordark: '#555555',
             },
         },
+    },
+    lang: {
+        locales: { en, zhHans },
     },
 });
