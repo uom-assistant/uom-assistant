@@ -683,7 +683,7 @@ export default {
         "subject_number": "Course Number *",
         "subject_number_hint": "E.g. COMP11120",
         "subject_home": "Course Home Page *",
-        "subject_color": "Course Color",
+        "subject_color": "Course Colour",
         "hide_subject": "Hide this course",
         "add_link": "Add a live session link",
         "delete_subject": "Delete course",

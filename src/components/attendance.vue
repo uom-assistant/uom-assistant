@@ -17,29 +17,29 @@
                 <v-btn icon small class="attendance-goto" href="https://studentnet.cs.manchester.ac.uk/ugt/attendance/" target="_blank" rel="noopener nofollow">
                     <v-icon>mdi-chevron-right</v-icon>
                 </v-btn>
-                <span class="float-right text-overline clickable" :class="{ 'text--disabled': view === 'lastMonth' }" @click="view = 'annual'">
-                    {{ $t('annual') }}
-                </span>
-                <span class="float-right text-overline mr-4 clickable" :class="{ 'text--disabled': view === 'annual' }" @click="view = 'lastMonth'">
+                <span class="float-right text-overline clickable" :class="{ 'text--disabled': view === 'annual' }" @click="view = 'lastMonth'">
                     {{ $t('last_month') }}
+                </span>
+                <span class="float-right text-overline mr-4 clickable" :class="{ 'text--disabled': view === 'lastMonth' }" @click="view = 'annual'">
+                    {{ $t('annual') }}
                 </span>
             </h2>
             <v-slide-x-transition leave-absolute>
-                <div class="text-h1 font-weight-regular text-right mt-3 mr-5 big-number" v-show="view === 'lastMonth'" :class="{
-                    'green--text': statusLastMonth === 'ok',
-                    'amber--text': statusLastMonth === 'warning',
-                    'grey--text': statusLastMonth === 'unknown',
-                }">
-                    {{ lastMonth === '-1' ? '--' : `${lastMonth}%` }}
-                </div>
-            </v-slide-x-transition>
-            <v-slide-x-reverse-transition leave-absolute>
                 <div class="text-h1 font-weight-regular text-right pt-3 pr-5 big-number" v-show="view === 'annual'" :class="{
                     'green--text': statusAnnual === 'ok',
                     'amber--text': statusAnnual === 'warning',
                     'grey--text': statusAnnual === 'unknown',
                 }">
                     {{ annual === '-1' ? '--' : `${annual}%` }}
+                </div>
+            </v-slide-x-transition>
+            <v-slide-x-reverse-transition leave-absolute>
+                <div class="text-h1 font-weight-regular text-right mt-3 mr-5 big-number" v-show="view === 'lastMonth'" :class="{
+                    'green--text': statusLastMonth === 'ok',
+                    'amber--text': statusLastMonth === 'warning',
+                    'grey--text': statusLastMonth === 'unknown',
+                }">
+                    {{ lastMonth === '-1' ? '--' : `${lastMonth}%` }}
                 </div>
             </v-slide-x-reverse-transition>
             <div class="pt-3 pr-5 place-holder"></div>
@@ -91,7 +91,7 @@ export default {
             absentRecord: [],
             init: false,
             timer: null,
-            view: 'annual',
+            view: 'lastMonth',
             statusAnnual: 'unknown',
             statusLastMonth: 'unknown',
         };

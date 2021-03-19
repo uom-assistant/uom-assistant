@@ -1,14 +1,15 @@
 /**
  * Format date time based on locale
  * @param {Date} date Date object
- * @param {string} locale locale for `Intl.DateTimeFormat()`
+ * @param {string} locale locale name
  * @param {boolean?} seconds whether to contain seconds
  * @returns {string} formated date time string
  */
 const formatDateTime = (date, locale, seconds = true) => {
-    const yr = new Intl.DateTimeFormat(locale, { year: 'numeric' }).format(date);
-    const mo = new Intl.DateTimeFormat(locale, { month: 'numeric' }).format(date);
-    const da = new Intl.DateTimeFormat(locale, { day: 'numeric' }).format(date);
+    const standardLocale = locale === 'zh' ? 'zh-CN' : 'en';
+    const yr = new Intl.DateTimeFormat(standardLocale, { year: 'numeric' }).format(date);
+    const mo = new Intl.DateTimeFormat(standardLocale, { month: 'numeric' }).format(date);
+    const da = new Intl.DateTimeFormat(standardLocale, { day: 'numeric' }).format(date);
     const hr = `${date.getHours()}`.padStart(2, '0');
     const mi = `${date.getMinutes()}`.padStart(2, '0');
     const sc = `${date.getSeconds()}`.padStart(2, '0');

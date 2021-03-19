@@ -796,7 +796,7 @@ export default {
             account: (state) => state.account,
         }),
         calendarLocale() {
-            return this.locale === 'zh' ? 'zh-CN' : 'en-GB';
+            return this.locale === 'zh' ? 'zh-CN' : 'en';
         },
     },
     async mounted() {
