@@ -51,21 +51,61 @@ if (UOMA_RATE_LIMIT) {
     }
 }
 
+// Handle imap mime encode. Code from https://github.com/barbushin/php-imap/blob/master/src/PhpImap/Mailbox.php
+function lowercase_mb_list_encodings() {
+    $lowercase_encodings = [];
+    $encodings = \mb_list_encodings();
+    foreach ($encodings as $encoding) {
+        $lowercase_encodings[] = \strtolower($encoding);
+    }
+    return $lowercase_encodings;
+}
+
+function convert_to_utf8($string, $fromCharset) {
+    $fromCharset = mb_strtolower($fromCharset);
+    $newString = '';
+
+    switch ($fromCharset) {
+        case 'default': // Charset default is already ASCII (not encoded)
+        case 'utf-8': // Charset UTF-8 is OK
+            $newString .= $string;
+            break;
+        default:
+            // If charset exists in mb_list_encodings(), convert using mb_convert function
+            if (\in_array($fromCharset, lowercase_mb_list_encodings(), true)) {
+                $newString .= \mb_convert_encoding($string, 'UTF-8', $fromCharset);
+            } else {
+                // Fallback: Try to convert with iconv()
+                $iconv_converted_string = @\iconv($fromCharset, 'UTF-8', $string);
+                if (!$iconv_converted_string) {
+                    // If iconv() could also not convert, return string as it is
+                    // (unknown charset)
+                    $newString .= $string;
+                } else {
+                    $newString .= $iconv_converted_string;
+                }
+            }
+            break;
+    }
+    return $newString;
+}
+
 /**
- * Encode UTF-8 data from imap
- * 
- * @param string $data raw data
- * @return string encoded data
+ * Decodes a mime string.
+ *
+ * @param string $string MIME string to decode
+ * @return string Converted string if conversion was successful, or the original string if not
  */
-function mime_encode($data) {
-    $resp = imap_utf8(trim($data));
-    if(preg_match("/=\?/", $resp)) {
-        $resp = iconv_mime_decode($data, ICONV_MIME_DECODE_CONTINUE_ON_ERROR, 'ISO-8859-15');
+function mime_encode($string) {
+    $newString = '';
+    $elements = \imap_mime_header_decode($string);
+    if (false === $elements) {
+        return $string;
     }
-    if(json_encode($resp) == 'null') {
-        $resp = utf8_encode($resp);
+    foreach ($elements as $element) {
+        $newString .= convert_to_utf8($element->text, $element->charset);
     }
-    return $resp;
+    return $newString;
 }
 
 if ($user['email'] === false) {

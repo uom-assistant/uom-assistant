@@ -533,9 +533,8 @@
                 <codemirror v-model="code" :options="cmOption" class="md-editor" :key="cmRefresh" ref="codemirror"></codemirror>
             </div>
             <div class="render-result" v-show="mode === 'view'" ref="renderScroll"><div ref="render"></div></div>
-            <div ref="expendPositioner" class="expend-positioner"></div>
-            <div class="expand-layer-mask" :class="{ clickable: expandLayerOpened }" :style="{ opacity: expandLayerMaskOpacity  }"></div>
-            <div class="expand-layer" :style="{ top: `${521 - mouseMoveDistance}px` }" :class="{ animation: !isDargging }" @dragover.prevent @drop.prevent>
+            <div class="expand-layer-mask" :class="{ clickable: expandLayerOpened }" ref="expandLayerMask"></div>
+            <div class="expand-layer" ref="expandLayer" :class="{ animation: !isDargging }" @dragover.prevent @drop.prevent>
                 <h2 @mousedown="dragMouseDown" @touchstart.prevent="dragTouchStart" @mousewheel.prevent="onMouseWheel"><div class="expand-handle"></div></h2>
                 <v-tabs
                     v-model="expandTab"
@@ -729,8 +728,6 @@ export default {
             expandLayerOpened: false,
             isDargging: false,
             mouseMoveOrigin: 0,
-            mouseMoveDistance: 0,
-            expandLayerMaskOpacity: 0,
             editingSubject: '',
             editingTo: [],
             editingCc: [],
@@ -1557,7 +1554,9 @@ export default {
             this.expandTab = 0;
             this.editingAttachments = [];
             this.editingAttachmentsSize = 0;
-            this.mouseMoveDistance = 0;
+            this.$refs.expandLayer.style.top = '521px';
+            this.$refs.expandLayerMask.style.opacity = 0;
+            this.expandLayerOpened = false;
             this.$nextTick(() => {
                 this.layerOpened = true;
                 setTimeout(() => {
@@ -1967,8 +1966,11 @@ export default {
         dragMouseDown(event) {
             event.preventDefault();
             if (event.button === 0) {
-                const elePosition = this.$refs.expendPositioner.getBoundingClientRect();
-                this.mouseMoveOrigin = elePosition.top + 20;
+                if (this.expandLayerOpened) {
+                    this.mouseMoveOrigin = event.clientY + 460;
+                } else {
+                    this.mouseMoveOrigin = event.clientY;
+                }
                 this.updateMouseMoveDistance(this.mouseMoveOrigin - event.clientY);
                 document.documentElement.addEventListener('mousemove', this.dragMove);
                 document.documentElement.addEventListener('mouseup', this.removeEventsMouse);
@@ -1989,20 +1991,20 @@ export default {
         dragEnd() {
             this.isDargging = false;
             if (this.expandLayerOpened) {
-                if (this.mouseMoveDistance < 360) {
-                    this.mouseMoveDistance = 0;
+                if (parseInt((this.$refs.expandLayer.style.top || '521px').slice(0, -2), 10) > 161) {
+                    this.$refs.expandLayer.style.top = '521px';
                     this.expandLayerOpened = false;
-                    this.expandLayerMaskOpacity = 0;
+                    this.$refs.expandLayerMask.style.opacity = 0;
                 } else {
-                    this.mouseMoveDistance = 460;
+                    this.$refs.expandLayer.style.top = '61px';
                 }
             } else {
-                if (this.mouseMoveDistance > 100) {
-                    this.mouseMoveDistance = 460;
+                if (parseInt((this.$refs.expandLayer.style.top || '521px').slice(0, -2), 10) < 421) {
+                    this.$refs.expandLayer.style.top = '61px';
                     this.expandLayerOpened = true;
-                    this.expandLayerMaskOpacity = 0.4;
+                    this.$refs.expandLayerMask.style.opacity = 0.4;
                 } else {
-                    this.mouseMoveDistance = 0;
+                    this.$refs.expandLayer.style.top = '521px';
                 }
             }
         },
@@ -2011,8 +2013,11 @@ export default {
          * @param {Event} event touchstart event
          */
         dragTouchStart(event) {
-            const elePosition = this.$refs.expendPositioner.getBoundingClientRect();
-            this.mouseMoveOrigin = elePosition.top + 20;
+            if (this.expandLayerOpened) {
+                this.mouseMoveOrigin = event.touches[0].clientY + 460;
+            } else {
+                this.mouseMoveOrigin = event.touches[0].clientY;
+            }
             this.updateMouseMoveDistance(this.mouseMoveOrigin - event.touches[0].clientY);
             document.documentElement.addEventListener('touchmove', this.touchDragMove, { passive: false });
             document.documentElement.addEventListener('touchend', this.removeEventsTouch, { passive: false });
@@ -2050,25 +2055,26 @@ export default {
          */
         onMouseWheel(event) {
             const delta = Math.sign(event.deltaY) * 10;
-            if (this.expandLayerOpened && this.mouseMoveDistance <= 460) {
-                if (this.mouseMoveDistance > 440) {
-                    this.mouseMoveDistance -= delta;
-                    this.expandLayerMaskOpacity = (this.mouseMoveDistance / 460) * 0.4;
+            const mouseMoveDistance = parseInt((this.$refs.expandLayer.style.top || '521px').slice(0, -2), 10);
+            if (this.expandLayerOpened && mouseMoveDistance >= 61) {
+                if (mouseMoveDistance <= 81) {
+                    this.$refs.expandLayer.style.top = `${mouseMoveDistance + delta}px`;
+                    this.$refs.expandLayerMask.style.opacity = ((521 - mouseMoveDistance - delta) / 460) * 0.4;
                     this.debouncedWheelEnd();
                 } else {
-                    this.mouseMoveDistance = 0;
+                    this.$refs.expandLayer.style.top = '521px';
+                    this.$refs.expandLayerMask.style.opacity = 0;
                     this.expandLayerOpened = false;
-                    this.expandLayerMaskOpacity = 0;
                 }
-            } else if (!this.expandLayerOpened && this.mouseMoveDistance >= 0) {
-                if (this.mouseMoveDistance < 20) {
-                    this.mouseMoveDistance -= delta;
-                    this.expandLayerMaskOpacity = (this.mouseMoveDistance / 460) * 0.4;
+            } else if (!this.expandLayerOpened && mouseMoveDistance <= 521) {
+                if (mouseMoveDistance >= 501) {
+                    this.$refs.expandLayer.style.top = `${mouseMoveDistance + delta}px`;
+                    this.$refs.expandLayerMask.style.opacity = ((521 - mouseMoveDistance - delta) / 460) * 0.4;
                     this.debouncedWheelEnd();
                 } else {
-                    this.mouseMoveDistance = 460;
+                    this.$refs.expandLayer.style.top = '61px';
+                    this.$refs.expandLayerMask.style.opacity = 0.4;
                     this.expandLayerOpened = true;
-                    this.expandLayerMaskOpacity = 0.4;
                 }
             }
         },
@@ -2076,7 +2082,7 @@ export default {
          * Handle the end of mousewheel events
          */
         mouseWheelEnd() {
-            this.mouseMoveDistance = this.expandLayerOpened ? 460 : 0;
+            this.$refs.expandLayer.style.top = `${this.expandLayerOpened ? 61 : 521}px`;
         },
         /**
          * Update mouse move distance by raw input
@@ -2084,14 +2090,14 @@ export default {
          */
         updateMouseMoveDistance(distance) {
             if (distance >= 0 && distance <= 460) {
-                this.mouseMoveDistance = distance;
-                this.expandLayerMaskOpacity = (distance / 460) * 0.4;
+                this.$refs.expandLayer.style.top = `${521 - distance}px`;
+                this.$refs.expandLayerMask.style.opacity = (distance / 460) * 0.4;
             } else if (distance < 0) {
-                this.mouseMoveDistance = (800 / (0.3 * (0 - distance) + 26.65)) - 30;
-                this.expandLayerMaskOpacity = 0;
+                this.$refs.expandLayer.style.top = `${521 - ((800 / (0.3 * (0 - distance) + 26.65)) - 30)}px`;
+                this.$refs.expandLayerMask.style.opacity = 0;
             } else if (distance > 460) {
-                this.mouseMoveDistance = 490 - (800 / (0.3 * (distance - 460) + 26.65));
-                this.expandLayerMaskOpacity = 0.4;
+                this.$refs.expandLayer.style.top = `${31 + (800 / (0.3 * (distance - 460) + 26.65))}px`;
+                this.$refs.expandLayerMask.style.opacity = 0.4;
             }
         },
         /**
@@ -2573,7 +2579,7 @@ export default {
     .expand-layer-mask {
         will-change: opacity;
         transform: translateZ(0);
-        .clickable {
+        &.clickable {
             pointer-events: auto;
         }
     }
@@ -2619,7 +2625,7 @@ export default {
         }
     }
     .expand-layer {
-        background-color: #fafafa;
+        background-color: #f8f8f8;
         border-radius: 8px;
         top: 521px;
         box-shadow: 0px -5px 25px -4px rgba(0, 0, 0, 0.2);
@@ -2642,7 +2648,7 @@ export default {
             }
         }
         &.animation {
-            transition: top 0.25s cubic-bezier(0.25, 0.8, 0.5, 1);
+            transition: top 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
             h2 {
                 cursor: grab;
             }
@@ -2910,12 +2916,6 @@ export default {
                 }
                 @import (less) "../../backend/css/md.css";
             }
-        }
-        .expend-positioner {
-            width: 100%;
-            height: 0;
-            pointer-events: none;
-            opacity: 0;
         }
         .send-mail-input {
             margin: 0;
@@ -3344,7 +3344,7 @@ export default {
         "cc": "CC",
         "time": "Time",
         "trusted_sender": "Trusted mail sender",
-        "internal_sender": "From a UoM internal address",
+        "internal_sender": "From an UoM internal address",
         "unsafe_content": "This email is from a untrusted sender external to UoM, displaying in plain text mode",
         "untrusted_content": "This email may not be credible",
         "this_is_safe": "This email is safe",

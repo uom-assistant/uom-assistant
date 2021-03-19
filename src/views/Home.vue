@@ -6,7 +6,7 @@
         >
             <!-- Overview -->
             <div class="next-class float" v-if="!$vuetify.breakpoint.xs && !(nextEvent === null && current === null)">
-                <span class="d-block text-truncate"><span class="text--secondary" v-show="nextEvent !== null">{{ $t('next') }}</span> <span :class="subjectColor(nextEvent.subjectId)" class="subject-color-samll" v-show="subjectColor(nextEvent.subjectId) !== ''"></span> <strong v-show="nextEvent !== null">{{ nextName }}</strong></span>
+                <span class="d-block text-truncate"><span class="text--secondary" v-show="nextEvent !== null">{{ $t('next') }}</span> <span :class="subjectColor(nextEvent.subjectId)" class="subject-color-samll" v-show="subjectColor(nextEvent.subjectId) !== ''" v-if="nextEvent !== null"></span> <strong v-show="nextEvent !== null">{{ nextName }}</strong></span>
                 <span class="text--secondary d-block" v-if="nextEvent === null">{{ $t('no_next') }}</span>
                 <span class="text-h5 primary--text pt-1 d-inline-block">
                     <span v-show="nextEvent !== null">{{ (minAfter > 60 ? (hourAfter === 1 ? formatString($t('hour_after'), [hourAfter]) : formatString($t('hour_after_plural'), [hourAfter])) : (minAfter === 1 ? formatString($t('min_after'), [minAfter]) : formatString($t('min_after_plural'), [minAfter]))) }}</span>
@@ -29,7 +29,7 @@
                 </v-list-item-content>
             </v-list-item>
             <div class="next-class normal" v-if="$vuetify.breakpoint.xs && !(nextEvent === null && current === null)">
-                <span class="d-block text-truncate"><span class="text--secondary" v-show="nextEvent !== null">{{ $t('next') }}</span> <span :class="subjectColor(nextEvent.subjectId)" class="subject-color-samll" v-show="subjectColor(nextEvent.subjectId) !== ''"></span> <strong v-show="nextEvent !== null">{{ nextName }}</strong></span>
+                <span class="d-block text-truncate"><span class="text--secondary" v-show="nextEvent !== null">{{ $t('next') }}</span> <span :class="subjectColor(nextEvent.subjectId)" class="subject-color-samll" v-show="subjectColor(nextEvent.subjectId) !== ''" v-if="nextEvent !== null"></span> <strong v-show="nextEvent !== null">{{ nextName }}</strong></span>
                 <span class="text--secondary d-block" v-if="nextEvent === null">{{ $t('no_next') }}</span>
                 <span class="text-h5 primary--text pt-1 d-inline-block">
                     <span v-show="nextEvent !== null">{{ (minAfter > 60 ? (hourAfter === 1 ? formatString($t('hour_after'), [hourAfter]) : formatString($t('hour_after_plural'), [hourAfter])) : (minAfter === 1 ? formatString($t('min_after'), [minAfter]) : formatString($t('min_after_plural'), [minAfter]))) }}</span>
@@ -409,10 +409,13 @@ export default {
         width: 100%;
     }
     &.float {
-        padding: 20px;
+        padding: 17px 20px;
         text-align: right;
-        width: 350px;
+        width: 290px;
         float: right;
+        @media (min-width: 700px) {
+            width: 385px;
+        }
     }
 }
 

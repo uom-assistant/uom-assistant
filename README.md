@@ -2,7 +2,7 @@
 
 An all-in-one productivity tool to help coordinate uni work. Designed for you.
 
-![Main Screen](github_assets/main.jpg)
+![Main Screen](github_assets/uoma.jpg)
 
 ## Development
 
