@@ -835,6 +835,7 @@ export default {
         margin-top: 18px;
         margin-bottom: 15px;
         margin-left: 20px;
+        height: 27px;
         .md-icon {
             padding-bottom: 2px;
         }
