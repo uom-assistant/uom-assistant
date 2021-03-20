@@ -32,7 +32,7 @@
                     <span>{{ $t('nothing') }}</span>
                 </div>
                 <v-card
-                    class="mx-auto rounded grade-item mb-2"
+                    class="mx-auto rounded grade-item"
                     outlined
                     v-for="(subject, index) in gradeListFiltered"
                     :key="index"
@@ -108,7 +108,7 @@
                 <v-expand-transition>
                     <div class="more-container" v-show="moreShown">
                         <v-card
-                            class="mx-auto rounded grade-item mb-2"
+                            class="mx-auto rounded grade-item"
                             outlined
                             v-for="(subject, index) in gradeListEmpty"
                             :key="index"
@@ -832,6 +832,7 @@ export default {
         background-color: white;
         border-radius: 6px!important;
         overflow: hidden;
+        margin-bottom: 10px;
     }
     .list {
         padding-top: 0;

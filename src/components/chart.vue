@@ -1,7 +1,7 @@
 <template>
     <div class="chart-container" :class="{ 'dark-mode': $vuetify.theme.dark }">
         <v-sparkline
-            :value="value"
+            :value="listValue"
             :smooth="8"
             :padding="4"
             :line-width="width"
@@ -11,7 +11,7 @@
             class="chart chart-1"
         ></v-sparkline>
         <v-sparkline
-            :value="value"
+            :value="listValue"
             :smooth="8"
             :padding="4"
             :line-width="width"
@@ -31,6 +31,11 @@ export default {
     props: {
         value: Array,
         width: Number,
+    },
+    computed: {
+        listValue() {
+            return this.value.length === 1 ? [this.value[0], this.value[0]] : this.value;
+        },
     },
 };
 </script>

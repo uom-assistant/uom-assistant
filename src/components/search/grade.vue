@@ -1,7 +1,7 @@
 <template>
     <div class="search-grade-container">
         <v-card
-            class="mx-auto rounded grade-item mb-2"
+            class="mx-auto rounded grade-item"
             outlined
             v-for="(subject, index) in gradeListFiltered"
             :key="`subject-${index}`"
@@ -66,7 +66,7 @@
             </v-list>
         </v-card>
         <v-card
-            class="mx-auto rounded grade-item mb-2"
+            class="mx-auto rounded grade-item"
             outlined
             v-show="courseworkList.length > 0"
         >
@@ -253,6 +253,7 @@ export default {
         background-color: white;
         border-radius: 6px!important;
         overflow: hidden;
+        margin-bottom: 10px;
     }
     .list {
         padding-top: 0;
