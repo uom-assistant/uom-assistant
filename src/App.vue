@@ -2,7 +2,7 @@
     <v-app>
         <v-app-bar class="elevation-0" color="lighten-4">
             <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
-            <v-toolbar-title class="not-selectable">{{ $t('title') }}</v-toolbar-title>
+            <v-toolbar-title class="not-selectable" @click="$route.path === '/' ? null : $router.push('/')" :class="{ pointer: $route.path !== '/' }">{{ $t('title') }}</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-menu
                 offset-y
@@ -50,6 +50,13 @@
                     </v-list-item-group>
                 </v-list>
             </v-menu>
+            <v-btn
+                icon
+                v-show="$route.path !== '/'"
+                @click="toggleDark"
+            >
+                <v-icon>{{ $vuetify.theme.dark ? 'mdi-weather-night' : 'mdi-white-balance-sunny' }}</v-icon>
+            </v-btn>
             <v-menu
                 offset-y
                 bottom
@@ -438,7 +445,7 @@ export default {
         clockSearch,
     },
     data: () => ({
-        welcome: true,
+        welcome: false,
         drawer: false,
         group: 0,
         stage: 0,
@@ -708,6 +715,14 @@ export default {
             localStorage.setItem('update_frontend', 'true');
             window.location.replace(window.location.href);
         },
+        /**
+         * Check whether to show the welcome dialog
+         */
+        checkWelcome() {
+            if (this.$route.path === '/' || this.$route.path === '/settings') {
+                this.welcome = true;
+            }
+        },
     },
     computed: {
         ...mapState({
@@ -837,6 +852,13 @@ export default {
                 this.checkFrontEndUpdate();
             }, 7200000);
         }
+
+        this.$router.onReady(() => {
+            this.checkWelcome();
+        });
+        this.$router.afterEach(() => {
+            this.checkWelcome();
+        });
     },
     beforeDestroy() {
         clearInterval(this.timer);
@@ -876,9 +898,15 @@ html::-webkit-scrollbar {
     .text-h1, .overline, .title {
         font-family: Roboto, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif!important;
     }
+    .v-application--wrap > header {
+        flex-grow: 0;
+    }
+    .v-main {
+        overflow: hidden;
+    }
 }
 .gray-container, .v-window-item > .container, .v-main__wrap > .container {
-    background-color: #F8F8F8;
+    background-color: #F5F5F5;
 }
 .v-main__wrap > .container {
     padding-top: 0;
@@ -895,6 +923,9 @@ html::-webkit-scrollbar {
 }
 .not-selectable {
     user-select: none;
+    &.pointer {
+        cursor: pointer;
+    }
 }
 .daynight {
     .v-list-item__icon {

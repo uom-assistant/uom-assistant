@@ -97,16 +97,17 @@ if ($cached_response !== false) {
             if ($j >= 2) {
                 if (strpos($tr->text(), 'Weighted summative') === false) {
                     $grade = trim($tr->filter('td')->eq(1)->text());
-                    if ($grade !== '' && explode(' /', $grade)[0] !== '#') {
+                    if ($grade !== '' && stripos($grade, ' /') !== false && explode(' /', $grade)[0] !== '#') {
                         $name = $tr->filter('td')->eq(0)->text();
-                        $display_name = substr(str_replace('-S-', '-', str_replace('-F-', '-', $name)), 6);
+                        $display_name = preg_replace('/^\d{4,6}-/', '', str_replace('-S-', '-', str_replace('-F-', '-', $name)));
+                        $grade_time = date_create_from_format('d-M-y H:i', trim($tr->filter('td')->eq(2)->text()));
                         return array(
                             'rawName' => $name,
                             'name' => $display_name,
-                            'summative' => strpos($name, '-S-') !== false,
+                            'summative' => strpos($name, '-F-') === false,
                             'grade' => explode(' /', $grade)[0],
                             'gradeAll' => trim(explode('(', explode(' /', $grade)[1])[0]),
-                            'time' => date_format(date_create_from_format('d-M-y H:i', trim($tr->filter('td')->eq(2)->text())), 'Y-m-d H:i:s'),
+                            'time' => date_format(($grade_time === false ? date_create_from_format('d-M-y H:i', trim($tr->filter('td')->eq(3)->text())) : $grade_time), 'Y-m-d H:i:s'),
                             'late' => strpos($grade, 'LATE') !== false,
                         );
                     }

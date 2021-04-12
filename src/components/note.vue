@@ -777,7 +777,7 @@ export default {
             highlight: (str, lang) => {
                 if (lang && hljs.getLanguage(lang)) {
                     try {
-                        return `<pre class="hljs">${hljs.highlight(lang, str, true).value}</code></pre>`;
+                        return `<pre class="hljs">${hljs.highlight(str, { language: lang, ignoreIllegals: true }, true).value}</code></pre>`;
                     } catch (__) {
                         this.$store.commit('addError', {
                             title: this.$t('hl_error'),
@@ -903,6 +903,7 @@ export default {
                     margin: 0;
                     font-weight: bold;
                     border-bottom: 1px solid #eaecef;
+                    padding-bottom: 2.2rem;
                 }
                 h1, h2, h3, h4, h5, h6 {
                     margin-bottom: 0.5em;

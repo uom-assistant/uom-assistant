@@ -23,10 +23,10 @@ define('UOMA_VERSION', '0.1.0');
 // If ture, the frontend wants to connect to this backend instance will receive a messages says the backend is offline temporarily
 define('UOMA_MAINTENANCE', false);
 
-// **Requires Redis and PHP Redis extension.** If ture, the built-in rate limiter will be activated. **Requires Redis and PHP Redis extension.** Not recommended since this needs PHP. A server-level rate limiter like Ngnix is better
+// **Requires Redis and PHP Redis extension.** If ture, the built-in rate limiter will be activated. Not recommended since this needs PHP. A server-level rate limiter like Ngnix is better
 define('UOMA_RATE_LIMIT', false);
 
-// Config Redis connection if needed
+// Redis connection config (when built-in rate limiter enabled)
 define('UOMA_REDIS', array(
     'host' => 'localhost',
     'port' => 6379,
@@ -58,7 +58,7 @@ define('UOMA_CONFIG', array(
     // If true, users can access to mail widget in the frontend, which they can fetch and send mails using their UoM maill addresses
     'allow_mail_server' => false,
 
-    // If non-empty, a message will shown in the frontend when a user connect to this backend instance
+    // If non-empty, a message will be shown in the frontend when a user is connected to this backend instance
     'welcome_message' => '',
 
     // Controls which frontend can connect to this backend. Can be a string or an array (auto match). More at https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin

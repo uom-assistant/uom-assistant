@@ -67,7 +67,7 @@ This project was originally a personal project, born during the pandemic with al
 
 Download latest `frontend.zip` from [Releases](https://github.com/yrccondor/uom-assistant/releases), and decompress the files to the root directory of your site. Note that UoM Assistant must be deployed to the root directory of a site.
 
-To make router working properly, you need to update the config of your server. If you are using Nginx, you can add these lines to your config file:
+To make router working properly, you need to update the config of your server. If you are using Nginx, you can add these lines to your site config:
 
 ```nginx
 location / {
@@ -75,7 +75,7 @@ location / {
 }
 ```
 
-or maybe you are using Apache:
+or you may using Apache:
 
 ```apache
 <IfModule mod_rewrite.c>
@@ -90,7 +90,7 @@ or maybe you are using Apache:
 
 ### Backend
 
-Download latest `backend.zip` from [Releases](https://github.com/yrccondor/uom-assistant/releases), and decompress the files to the right place of your site. Edit `config.php`, and your backend is on. Note that to enable mail related features you need to install following PHP extentions: `fileinfo`, `imap` and `mbstring`.
+Download latest `backend.zip` from [Releases](https://github.com/yrccondor/uom-assistant/releases), and decompress the files to the right place of your site. Edit `config.php`, and your backend is now on. Note that to enable mail related features you need to install following PHP extentions: `fileinfo`, `imap` and `mbstring`.
 
 ### Deploy with Docker
 
@@ -119,7 +119,6 @@ $ cd backend
 
 ```shell
 $ composer install --no-dev --optimize-autoloader
-$ chmod -R 0777 vendor/ezyang/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer
 $ cd ../
 ```
 

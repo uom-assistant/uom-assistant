@@ -2181,9 +2181,9 @@ export default {
          */
         buildMailHostList(user) {
             return [
-                `${user}@manchester.com`,
-                `${user}@student.manchester.com`,
-                `${user}@postgrad.manchester.com`,
+                `${user}@manchester.ac.uk`,
+                `${user}@student.manchester.ac.uk`,
+                `${user}@postgrad.manchester.ac.uk`,
                 `${user}@gmail.com`,
                 `${user}@outlook.com`,
                 `${user}@hotmail.com`,

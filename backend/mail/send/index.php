@@ -7,6 +7,10 @@ include('../common/general_rate_limit.php');
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 
+use Pelago\Emogrifier\CssInliner;
+use Pelago\Emogrifier\HtmlProcessor\CssToAttributeConverter;
+use Pelago\Emogrifier\HtmlProcessor\HtmlNormalizer;
+
 use RateLimit\Exception\LimitExceeded;
 use RateLimit\Rate;
 use RateLimit\RedisRateLimiter;
@@ -114,10 +118,9 @@ if ($data['reply'] !== '' && preg_match('/^<(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\
     $mail->addCustomHeader('References', $data['reply']);
 }
 
-$purifier = new HTMLPurifier(HTMLPurifier_HTML5Config::createDefault());
-
 $mail->Subject = $data['subject'];
-$mail->msgHTML($purifier->purify($data['body']));
+$mail->msgHTML(HtmlNormalizer::fromHtml(CssToAttributeConverter::fromHtml(CssInliner::fromHtml($data['body'])->inlineCss()->render())
+->convertCssToVisualAttributes()->render())->render());
 $mail->AltBody = $data['altbody'];
 
 if (!$mail->send()) {

@@ -10,8 +10,7 @@
         "phpmailer/phpmailer": "^6.2",
         "php-imap/php-imap": "dev-develop",
         "fabpot/goutte": "^4.0",
-        "ezyang/htmlpurifier": "^4.13",
         "nikolaposa/rate-limit": "^2.2",
-        "tijsverkoyen/css-to-inline-styles": "^2.2"
+        "pelago/emogrifier": "^5.0"
     }
 }
