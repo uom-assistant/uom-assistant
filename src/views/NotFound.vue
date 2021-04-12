@@ -20,9 +20,9 @@
                         dark
                         class="mr-2"
                     >
-                        mdi-home-outline
+                        mdi-view-dashboard
                     </v-icon>
-                    {{ $t('home')}}
+                    {{ $t('dashboard')}}
                 </v-btn></p>
             </div>
         </div>
@@ -114,12 +114,12 @@ export default {
     "en": {
         "oops": "Oooops!",
         "not_found": "Page Not Found",
-        "home": "Home"
+        "dashboard": "Dashboard"
     },
     "zh": {
         "oops": "妈耶…",
         "not_found": "找不到页面",
-        "home": "主页"
+        "dashboard": "仪表板"
     }
 }
 </i18n>

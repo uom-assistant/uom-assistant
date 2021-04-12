@@ -1051,6 +1051,7 @@ export default {
                     overflow-x: auto;
                     overflow-y: hidden;
                     background: none transparent;
+                    font-family: -apple-system,  sans-serif;
                 }
                 img {
                     max-width: 100%;

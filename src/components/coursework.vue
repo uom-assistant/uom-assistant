@@ -449,6 +449,7 @@ export default {
                         timed: true,
                         rawTitle: item.title,
                         subjectName: `${item.subject ? this.subjectLongNameMap(item.subject) : ''}`,
+                        subjectId: `${item.subject ? item.subject : ''}`,
                     });
                 }
             }

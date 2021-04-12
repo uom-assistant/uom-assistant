@@ -164,7 +164,7 @@
                                     {{ selectedEvent.start ? getDate(selectedEvent.start) : '' }}
                                 </span>
                                 <br>
-                                <v-list flat class="list" v-if="selectedEvent.subjectId !== '' && subjectLinks(selectedEvent.subjectId).sessionLinks.length > 0">
+                                <v-list flat class="list" v-if="selectedEvent.details !== 'Coursework Deadline' && selectedEvent.subjectId !== '' && subjectLinks(selectedEvent.subjectId).sessionLinks.length > 0">
                                     <v-list-item-group>
                                         <v-list-item
                                             v-for="(link, index) in subjectLinks(selectedEvent.subjectId).sessionLinks"
