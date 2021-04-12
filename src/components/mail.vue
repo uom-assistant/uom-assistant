@@ -511,6 +511,7 @@
                     class="send-mail-input"
                     ref="from"
                     @input="checkEmail('editingTo')"
+                    @keydown="(e) => checkUnlistedEmail('editingTo', e)"
                 ></v-combobox>
                 <v-divider></v-divider>
                 <v-combobox
@@ -527,7 +528,9 @@
                     hide-selected
                     prepend-inner-icon="mdi-closed-caption-outline"
                     class="send-mail-input"
+                    ref="ccInput"
                     @input="checkEmail('editingCc')"
+                    @keydown="(e) => checkUnlistedEmail('editingCc', e)"
                 ></v-combobox>
                 <v-divider></v-divider>
                 <codemirror v-model="code" :options="cmOption" class="md-editor" :key="cmRefresh" ref="codemirror"></codemirror>
@@ -985,6 +988,7 @@ export default {
                             '服务',
                             '通过率',
                             '及格率',
+                            '得分点',
                         ], 0.5,
                     ],
                     [
@@ -1013,11 +1017,17 @@ export default {
                             '挂科',
                             '复习',
                             '学位',
+                            '考场',
+                            '答题',
+                            '答疑',
+                            '做题',
                         ], 0.2,
                     ],
                     [
                         [
                             '作者',
+                            '学生',
+                            '课堂',
                         ], 0.1,
                     ],
                 ],
@@ -2112,6 +2122,19 @@ export default {
                         this[`${name}Input`] = data;
                     });
                 });
+            }
+        },
+        /**
+         * Check if input is a valid email when pressing enter and the mail address is out of list
+         * @param {string} name input name
+         * @param {Event} e keyDown event
+         */
+        checkUnlistedEmail(name, e) {
+            if (e.code === 'Enter') {
+                if (this.$refs[name === 'editingTo' ? 'from' : 'ccInput'].computedItems.length === 0 && /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i.test(this[`${name}Input`])) {
+                    this[name].push(this[`${name}Input`]);
+                    this[`${name}Input`] = '';
+                }
             }
         },
         /**

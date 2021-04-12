@@ -1,6 +1,8 @@
 <template>
     <div class="not-found">
-        <h1>4<v-icon>mdi-cancel</v-icon>4</h1>
+        <div class="not-found-text">
+            <h1>4<v-icon>mdi-cancel</v-icon>4</h1>
+        </div>
         <div class="not-found-text">
             <div>
                 <h2>{{ $t('oops') }}</h2>
@@ -81,14 +83,14 @@ export default {
         align-items: center;
         opacity: .9;
         h2 {
-            font-size: ~"max(6vw, 50px)";
+            font-size: ~"clamp(50px, 6vw, 120px)";
             text-align: center;
         }
         p {
-            font-size: ~"max(2vw, 25px)";
+            font-size: ~"clamp(25px, 2vw, 45px)";
             text-align: center;
             .home-btn {
-                margin-top: ~"max(1.5vw, 15px)";
+                margin-top: ~"clamp(15px, 1.5vw, 35px)";
                 border-radius: 6px;
             }
         }
