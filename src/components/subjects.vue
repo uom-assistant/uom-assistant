@@ -83,28 +83,28 @@
                     <v-container>
                         <v-text-field
                             v-model.trim="editingName"
-                            filled
+                            outlined
                             :label="$t('subject_name')"
                             :hint="$t('subject_name_hint')"
                             prepend-inner-icon="mdi-text-subject"
                         ></v-text-field>
                         <v-text-field
                             v-model.trim="editingShortName"
-                            filled
+                            outlined
                             :label="$t('short_name')"
                             :hint="$t('short_name_hint')"
                             prepend-inner-icon="mdi-text-short"
                         ></v-text-field>
                         <v-text-field
                             v-model.trim="editingId"
-                            filled
+                            outlined
                             :label="$t('subject_number')"
                             :hint="$t('subject_number_hint')"
                             prepend-inner-icon="mdi-numeric"
                         ></v-text-field>
                         <v-text-field
                             v-model.trim="editingHomePage"
-                            filled
+                            outlined
                             :label="$t('subject_home')"
                             prepend-inner-icon="mdi-home-outline"
                         ></v-text-field>
@@ -135,8 +135,9 @@
                         <div class="subject-links rounded-lg">
                             <v-text-field
                                 v-model.trim="editingSessionLink"
-                                outlined
                                 :label="$t('add_link')"
+                                :placeholder="$t('link_format')"
+                                outlined
                                 hide-details
                                 clearable
                                 prepend-inner-icon="mdi-link-variant"
@@ -686,6 +687,7 @@ export default {
         "subject_color": "Course Colour",
         "hide_subject": "Hide this course",
         "add_link": "Add a live session link",
+        "link_format": "URL[ name][ passcode]",
         "delete_subject": "Delete course",
         "delete_subject_text": "Do you want to delete course ",
         "delete_subject_mark": "?",
@@ -716,6 +718,7 @@ export default {
         "subject_color": "科目颜色",
         "hide_subject": "隐藏这个科目",
         "add_link": "添加在线课程链接",
+        "link_format": "URL[ 名称][ 密码]",
         "delete_subject": "删除科目",
         "delete_subject_text": "你确定要删除科目 ",
         "delete_subject_mark": " 吗？",

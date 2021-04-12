@@ -68,6 +68,7 @@
                     <v-container fluid>
                         <v-text-field
                             :label="$t('add_link')"
+                            :placeholder="$t('link_format')"
                             outlined
                             class="input"
                             prepend-inner-icon="mdi-link-variant"
@@ -354,6 +355,7 @@ export default {
     "en": {
         "quick_links": "Quick Links",
         "add_link": "Add a link",
+        "link_format": "URL[ name]",
         "nothing": "No link here",
         "no_class": "No sourse yet",
         "subjects": "Courses",
@@ -363,6 +365,7 @@ export default {
     "zh": {
         "quick_links": "快速链接",
         "add_link": "添加一个链接",
+        "link_format": "URL[ 名称]",
         "nothing": "还没有链接",
         "no_class": "还没有科目",
         "subjects": "科目主页",

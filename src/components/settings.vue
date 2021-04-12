@@ -54,7 +54,7 @@
             :disabled="!allowAccount || !allowEmail"
             :error-messages="hintEmail"
             prepend-inner-icon="mdi-at"
-            suffix="@student.manchester.ac.uk"
+            suffix=".manchester.ac.uk"
             class="input"
             hide-details="auto"
         ></v-text-field>
