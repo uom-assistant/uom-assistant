@@ -17,9 +17,9 @@
                 >
                     {{ subject.weightedGrade }}<span class="text-caption">%</span>
                 </v-progress-circular>
-                <div class="text-truncate">{{ subjectNameMap(subject.subject) === subject.subject ? subject.name : subjectNameMap(subject.subject) }}</div>
+                <div class="text-truncate">{{ subjectLongNameMap(subject.subject) === subject.subject ? subject.name : subjectLongNameMap(subject.subject) }}</div>
                 <span class="text--disabled text-body-2">
-                    <span :class="subjectColor(subject.subject)" class="subject-color-samll" v-if="subjectNameMap(subject.subject) !== subject.subject"></span>
+                    <span :class="subjectColor(subject.subject)" class="subject-color-samll" v-if="subjectLongNameMap(subject.subject) !== subject.subject"></span>
                     {{ subject.subject }}
                 </span>
             </div>
@@ -81,6 +81,10 @@
                                 </v-icon>
                                 {{ getDate(new Date(item.time.replace(' ', 'T'))) }}
                             </span>
+                            <span>
+                                <span :class="subjectColor(item.subject)" class="subject-color-samll ml-2" v-if="subjectNameMap(item.subject) !== item.subject"></span>
+                                {{ subjectNameMap(item.subject) }}
+                            </span>
                             <span class="orange--text ml-2" v-if="item.late">LATE</span>
                         </v-list-item-subtitle>
                     </v-list-item-content>
@@ -139,6 +143,22 @@ export default {
          * @returns {string} subject short name or raw ID (if none matched)
          */
         subjectNameMap(subject) {
+            if (!this.subjects) {
+                return subject;
+            }
+            for (const item of this.subjects) {
+                if (item.id === subject) {
+                    return item.shortName;
+                }
+            }
+            return subject;
+        },
+        /**
+         * Map from subject ID to subject name
+         * @param {string} subject subject ID
+         * @returns {string} subject name or raw ID (if none matched)
+         */
+        subjectLongNameMap(subject) {
             if (!this.subjects) {
                 return subject;
             }
@@ -311,6 +331,14 @@ export default {
     .single-item-list {
         .v-list-item__content {
             padding: 10px 0;
+        }
+        .subject-color-samll {
+            width: 9px;
+            height: 9px;
+            display: inline-block;
+            border-radius: 50%;
+            margin: 0;
+            margin-right: 3px;
         }
     }
 }

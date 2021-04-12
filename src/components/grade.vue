@@ -239,6 +239,7 @@
                                 class="list"
                                 v-if="Array.isArray(item)"
                                 v-show="expendingSubTree.includes(gradeIndex)"
+                                :key="`${gradeIndex}-${subRefreshKey}`"
                             >
                                 <v-list-item v-for="(gradeItem, gradeItemIndex) in sortListByDate(item)" :key="gradeItemIndex">
                                     <div class="list-item-warpper">
@@ -320,6 +321,7 @@ export default {
             showMainChart: false,
             listOverflow: false,
             expendingSubTree: [],
+            subRefreshKey: 0,
         };
     },
     methods: {
@@ -579,6 +581,8 @@ export default {
                 this.expendingSubTree = [];
             }
 
+            this.subRefreshKey = new Date().valueOf();
+
             this.$nextTick(() => {
                 this.gradeExpended = index;
                 this.$nextTick(() => {
@@ -731,7 +735,7 @@ export default {
                 const newDetailList = subject.detail.flat().sort((a, b) => ((new Date(b.time.replace(' ', 'T')).valueOf() - new Date(a.time.replace(' ', 'T')).valueOf()) <= 0 ? -1 : 1));
                 for (const item of newDetailList) {
                     item.searchType = 'grade';
-                    item.subject = '';
+                    item.subject = subject.subject;
                 }
                 courseworks = courseworks.concat(newDetailList);
             }
