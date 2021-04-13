@@ -432,6 +432,7 @@ import clockSearch from '@/components/search/clock.vue';
 import checkBackendVersion from '@/tools/checkBackendVersion';
 import betterFetch from '@/tools/betterFetch';
 import formatDateTime from './tools/formatDateTime';
+import localeList from './locales/localeList';
 import * as version from '../public/version.json';
 
 export default {
@@ -461,6 +462,7 @@ export default {
         welcomeMessageDialog: false,
         darkMode: false,
         locale: 'en',
+        localeDetail: null,
         backend: {},
         account: {},
         searchOpened: false,
@@ -468,16 +470,7 @@ export default {
             (value) => !!value || '',
             (value) => /^[\w-]+(\.[\w-]+)+([\w.,@^=%:/~+-]*)?$/i.test(value) || '',
         ],
-        languageList: [
-            {
-                name: 'English (UK)',
-                locale: 'en',
-            },
-            {
-                name: '中文（简体）',
-                locale: 'zh',
-            },
-        ],
+        languageList: localeList,
         ifWidgets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         widgets: [
             'clock',
@@ -507,6 +500,7 @@ export default {
          */
         toggleLocale(language) {
             this.locale = language;
+            this.localeDetail = this.languageList.find((item) => item.locale === language);
         },
         /**
          * Dismiss an error
@@ -764,10 +758,15 @@ export default {
         locale() {
             // Store language settings to local storage
             this.$i18n.locale = this.locale;
-            this.$vuetify.lang.current = this.locale === 'zh' ? 'zhHans' : 'en';
+            this.localeDetail = this.languageList.find((item) => item.locale === this.locale);
+            this.$vuetify.lang.current = this.localeDetail.localeName;
+
             document.documentElement.lang = this.locale;
             localStorage.setItem('language', this.locale);
+
             this.$store.commit('setLocale', this.locale);
+            this.$store.commit('setLocaleDetail', this.localeDetail);
+
             this.$nextTick(() => {
                 this.searchResult();
             });

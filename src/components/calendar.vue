@@ -787,6 +787,7 @@ export default {
     computed: {
         ...mapState({
             locale: (state) => state.locale,
+            localeDetail: (state) => state.localeDetail,
             subjects: (state) => state.subjects,
             timerMin: (state) => state.timerMin,
             timerHour: (state) => state.timerHour,
@@ -796,7 +797,7 @@ export default {
             account: (state) => state.account,
         }),
         calendarLocale() {
-            return this.locale === 'zh' ? 'zh-CN' : 'en';
+            return this.localeDetail === null ? 'en' : this.localeDetail.iso;
         },
     },
     async mounted() {

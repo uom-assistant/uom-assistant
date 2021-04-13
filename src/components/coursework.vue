@@ -535,6 +535,7 @@ export default {
     computed: {
         ...mapState({
             locale: (state) => state.locale,
+            localeDetail: (state) => state.localeDetail,
             packery: (state) => state.packery,
             subjects: (state) => state.subjects,
             timerMin: (state) => state.timerMin,
@@ -547,7 +548,7 @@ export default {
             return this.subjects.filter((subject) => !subject.hide);
         },
         selectLocale() {
-            return this.locale === 'zh' ? 'zh-CN' : 'en';
+            return this.localeDetail === null ? 'en' : this.localeDetail.iso;
         },
     },
     mounted() {

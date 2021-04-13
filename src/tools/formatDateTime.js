@@ -1,3 +1,5 @@
+import localeList from '../locales/localeList';
+
 /**
  * Format date time based on locale
  * @param {Date} date Date object
@@ -6,17 +8,17 @@
  * @returns {string} formated date time string
  */
 const formatDateTime = (date, locale, seconds = true) => {
-    const standardLocale = locale === 'zh' ? 'zh-CN' : 'en';
-    const yr = new Intl.DateTimeFormat(standardLocale, { year: 'numeric' }).format(date);
-    const mo = new Intl.DateTimeFormat(standardLocale, { month: 'numeric' }).format(date);
-    const da = new Intl.DateTimeFormat(standardLocale, { day: 'numeric' }).format(date);
+    const localeDetail = localeList.find((item) => item.locale === locale);
+    const yr = new Intl.DateTimeFormat(localeDetail.iso, { year: 'numeric' }).format(date);
+    const mo = new Intl.DateTimeFormat(localeDetail.iso, { month: 'numeric' }).format(date);
+    const da = new Intl.DateTimeFormat(localeDetail.iso, { day: 'numeric' }).format(date);
     const hr = `${date.getHours()}`.padStart(2, '0');
     const mi = `${date.getMinutes()}`.padStart(2, '0');
     const sc = `${date.getSeconds()}`.padStart(2, '0');
-    if (locale === 'zh') {
-        return `${yr}${mo}${da} ${hr}:${mi}${seconds ? `:${sc}` : ''}`;
+    if (seconds) {
+        return localeDetail.timeFormatTimeSecond(yr, mo, da, hr, mi, sc);
     }
-    return `${da}/${mo}/${yr} ${hr}:${mi}${seconds ? `:${sc}` : ''}`;
+    return localeDetail.timeFormatTime(yr, mo, da, hr, mi);
 };
 
 export default formatDateTime;

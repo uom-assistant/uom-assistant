@@ -6,6 +6,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         locale: localStorage.getItem('language') || 'en',
+        localeDetail: null,
         packery: null,
         widgets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         subjects: [],
@@ -31,6 +32,9 @@ export default new Vuex.Store({
     mutations: {
         setLocale(state, language) {
             state.locale = language;
+        },
+        setLocaleDetail(state, localeDetail) {
+            state.localeDetail = localeDetail;
         },
         setPackery(state, packeryInstance) {
             state.packery = packeryInstance;
