@@ -42,7 +42,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import formatDateTime from '../../tools/formatDateTime';
+import formatDateTime from '@/tools/formatDateTime';
 
 export default {
     name: 'noteSearch',

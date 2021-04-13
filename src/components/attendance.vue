@@ -79,7 +79,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import formatDate from '../tools/formatDate';
+import formatDate from '@/tools/formatDate';
 
 export default {
     name: 'attendance',

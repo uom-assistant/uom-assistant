@@ -283,11 +283,11 @@
 import { mapState } from 'vuex';
 import { vsprintf } from 'sprintf-js';
 
-import chart from './chart.vue';
+import chart from '@/components/chart.vue';
 
-import checkBackendVersion from '../tools/checkBackendVersion';
-import betterFetch from '../tools/betterFetch';
-import formatDate from '../tools/formatDate';
+import checkBackendVersion from '@/tools/checkBackendVersion';
+import betterFetch from '@/tools/betterFetch';
+import formatDate from '@/tools/formatDate';
 
 export default {
     name: 'grade',

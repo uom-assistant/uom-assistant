@@ -254,8 +254,8 @@ import 'codemirror/addon/selection/active-line';
 import 'codemirror/addon/edit/closebrackets';
 import 'codemirror/addon/edit/matchbrackets';
 
-import formatDateTime from '../tools/formatDateTime';
-import debounce from '../tools/debounce';
+import formatDateTime from '@/tools/formatDateTime';
+import debounce from '@/tools/debounce';
 
 import 'codemirror/theme/xq-light.css';
 import 'codemirror/lib/codemirror.css';

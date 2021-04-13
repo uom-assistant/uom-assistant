@@ -225,9 +225,9 @@ import localForage from 'localforage';
 import Vue from 'vue';
 import VueClipboard from 'vue-clipboard2';
 
-import checkBackendVersion from '../tools/checkBackendVersion';
-import formatDateTime from '../tools/formatDateTime';
-import betterFetch from '../tools/betterFetch';
+import checkBackendVersion from '@/tools/checkBackendVersion';
+import formatDateTime from '@/tools/formatDateTime';
+import betterFetch from '@/tools/betterFetch';
 
 Vue.use(VueClipboard);
 

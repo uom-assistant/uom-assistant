@@ -111,7 +111,7 @@
 import { mapState } from 'vuex';
 import { vsprintf } from 'sprintf-js';
 
-import formatDate from '../../tools/formatDate';
+import formatDate from '@/tools/formatDate';
 
 export default {
     name: 'gradeSearch',

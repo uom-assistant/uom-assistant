@@ -49,7 +49,7 @@
 <script>
 import { mapState } from 'vuex';
 import { vsprintf } from 'sprintf-js';
-import formatDateTime from '../../tools/formatDateTime';
+import formatDateTime from '@/tools/formatDateTime';
 
 export default {
     name: 'courseworkSearch',

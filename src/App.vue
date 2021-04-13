@@ -431,8 +431,8 @@ import clockSearch from '@/components/search/clock.vue';
 
 import checkBackendVersion from '@/tools/checkBackendVersion';
 import betterFetch from '@/tools/betterFetch';
-import formatDateTime from './tools/formatDateTime';
-import localeList from './locales/localeList';
+import formatDateTime from '@/tools/formatDateTime';
+import localeList from '@/locales/localeList';
 import * as version from '../public/version.json';
 
 export default {
