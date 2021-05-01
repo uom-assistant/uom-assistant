@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "thirdparty": "node ./scripts/update_third_party.js"
   },
   "dependencies": {
     "codemirror": "^5.61.0",
@@ -49,16 +50,20 @@
     "@vue/cli-service": "~4.5.12",
     "@vue/eslint-config-airbnb": "^5.3.0",
     "@vvo/tzdb": "^6.4.1",
+    "adm-zip": "^0.5.5",
     "babel-eslint": "^10.1.0",
     "clean-css": "^4.2.3",
     "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-vue": "^6.2.2",
     "fetch-mock": "^9.11.0",
+    "follow-redirects": "^1.14.0",
     "html-minifier": "^3.5.21",
     "ignore-loader": "^0.1.2",
     "less": "^4.1.1",
     "less-loader": "^7.3.0",
+    "node-fetch": "^2.6.1",
+    "rimraf": "^2.7.1",
     "sass": "^1.32.11",
     "sass-loader": "^10.1.1",
     "terser": "^4.8.0",

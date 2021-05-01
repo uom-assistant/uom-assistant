@@ -470,7 +470,18 @@
                     </v-alert>
                     <div class="body-text ma-5 mb-5">{{ viewer.bodyText }}</div>
                 </div>
-                <iframe :title="$t('mail_body')" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" :srcdoc="((!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML) ? '' : viewer.bodyHTML" v-show="!loadingBody && !((!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML)" class="sandbox ma-5 mt-4" frameborder="0" ref="sandbox" allowtransparency="true" :height="`${sandboxHeight < 10 ? 0 : (sandboxHeight + 16)}px`" @load="updateSandboxHeight"></iframe>
+                <iframe
+                    v-show="!loadingBody && !((!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML)"
+                    class="sandbox ma-5 mt-4"
+                    frameborder="0"
+                    ref="sandbox"
+                    allowtransparency="true"
+                    sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+                    :title="$t('mail_body')"
+                    :srcdoc="((!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML) ? '' : viewer.bodyHTML"
+                    :height="`${sandboxHeight < 10 ? 0 : (sandboxHeight + 16)}px`"
+                    @load="updateSandboxHeight"
+                />
             </div>
         </div>
         <div class="editor-layer-mask" :class="{ opened: layerOpened }"></div>
@@ -1093,6 +1104,10 @@ export default {
                 a {
                     color: #D099E0;
                 }`,
+            sandboxCssText: `
+                body {
+                    white-space: pre-wrap;
+                }`,
             debouncedWheelEnd: debounce.debounce(function () {
                 this.mouseWheelEnd();
             }, 200),
@@ -1413,7 +1428,7 @@ export default {
                 // Get body
                 this.loadingBody = false;
 
-                this.viewer.bodyHTML = `<base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}</style>${response.data.content}`;
+                this.viewer.bodyHTML = `<base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}${response.data.content.match(/<[^>]+>\s+(?=<)|<[^>]+>/g) === null ? this.sandboxCssText : ''}</style>${response.data.content}`;
                 this.viewer.bodyRawHTML = `${response.data.content}`;
                 this.viewer.textContent = this.getInnerText(new DOMParser().parseFromString(response.data.content, 'text/html').body);
                 this.viewer.bodyText = response.data.plainContent === '' ? this.viewer.textContent : response.data.plainContent;
@@ -1641,7 +1656,7 @@ export default {
                 this.mails[targetMail].unseen = false;
                 this.$nextTick(() => {
                     // Set mail body
-                    this.viewer.bodyHTML = `<base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}</style>${cachedMail.content}`;
+                    this.viewer.bodyHTML = `<base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}${cachedMail.content.match(/<[^>]+>\s+(?=<)|<[^>]+>/g) === null ? this.sandboxCssText : ''}</style>${cachedMail.content}`;
                     this.viewer.bodyRawHTML = `${cachedMail.content}`;
                     this.viewer.textContent = cachedMail.textContent;
                     this.viewer.bodyText = cachedMail.plainContent === '' ? this.viewer.textContent : cachedMail.plainContent;
@@ -2469,7 +2484,7 @@ export default {
         darkMode() {
             // Update styles in sandbox when dark mode is on/off
             if (this.viewerOpened) {
-                this.viewer.bodyHTML = `<base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}</style>${this.viewer.bodyRawHTML}`;
+                this.viewer.bodyHTML = `<base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}${this.viewer.bodyRawHTML.match(/<[^>]+>\s+(?=<)|<[^>]+>/g) === null ? this.sandboxCssText : ''}</style>${this.viewer.bodyRawHTML}`;
             }
         },
     },

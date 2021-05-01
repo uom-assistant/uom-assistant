@@ -1,0 +1,1582 @@
+[
+    {
+        "name": "Pacific/Niue",
+        "countryName": "Niue",
+        "mainCity": "Alofi"
+    },
+    {
+        "name": "Pacific/Midway",
+        "countryName": "United States Minor Outlying Islands",
+        "mainCity": "Midway"
+    },
+    {
+        "name": "Pacific/Pago_Pago",
+        "countryName": "American Samoa",
+        "mainCity": "Pago Pago"
+    },
+    {
+        "name": "Pacific/Rarotonga",
+        "countryName": "Cook Islands",
+        "mainCity": "Avarua"
+    },
+    {
+        "name": "America/Adak",
+        "countryName": "United States",
+        "mainCity": "Adak"
+    },
+    {
+        "name": "Pacific/Honolulu",
+        "countryName": "United States",
+        "mainCity": "Honolulu"
+    },
+    {
+        "name": "Pacific/Tahiti",
+        "countryName": "French Polynesia",
+        "mainCity": "Faaa"
+    },
+    {
+        "name": "Pacific/Marquesas",
+        "countryName": "French Polynesia",
+        "mainCity": "Marquesas"
+    },
+    {
+        "name": "America/Anchorage",
+        "countryName": "United States",
+        "mainCity": "Anchorage"
+    },
+    {
+        "name": "Pacific/Gambier",
+        "countryName": "French Polynesia",
+        "mainCity": "Gambier"
+    },
+    {
+        "name": "America/Los_Angeles",
+        "countryName": "United States",
+        "mainCity": "Los Angeles"
+    },
+    {
+        "name": "America/Tijuana",
+        "countryName": "Mexico",
+        "mainCity": "Tijuana"
+    },
+    {
+        "name": "America/Vancouver",
+        "countryName": "Canada",
+        "mainCity": "Vancouver"
+    },
+    {
+        "name": "Pacific/Pitcairn",
+        "countryName": "Pitcairn",
+        "mainCity": "Adamstown"
+    },
+    {
+        "name": "America/Hermosillo",
+        "countryName": "Mexico",
+        "mainCity": "Hermosillo"
+    },
+    {
+        "name": "America/Edmonton",
+        "countryName": "Canada",
+        "mainCity": "Calgary"
+    },
+    {
+        "name": "America/Ojinaga",
+        "countryName": "Mexico",
+        "mainCity": "Ciudad Juárez"
+    },
+    {
+        "name": "America/Denver",
+        "countryName": "United States",
+        "mainCity": "Denver"
+    },
+    {
+        "name": "America/Phoenix",
+        "countryName": "United States",
+        "mainCity": "Phoenix"
+    },
+    {
+        "name": "America/Whitehorse",
+        "countryName": "Canada",
+        "mainCity": "Whitehorse"
+    },
+    {
+        "name": "America/Belize",
+        "countryName": "Belize",
+        "mainCity": "Belize City"
+    },
+    {
+        "name": "America/Chicago",
+        "countryName": "United States",
+        "mainCity": "Chicago"
+    },
+    {
+        "name": "America/Guatemala",
+        "countryName": "Guatemala",
+        "mainCity": "Guatemala City"
+    },
+    {
+        "name": "America/Managua",
+        "countryName": "Nicaragua",
+        "mainCity": "Managua"
+    },
+    {
+        "name": "America/Mexico_City",
+        "countryName": "Mexico",
+        "mainCity": "Mexico City"
+    },
+    {
+        "name": "America/Costa_Rica",
+        "countryName": "Costa Rica",
+        "mainCity": "San José"
+    },
+    {
+        "name": "America/El_Salvador",
+        "countryName": "El Salvador",
+        "mainCity": "San Salvador"
+    },
+    {
+        "name": "America/Regina",
+        "countryName": "Canada",
+        "mainCity": "Saskatoon"
+    },
+    {
+        "name": "America/Tegucigalpa",
+        "countryName": "Honduras",
+        "mainCity": "Tegucigalpa"
+    },
+    {
+        "name": "America/Winnipeg",
+        "countryName": "Canada",
+        "mainCity": "Winnipeg"
+    },
+    {
+        "name": "Pacific/Easter",
+        "countryName": "Chile",
+        "mainCity": "Easter"
+    },
+    {
+        "name": "Pacific/Galapagos",
+        "countryName": "Ecuador",
+        "mainCity": "Galapagos"
+    },
+    {
+        "name": "America/Rio_Branco",
+        "countryName": "Brazil",
+        "mainCity": "Rio Branco"
+    },
+    {
+        "name": "America/Bogota",
+        "countryName": "Colombia",
+        "mainCity": "Bogotá"
+    },
+    {
+        "name": "America/Havana",
+        "countryName": "Cuba",
+        "mainCity": "Havana"
+    },
+    {
+        "name": "America/Atikokan",
+        "countryName": "Canada",
+        "mainCity": "Atikokan"
+    },
+    {
+        "name": "America/Cancun",
+        "countryName": "Mexico",
+        "mainCity": "Cancún"
+    },
+    {
+        "name": "America/Grand_Turk",
+        "countryName": "Turks and Caicos Islands",
+        "mainCity": "Cockburn Town"
+    },
+    {
+        "name": "America/Cayman",
+        "countryName": "Cayman Islands",
+        "mainCity": "George Town"
+    },
+    {
+        "name": "America/Jamaica",
+        "countryName": "Jamaica",
+        "mainCity": "Kingston"
+    },
+    {
+        "name": "America/Nassau",
+        "countryName": "Bahamas",
+        "mainCity": "Nassau"
+    },
+    {
+        "name": "America/New_York",
+        "countryName": "United States",
+        "mainCity": "New York City"
+    },
+    {
+        "name": "America/Panama",
+        "countryName": "Panama",
+        "mainCity": "Panamá"
+    },
+    {
+        "name": "America/Port-au-Prince",
+        "countryName": "Haiti",
+        "mainCity": "Port-au-Prince"
+    },
+    {
+        "name": "America/Toronto",
+        "countryName": "Canada",
+        "mainCity": "Toronto"
+    },
+    {
+        "name": "America/Guayaquil",
+        "countryName": "Ecuador",
+        "mainCity": "Guayaquil"
+    },
+    {
+        "name": "America/Lima",
+        "countryName": "Peru",
+        "mainCity": "Lima"
+    },
+    {
+        "name": "America/Manaus",
+        "countryName": "Brazil",
+        "mainCity": "Manaus"
+    },
+    {
+        "name": "America/St_Kitts",
+        "countryName": "Saint Kitts and Nevis",
+        "mainCity": "Basseterre"
+    },
+    {
+        "name": "America/Montserrat",
+        "countryName": "Montserrat",
+        "mainCity": "Brades"
+    },
+    {
+        "name": "America/Barbados",
+        "countryName": "Barbados",
+        "mainCity": "Bridgetown"
+    },
+    {
+        "name": "America/St_Lucia",
+        "countryName": "Saint Lucia",
+        "mainCity": "Castries"
+    },
+    {
+        "name": "America/Port_of_Spain",
+        "countryName": "Trinidad and Tobago",
+        "mainCity": "Chaguanas"
+    },
+    {
+        "name": "America/Martinique",
+        "countryName": "Martinique",
+        "mainCity": "Fort-de-France"
+    },
+    {
+        "name": "America/St_Barthelemy",
+        "countryName": "Saint Barthelemy",
+        "mainCity": "Gustavia"
+    },
+    {
+        "name": "America/Halifax",
+        "countryName": "Canada",
+        "mainCity": "Halifax"
+    },
+    {
+        "name": "Atlantic/Bermuda",
+        "countryName": "Bermuda",
+        "mainCity": "Hamilton"
+    },
+    {
+        "name": "America/St_Vincent",
+        "countryName": "Saint Vincent and the Grenadines",
+        "mainCity": "Kingstown"
+    },
+    {
+        "name": "America/Kralendijk",
+        "countryName": "Bonaire, Saint Eustatius and Saba ",
+        "mainCity": "Kralendijk"
+    },
+    {
+        "name": "America/Guadeloupe",
+        "countryName": "Guadeloupe",
+        "mainCity": "Les Abymes"
+    },
+    {
+        "name": "America/Blanc-Sablon",
+        "countryName": "Canada",
+        "mainCity": "Lévis"
+    },
+    {
+        "name": "America/Marigot",
+        "countryName": "Saint Martin",
+        "mainCity": "Marigot"
+    },
+    {
+        "name": "America/Aruba",
+        "countryName": "Aruba",
+        "mainCity": "Oranjestad"
+    },
+    {
+        "name": "America/Lower_Princes",
+        "countryName": "Sint Maarten",
+        "mainCity": "Philipsburg"
+    },
+    {
+        "name": "America/Tortola",
+        "countryName": "British Virgin Islands",
+        "mainCity": "Road Town"
+    },
+    {
+        "name": "America/Dominica",
+        "countryName": "Dominica",
+        "mainCity": "Roseau"
+    },
+    {
+        "name": "America/St_Thomas",
+        "countryName": "U.S. Virgin Islands",
+        "mainCity": "Saint Croix"
+    },
+    {
+        "name": "America/Grenada",
+        "countryName": "Grenada",
+        "mainCity": "Saint George's"
+    },
+    {
+        "name": "America/Antigua",
+        "countryName": "Antigua and Barbuda",
+        "mainCity": "Saint John’s"
+    },
+    {
+        "name": "America/Puerto_Rico",
+        "countryName": "Puerto Rico",
+        "mainCity": "San Juan"
+    },
+    {
+        "name": "America/Santo_Domingo",
+        "countryName": "Dominican Republic",
+        "mainCity": "Santo Domingo"
+    },
+    {
+        "name": "America/Anguilla",
+        "countryName": "Anguilla",
+        "mainCity": "The Valley"
+    },
+    {
+        "name": "America/Thule",
+        "countryName": "Greenland",
+        "mainCity": "Thule"
+    },
+    {
+        "name": "America/Curacao",
+        "countryName": "Curacao",
+        "mainCity": "Willemstad"
+    },
+    {
+        "name": "America/La_Paz",
+        "countryName": "Bolivia",
+        "mainCity": "Santa Cruz de la Sierra"
+    },
+    {
+        "name": "America/Santiago",
+        "countryName": "Chile",
+        "mainCity": "Santiago"
+    },
+    {
+        "name": "America/Guyana",
+        "countryName": "Guyana",
+        "mainCity": "Georgetown"
+    },
+    {
+        "name": "America/Asuncion",
+        "countryName": "Paraguay",
+        "mainCity": "Asunción"
+    },
+    {
+        "name": "America/Caracas",
+        "countryName": "Venezuela",
+        "mainCity": "Caracas"
+    },
+    {
+        "name": "America/St_Johns",
+        "countryName": "Canada",
+        "mainCity": "St. John's"
+    },
+    {
+        "name": "America/Argentina/Buenos_Aires",
+        "countryName": "Argentina",
+        "mainCity": "Buenos Aires"
+    },
+    {
+        "name": "America/Sao_Paulo",
+        "countryName": "Brazil",
+        "mainCity": "São Paulo"
+    },
+    {
+        "name": "Antarctica/Palmer",
+        "countryName": "Antarctica",
+        "mainCity": "Palmer"
+    },
+    {
+        "name": "America/Punta_Arenas",
+        "countryName": "Chile",
+        "mainCity": "Punta Arenas"
+    },
+    {
+        "name": "Atlantic/Stanley",
+        "countryName": "Falkland Islands",
+        "mainCity": "Stanley"
+    },
+    {
+        "name": "America/Cayenne",
+        "countryName": "French Guiana",
+        "mainCity": "Cayenne"
+    },
+    {
+        "name": "America/Miquelon",
+        "countryName": "Saint Pierre and Miquelon",
+        "mainCity": "Saint-Pierre"
+    },
+    {
+        "name": "America/Paramaribo",
+        "countryName": "Suriname",
+        "mainCity": "Paramaribo"
+    },
+    {
+        "name": "America/Montevideo",
+        "countryName": "Uruguay",
+        "mainCity": "Montevideo"
+    },
+    {
+        "name": "America/Godthab",
+        "countryName": "Greenland",
+        "mainCity": "Nuuk"
+    },
+    {
+        "name": "America/Noronha",
+        "countryName": "Brazil",
+        "mainCity": "Noronha"
+    },
+    {
+        "name": "Atlantic/South_Georgia",
+        "countryName": "South Georgia and the South Sandwich Islands",
+        "mainCity": "Grytviken"
+    },
+    {
+        "name": "Atlantic/Azores",
+        "countryName": "Portugal",
+        "mainCity": "Ponta Delgada"
+    },
+    {
+        "name": "Atlantic/Cape_Verde",
+        "countryName": "Cabo Verde",
+        "mainCity": "Praia"
+    },
+    {
+        "name": "America/Scoresbysund",
+        "countryName": "Greenland",
+        "mainCity": "Scoresbysund"
+    },
+    {
+        "name": "Africa/Abidjan",
+        "countryName": "Ivory Coast",
+        "mainCity": "Abidjan"
+    },
+    {
+        "name": "Africa/Accra",
+        "countryName": "Ghana",
+        "mainCity": "Accra"
+    },
+    {
+        "name": "Africa/Bamako",
+        "countryName": "Mali",
+        "mainCity": "Bamako"
+    },
+    {
+        "name": "Africa/Bissau",
+        "countryName": "Guinea-Bissau",
+        "mainCity": "Bissau"
+    },
+    {
+        "name": "Africa/Conakry",
+        "countryName": "Guinea",
+        "mainCity": "Camayenne"
+    },
+    {
+        "name": "Africa/Dakar",
+        "countryName": "Senegal",
+        "mainCity": "Dakar"
+    },
+    {
+        "name": "America/Danmarkshavn",
+        "countryName": "Greenland",
+        "mainCity": "Danmarkshavn"
+    },
+    {
+        "name": "Europe/Isle_of_Man",
+        "countryName": "Isle of Man",
+        "mainCity": "Douglas"
+    },
+    {
+        "name": "Europe/Dublin",
+        "countryName": "Ireland",
+        "mainCity": "Dublin"
+    },
+    {
+        "name": "Africa/Freetown",
+        "countryName": "Sierra Leone",
+        "mainCity": "Freetown"
+    },
+    {
+        "name": "Atlantic/St_Helena",
+        "countryName": "Saint Helena",
+        "mainCity": "Jamestown"
+    },
+    {
+        "name": "Africa/Lome",
+        "countryName": "Togo",
+        "mainCity": "Lomé"
+    },
+    {
+        "name": "Europe/London",
+        "countryName": "United Kingdom",
+        "mainCity": "London"
+    },
+    {
+        "name": "Africa/Monrovia",
+        "countryName": "Liberia",
+        "mainCity": "Monrovia"
+    },
+    {
+        "name": "Africa/Nouakchott",
+        "countryName": "Mauritania",
+        "mainCity": "Nouakchott"
+    },
+    {
+        "name": "Africa/Ouagadougou",
+        "countryName": "Burkina Faso",
+        "mainCity": "Ouagadougou"
+    },
+    {
+        "name": "Atlantic/Reykjavik",
+        "countryName": "Iceland",
+        "mainCity": "Reykjavík"
+    },
+    {
+        "name": "Europe/Jersey",
+        "countryName": "Jersey",
+        "mainCity": "Saint Helier"
+    },
+    {
+        "name": "Europe/Guernsey",
+        "countryName": "Guernsey",
+        "mainCity": "Saint Peter Port"
+    },
+    {
+        "name": "Africa/Banjul",
+        "countryName": "Gambia",
+        "mainCity": "Serekunda"
+    },
+    {
+        "name": "Africa/Sao_Tome",
+        "countryName": "Sao Tome and Principe",
+        "mainCity": "São Tomé"
+    },
+    {
+        "name": "Antarctica/Troll",
+        "countryName": "Antarctica",
+        "mainCity": "Troll"
+    },
+    {
+        "name": "Africa/Casablanca",
+        "countryName": "Morocco",
+        "mainCity": "Casablanca"
+    },
+    {
+        "name": "Africa/El_Aaiun",
+        "countryName": "Western Sahara",
+        "mainCity": "Laayoune"
+    },
+    {
+        "name": "Atlantic/Canary",
+        "countryName": "Spain",
+        "mainCity": "Las Palmas de Gran Canaria"
+    },
+    {
+        "name": "Europe/Lisbon",
+        "countryName": "Portugal",
+        "mainCity": "Lisbon"
+    },
+    {
+        "name": "Atlantic/Faroe",
+        "countryName": "Faroe Islands",
+        "mainCity": "Tórshavn"
+    },
+    {
+        "name": "Africa/Windhoek",
+        "countryName": "Namibia",
+        "mainCity": "Windhoek"
+    },
+    {
+        "name": "Africa/Algiers",
+        "countryName": "Algeria",
+        "mainCity": "Algiers"
+    },
+    {
+        "name": "Europe/Amsterdam",
+        "countryName": "Netherlands",
+        "mainCity": "Amsterdam"
+    },
+    {
+        "name": "Europe/Andorra",
+        "countryName": "Andorra",
+        "mainCity": "Andorra la Vella"
+    },
+    {
+        "name": "Europe/Belgrade",
+        "countryName": "Serbia",
+        "mainCity": "Belgrade"
+    },
+    {
+        "name": "Europe/Berlin",
+        "countryName": "Germany",
+        "mainCity": "Berlin"
+    },
+    {
+        "name": "Europe/Malta",
+        "countryName": "Malta",
+        "mainCity": "Birkirkara"
+    },
+    {
+        "name": "Europe/Bratislava",
+        "countryName": "Slovakia",
+        "mainCity": "Bratislava"
+    },
+    {
+        "name": "Europe/Brussels",
+        "countryName": "Belgium",
+        "mainCity": "Brussels"
+    },
+    {
+        "name": "Europe/Budapest",
+        "countryName": "Hungary",
+        "mainCity": "Budapest"
+    },
+    {
+        "name": "Europe/Copenhagen",
+        "countryName": "Denmark",
+        "mainCity": "Copenhagen"
+    },
+    {
+        "name": "Europe/Gibraltar",
+        "countryName": "Gibraltar",
+        "mainCity": "Gibraltar"
+    },
+    {
+        "name": "Europe/Ljubljana",
+        "countryName": "Slovenia",
+        "mainCity": "Ljubljana"
+    },
+    {
+        "name": "Arctic/Longyearbyen",
+        "countryName": "Svalbard and Jan Mayen",
+        "mainCity": "Longyearbyen"
+    },
+    {
+        "name": "Europe/Luxembourg",
+        "countryName": "Luxembourg",
+        "mainCity": "Luxembourg"
+    },
+    {
+        "name": "Europe/Madrid",
+        "countryName": "Spain",
+        "mainCity": "Madrid"
+    },
+    {
+        "name": "Europe/Monaco",
+        "countryName": "Monaco",
+        "mainCity": "Monaco"
+    },
+    {
+        "name": "Europe/Oslo",
+        "countryName": "Norway",
+        "mainCity": "Oslo"
+    },
+    {
+        "name": "Europe/Paris",
+        "countryName": "France",
+        "mainCity": "Paris"
+    },
+    {
+        "name": "Europe/Podgorica",
+        "countryName": "Montenegro",
+        "mainCity": "Podgorica"
+    },
+    {
+        "name": "Europe/Prague",
+        "countryName": "Czechia",
+        "mainCity": "Prague"
+    },
+    {
+        "name": "Europe/Rome",
+        "countryName": "Italy",
+        "mainCity": "Rome"
+    },
+    {
+        "name": "Europe/San_Marino",
+        "countryName": "San Marino",
+        "mainCity": "San Marino"
+    },
+    {
+        "name": "Europe/Sarajevo",
+        "countryName": "Bosnia and Herzegovina",
+        "mainCity": "Sarajevo"
+    },
+    {
+        "name": "Europe/Skopje",
+        "countryName": "North Macedonia",
+        "mainCity": "Skopje"
+    },
+    {
+        "name": "Europe/Stockholm",
+        "countryName": "Sweden",
+        "mainCity": "Stockholm"
+    },
+    {
+        "name": "Europe/Tirane",
+        "countryName": "Albania",
+        "mainCity": "Tirana"
+    },
+    {
+        "name": "Africa/Tunis",
+        "countryName": "Tunisia",
+        "mainCity": "Tunis"
+    },
+    {
+        "name": "Europe/Vaduz",
+        "countryName": "Liechtenstein",
+        "mainCity": "Vaduz"
+    },
+    {
+        "name": "Europe/Vatican",
+        "countryName": "Vatican",
+        "mainCity": "Vatican City"
+    },
+    {
+        "name": "Europe/Vienna",
+        "countryName": "Austria",
+        "mainCity": "Vienna"
+    },
+    {
+        "name": "Europe/Warsaw",
+        "countryName": "Poland",
+        "mainCity": "Warsaw"
+    },
+    {
+        "name": "Europe/Zagreb",
+        "countryName": "Croatia",
+        "mainCity": "Zagreb"
+    },
+    {
+        "name": "Europe/Zurich",
+        "countryName": "Switzerland",
+        "mainCity": "Zürich"
+    },
+    {
+        "name": "Africa/Bangui",
+        "countryName": "Central African Republic",
+        "mainCity": "Bangui"
+    },
+    {
+        "name": "Africa/Malabo",
+        "countryName": "Equatorial Guinea",
+        "mainCity": "Bata"
+    },
+    {
+        "name": "Africa/Brazzaville",
+        "countryName": "Republic of the Congo",
+        "mainCity": "Brazzaville"
+    },
+    {
+        "name": "Africa/Porto-Novo",
+        "countryName": "Benin",
+        "mainCity": "Cotonou"
+    },
+    {
+        "name": "Africa/Douala",
+        "countryName": "Cameroon",
+        "mainCity": "Douala"
+    },
+    {
+        "name": "Africa/Kinshasa",
+        "countryName": "Democratic Republic of the Congo",
+        "mainCity": "Kinshasa"
+    },
+    {
+        "name": "Africa/Lagos",
+        "countryName": "Nigeria",
+        "mainCity": "Lagos"
+    },
+    {
+        "name": "Africa/Libreville",
+        "countryName": "Gabon",
+        "mainCity": "Libreville"
+    },
+    {
+        "name": "Africa/Luanda",
+        "countryName": "Angola",
+        "mainCity": "Luanda"
+    },
+    {
+        "name": "Africa/Ndjamena",
+        "countryName": "Chad",
+        "mainCity": "N'Djamena"
+    },
+    {
+        "name": "Africa/Niamey",
+        "countryName": "Niger",
+        "mainCity": "Niamey"
+    },
+    {
+        "name": "Africa/Bujumbura",
+        "countryName": "Burundi",
+        "mainCity": "Bujumbura"
+    },
+    {
+        "name": "Africa/Gaborone",
+        "countryName": "Botswana",
+        "mainCity": "Gaborone"
+    },
+    {
+        "name": "Africa/Harare",
+        "countryName": "Zimbabwe",
+        "mainCity": "Harare"
+    },
+    {
+        "name": "Africa/Khartoum",
+        "countryName": "Sudan",
+        "mainCity": "Khartoum"
+    },
+    {
+        "name": "Africa/Kigali",
+        "countryName": "Rwanda",
+        "mainCity": "Kigali"
+    },
+    {
+        "name": "Africa/Blantyre",
+        "countryName": "Malawi",
+        "mainCity": "Lilongwe"
+    },
+    {
+        "name": "Africa/Lubumbashi",
+        "countryName": "Democratic Republic of the Congo",
+        "mainCity": "Lubumbashi"
+    },
+    {
+        "name": "Africa/Lusaka",
+        "countryName": "Zambia",
+        "mainCity": "Lusaka"
+    },
+    {
+        "name": "Africa/Maputo",
+        "countryName": "Mozambique",
+        "mainCity": "Maputo"
+    },
+    {
+        "name": "Africa/Juba",
+        "countryName": "South Sudan",
+        "mainCity": "Juba"
+    },
+    {
+        "name": "Asia/Damascus",
+        "countryName": "Syria",
+        "mainCity": "Aleppo"
+    },
+    {
+        "name": "Asia/Amman",
+        "countryName": "Jordan",
+        "mainCity": "Amman"
+    },
+    {
+        "name": "Europe/Athens",
+        "countryName": "Greece",
+        "mainCity": "Athens"
+    },
+    {
+        "name": "Asia/Beirut",
+        "countryName": "Lebanon",
+        "mainCity": "Beirut"
+    },
+    {
+        "name": "Europe/Bucharest",
+        "countryName": "Romania",
+        "mainCity": "Bucharest"
+    },
+    {
+        "name": "Africa/Cairo",
+        "countryName": "Egypt",
+        "mainCity": "Cairo"
+    },
+    {
+        "name": "Europe/Chisinau",
+        "countryName": "Moldova",
+        "mainCity": "Chisinau"
+    },
+    {
+        "name": "Asia/Hebron",
+        "countryName": "Palestinian Territory",
+        "mainCity": "East Jerusalem"
+    },
+    {
+        "name": "Europe/Helsinki",
+        "countryName": "Finland",
+        "mainCity": "Helsinki"
+    },
+    {
+        "name": "Europe/Kaliningrad",
+        "countryName": "Russia",
+        "mainCity": "Kaliningrad"
+    },
+    {
+        "name": "Europe/Kiev",
+        "countryName": "Ukraine",
+        "mainCity": "Kyiv"
+    },
+    {
+        "name": "Europe/Mariehamn",
+        "countryName": "Aland Islands",
+        "mainCity": "Mariehamn"
+    },
+    {
+        "name": "Asia/Nicosia",
+        "countryName": "Cyprus",
+        "mainCity": "Nicosia"
+    },
+    {
+        "name": "Europe/Riga",
+        "countryName": "Latvia",
+        "mainCity": "Riga"
+    },
+    {
+        "name": "Europe/Sofia",
+        "countryName": "Bulgaria",
+        "mainCity": "Sofia"
+    },
+    {
+        "name": "Europe/Tallinn",
+        "countryName": "Estonia",
+        "mainCity": "Tallinn"
+    },
+    {
+        "name": "Africa/Tripoli",
+        "countryName": "Libya",
+        "mainCity": "Tripoli"
+    },
+    {
+        "name": "Europe/Vilnius",
+        "countryName": "Lithuania",
+        "mainCity": "Vilnius"
+    },
+    {
+        "name": "Asia/Jerusalem",
+        "countryName": "Israel",
+        "mainCity": "Jerusalem"
+    },
+    {
+        "name": "Africa/Johannesburg",
+        "countryName": "South Africa",
+        "mainCity": "Cape Town"
+    },
+    {
+        "name": "Africa/Mbabane",
+        "countryName": "Eswatini",
+        "mainCity": "Manzini"
+    },
+    {
+        "name": "Africa/Maseru",
+        "countryName": "Lesotho",
+        "mainCity": "Maseru"
+    },
+    {
+        "name": "Asia/Kuwait",
+        "countryName": "Kuwait",
+        "mainCity": "Al Aḩmadī"
+    },
+    {
+        "name": "Asia/Baghdad",
+        "countryName": "Iraq",
+        "mainCity": "Baghdad"
+    },
+    {
+        "name": "Asia/Qatar",
+        "countryName": "Qatar",
+        "mainCity": "Doha"
+    },
+    {
+        "name": "Asia/Bahrain",
+        "countryName": "Bahrain",
+        "mainCity": "Manama"
+    },
+    {
+        "name": "Asia/Riyadh",
+        "countryName": "Saudi Arabia",
+        "mainCity": "Riyadh"
+    },
+    {
+        "name": "Asia/Aden",
+        "countryName": "Yemen",
+        "mainCity": "Sanaa"
+    },
+    {
+        "name": "Africa/Addis_Ababa",
+        "countryName": "Ethiopia",
+        "mainCity": "Addis Ababa"
+    },
+    {
+        "name": "Indian/Antananarivo",
+        "countryName": "Madagascar",
+        "mainCity": "Antananarivo"
+    },
+    {
+        "name": "Africa/Asmara",
+        "countryName": "Eritrea",
+        "mainCity": "Asmara"
+    },
+    {
+        "name": "Africa/Dar_es_Salaam",
+        "countryName": "Tanzania",
+        "mainCity": "Dar es Salaam"
+    },
+    {
+        "name": "Africa/Djibouti",
+        "countryName": "Djibouti",
+        "mainCity": "Djibouti"
+    },
+    {
+        "name": "Africa/Kampala",
+        "countryName": "Uganda",
+        "mainCity": "Kampala"
+    },
+    {
+        "name": "Indian/Mayotte",
+        "countryName": "Mayotte",
+        "mainCity": "Mamoudzou"
+    },
+    {
+        "name": "Africa/Mogadishu",
+        "countryName": "Somalia",
+        "mainCity": "Mogadishu"
+    },
+    {
+        "name": "Indian/Comoro",
+        "countryName": "Comoros",
+        "mainCity": "Moroni"
+    },
+    {
+        "name": "Africa/Nairobi",
+        "countryName": "Kenya",
+        "mainCity": "Nairobi"
+    },
+    {
+        "name": "Europe/Minsk",
+        "countryName": "Belarus",
+        "mainCity": "Minsk"
+    },
+    {
+        "name": "Europe/Moscow",
+        "countryName": "Russia",
+        "mainCity": "Moscow"
+    },
+    {
+        "name": "Antarctica/Syowa",
+        "countryName": "Antarctica",
+        "mainCity": "Syowa"
+    },
+    {
+        "name": "Europe/Istanbul",
+        "countryName": "Turkey",
+        "mainCity": "Istanbul"
+    },
+    {
+        "name": "Asia/Tehran",
+        "countryName": "Iran",
+        "mainCity": "Tehran"
+    },
+    {
+        "name": "Asia/Yerevan",
+        "countryName": "Armenia",
+        "mainCity": "Yerevan"
+    },
+    {
+        "name": "Asia/Baku",
+        "countryName": "Azerbaijan",
+        "mainCity": "Baku"
+    },
+    {
+        "name": "Asia/Tbilisi",
+        "countryName": "Georgia",
+        "mainCity": "Tbilisi"
+    },
+    {
+        "name": "Asia/Dubai",
+        "countryName": "United Arab Emirates",
+        "mainCity": "Dubai"
+    },
+    {
+        "name": "Asia/Muscat",
+        "countryName": "Oman",
+        "mainCity": "Muscat"
+    },
+    {
+        "name": "Indian/Mauritius",
+        "countryName": "Mauritius",
+        "mainCity": "Port Louis"
+    },
+    {
+        "name": "Indian/Reunion",
+        "countryName": "Reunion",
+        "mainCity": "Saint-Denis"
+    },
+    {
+        "name": "Europe/Samara",
+        "countryName": "Russia",
+        "mainCity": "Samara"
+    },
+    {
+        "name": "Indian/Mahe",
+        "countryName": "Seychelles",
+        "mainCity": "Victoria"
+    },
+    {
+        "name": "Asia/Kabul",
+        "countryName": "Afghanistan",
+        "mainCity": "Kabul"
+    },
+    {
+        "name": "Indian/Kerguelen",
+        "countryName": "French Southern Territories",
+        "mainCity": "Port-aux-Français"
+    },
+    {
+        "name": "Indian/Maldives",
+        "countryName": "Maldives",
+        "mainCity": "Male"
+    },
+    {
+        "name": "Antarctica/Mawson",
+        "countryName": "Antarctica",
+        "mainCity": "Mawson"
+    },
+    {
+        "name": "Asia/Karachi",
+        "countryName": "Pakistan",
+        "mainCity": "Karachi"
+    },
+    {
+        "name": "Asia/Dushanbe",
+        "countryName": "Tajikistan",
+        "mainCity": "Dushanbe"
+    },
+    {
+        "name": "Asia/Ashgabat",
+        "countryName": "Turkmenistan",
+        "mainCity": "Ashgabat"
+    },
+    {
+        "name": "Asia/Tashkent",
+        "countryName": "Uzbekistan",
+        "mainCity": "Tashkent"
+    },
+    {
+        "name": "Asia/Qyzylorda",
+        "countryName": "Kazakhstan",
+        "mainCity": "Kyzylorda"
+    },
+    {
+        "name": "Asia/Yekaterinburg",
+        "countryName": "Russia",
+        "mainCity": "Yekaterinburg"
+    },
+    {
+        "name": "Asia/Colombo",
+        "countryName": "Sri Lanka",
+        "mainCity": "Colombo"
+    },
+    {
+        "name": "Asia/Kolkata",
+        "countryName": "India",
+        "mainCity": "Mumbai"
+    },
+    {
+        "name": "Asia/Kathmandu",
+        "countryName": "Nepal",
+        "mainCity": "Kathmandu"
+    },
+    {
+        "name": "Asia/Dhaka",
+        "countryName": "Bangladesh",
+        "mainCity": "Dhaka"
+    },
+    {
+        "name": "Asia/Thimphu",
+        "countryName": "Bhutan",
+        "mainCity": "Thimphu"
+    },
+    {
+        "name": "Asia/Urumqi",
+        "countryName": "China",
+        "mainCity": "Zhongshan"
+    },
+    {
+        "name": "Asia/Almaty",
+        "countryName": "Kazakhstan",
+        "mainCity": "Almaty"
+    },
+    {
+        "name": "Indian/Chagos",
+        "countryName": "British Indian Ocean Territory",
+        "mainCity": "Chagos"
+    },
+    {
+        "name": "Asia/Bishkek",
+        "countryName": "Kyrgyzstan",
+        "mainCity": "Bishkek"
+    },
+    {
+        "name": "Asia/Omsk",
+        "countryName": "Russia",
+        "mainCity": "Omsk"
+    },
+    {
+        "name": "Antarctica/Vostok",
+        "countryName": "Antarctica",
+        "mainCity": "Vostok"
+    },
+    {
+        "name": "Indian/Cocos",
+        "countryName": "Cocos Islands",
+        "mainCity": "West Island"
+    },
+    {
+        "name": "Asia/Yangon",
+        "countryName": "Myanmar",
+        "mainCity": "Yangon"
+    },
+    {
+        "name": "Indian/Christmas",
+        "countryName": "Christmas Island",
+        "mainCity": "Flying Fish Cove"
+    },
+    {
+        "name": "Antarctica/Davis",
+        "countryName": "Antarctica",
+        "mainCity": "Davis"
+    },
+    {
+        "name": "Asia/Hovd",
+        "countryName": "Mongolia",
+        "mainCity": "Khovd"
+    },
+    {
+        "name": "Asia/Bangkok",
+        "countryName": "Thailand",
+        "mainCity": "Bangkok"
+    },
+    {
+        "name": "Asia/Ho_Chi_Minh",
+        "countryName": "Vietnam",
+        "mainCity": "Ho Chi Minh City"
+    },
+    {
+        "name": "Asia/Phnom_Penh",
+        "countryName": "Cambodia",
+        "mainCity": "Phnom Penh"
+    },
+    {
+        "name": "Asia/Vientiane",
+        "countryName": "Laos",
+        "mainCity": "Vientiane"
+    },
+    {
+        "name": "Asia/Novosibirsk",
+        "countryName": "Russia",
+        "mainCity": "Novosibirsk"
+    },
+    {
+        "name": "Asia/Jakarta",
+        "countryName": "Indonesia",
+        "mainCity": "Jakarta"
+    },
+    {
+        "name": "Australia/Perth",
+        "countryName": "Australia",
+        "mainCity": "Perth"
+    },
+    {
+        "name": "Asia/Brunei",
+        "countryName": "Brunei",
+        "mainCity": "Bandar Seri Begawan"
+    },
+    {
+        "name": "Asia/Makassar",
+        "countryName": "Indonesia",
+        "mainCity": "Makassar"
+    },
+    {
+        "name": "Asia/Macau",
+        "countryName": "Macao",
+        "mainCity": "Macau"
+    },
+    {
+        "name": "Asia/Shanghai",
+        "countryName": "China",
+        "mainCity": "Shanghai"
+    },
+    {
+        "name": "Asia/Hong_Kong",
+        "countryName": "Hong Kong",
+        "mainCity": "Hong Kong"
+    },
+    {
+        "name": "Asia/Irkutsk",
+        "countryName": "Russia",
+        "mainCity": "Irkutsk"
+    },
+    {
+        "name": "Asia/Kuala_Lumpur",
+        "countryName": "Malaysia",
+        "mainCity": "Kota Bharu"
+    },
+    {
+        "name": "Asia/Manila",
+        "countryName": "Philippines",
+        "mainCity": "Quezon City"
+    },
+    {
+        "name": "Asia/Singapore",
+        "countryName": "Singapore",
+        "mainCity": "Singapore"
+    },
+    {
+        "name": "Asia/Taipei",
+        "countryName": "Taiwan",
+        "mainCity": "Taipei"
+    },
+    {
+        "name": "Asia/Ulaanbaatar",
+        "countryName": "Mongolia",
+        "mainCity": "Ulan Bator"
+    },
+    {
+        "name": "Australia/Eucla",
+        "countryName": "Australia",
+        "mainCity": "Eucla"
+    },
+    {
+        "name": "Asia/Dili",
+        "countryName": "Timor Leste",
+        "mainCity": "Dili"
+    },
+    {
+        "name": "Asia/Jayapura",
+        "countryName": "Indonesia",
+        "mainCity": "Ambon"
+    },
+    {
+        "name": "Asia/Tokyo",
+        "countryName": "Japan",
+        "mainCity": "Tokyo"
+    },
+    {
+        "name": "Asia/Pyongyang",
+        "countryName": "North Korea",
+        "mainCity": "Pyongyang"
+    },
+    {
+        "name": "Asia/Seoul",
+        "countryName": "South Korea",
+        "mainCity": "Seoul"
+    },
+    {
+        "name": "Pacific/Palau",
+        "countryName": "Palau",
+        "mainCity": "Ngerulmud"
+    },
+    {
+        "name": "Asia/Chita",
+        "countryName": "Russia",
+        "mainCity": "Chita"
+    },
+    {
+        "name": "Australia/Adelaide",
+        "countryName": "Australia",
+        "mainCity": "Adelaide"
+    },
+    {
+        "name": "Australia/Darwin",
+        "countryName": "Australia",
+        "mainCity": "Darwin"
+    },
+    {
+        "name": "Australia/Brisbane",
+        "countryName": "Australia",
+        "mainCity": "Brisbane"
+    },
+    {
+        "name": "Australia/Sydney",
+        "countryName": "Australia",
+        "mainCity": "Sydney"
+    },
+    {
+        "name": "Pacific/Guam",
+        "countryName": "Guam",
+        "mainCity": "Dededo Village"
+    },
+    {
+        "name": "Pacific/Saipan",
+        "countryName": "Northern Mariana Islands",
+        "mainCity": "Saipan"
+    },
+    {
+        "name": "Pacific/Chuuk",
+        "countryName": "Micronesia",
+        "mainCity": "Chuuk"
+    },
+    {
+        "name": "Antarctica/DumontDUrville",
+        "countryName": "Antarctica",
+        "mainCity": "DumontDUrville"
+    },
+    {
+        "name": "Pacific/Port_Moresby",
+        "countryName": "Papua New Guinea",
+        "mainCity": "Port Moresby"
+    },
+    {
+        "name": "Asia/Vladivostok",
+        "countryName": "Russia",
+        "mainCity": "Vladivostok"
+    },
+    {
+        "name": "Australia/Lord_Howe",
+        "countryName": "Australia",
+        "mainCity": "Lord Howe"
+    },
+    {
+        "name": "Pacific/Bougainville",
+        "countryName": "Papua New Guinea",
+        "mainCity": "Arawa"
+    },
+    {
+        "name": "Antarctica/Casey",
+        "countryName": "Antarctica",
+        "mainCity": "Casey"
+    },
+    {
+        "name": "Pacific/Kosrae",
+        "countryName": "Micronesia",
+        "mainCity": "Kosrae"
+    },
+    {
+        "name": "Pacific/Noumea",
+        "countryName": "New Caledonia",
+        "mainCity": "Nouméa"
+    },
+    {
+        "name": "Pacific/Norfolk",
+        "countryName": "Norfolk Island",
+        "mainCity": "Kingston"
+    },
+    {
+        "name": "Asia/Sakhalin",
+        "countryName": "Russia",
+        "mainCity": "Yuzhno-Sakhalinsk"
+    },
+    {
+        "name": "Pacific/Guadalcanal",
+        "countryName": "Solomon Islands",
+        "mainCity": "Honiara"
+    },
+    {
+        "name": "Pacific/Efate",
+        "countryName": "Vanuatu",
+        "mainCity": "Port-Vila"
+    },
+    {
+        "name": "Pacific/Fiji",
+        "countryName": "Fiji",
+        "mainCity": "Suva"
+    },
+    {
+        "name": "Pacific/Tarawa",
+        "countryName": "Kiribati",
+        "mainCity": "Tarawa"
+    },
+    {
+        "name": "Pacific/Majuro",
+        "countryName": "Marshall Islands",
+        "mainCity": "Majuro"
+    },
+    {
+        "name": "Pacific/Nauru",
+        "countryName": "Nauru",
+        "mainCity": "Yaren"
+    },
+    {
+        "name": "Pacific/Auckland",
+        "countryName": "New Zealand",
+        "mainCity": "Auckland"
+    },
+    {
+        "name": "Antarctica/McMurdo",
+        "countryName": "Antarctica",
+        "mainCity": "McMurdo"
+    },
+    {
+        "name": "Asia/Kamchatka",
+        "countryName": "Russia",
+        "mainCity": "Petropavlovsk-Kamchatsky"
+    },
+    {
+        "name": "Pacific/Funafuti",
+        "countryName": "Tuvalu",
+        "mainCity": "Funafuti"
+    },
+    {
+        "name": "Pacific/Wake",
+        "countryName": "United States Minor Outlying Islands",
+        "mainCity": "Wake"
+    },
+    {
+        "name": "Pacific/Wallis",
+        "countryName": "Wallis and Futuna",
+        "mainCity": "Mata-Utu"
+    },
+    {
+        "name": "Pacific/Chatham",
+        "countryName": "New Zealand",
+        "mainCity": "Chatham"
+    },
+    {
+        "name": "Pacific/Apia",
+        "countryName": "Samoa",
+        "mainCity": "Apia"
+    },
+    {
+        "name": "Pacific/Enderbury",
+        "countryName": "Kiribati",
+        "mainCity": "Enderbury"
+    },
+    {
+        "name": "Pacific/Fakaofo",
+        "countryName": "Tokelau",
+        "mainCity": "Fakaofo"
+    },
+    {
+        "name": "Pacific/Tongatapu",
+        "countryName": "Tonga",
+        "mainCity": "Nuku‘alofa"
+    },
+    {
+        "name": "Pacific/Kiritimati",
+        "countryName": "Kiribati",
+        "mainCity": "Kiritimati"
+    }
+]

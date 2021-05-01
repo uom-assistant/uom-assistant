@@ -97,7 +97,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import tzList from '@/tools/tzList';
+import * as tzList from '@/tools/tzList.json';
 
 export default {
     name: 'clock',
@@ -126,7 +126,7 @@ export default {
         updateList() {
             const timezoneList = [];
             const searchIndex = [];
-            for (const item of tzList) {
+            for (const item of tzList.default) {
                 timezoneList.push({
                     name: this.locale === 'en' ? `${this.$t(item.mainCity)}, ${this.$t(item.countryName)}` : `${this.$t(item.countryName)} ${this.$t(item.mainCity)}`,
                     code: item.name,
@@ -227,7 +227,7 @@ export default {
         localStorage.setItem('timezone', this.timeZone);
 
         // Bulid timezone list
-        for (const item of tzList) {
+        for (const item of tzList.default) {
             this.timeZoneList.push({
                 name: this.locale === 'en' ? `${this.$t(item.mainCity)}, ${this.$t(item.countryName)}` : `${this.$t(item.countryName)} ${this.$t(item.mainCity)}`,
                 code: item.name,
@@ -435,7 +435,6 @@ p {
         "Calgary": "Calgary",
         "Ciudad Juárez": "Ciudad Juárez",
         "Denver": "Denver",
-        "Fort St. John": "Fort St. John",
         "Phoenix": "Phoenix",
         "Whitehorse": "Whitehorse",
         "Belize City": "Belize City",
@@ -999,7 +998,6 @@ p {
         "Calgary": "卡尔加里",
         "Ciudad Juárez": "华瑞兹城",
         "Denver": "丹佛",
-        "Fort St. John": "圣约翰堡",
         "Phoenix": "凤凰城",
         "Whitehorse": "怀特霍斯",
         "Belize City": "伯利兹城",
