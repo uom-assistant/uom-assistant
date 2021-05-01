@@ -4,21 +4,6 @@ const fs = require('fs');
 const AdmZip = require('adm-zip');
 const fetch = require('node-fetch');
 const rimraf = require('rimraf');
-const { rawTimeZones } = require('@vvo/tzdb');
-
-// Update timezone list
-console.log('Update timezone list:\n - Rebuilding list...');
-const tzList = [];
-for (const item of rawTimeZones) {
-    tzList.push({
-        name: item.name,
-        countryName: item.countryName,
-        mainCity: item.mainCities[0],
-    });
-}
-fs.unlinkSync('./src/tools/tzList.json');
-fs.writeFileSync('./src/tools/tzList.json', JSON.stringify(tzList, null, 4));
-console.log(` - ${tzList.length} items rebuilt.`);
 
 // Update PDF.js
 console.log('Update PDF.js:\n - Checking version...');
