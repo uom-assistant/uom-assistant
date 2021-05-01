@@ -26,3 +26,5 @@ pnpm-debug.log*
 # SonarQube
 sonar-project.properties
 .scannerwork
+
+pdfjs_viewer
