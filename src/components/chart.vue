@@ -5,7 +5,7 @@
             :smooth="8"
             :padding="4"
             :line-width="width"
-            :height="(100 - (Math.min(...value) / 100) * 100)"
+            :height="Math.max((100 - (Math.min(...value) / 100) * 100), 5)"
             width="315"
             stroke-linecap="round"
             class="chart chart-1"
@@ -15,7 +15,7 @@
             :smooth="8"
             :padding="4"
             :line-width="width"
-            :height="(100 - (Math.min(...value) / 100) * 100)"
+            :height="Math.max((100 - (Math.min(...value) / 100) * 100), 5)"
             width="315"
             fill
             class="chart chart-2"

@@ -51,6 +51,7 @@
                         color="primary"
                         @input="dateMenu = false"
                         :locale="selectLocale"
+                        :key="`date-picker-${updateDatePickerKey}`"
                     ></v-date-picker>
                 </v-menu>
                 <v-menu
@@ -198,6 +199,7 @@ export default {
             date: '',
             addingSubject: '',
             updateListKey: '',
+            updateDatePickerKey: 0,
             timer: null,
         };
     },
@@ -509,6 +511,9 @@ export default {
         timerMin() {
             this.updateListKey = this.timerMin;
         },
+        timerHour() {
+            this.updateDatePickerKey = new Date().valueOf();
+        },
         searchNotification() {
             // Handle search actions
             if (this.searchNotification.target === 'coursework') {
@@ -539,6 +544,7 @@ export default {
             packery: (state) => state.packery,
             subjects: (state) => state.subjects,
             timerMin: (state) => state.timerMin,
+            timerHour: (state) => state.timerHour,
             searchNotification: (state) => state.searchNotification,
         }),
         allSubjects() {

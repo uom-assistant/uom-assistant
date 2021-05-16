@@ -1009,6 +1009,7 @@ export default {
                             '微信',
                             '评分',
                             '助你',
+                            '交稿',
                         ], 0.4,
                     ],
                     [
@@ -1018,6 +1019,7 @@ export default {
                             '审核',
                             '科目',
                             '免费',
+                            '预定',
                         ], 0.3,
                     ],
                     [
@@ -1032,6 +1034,8 @@ export default {
                             '答题',
                             '答疑',
                             '做题',
+                            '选题',
+                            '检测',
                         ], 0.2,
                     ],
                     [
@@ -3384,7 +3388,7 @@ export default {
         "time": "Time",
         "trusted_sender": "Trusted mail sender",
         "internal_sender": "From an UoM internal address",
-        "unsafe_content": "This email is from a untrusted sender external to UoM, displaying in plain text mode",
+        "unsafe_content": "This email is from an untrusted sender external to UoM, displaying in plain text mode",
         "untrusted_content": "This email may not be credible",
         "this_is_safe": "This email is safe",
         "expand": "Expand",

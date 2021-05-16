@@ -202,8 +202,18 @@ export default [
                     {
                         subject: 'COMP13212',
                         name: 'Data Science',
-                        weightedGrade: '0',
-                        detail: [],
+                        weightedGrade: '10',
+                        detail: [
+                            {
+                                rawName: '13212-TEST',
+                                name: 'TEST',
+                                summative: true,
+                                grade: '90',
+                                gradeAll: '100',
+                                time: '2020-12-16 18:00:00',
+                                late: false,
+                            },
+                        ],
                     },
                     {
                         subject: 'COMP11120',

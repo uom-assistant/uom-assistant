@@ -37,7 +37,7 @@ module.exports = {
                     handler: 'StaleWhileRevalidate',
                 },
                 {
-                    urlPattern: new RegExp('/version.json'),
+                    urlPattern: new RegExp('version.json'),
                     handler: 'NetworkOnly',
                 },
             ],
