@@ -8,7 +8,7 @@ export default new Vuex.Store({
         locale: localStorage.getItem('language') || 'en',
         localeDetail: null,
         packery: null,
-        widgets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        widgets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
         subjects: [],
         timerMin: '00',
         timerHour: '00',
@@ -19,7 +19,7 @@ export default new Vuex.Store({
         backend: {},
         backendStatus: true,
         account: {},
-        searchIndex: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
+        searchIndex: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
         searchNotification: {
             target: '',
             payload: null,

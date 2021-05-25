@@ -42,6 +42,7 @@
             <!-- Main widgets -->
             <clock id="index-1" class="block size1x" v-show="widgets.includes(0)" :searchid="0"></clock>
             <calendar id="index-2" class="block size2x" v-show="widgets.includes(6)" :searchid="6"></calendar>
+            <plugins id="index-12" class="block" :class="pluginExpanded ? 'size2x' : 'size1x'" v-show="widgets.includes(11)" :searchid="11" @toggle-expanded="toggleExpanded"></plugins>
             <todo id="index-3" class="block size1x" v-show="widgets.includes(1)" :searchid="1"></todo>
             <bblinks id="index-4" class="block size1x" v-show="widgets.includes(2)" :searchid="2"></bblinks>
             <livelinks id="index-5" class="block size1x" v-show="widgets.includes(3)" :searchid="3"></livelinks>
@@ -91,6 +92,7 @@ import coursework from '@/components/coursework.vue';
 import note from '@/components/note.vue';
 import mail from '@/components/mail.vue';
 import grade from '@/components/grade.vue';
+import plugins from '@/components/plugins.vue';
 
 import { mapState } from 'vuex';
 import Packery from 'packery';
@@ -113,6 +115,7 @@ export default {
         note,
         mail,
         grade,
+        plugins,
     },
     data() {
         return {
@@ -128,6 +131,7 @@ export default {
             currentName: '',
             timezoneChanged: false,
             tomorrowFirst: '',
+            pluginExpanded: true,
         };
     },
     watch: {
@@ -280,10 +284,23 @@ export default {
             }
             return '';
         },
+        /**
+         * Toggle plugin widget width
+         * @param {boolean} expanded if the widget is 2x sized
+         */
+        toggleExpanded(expanded) {
+            this.pluginExpanded = expanded;
+            this.$nextTick(() => {
+                this.packery.shiftLayout();
+            });
+        },
     },
     mounted() {
         // Initialize language
         this.$i18n.locale = localStorage.getItem('language') || 'en';
+
+        // Initialize plugin widget width
+        this.pluginExpanded = (localStorage.getItem('plugin_expanded') || 'true') === 'true';
 
         // Check timezone
         let currentTimeZone = '';
@@ -300,7 +317,7 @@ export default {
         }
 
         // Restore widgets' order
-        let indexes = localStorage.getItem('layout') || '[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]';
+        let indexes = localStorage.getItem('layout') || '[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]';
         indexes = JSON.parse(indexes);
         document.getElementById(`index-${indexes.shift()}`).classList.add('layouted');
         const packery = new Packery(document.getElementById('blocks'), {

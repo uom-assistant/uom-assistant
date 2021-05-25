@@ -471,7 +471,7 @@ export default {
             (value) => /^[\w-]+(\.[\w-]+)+([\w.,@^=%:/~+-]*)?$/i.test(value) || '',
         ],
         languageList: localeList,
-        ifWidgets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        ifWidgets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
         widgets: [
             'clock',
             'todo',
@@ -484,10 +484,11 @@ export default {
             'note',
             'mail',
             'grade',
+            'plugins',
         ],
         searching: '',
-        searchIndexFiltered: [null, null, null, null, null, null, null, null, null, null, null],
-        searchers: [null, null, null, null, null, null, null, null, null, null, null],
+        searchIndexFiltered: [null, null, null, null, null, null, null, null, null, null, null, null],
+        searchers: [null, null, null, null, null, null, null, null, null, null, null, null],
         timer: null,
         updateReady: false,
         updateReadyVersion: '',
@@ -813,9 +814,9 @@ export default {
 
         // Initialize widget status
         try {
-            this.ifWidgets = JSON.parse(localStorage.getItem('if_widgets')) || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+            this.ifWidgets = JSON.parse(localStorage.getItem('if_widgets')) || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
         } catch {
-            this.ifWidgets = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+            this.ifWidgets = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
         }
         localStorage.setItem('if_widgets', JSON.stringify(this.ifWidgets));
         this.$store.commit('setWidgets', this.ifWidgets);
@@ -1237,7 +1238,8 @@ html::-webkit-scrollbar {
         "coursework": "Coursework",
         "note": "Quick Notes",
         "mail": "Inbox",
-        "grade": "Grade Summary"
+        "grade": "Grade Summary",
+        "plugins": "Plug-ins"
     },
     "zh": {
         "title": "曼大助手",
@@ -1282,7 +1284,8 @@ html::-webkit-scrollbar {
         "coursework": "作业",
         "note": "快速笔记",
         "mail": "收件箱",
-        "grade": "成绩概览"
+        "grade": "成绩概览",
+        "plugins": "插件"
     }
 }
 </i18n>
