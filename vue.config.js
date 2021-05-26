@@ -129,6 +129,14 @@ module.exports = {
                         removeStyleLinkTypeAttributes: true,
                     }),
                     toType: 'file',
+                }, {
+                    from: path.resolve(__dirname, 'plugins/plugins'),
+                    to: path.resolve(__dirname, 'dist/plugins/plugins'),
+                    toType: 'dir',
+                }, {
+                    from: path.resolve(__dirname, 'plugins/plugins.json'),
+                    to: path.resolve(__dirname, 'dist/plugins/plugins.json'),
+                    toType: 'file',
                 });
                 return [options];
             });
