@@ -258,6 +258,7 @@ export default {
     overflow: hidden;
     background-color: #F8F8F8!important;
     border-color: #E0E0E0!important;
+    contain: layout paint;
     .subject-summary {
         padding: 12px 12px 12px 15px;
         .subject-color-samll {

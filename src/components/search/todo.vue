@@ -120,6 +120,7 @@ export default {
     padding-right: 0;
     overflow: hidden;
     border-radius: 6px!important;
+    contain: layout paint;
     .list {
         background-color: transparent;
         .v-list-item__action {

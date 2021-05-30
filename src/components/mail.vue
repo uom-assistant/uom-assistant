@@ -874,6 +874,8 @@ export default {
                 dmg: 'package-down',
                 deb: 'debian',
                 ics: 'calendar-month-outline',
+                c4d: 'cube-outline',
+                fbx: 'cube-outline',
             },
             viewer: {
                 subject: '',
@@ -2573,6 +2575,7 @@ export default {
     padding-left: 0;
     padding-right: 0;
     overflow: hidden;
+    contain: strict;
     h2 {
         font-size: 18px;
         font-weight: normal;
@@ -3426,7 +3429,7 @@ export default {
         "more": "更多",
         "all_read": "全部标记已读",
         "mark_seen": "标记为已读",
-        "sound_notification": "新邮件声音通知",
+        "sound_notification": "新邮件通知音",
         "no_subject": "无主题",
         "mail_view": "邮件",
         "remain_week": "%d 周前",

@@ -125,6 +125,7 @@ p {
     position: relative;
     overflow: hidden;
     border-radius: 6px;
+    contain: layout paint;
 }
 #app.theme--dark .gray-container {
     background-color: #272727;

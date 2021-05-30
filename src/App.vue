@@ -187,7 +187,7 @@
             <v-card class="welcome-dialog-card">
                 <v-stepper
                     :value="stage"
-                    class="mb-10 stepper"
+                    class="mb-10 stepper elevation-0"
                     :class="{ shown: stage !== 0 }"
                 >
                     <v-stepper-header>
@@ -793,6 +793,8 @@ export default {
         },
     },
     mounted() {
+        window.isUoma = true;
+
         // Initialize language
         this.locale = localStorage.getItem('language') || 'en';
         this.$i18n.locale = this.locale;

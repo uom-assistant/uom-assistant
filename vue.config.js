@@ -40,6 +40,10 @@ module.exports = {
                     urlPattern: new RegExp('version.json'),
                     handler: 'NetworkOnly',
                 },
+                {
+                    urlPattern: /\/plugins\//,
+                    handler: 'NetworkOnly',
+                },
             ],
         },
         manifestOptions: {
@@ -130,6 +134,19 @@ module.exports = {
                     }),
                     toType: 'file',
                 }, {
+                    from: path.resolve(__dirname, 'plugins/plugins'),
+                    to: path.resolve(__dirname, 'dist/plugins/plugins'),
+                    toType: 'dir',
+                }, {
+                    from: path.resolve(__dirname, 'plugins/plugins.json'),
+                    to: path.resolve(__dirname, 'dist/plugins/plugins.json'),
+                    toType: 'file',
+                });
+                return [options];
+            });
+        } else {
+            config.plugin('copy').tap(([options]) => {
+                options.push({
                     from: path.resolve(__dirname, 'plugins/plugins'),
                     to: path.resolve(__dirname, 'dist/plugins/plugins'),
                     toType: 'dir',

@@ -111,6 +111,7 @@ export default {
     position: relative;
     overflow: hidden;
     border-radius: 6px!important;
+    contain: layout paint;
     .list {
         background-color: transparent!important;
         .v-list-item__icon {

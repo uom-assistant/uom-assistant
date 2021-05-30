@@ -845,6 +845,7 @@ export default {
     padding-left: 0;
     padding-right: 0;
     overflow: hidden;
+    contain: strict;
     .loading {
         margin-left: 10px;
     }

@@ -45,6 +45,7 @@ export default {
     overflow: hidden;
     padding-top: 32%;
     position: relative;
+    contain: strict;
     .chart {
         position: absolute;
         top: 0;

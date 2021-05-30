@@ -265,6 +265,7 @@ p {
 .gray-container {
     position: relative;
     overflow: hidden;
+    contain: strict;
     .loading {
         position: absolute;
         top: 10px;
