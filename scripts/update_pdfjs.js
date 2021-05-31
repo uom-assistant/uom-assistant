@@ -11,7 +11,7 @@ fetch('https://api.github.com/repos/mozilla/pdf.js/releases/latest')
     .then((res) => res.json())
     .then((data) => {
         for (const item of data.assets) {
-            if (item.name.includes('-es5-')) {
+            if (item.name.includes('-es5-') || item.name.includes('-legacy-')) {
                 console.log(` - Found file ${item.name}`);
                 return item.url;
             }
