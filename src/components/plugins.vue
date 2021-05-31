@@ -15,7 +15,7 @@
                     class="loading ml-3"
                     v-show="loading"
                 ></v-progress-circular>
-                <v-btn icon small @click.stop="toggleExpanded" class="float-right mr-4" :title="expanded ? $t('collapse') : $t('expand')">
+                <v-btn icon small @click.stop="toggleExpanded" class="float-right mr-4 expand-btn" :title="expanded ? $t('collapse') : $t('expand')">
                     <v-icon>{{ expanded ? 'mdi-unfold-less-vertical' : 'mdi-unfold-more-vertical' }}</v-icon>
                 </v-btn>
             </h2>
@@ -38,11 +38,11 @@
                             offset-y="23"
                             v-if="item.verified"
                         >
-                            <v-list-item-avatar :color="$vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2'" :size="50">
+                            <v-list-item-avatar :color="$vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2'" :size="45">
                                 <v-img :src="`/plugins/plugins/${item.id}/avatar.jpg`"></v-img>
                             </v-list-item-avatar>
                         </v-badge>
-                        <v-list-item-avatar v-else :color="$vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2'" :size="50">
+                        <v-list-item-avatar v-else :color="$vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2'" :size="45">
                             <v-img :src="`/plugins/plugins/${item.id}/avatar.jpg`"></v-img>
                         </v-list-item-avatar>
 
@@ -58,10 +58,20 @@
             <div class="empty" v-if="plugins.length === 0 && init && !loading">
                 {{ $t('nothing') }}
             </div>
+            <div class="plugin-panel">
+                <h2 class="handle">
+                    <v-btn icon small @click.stop="toggleExpanded" class="float-right mr-4 expand-btn" :title="expanded ? $t('collapse') : $t('expand')">
+                        <v-icon>{{ expanded ? 'mdi-unfold-less-vertical' : 'mdi-unfold-more-vertical' }}</v-icon>
+                    </v-btn>
+                </h2>
+                <div class="text--disabled">
+                    {{ $t('nothing_opened') }}
+                </div>
+            </div>
             <v-slide-x-reverse-transition>
                 <div v-show="shownTabs" class="plugin-tabs">
                     <h2 class="handle">
-                        <v-btn icon small @click.stop="shownTabs = !shownTabs" :title="$t('return')" class="mr-3">
+                        <v-btn icon small @click.stop="shownTabs = !shownTabs" :title="$t('return')" class="mr-3 return-btn">
                             <v-icon>mdi-arrow-left</v-icon>
                         </v-btn>
                         <span class="h2-title">{{ $t('running-plugins') }}</span>
@@ -73,9 +83,92 @@
                             class="loading ml-3"
                             v-show="loading"
                         ></v-progress-circular>
-                        <v-btn icon small @click.stop="toggleExpanded" class="float-right mr-4" :title="expanded ? $t('collapse') : $t('expand')">
+                        <v-btn icon small @click.stop="toggleExpanded" class="float-right mr-4 expand-btn" :title="expanded ? $t('collapse') : $t('expand')">
                             <v-icon>{{ expanded ? 'mdi-unfold-less-vertical' : 'mdi-unfold-more-vertical' }}</v-icon>
                         </v-btn>
+                        <v-menu
+                            :close-on-content-click="false"
+                            nudge-bottom="5"
+                            content-class="large-radius"
+                            transition="slide-y-transition"
+                            offset-y
+                            left
+                        >
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn icon small v-show="tab !== undefined && tabs[tab] && tabs[tab].state === 'running'" class="float-right mr-2" :title="$t('plugin_info')" v-on="on" v-bind="attrs">
+                                    <v-icon>mdi-information-outline</v-icon>
+                                </v-btn>
+                            </template>
+                            <v-card
+                                class="plugin-info-card d-flex justify-start"
+                                v-if="tab !== undefined && tabs[tab] && tabs[tab].state === 'running'"
+                                flat
+                            >
+                                <div class="d-flex flex-row justify-start plugin-detail align-start mt-1">
+                                    <v-badge
+                                        avatar
+                                        bordered
+                                        color="primary"
+                                        icon="mdi-star-four-points"
+                                        overlap
+                                        bottom
+                                        offset-x="22"
+                                        offset-y="22"
+                                        v-if="tabs[tab].verified"
+                                        class="mr-5 mt-1"
+                                    >
+                                        <v-avatar :color="$vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2'" :size="80">
+                                            <v-img :src="`/plugins/plugins/${tabs[tab].id}/avatar.jpg`"></v-img>
+                                        </v-avatar>
+                                    </v-badge>
+                                    <v-avatar v-else :color="$vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2'" :size="80" class="mr-5 mt-1">
+                                        <v-img :src="`/plugins/plugins/${tabs[tab].id}/avatar.jpg`"></v-img>
+                                    </v-avatar>
+                                    <div class="d-flex flex-column align-start">
+                                        <h3 class="text-h5">{{ tabs[tab].name }}</h3>
+                                        <p class="text--secondary">{{ tabs[tab].description }}</p>
+                                        <p class="primary--text font-weight-bold verified" v-if="tabs[tab].verified && tabs[tab].verifiedMessage !==''">
+                                            <v-icon
+                                                small
+                                                color="primary"
+                                                class="mr-1"
+                                            >
+                                                mdi-star-four-points
+                                            </v-icon> {{ tabs[tab].verifiedMessage }}
+                                        </p>
+                                        <div class="plugin-meta">
+                                            <span class="d-inline-block mb-1">
+                                                <v-icon
+                                                    small
+                                                    color="primary"
+                                                    class="mr-1"
+                                                >
+                                                    mdi-account
+                                                </v-icon><span class="mr-3" v-if="tabs[tab].authorUrl === ''">{{ tabs[tab].author }}</span><a class="mr-3" v-else :href="tabs[tab].authorUrl" target="_blank">{{ tabs[tab].author }}</a>
+                                            </span>
+                                            <span v-if="tabs[tab].type === 'local'" class="d-inline-block mb-1">
+                                                <v-icon
+                                                    small
+                                                    color="primary"
+                                                    class="mr-1"
+                                                >
+                                                    mdi-pound-box
+                                                </v-icon>{{ tabs[tab].version }}
+                                            </span>
+                                            <span v-else class="d-inline-block mb-1">
+                                                <v-icon
+                                                    small
+                                                    color="primary"
+                                                    class="mr-2"
+                                                >
+                                                    mdi-cloud
+                                                </v-icon>{{ $t('cloud_plugin') }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </v-card>
+                        </v-menu>
                     </h2>
                     <v-tabs
                         v-model="tab"
@@ -83,8 +176,9 @@
                     >
                         <v-tab
                             v-for="(tab, index) in tabs"
-                            :key="`tab-${tab.id}`"
+                            :key="`tab-${tab.id}-${tab.state}`"
                         >
+                            <v-icon x-small class="info-icon" color="grey" v-if="tab.state === 'unconfirmed' || tab.state === 'broken'">mdi-information-outline</v-icon>
                             {{ tab.name }}
                             <v-btn icon x-small class="ml-1" @click.stop="closeTab(index)" :title="$t('close')">
                                 <v-icon>mdi-close</v-icon>
@@ -244,8 +338,9 @@
                                                 </v-icon>{{ scope.replace(/^https:\/\//, '').replace(/^http:\/\//, '') }}
                                             </p>
                                         </div>
+                                        <p class="text--disabled permission-notice px-3 mt-3" v-html="$t('scope_notice')"></p>
                                     </div>
-                                    <div class="full-width px-3 mb-2 plugin-links" :class="tab.type === 'local' ? 'mt-1' : 'mt-3'" v-if="tab.pluginHomepage !=='' || tab.privacyPolicy !== ''">
+                                    <div class="full-width px-3 mb-2 plugin-links mt-1" v-if="tab.pluginHomepage !=='' || tab.privacyPolicy !== ''">
                                         <span class="mr-2" v-if="tab.pluginHomepage !==''"><a :href="tab.pluginHomepage" target="_blank" rel="noopener nofollow">{{ $t('home_page') }}</a><a :href="tab.pluginHomepage" target="_blank" rel="noopener nofollow" class="no-underline-link"><v-icon x-small color="primary">mdi-open-in-new</v-icon></a></span>
                                         <span class="text--disabled mr-2" v-if="tab.pluginHomepage !=='' && tab.privacyPolicy !== ''">|</span>
                                         <span class="mr-2" v-if="tab.privacyPolicy !==''"><a :href="tab.privacyPolicy" target="_blank" rel="noopener nofollow">{{ $t('privacy_policy') }}</a><a :href="tab.privacyPolicy" target="_blank" rel="noopener nofollow" class="no-underline-link"><v-icon x-small color="primary">mdi-open-in-new</v-icon></a></span>
@@ -410,12 +505,13 @@ export default {
                 attendance: 'order-bool-ascending-variant',
                 calendar: 'calendar-month-outline',
                 coursework: 'book-open-page-variant-outline',
-                quickNote: 'notebook-edit-outline',
+                quickNote: 'file-document-edit-outline',
                 inbox: 'email-multiple-outline',
                 gradeSummary: 'clipboard-list-outline',
                 plugin: 'puzzle-outline',
             },
             timer: null,
+            widthChecker: null,
         };
     },
     methods: {
@@ -424,8 +520,14 @@ export default {
          */
         toggleExpanded() {
             this.expanded = !this.expanded;
-            this.$emit('toggle-expanded', this.expanded);
+            this.$emit('toggle-expanded', {
+                expanded: this.expanded,
+                isResize: false,
+            });
             localStorage.setItem('plugin_expanded', this.expanded);
+            if (this.expanded && this.tabs.length > 0) {
+                this.shownTabs = true;
+            }
         },
         /**
          * Update plugin list
@@ -864,9 +966,23 @@ export default {
         }, 86400000);
 
         this.updateList();
+
+        this.widthChecker = (e) => {
+            if (e.currentTarget.innerWidth <= 670) {
+                this.expanded = false;
+                this.$emit('toggle-expanded', {
+                    expanded: this.expanded,
+                    isResize: true,
+                });
+                localStorage.setItem('plugin_expanded', this.expanded);
+            }
+        };
+
+        window.addEventListener('resize', this.widthChecker);
     },
     beforeDestroy() {
         clearInterval(this.timer);
+        window.removeEventListener('resize', this.widthChecker);
     },
 };
 </script>
@@ -890,8 +1006,12 @@ export default {
         }
     }
     .scroll {
-        height: 418px;
+        height: 420px;
         overflow: auto;
+        width: 100%;
+    }
+    .plugin-panel {
+        display: none;
     }
     .v-list--three-line .v-list-item {
         min-height: 73px;
@@ -931,11 +1051,15 @@ export default {
         h2 {
             padding-left: 14px;
             padding-bottom: 8px;
-            background-color: #F5F5F5;
+            background-color: #F4F4F4;
         }
         .v-tab {
             font-size: 7px;
             padding: 0 8px;
+            .info-icon {
+                margin-left: -3px;
+                margin-right: 5px;
+            }
             .v-btn--icon.v-size--x-small {
                 margin-right: -5px;
                 i {
@@ -956,7 +1080,7 @@ export default {
         }
         .detail-screen {
             width: 100%;
-            height: 393px;
+            height: 395px;
             justify-content: center;
             align-items: center;
             flex-direction: column;
@@ -974,7 +1098,8 @@ export default {
                 width: calc(100% - 20px);
                 .text-h5 {
                     font-size: 1.4rem!important;
-                    text-align: center;
+                    line-height: 25px;
+                    padding-bottom: 6px;
                 }
                 p {
                     font-size: 14px;
@@ -1086,8 +1211,50 @@ export default {
         vertical-align: text-top;
     }
     &.expanded {
+        background-color: #F8F8F8;
+        .scroll {
+            width: 270px;
+            .list {
+                background-color: #F8F8F8;
+            }
+        }
+        .plugin-panel {
+            width: calc(100% - 270px);
+            height: 100%;
+            display: block;
+            top: 0;
+            left: 270px;
+            position: absolute;
+            z-index: 2;
+            background: white;
+            & > div {
+                position: absolute;
+                top: 0;
+                left: 0;
+                pointer-events: none;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+        }
         .plugin-tabs {
+            width: calc(100% - 270px);
+            left: 270px;
+            z-index: 3;
+            .handle {
+                background-color: #EEEEEE;
+                padding-bottom: 3px;
+                .return-btn, .h2-title {
+                    visibility: hidden;
+                }
+            }
+            .v-tabs-bar {
+                background-color: #F0F0F0;
+            }
             .detail-screen {
+                height: 400px;
                 .permisson-list {
                     width: calc(100% + 14px);
                     margin-left: -14px;
@@ -1098,6 +1265,47 @@ export default {
                 }
             }
         }
+    }
+}
+.plugin-info-card {
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 15px 10px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 380px;
+    .plugin-detail {
+        width: calc(100% - 20px);
+        .text-h5 {
+            font-size: 1.4rem!important;
+            line-height: 25px;
+            padding-bottom: 6px;
+        }
+        p {
+            font-size: 14px;
+            line-height: 16px;
+            margin-bottom: 12px;
+        }
+        .verified i {
+            vertical-align: text-top;
+        }
+        .plugin-meta {
+            font-size: 12px;
+            i {
+                margin-left: -2px;
+                vertical-align: text-bottom;
+                transform: translateY(1.5px);
+                &.mr-2 {
+                    margin-right: 6px!important;
+                }
+            }
+        }
+    }
+}
+@media (max-width: 670px) {
+    .expand-btn {
+        visibility: hidden;
     }
 }
 #app.theme--dark .plugin-container {
@@ -1115,7 +1323,7 @@ export default {
     .plugin-tabs {
         background: #1E1E1E;
         h2 {
-            background-color: #252525;
+            background-color: #262626;
         }
         .v-tabs-bar {
             height: 32px;
@@ -1124,6 +1332,25 @@ export default {
         .detail-screen {
             .v-badge .v-badge__wrapper i {
                 color: rgba(0, 0, 0, .8);
+            }
+        }
+    }
+    &.expanded {
+        background-color: #272727;
+        .scroll {
+            .list {
+                background-color: #272727;
+            }
+        }
+        .plugin-panel {
+            background: #1E1E1E;
+        }
+        .plugin-tabs {
+            .handle {
+                background-color: #2E2E2E;
+            }
+            .v-tabs-bar {
+                background-color: #2C2C2C;
             }
         }
     }
@@ -1153,7 +1380,7 @@ export default {
         "global/account": "%s your UoM account info",
         "global/backend": "%s your backend login info",
         "global/notification": "Send notifications",
-        "global/background": "Running in the background",
+        "global/background": "Running in background",
         "global/trackingId": "%s your",
         "clock/timezone": "%s clock widget timezone",
         "todo/list": "%s your TO-DO list",
@@ -1182,7 +1409,10 @@ export default {
         "home_page": "Plugin-in Home Page",
         "privacy_policy": "Plug-in Privacy Policy",
         "plugin_broken": "Unable to load plug-in, because the plug-in's profile is broken.",
-        "tracking_note": "Corresponds to your UoM account but does not contain any sensitive information"
+        "tracking_note": "Corresponds to your UoM account but does not contain any sensitive information",
+        "scope_notice": "This plug-in cannot access any website outside of this list.",
+        "plugin_info": "Plug-in Info",
+        "nothing_opened": "No plug-in opened"
     },
     "zh": {
         "plugins": "插件",
@@ -1234,7 +1464,10 @@ export default {
         "home_page": "插件主页",
         "privacy_policy": "插件隐私政策",
         "plugin_broken": "无法载入插件，因为此插件的配置文件已损坏。",
-        "tracking_note": "与曼大账户对应，但不包含任何敏感信息"
+        "tracking_note": "与曼大账户对应，但不包含任何敏感信息",
+        "scope_notice": "插件无法访问此列表以外的任何网站。",
+        "plugin_info": "插件信息",
+        "nothing_opened": "没有打开的插件"
     }
 }
 </i18n>

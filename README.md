@@ -24,6 +24,7 @@ Frontend:
 - [x] Overview widget
 - [x] Inbox widget
 - [x] Grade summary widget
+- [ ] Plug-in widget
 - [ ] Search
 - [ ] Set up guide
 - [ ] Settings page
@@ -103,6 +104,7 @@ Make sure you have `npm` and `composer` installed.
 ### Frontend
 
 ```shell
+$ git submodule update --init --recursive
 $ npm install
 $ npm run build
 ```

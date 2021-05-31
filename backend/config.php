@@ -62,7 +62,21 @@ define('UOMA_CONFIG', array(
     'welcome_message' => '',
 
     // Controls which frontend can connect to this backend. Can be a string or an array (auto match). More at https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
-    'access_control_allow_origin' => '*'
+    'access_control_allow_origin' => '*',
+
+    // If true, the mail widget will show a translator and user can translate a mail to their preferred language
+    'allow_mail_translator' => true,
+
+    'mail_translator_config' => array(
+        // The translation service will using, supports 'deepl', 'azure' or 'google'
+        'service' => 'deepl',
+
+        // Translation APi gateway. More at https://github.com/yrccondor/uom-assistant/backend/README.md
+        'gateway' => '',
+
+        // Your translation API token
+        'token' => ''
+    )
 ));
 
 ?>

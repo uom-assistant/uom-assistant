@@ -1230,7 +1230,7 @@ export default {
         "cancel": "Cancel",
         "ok": "OK",
         "want_remove": "Are you sure to delete %d note that is selected?",
-        "want_remove_single": "Are you sure to delete note \"%s\" 吗？",
+        "want_remove_single": "Are you sure to delete note \"%s\"?",
         "want_remove_plural": "Are you sure to delete %d notes that are selected?",
         "remove_all": "Are you sure to delete all notes?",
         "too_many_title": "Maybe too many notes",

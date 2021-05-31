@@ -286,13 +286,15 @@ export default {
         },
         /**
          * Toggle plugin widget width
-         * @param {boolean} expanded if the widget is 2x sized
+         * @param {Object} expand event detail
          */
-        toggleExpanded(expanded) {
-            this.pluginExpanded = expanded;
-            this.$nextTick(() => {
-                this.packery.fit(document.getElementById('index-12'));
-            });
+        toggleExpanded(expand) {
+            this.pluginExpanded = expand.expanded;
+            if (!expand.isResize) {
+                this.$nextTick(() => {
+                    this.packery.fit(document.getElementById('index-12'));
+                });
+            }
         },
     },
     mounted() {
