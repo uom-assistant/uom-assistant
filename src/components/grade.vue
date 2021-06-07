@@ -328,7 +328,7 @@ export default {
         /**
          * Update grade data from backend
          */
-        async updateGrade() {
+        async updateGrade(tryCount = 1) {
             if (!this.backend.url || !this.account.username || !this.account.password) {
                 this.$store.commit('setAttendance', false);
                 return;
@@ -344,14 +344,21 @@ export default {
                     token: this.backend.token ? this.backend.token : '',
                 }),
             }).catch(() => {
-                // Network error
-                this.loading = false;
-                this.$store.commit('setAttendance', false);
-                this.$store.commit('addError', {
-                    title: this.$t('network_error'),
-                    content: this.$t('network_error_body'),
-                    type: 'warning',
-                });
+                if (tryCount < 2) {
+                    // Retry
+                    setTimeout(() => {
+                        this.updateGrade(tryCount + 1);
+                    }, 8000);
+                } else {
+                    // Network error
+                    this.loading = false;
+                    this.$store.commit('setAttendance', false);
+                    this.$store.commit('addError', {
+                        title: this.$t('network_error'),
+                        content: this.$t('network_error_body'),
+                        type: 'warning',
+                    });
+                }
                 requestFailed = true;
             });
 

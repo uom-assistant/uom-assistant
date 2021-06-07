@@ -184,7 +184,7 @@
             :fullscreen="$vuetify.breakpoint.xs"
             :transition="$vuetify.breakpoint.xs ? 'slide-y-reverse-transition' : 'dialog-transition'"
         >
-            <v-card class="welcome-dialog-card">
+            <v-card class="welcome-dialog-card" :class="$vuetify.breakpoint.xs ? 'rounded-0' : ''">
                 <v-stepper
                     :value="stage"
                     class="mb-10 stepper elevation-0"
@@ -434,6 +434,8 @@ import betterFetch from '@/tools/betterFetch';
 import formatDateTime from '@/tools/formatDateTime';
 import localeList from '@/locales/localeList';
 import * as version from '../public/version.json';
+
+import '@/styles/highlight.less';
 
 export default {
     name: 'App',
@@ -948,6 +950,9 @@ html::-webkit-scrollbar {
 }
 .welcome-dialog.welcome-overflow {
     overflow: hidden;
+}
+.welcome-dialog.rounded-0 .welcome-dialog-card {
+    border-radius: 0;
 }
 .welcome-dialog .welcome-dialog-card {
     .stepper {

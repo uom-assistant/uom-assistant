@@ -15,7 +15,7 @@
                     class="loading ml-3"
                     v-show="loading"
                 ></v-progress-circular>
-                <v-btn icon small @click.stop="toggleExpanded" class="float-right mr-4 expand-btn" :title="expanded ? $t('collapse') : $t('expand')">
+                <v-btn icon small @click.stop="toggleExpanded" class="float-right mr-4 plugin-expand-btn" :title="expanded ? $t('collapse') : $t('expand')">
                     <v-icon>{{ expanded ? 'mdi-unfold-less-vertical' : 'mdi-unfold-more-vertical' }}</v-icon>
                 </v-btn>
             </h2>
@@ -60,7 +60,7 @@
             </div>
             <div class="plugin-panel">
                 <h2 class="handle">
-                    <v-btn icon small @click.stop="toggleExpanded" class="float-right mr-4 expand-btn" :title="expanded ? $t('collapse') : $t('expand')">
+                    <v-btn icon small @click.stop="toggleExpanded" class="float-right mr-4 plugin-expand-btn" :title="expanded ? $t('collapse') : $t('expand')">
                         <v-icon>{{ expanded ? 'mdi-unfold-less-vertical' : 'mdi-unfold-more-vertical' }}</v-icon>
                     </v-btn>
                 </h2>
@@ -83,7 +83,7 @@
                             class="loading ml-3"
                             v-show="loading"
                         ></v-progress-circular>
-                        <v-btn icon small @click.stop="toggleExpanded" class="float-right mr-4 expand-btn" :title="expanded ? $t('collapse') : $t('expand')">
+                        <v-btn icon small @click.stop="toggleExpanded" class="float-right mr-4 plugin-expand-btn" :title="expanded ? $t('collapse') : $t('expand')">
                             <v-icon>{{ expanded ? 'mdi-unfold-less-vertical' : 'mdi-unfold-more-vertical' }}</v-icon>
                         </v-btn>
                         <v-menu
@@ -411,7 +411,7 @@ export default {
         return {
             init: false,
             loading: false,
-            expanded: true,
+            expanded: false,
             plugins: [],
             installedPlugins: [],
             shownTabs: false,
@@ -532,18 +532,25 @@ export default {
         /**
          * Update plugin list
          */
-        async updateList() {
+        async updateList(tryCount = 1) {
             this.loading = true;
             let requestFailed = false;
             // Send request
             const response = await betterFetch('/plugins/plugins.json').catch(() => {
-                // Network error
-                this.loading = false;
-                this.$store.commit('addError', {
-                    title: this.$t('network_error'),
-                    content: this.$t('network_error_body'),
-                    type: 'warning',
-                });
+                if (tryCount < 2) {
+                    // Retry
+                    setTimeout(() => {
+                        this.updateList(tryCount + 1);
+                    }, 8000);
+                } else {
+                    // Network error
+                    this.loading = false;
+                    this.$store.commit('addError', {
+                        title: this.$t('network_error'),
+                        content: this.$t('network_error_body'),
+                        type: 'warning',
+                    });
+                }
                 requestFailed = true;
             });
 
@@ -958,7 +965,7 @@ export default {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
 
         // Initialize widget width
-        this.expanded = (localStorage.getItem('plugin_expanded') || 'true') === 'true';
+        this.expanded = (localStorage.getItem('plugin_expanded') || 'false') === 'true';
 
         // Update plugin list every day
         this.timer = setInterval(() => {
@@ -1054,7 +1061,7 @@ export default {
             background-color: #F4F4F4;
         }
         .v-tab {
-            font-size: 7px;
+            font-size: 9px;
             padding: 0 8px;
             .info-icon {
                 margin-left: -3px;
@@ -1213,17 +1220,17 @@ export default {
     &.expanded {
         background-color: #F8F8F8;
         .scroll {
-            width: 270px;
+            width: 280px;
             .list {
                 background-color: #F8F8F8;
             }
         }
         .plugin-panel {
-            width: calc(100% - 270px);
+            width: calc(100% - 280px);
             height: 100%;
             display: block;
             top: 0;
-            left: 270px;
+            left: 280px;
             position: absolute;
             z-index: 2;
             background: white;
@@ -1240,8 +1247,8 @@ export default {
             }
         }
         .plugin-tabs {
-            width: calc(100% - 270px);
-            left: 270px;
+            width: calc(100% - 280px);
+            left: 280px;
             z-index: 3;
             .handle {
                 background-color: #EEEEEE;
@@ -1304,7 +1311,7 @@ export default {
     }
 }
 @media (max-width: 670px) {
-    .expand-btn {
+    .plugin-expand-btn {
         visibility: hidden;
     }
 }

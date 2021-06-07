@@ -32,6 +32,7 @@
                 <v-btn icon small class="float-right mr-2" :title="$t('cancel_select')" @click.stop="multi = false">
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
+                <span class="float-right mr-2 ml-0" :class="$vuetify.theme.dark ? 'grey--text text--darken-2' : 'grey--text text--lighten-2'" v-show="ifNotes.length > 0">|</span>
                 <v-btn icon small class="float-right mr-2" :title="$t('delete_selected')" @click.stop="removeSelectedConfirm" v-show="ifNotes.length > 0">
                     <v-icon>mdi-delete-outline</v-icon>
                 </v-btn>
@@ -241,7 +242,12 @@ import rust from 'highlight.js/lib/languages/rust';
 import shell from 'highlight.js/lib/languages/shell';
 import typescript from 'highlight.js/lib/languages/typescript';
 import verilog from 'highlight.js/lib/languages/verilog';
-import x86asm from 'highlight.js/lib/languages/x86asm';
+import ruby from 'highlight.js/lib/languages/ruby';
+import sql from 'highlight.js/lib/languages/sql';
+import less from 'highlight.js/lib/languages/less';
+import scss from 'highlight.js/lib/languages/scss';
+import yaml from 'highlight.js/lib/languages/yaml';
+import docker from 'highlight.js/lib/languages/dockerfile';
 
 import 'codemirror/mode/markdown/markdown';
 import 'codemirror/mode/python/python';
@@ -256,10 +262,10 @@ import 'codemirror/addon/edit/matchbrackets';
 
 import formatDateTime from '@/tools/formatDateTime';
 import debounce from '@/tools/debounce';
+import csv from '@/tools/csvHighlight';
 
 import 'codemirror/theme/xq-light.css';
 import 'codemirror/lib/codemirror.css';
-import 'highlight.js/styles/a11y-light.css';
 import 'katex/dist/katex.css';
 import 'katex/contrib/copy-tex/copy-tex.css';
 
@@ -276,6 +282,8 @@ hljs.registerLanguage('css', css);
 hljs.registerLanguage('go', go);
 hljs.registerLanguage('html', xml);
 hljs.registerLanguage('xml', xml);
+hljs.registerLanguage('vue', xml);
+hljs.registerLanguage('svg', xml);
 hljs.registerLanguage('haskell', haskell);
 hljs.registerLanguage('json', json);
 hljs.registerLanguage('java', java);
@@ -290,7 +298,16 @@ hljs.registerLanguage('shell', shell);
 hljs.registerLanguage('typescript', typescript);
 hljs.registerLanguage('ts', typescript);
 hljs.registerLanguage('verilog', verilog);
-hljs.registerLanguage('x86', x86asm);
+hljs.registerLanguage('rb', ruby);
+hljs.registerLanguage('ruby', ruby);
+hljs.registerLanguage('sql', sql);
+hljs.registerLanguage('less', less);
+hljs.registerLanguage('scss', scss);
+hljs.registerLanguage('yaml', yaml);
+hljs.registerLanguage('yml', yaml);
+hljs.registerLanguage('docker', docker);
+hljs.registerLanguage('dockerfile', docker);
+hljs.registerLanguage('csv', csv);
 
 export default {
     name: 'note',
@@ -906,6 +923,9 @@ export default {
                     border-bottom: 1px solid #eaecef;
                     padding-bottom: 2.2rem;
                 }
+                h3 {
+                    font-size: 1.25em;
+                }
                 h1, h2, h3, h4, h5, h6 {
                     margin-bottom: 0.5em;
                 }
@@ -926,9 +946,6 @@ export default {
                     font-size: 14px;
                     padding: 10px 12px;
                     background-color: #f8f8f8;
-                    .hljs-comment {
-                        color: #888888;
-                    }
                 }
                 ul.contains-task-list li.task-list-item {
                     list-style: none;
@@ -1120,16 +1137,6 @@ export default {
             }
             hr {
                 border-color: rgba(255, 255, 255, 0.2);
-            }
-            .hljs {
-                background-color: #272727;
-                color: #c2c2c2;
-                & > span {
-                    filter: invert(1) hue-rotate(180deg) brightness(1.1);
-                    &.hljs-function {
-                        color: #434343;
-                    }
-                }
             }
             blockquote {
                 border-left: 4px solid #3b3b3b;

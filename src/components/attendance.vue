@@ -34,7 +34,7 @@
                 </div>
             </v-slide-x-transition>
             <v-slide-x-reverse-transition leave-absolute>
-                <div class="text-h1 font-weight-regular text-right mt-3 mr-5 big-number" v-show="view === 'lastMonth'" :class="{
+                <div class="text-h1 font-weight-regular text-right pt-3 pr-5 big-number" v-show="view === 'lastMonth'" :class="{
                     'green--text': statusLastMonth === 'ok',
                     'amber--text': statusLastMonth === 'warning',
                     'grey--text': statusLastMonth === 'unknown',
@@ -166,14 +166,14 @@ export default {
                 // Update status
                 if (this.lastMonth === '-1') {
                     this.statusLastMonth = 'unknown';
-                } else if (parseInt(this.lastMonth, 10) > 95) {
+                } else if (parseInt(this.lastMonth, 10) >= 95) {
                     this.statusLastMonth = 'ok';
                 } else {
                     this.statusLastMonth = 'warning';
                 }
                 if (this.annual === '-1') {
                     this.statusAnnual = 'unknown';
-                } else if (parseInt(this.annual, 10) > 95) {
+                } else if (parseInt(this.annual, 10) >= 95) {
                     this.statusAnnual = 'ok';
                 } else {
                     this.statusAnnual = 'warning';

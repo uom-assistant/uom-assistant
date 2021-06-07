@@ -131,7 +131,7 @@ export default {
             currentName: '',
             timezoneChanged: false,
             tomorrowFirst: '',
-            pluginExpanded: true,
+            pluginExpanded: false,
         };
     },
     watch: {
@@ -302,7 +302,7 @@ export default {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
 
         // Initialize plugin widget width
-        this.pluginExpanded = (localStorage.getItem('plugin_expanded') || 'true') === 'true';
+        this.pluginExpanded = (localStorage.getItem('plugin_expanded') || 'false') === 'true';
 
         // Check timezone
         let currentTimeZone = '';

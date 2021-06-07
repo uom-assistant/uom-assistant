@@ -13,7 +13,7 @@
                     :width="2"
                     :size="18"
                     class="loading ml-3"
-                    v-show="loading || loadingFlag.length > 0 || downloading !== ''"
+                    v-show="loading || loadingFlag.length > 0 || downloading !== '' || loadingPreview != ''"
                 ></v-progress-circular>
                 <v-menu
                     offset-y
@@ -28,7 +28,7 @@
                         </v-btn>
                     </template>
                     <v-list flat class="shown-list pt-0 pb-0">
-                        <v-list-item class="pt-2 pb-2 mail-all-read" @click="markAllAsRead" :disabled="!init || loading || loadingFlag.length > 0 || downloading !== ''">
+                        <v-list-item class="pt-2 pb-2 mail-all-read" @click="markAllAsRead" :disabled="!init || loading || loadingFlag.length > 0 || downloading !== '' || loadingPreview != ''">
                             <v-list-item-icon>
                                 <v-icon>mdi-email-open-multiple-outline</v-icon>
                             </v-list-item-icon>
@@ -58,7 +58,7 @@
                     <source src="@/assets/audios/new_mail.mp3" type="audio/mpeg">
                     <source src="@/assets/audios/new_mail.ogg" type="audio/ogg">
                 </audio>
-                <v-btn icon @click.stop="manualRefresh" small class="float-right mr-1" :title="$t('refresh')" :disabled="loading || loadingFlag.length > 0 || downloading !== ''" v-if="init" :loading="refreshLoding">
+                <v-btn icon @click.stop="manualRefresh" small class="float-right mr-1" :title="$t('refresh')" :disabled="loading || loadingFlag.length > 0 || downloading !== '' || loadingPreview != ''" v-if="init" :loading="refreshLoding">
                     <v-icon>mdi-sync</v-icon>
                     <template v-slot:loader>
                         <span class="refresh-loading">
@@ -178,7 +178,7 @@
                                 <v-list-item-title>{{ $t('forward') }}</v-list-item-title>
                             </v-list-item-content>
                         </v-list-item>
-                        <v-list-item @click="markAsJunk(viewing)" :disabled="loading || loadingFlag.length > 0 || downloading !== ''">
+                        <v-list-item @click="markAsJunk(viewing)" :disabled="loading || loadingFlag.length > 0 || downloading !== '' || loadingPreview != ''">
                             <v-list-item-icon>
                                 <v-icon>mdi-cancel</v-icon>
                             </v-list-item-icon>
@@ -186,7 +186,7 @@
                                 <v-list-item-title>{{ $t('mark_junk') }}</v-list-item-title>
                             </v-list-item-content>
                         </v-list-item>
-                        <v-list-item @click="deleteMail(viewing)" :disabled="loading || loadingFlag.length > 0 || downloading !== ''">
+                        <v-list-item @click="deleteMail(viewing)" :disabled="loading || loadingFlag.length > 0 || downloading !== '' || loadingPreview != ''">
                             <v-list-item-icon>
                                 <v-icon>mdi-delete-outline</v-icon>
                             </v-list-item-icon>
@@ -382,10 +382,31 @@
                     <v-expand-transition>
                         <div class="expand attachment-list" v-show="viewAttachmentExpanded">
                             <div class="d-flex flex-wrap mt-1">
-                                <div class="attachment-item d-flex justify-space-between align-center mt-2 mr-2" v-for="(file, index) in viewer.attachments" :key="`attachment-${file[0]}-${index}`" :class="{ 'full-width': viewer.attachments.length === 1 }">
-                                    <v-icon class="ml-2 mr-1">{{ `mdi-${getFileIcon(file[0])}` }}</v-icon>
+                                <div class="attachment-item d-flex justify-space-between align-center mt-2 mr-2" v-for="(file, index) in viewer.attachments" :key="`attachment-${file[0]}-${index}`" :class="{ 'full-width': viewer.attachments.length === 1, 'can-preview': canPreview(file[0], file[1]), 'loading-preview': loadingPreview === `${viewing}-${file[0]}` }">
+                                    <v-icon class="ml-2 mr-1 file-ext">{{ `mdi-${getFileIcon(file[0])}` }}</v-icon>
+                                    <v-btn icon small @click="downloadFile(viewing, file[0], file[1], 'preview')" class="preview-btn" v-if="canPreview(file[0], file[1])" :title="$t('preview')" :loading="loadingPreview === `${viewing}-${file[0]}`" :disabled="downloading !== '' || loadingPreview != ''">
+                                        <v-icon>mdi-eye</v-icon>
+                                        <template v-slot:loader>
+                                            <v-progress-circular
+                                                indeterminate
+                                                color="grey"
+                                                :width="2"
+                                                :size="20"
+                                                v-show="downloadProgress < 5"
+                                            ></v-progress-circular>
+                                            <v-progress-circular
+                                                color="primary"
+                                                class="rotating"
+                                                :rotate="-90"
+                                                :width="2.3"
+                                                :size="20"
+                                                :value="downloadProgress"
+                                                v-show="downloadProgress >= 5"
+                                            ></v-progress-circular>
+                                        </template>
+                                    </v-btn>
                                     <div class="text-body-2 file-name text-truncate" :title="file[0]">{{ file[0] }}<div class="text--disabled text-caption">{{ formatBytes(file[1]) }}</div></div>
-                                    <v-btn icon @click="downloadFile(viewing, file[0], file[1])" small class="mr-1" :loading="downloading === `${viewing}-${file[0]}`" :disabled="downloading !== ''">
+                                    <v-btn icon @click="downloadFile(viewing, file[0], file[1], 'download')" small class="mr-1" :loading="downloading === `${viewing}-${file[0]}`" :disabled="downloading !== '' || loadingPreview != ''">
                                         <v-icon small>mdi-arrow-collapse-down</v-icon>
                                         <template v-slot:loader>
                                             <v-progress-circular
@@ -431,7 +452,7 @@
                             small
                             color="red"
                             class="my-1 ml-2"
-                            :disabled="loading || loadingFlag.length > 0 || downloading !== ''"
+                            :disabled="loading || loadingFlag.length > 0 || downloading !== '' || loadingPreview != ''"
                             @click="markAsJunk(viewing)"
                         >
                             {{ $t('mark_junk') }}
@@ -447,7 +468,7 @@
                         </v-btn>
                     </div>
                 </v-alert>
-                <div v-show="!loadingBody && (!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML">
+                <div v-show="!loadingBody && (!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML && viewer.bodyRawHTML !== ''">
                     <v-alert
                         text
                         dense
@@ -622,7 +643,7 @@
             close-on-content-click
         >
             <v-list class="mail-menu-list">
-                <v-list-item v-show="isUnseen(selectedId)" @click="markAsRead(selectedId)" :disabled="loading || loadingFlag.length > 0 || downloading !== ''">
+                <v-list-item v-show="isUnseen(selectedId)" @click="markAsRead(selectedId)" :disabled="loading || loadingFlag.length > 0 || downloading !== '' || loadingPreview != ''">
                     <v-list-item-icon>
                         <v-icon>mdi-email-open-outline</v-icon>
                     </v-list-item-icon>
@@ -630,7 +651,7 @@
                         <v-list-item-title>{{ $t('mark_seen') }}</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
-                <v-list-item @click="flagMail(selectedId)" :disabled="loading || loadingFlag.length > 0 || downloading !== ''">
+                <v-list-item @click="flagMail(selectedId)" :disabled="loading || loadingFlag.length > 0 || downloading !== '' || loadingPreview != ''">
                     <v-list-item-icon>
                         <v-icon :color="isFlagged(selectedId) ? 'primary' : ''" v-show="!isLoadingFlag(selectedId)">
                             {{ isFlagged(selectedId) ? 'mdi-flag' : 'mdi-flag-outline' }}
@@ -647,7 +668,7 @@
                         <v-list-item-title>{{ isFlagged(selectedId) ? $t('unflag') : $t('flag') }}</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
-                <v-list-item @click="markAsJunk(selectedId)" :disabled="loading || loadingFlag.length > 0 || downloading !== ''">
+                <v-list-item @click="markAsJunk(selectedId)" :disabled="loading || loadingFlag.length > 0 || downloading !== '' || loadingPreview != ''">
                     <v-list-item-icon>
                         <v-icon>mdi-cancel</v-icon>
                     </v-list-item-icon>
@@ -655,7 +676,7 @@
                         <v-list-item-title>{{ $t('mark_junk') }}</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
-                <v-list-item @click="deleteMail(selectedId)" :disabled="loading || loadingFlag.length > 0 || downloading !== ''">
+                <v-list-item @click="deleteMail(selectedId)" :disabled="loading || loadingFlag.length > 0 || downloading !== '' || loadingPreview != ''">
                     <v-list-item-icon>
                         <v-icon>mdi-delete-outline</v-icon>
                     </v-list-item-icon>
@@ -665,6 +686,7 @@
                 </v-list-item>
             </v-list>
         </v-menu>
+        <previewer :content="previewerConfig.content" :blob="previewerConfig.blob" :type="previewerConfig.type" :name="previewerConfig.name" :icon="previewerConfig.icon" ref="filePreviewer"></previewer>
         <v-dialog
             v-model="tooManyAttachments"
             max-width="400"
@@ -712,11 +734,14 @@ import 'codemirror/addon/selection/active-line';
 import 'codemirror/addon/edit/closebrackets';
 import 'codemirror/addon/edit/matchbrackets';
 
+import previewer from '@/components/previewer.vue';
+
 import checkBackendVersion from '@/tools/checkBackendVersion';
 import betterFetch from '@/tools/betterFetch';
 import fetchDownload from '@/tools/fetchDownload';
 import formatDateTime from '@/tools/formatDateTime';
 import debounce from '@/tools/debounce';
+import { mailCss, mailDarkCss, mailTextCss } from '@/tools/mailCss';
 
 import 'codemirror/theme/xq-light.css';
 import 'codemirror/lib/codemirror.css';
@@ -727,6 +752,7 @@ export default {
     name: 'mail',
     components: {
         codemirror,
+        previewer,
     },
     data() {
         return {
@@ -735,6 +761,7 @@ export default {
             loadingFlag: [],
             downloading: '',
             downloadProgress: 0,
+            loadingPreview: '',
             mails: [],
             ifNotify: [0],
             layerOpened: false,
@@ -775,6 +802,7 @@ export default {
             copySuccess: false,
             copyingIndex: -1,
             cachedMails: [],
+            cachedAttachments: [],
             fileIconMap: {
                 pdf: 'file-pdf-outline',
                 zip: 'zip-box-outline',
@@ -783,8 +811,10 @@ export default {
                 gz: 'zip-box-outline',
                 tar: 'zip-box-outline',
                 mp4: 'play-box-outline',
+                m4v: 'play-box-outline',
                 webm: 'play-box-outline',
                 flv: 'play-box-outline',
+                ogv: 'play-box-outline',
                 mpeg: 'play-box-outline',
                 avi: 'play-box-outline',
                 mov: 'play-box-outline',
@@ -794,6 +824,7 @@ export default {
                 ape: 'music-note-outline',
                 dsd: 'music-note-outline',
                 ogg: 'music-note-outline',
+                oga: 'music-note-outline',
                 aac: 'music-note-outline',
                 jpg: 'image',
                 jpeg: 'image',
@@ -852,6 +883,7 @@ export default {
                 gemfile: 'language-ruby',
                 html: 'language-html5',
                 htm: 'language-html5',
+                xml: 'xml',
                 md: 'language-markdown-outline',
                 php: 'language-php',
                 css: 'language-css3',
@@ -859,6 +891,7 @@ export default {
                 dockerfile: 'docker',
                 dockerignore: 'docker',
                 gitignore: 'git',
+                npmignore: 'npm',
                 psd: 'drawing-box',
                 svg: 'svg',
                 woff: 'format-size',
@@ -869,6 +902,9 @@ export default {
                 csv: 'file-table-outline',
                 sql: 'database-search',
                 ipynb: 'notebook-outline',
+                yml: 'file-cog-outline',
+                yaml: 'file-cog-outline',
+                conf: 'file-cog-outline',
                 exe: 'console-line',
                 apk: 'android',
                 dmg: 'package-down',
@@ -876,6 +912,60 @@ export default {
                 ics: 'calendar-month-outline',
                 c4d: 'cube-outline',
                 fbx: 'cube-outline',
+            },
+            previewMap: {
+                png: 'image',
+                jpg: 'image',
+                jpeg: 'image',
+                bmp: 'image',
+                gif: 'image',
+                webp: 'image',
+                svg: 'svg',
+                mp3: 'audio',
+                wav: 'audio',
+                ogg: 'audio',
+                oga: 'audio',
+                aac: 'audio',
+                flac: 'audio',
+                mp4: 'video',
+                m4v: 'video',
+                ogv: 'video',
+                webm: 'video',
+                pdf: 'pdf',
+                csv: 'csv',
+                txt: 'text',
+                dockerignore: 'text',
+                gitignore: 'text',
+                npmignore: 'text',
+                md: 'markdown',
+                dockerfile: 'code',
+                js: 'code',
+                py: 'code',
+                php: 'code',
+                sh: 'code',
+                c: 'code',
+                cpp: 'code',
+                css: 'code',
+                go: 'code',
+                html: 'code',
+                htm: 'code',
+                xml: 'code',
+                vue: 'code',
+                hs: 'code',
+                json: 'code',
+                java: 'code',
+                tex: 'code',
+                lisp: 'code',
+                lua: 'code',
+                rs: 'code',
+                ts: 'code',
+                v: 'code',
+                rb: 'code',
+                sql: 'code',
+                less: 'code',
+                scss: 'code',
+                yml: 'code',
+                yaml: 'code',
             },
             viewer: {
                 subject: '',
@@ -1052,71 +1142,16 @@ export default {
                     ],
                 ],
             },
-            sandboxCss: `
-                ::-moz-selection {
-                    color: white;
-                    background-color: #660099;
-                }
-                ::-webkit-selection {
-                    color: white;
-                    background-color: #660099;
-                }
-                ::selection {
-                    color: white;
-                    background-color: #660099;
-                }
-                body {
-                    margin: 0;
-                    padding: 0;
-                    overflow-x: auto;
-                    overflow-y: hidden;
-                    background: none transparent;
-                    font-family: -apple-system,  sans-serif;
-                }
-                img {
-                    max-width: 100%;
-                    height: auto;
-                }
-                a {
-                    color: #660099;
-                    word-break: break-word;
-                }`,
-            sandboxCssDark: `
-                :root {
-                    color-scheme: dark;
-                    background-color: #1E1E1E;
-                }
-                ::-moz-selection {
-                    color: black;
-                    background-color: #D099E0;
-                }
-                ::-webkit-selection {
-                    color: black;
-                    background-color: #D099E0;
-                }
-                ::selection {
-                    color: black;
-                    background-color: #D099E0;
-                }
-                body:not([bgcolor]) {
-                    background-color: #1E1E1E;
-                    color: white;
-                }
-                body:not([bgcolor]) img {
-                    filter: brightness(.85);
-                }
-                body[bgcolor] {
-                    filter: brightness(.85);
-                    color: black;
-                    background-color: #1E1E1E;
-                }
-                a {
-                    color: #D099E0;
-                }`,
-            sandboxCssText: `
-                body {
-                    white-space: pre-wrap;
-                }`,
+            sandboxCss: mailCss,
+            sandboxCssDark: mailDarkCss,
+            sandboxCssText: mailTextCss,
+            previewerConfig: {
+                content: '',
+                blob: '',
+                type: '',
+                name: '',
+                icon: '',
+            },
             debouncedWheelEnd: debounce.debounce(function () {
                 this.mouseWheelEnd();
             }, 200),
@@ -1127,7 +1162,7 @@ export default {
          * Update mail list from backend
          * @param {boolean} update update or fetch
          */
-        async updateMailList(update = false) {
+        async updateMailList(update = false, tryCount = 1) {
             if (!this.backend.url || !this.account.username || !this.account.password || !this.account.email) {
                 return;
             }
@@ -1153,13 +1188,20 @@ export default {
                     token: this.backend.token ? this.backend.token : '',
                 }),
             }).catch(() => {
-                // Network error
-                this.loading = false;
-                this.$store.commit('addError', {
-                    title: this.$t('network_error'),
-                    content: this.$t('network_error_body'),
-                    type: 'warning',
-                });
+                if (tryCount < 2) {
+                    // Retry
+                    setTimeout(() => {
+                        this.updateMailList(update, tryCount + 1);
+                    }, 8000);
+                } else {
+                    // Network error
+                    this.loading = false;
+                    this.$store.commit('addError', {
+                        title: this.$t('network_error'),
+                        content: this.$t('network_error_body'),
+                        type: 'warning',
+                    });
+                }
                 requestFailed = true;
             });
 
@@ -1437,14 +1479,23 @@ export default {
                 // Get body
                 this.loadingBody = false;
 
-                this.viewer.bodyHTML = `<base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}${response.data.content.match(/<[^>]+>\s+(?=<)|<[^>]+>/g) === null ? this.sandboxCssText : ''}</style>${response.data.content}`;
-                this.viewer.bodyRawHTML = `${response.data.content}`;
-                this.viewer.textContent = this.getInnerText(new DOMParser().parseFromString(response.data.content, 'text/html').body);
-                this.viewer.bodyText = response.data.plainContent === '' ? this.viewer.textContent : response.data.plainContent;
-                this.viewer.attachments = response.data.attachments;
+                if (response.data.content === '') {
+                    this.viewer.bodyHTML = `<html><head><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}</style></head><body> </body></html>`;
+                    this.viewer.bodyRawHTML = '';
+                    this.viewer.textContent = '';
+                    this.viewer.bodyText = '';
+                    this.viewer.untrust = false;
+                } else {
+                    this.viewer.bodyHTML = `<base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}${response.data.content.match(/<[^>]+>\s+(?=<)|<[^>]+>/g) === null ? this.sandboxCssText : ''}</style>${response.data.content}`;
+                    this.viewer.bodyRawHTML = `${response.data.content}`;
+                    this.viewer.textContent = this.getInnerText(new DOMParser().parseFromString(response.data.content, 'text/html').body);
+                    this.viewer.bodyText = response.data.plainContent === '' ? this.viewer.textContent : response.data.plainContent;
 
-                // Check if the content is untrusted
-                this.viewer.untrust = this.checkUntrust(this.viewer.textContent);
+                    // Check if the content is untrusted
+                    this.viewer.untrust = this.checkUntrust(this.viewer.textContent);
+                }
+
+                this.viewer.attachments = response.data.attachments;
 
                 // Cache mail body
                 if (this.cachedMails.findIndex((item) => item.id === response.data.id) === -1) {
@@ -1481,56 +1532,113 @@ export default {
          * @param {string} fileName file name
          * @param {number} totalSize file size
          */
-        async downloadFile(mailId, fileName, totalSize) {
+        async downloadFile(mailId, fileName, totalSize, action) {
             if (!this.backend.url || !this.account.username || !this.account.password || !this.account.email) {
                 return;
             }
 
-            this.loading = true;
-            this.downloading = `${mailId}-${fileName}`;
-            this.downloadProgress = 0;
-            let requestFailed = false;
-            // Send request
-            const response = await fetchDownload(`https://${this.backend.url}/mail/attachment/`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    username: this.account.username,
-                    password: this.account.password,
-                    email: this.account.email,
-                    fileName,
-                    mailId,
-                    token: this.backend.token ? this.backend.token : '',
-                }),
-            }, (size) => {
-                let percentage = (size / totalSize) * 100;
-                if (percentage > 100) {
-                    percentage = 100;
+            // Looking for cache
+            let response = null;
+            let cacheFlag = false;
+            for (const item of this.cachedAttachments) {
+                if (item.id === `${mailId}-${fileName}`) {
+                    response = item.content;
+                    cacheFlag = true;
                 }
-                if (percentage < 0) {
-                    percentage = 0;
-                }
-                this.downloadProgress = percentage;
-            }).catch(() => {
-                // Network error
-                this.loading = false;
-                this.downloading = '';
-                this.$store.commit('addError', {
-                    title: this.$t('network_error'),
-                    content: this.$t('cannot_download'),
-                    type: 'warning',
-                });
-                requestFailed = true;
-            });
+            }
 
-            if (requestFailed) {
-                return;
+            if (!cacheFlag) {
+                this.loading = true;
+                if (action === 'download') {
+                    this.downloading = `${mailId}-${fileName}`;
+                } else {
+                    this.loadingPreview = `${mailId}-${fileName}`;
+                }
+                this.downloadProgress = 0;
+                let requestFailed = false;
+                // Send request
+                response = await fetchDownload(`https://${this.backend.url}/mail/attachment/`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        username: this.account.username,
+                        password: this.account.password,
+                        email: this.account.email,
+                        fileName,
+                        mailId,
+                        token: this.backend.token ? this.backend.token : '',
+                    }),
+                }, (size) => {
+                    let percentage = (size / totalSize) * 100;
+                    if (percentage > 100) {
+                        percentage = 100;
+                    }
+                    if (percentage < 0) {
+                        percentage = 0;
+                    }
+                    this.downloadProgress = percentage;
+                }).catch(() => {
+                    // Network error
+                    this.loading = false;
+                    this.downloading = '';
+                    this.$store.commit('addError', {
+                        title: this.$t('network_error'),
+                        content: this.$t('cannot_download'),
+                        type: 'warning',
+                    });
+                    requestFailed = true;
+                });
+
+                if (requestFailed) {
+                    return;
+                }
+
+                // Cache
+                let foundFlag = false;
+                for (let i = 0; i < this.cachedAttachments.length; i += 1) {
+                    if (this.cachedAttachments[i].id === `${mailId}-${fileName}`) {
+                        this.cachedAttachments[i].content = response;
+                        foundFlag = true;
+                    }
+                }
+                if (!foundFlag) {
+                    this.cachedAttachments.push({
+                        id: `${mailId}-${fileName}`,
+                        content: response,
+                    });
+                }
+                if (this.cachedAttachments.length > 5) {
+                    this.cachedAttachments.shift();
+                }
             }
 
             // Downloaded
-            saveAs(response, fileName);
+            if (action === 'download') {
+                // Save
+                saveAs(response, fileName);
+            } else {
+                // Preview
+                const fileNameSplited = fileName.split('.');
+                this.previewerConfig.blob = URL.createObjectURL(response);
+                this.previewerConfig.type = this.previewMap[fileNameSplited[fileNameSplited.length - 1].toLowerCase()];
+                if (this.previewerConfig.type === 'text' || this.previewerConfig.type === 'csv' || this.previewerConfig.type === 'svg' || this.previewerConfig.type === 'markdown' || this.previewerConfig.type === 'code') {
+                    this.previewerConfig.content = await response.text();
+                } else {
+                    this.previewerConfig.content = '';
+                }
+                this.previewerConfig.name = fileName;
+                this.previewerConfig.icon = this.getFileIcon(fileName);
+
+                setTimeout(() => {
+                    this.$refs.filePreviewer.openPreview();
+                }, cacheFlag ? 0 : 200);
+            }
             setTimeout(() => {
                 this.loading = false;
-                this.downloading = '';
+                if (action === 'download') {
+                    this.downloading = '';
+                } else {
+                    this.loadingPreview = '';
+                }
             }, 500);
         },
         /**
@@ -1665,11 +1773,19 @@ export default {
                 this.mails[targetMail].unseen = false;
                 this.$nextTick(() => {
                     // Set mail body
-                    this.viewer.bodyHTML = `<base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}${cachedMail.content.match(/<[^>]+>\s+(?=<)|<[^>]+>/g) === null ? this.sandboxCssText : ''}</style>${cachedMail.content}`;
-                    this.viewer.bodyRawHTML = `${cachedMail.content}`;
-                    this.viewer.textContent = cachedMail.textContent;
-                    this.viewer.bodyText = cachedMail.plainContent === '' ? this.viewer.textContent : cachedMail.plainContent;
-                    this.viewer.untrust = this.checkUntrust(this.viewer.textContent);
+                    if (cachedMail.content === '') {
+                        this.viewer.bodyHTML = `<html><head><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}</style></head><body> </body></html>`;
+                        this.viewer.bodyRawHTML = '';
+                        this.viewer.textContent = '';
+                        this.viewer.bodyText = '';
+                        this.viewer.untrust = false;
+                    } else {
+                        this.viewer.bodyHTML = `<base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}${cachedMail.content.match(/<[^>]+>\s+(?=<)|<[^>]+>/g) === null ? this.sandboxCssText : ''}</style>${cachedMail.content}`;
+                        this.viewer.bodyRawHTML = `${cachedMail.content}`;
+                        this.viewer.textContent = cachedMail.textContent;
+                        this.viewer.bodyText = cachedMail.plainContent === '' ? this.viewer.textContent : cachedMail.plainContent;
+                        this.viewer.untrust = this.checkUntrust(this.viewer.textContent);
+                    }
                     this.viewer.attachments = cachedMail.attachments;
                 });
             }
@@ -1965,6 +2081,16 @@ export default {
         getFileIcon(name) {
             const fileName = name.split('.');
             return this.fileIconMap[fileName[fileName.length - 1].toLowerCase()] || 'file-outline';
+        },
+        /**
+         * Check whether the file can be previewed
+         * @param {string} name file name
+         * @param {string} size file size
+         * @returns {boolean} whether the file can be previewed
+         */
+        canPreview(name, size) {
+            const fileName = name.split('.');
+            return this.previewMap[fileName[fileName.length - 1].toLowerCase()] !== undefined && size <= 5242880;
         },
         /**
          * Format strings like `printf()`
@@ -2786,7 +2912,7 @@ export default {
     }
     .viewer-layer {
         .viewer {
-            max-height: 503px;
+            max-height: 498px;
             overflow: auto;
         }
         .subject-subtitle {
@@ -2834,13 +2960,14 @@ export default {
                     .v-chip__content {
                         overflow: hidden;
                         text-overflow: ellipsis;
-                        margin-right: 18px;
+                        margin-right: 15px;
                         display: inline-block;
                         line-height: 24px;
                         button {
+                            font-size: 15px!important;
                             position: absolute;
-                            right: 12px;
-                            top: 3px;
+                            right: 11px;
+                            top: 7px;
                         }
                     }
                 }
@@ -2854,13 +2981,14 @@ export default {
                         .v-chip__content {
                             overflow: hidden;
                             text-overflow: ellipsis;
-                            margin-right: 18px;
+                            margin-right: 15px;
                             display: inline-block;
                             line-height: 24px;
                             button {
+                                font-size: 15px!important;
                                 position: absolute;
-                                right: 12px;
-                                top: 3px;
+                                right: 11px;
+                                top: 7px;
                             }
                         }
                     }
@@ -2887,6 +3015,27 @@ export default {
                     transition: background-color .2s;
                     &:nth-of-type(2n) {
                         margin-right: 0!important;
+                    }
+                    &.can-preview:hover {
+                        .file-ext {
+                            display: none;
+                        }
+                        .preview-btn {
+                            display: flex;
+                        }
+                    }
+                    &.loading-preview {
+                        .file-ext {
+                            display: none;
+                        }
+                        .preview-btn {
+                            display: flex;
+                        }
+                    }
+                    .preview-btn {
+                        margin-left: 6px;
+                        margin-right: 2px;
+                        display: none;
                     }
                     .file-name {
                         width: calc(100% - 72px);
@@ -2939,7 +3088,7 @@ export default {
             border: none;
             width: calc(100% - 40px);
             overflow: visible;
-            margin-bottom: 10px!important;
+            margin-bottom: 7px!important;
         }
     }
     .editor-layer {
@@ -2989,13 +3138,13 @@ export default {
                         .v-chip__content {
                             overflow: hidden;
                             text-overflow: ellipsis;
-                            margin-right: 18px;
+                            margin-right: 15px;
                             display: inline-block;
                             line-height: 24px;
                             button {
                                 position: absolute;
-                                right: 12px;
-                                top: 3px;
+                                right: 11px;
+                                top: 6px;
                             }
                         }
                     }
@@ -3411,13 +3560,14 @@ export default {
         "too_many_attachments": "Too many attachments",
         "too_many_attachments_body": "You can add up to 10 attachments or 15 MB in total.",
         "ok": "OK",
-        "drop_file": "Drop your files here"
+        "drop_file": "Drop your files here",
+        "preview": "Preview"
     },
     "zh": {
         "mail": "收件箱",
         "nothing": "没有邮件",
         "cannot_fetch": "无法获取邮件，可能是没有正确配置后端信息或后端不允许。",
-        "network_error_body": "无法从后端获取相关邮件信息。",
+        "network_error_body": "无法从后端获取相关邮件信息",
         "cannot_download": "无法从后端下载附件",
         "learn_more": "了解更多",
         "new_mail": "新邮件",
@@ -3476,7 +3626,8 @@ export default {
         "too_many_attachments": "太多附件了",
         "too_many_attachments_body": "你可以添加最多 10 个或总大小不超过 15MB 的附件。",
         "ok": "好",
-        "drop_file": "在此放下文件"
+        "drop_file": "在此放下文件",
+        "preview": "预览"
     }
 }
 </i18n>

@@ -377,7 +377,7 @@ export default {
         /**
          * Update events from backend
          */
-        async checkUpdate() {
+        async checkUpdate(tryCount = 1) {
             if (!this.backend.url || !this.account.calendar) {
                 return;
             }
@@ -391,20 +391,26 @@ export default {
                     token: this.backend.token ? this.backend.token : '',
                 }),
             }).catch(() => {
-                // Network error
-                this.$store.commit('addError', {
-                    title: this.$t('network_error'),
-                    content: this.$t('network_error_body'),
-                    type: 'warning',
-                });
-                this.loading = false;
-                this.updateTime();
-                this.$refs.calendar.checkChange();
-                this.refreshId = `${new Date().valueOf()}`;
+                if (tryCount < 2) {
+                    // Retry
+                    setTimeout(() => {
+                        this.checkUpdate(tryCount + 1);
+                    }, 8000);
+                } else {
+                    // Network error
+                    this.$store.commit('addError', {
+                        title: this.$t('network_error'),
+                        content: this.$t('network_error_body'),
+                        type: 'warning',
+                    });
+                    this.loading = false;
+                    this.updateTime();
+                    this.$refs.calendar.checkChange();
+                    this.refreshId = `${new Date().valueOf()}`;
 
-                this.updateTodayEvents();
-                this.updateNextDayFirstEvent();
-
+                    this.updateTodayEvents();
+                    this.updateNextDayFirstEvent();
+                }
                 requestFailed = true;
             });
 
@@ -522,8 +528,6 @@ export default {
 
                         // Convert time
                         const rawEnd = new Date(new Date(item[1][1][3]).toUTCString());
-                        // Minus 1 second for adapting to a bug of Vuetify
-                        rawEnd.setTime(rawEnd.getTime() - 1000);
 
                         const selfStudy = item[1][0][3].toUpperCase().includes('EVENT TYPE: INDEPENDENT STUDY');
                         let color = colorMap[titleName] ? colorMap[titleName] : 'uomtheme';

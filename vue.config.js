@@ -115,12 +115,17 @@ module.exports = {
                 }, {
                     from: path.resolve(__dirname, 'pdfjs_viewer/web/viewer.css'),
                     to: path.resolve(__dirname, 'dist/pdf-viewer/web/viewer.css'),
-                    transform: (content) => new CleanCSS({ level: 2 }).minify(content.toString()).styles,
+                    transform: (content) => new CleanCSS({ level: 2 }).minify(content.toString().replace(/@media \(prefers-color-scheme: dark\) \{\n {2}:root/, '[data-theme="dark"]').replace(/svg\);\n {2}\}\n\}/, 'svg);\n  }')).styles,
+                    toType: 'file',
+                }, {
+                    from: path.resolve(__dirname, 'src/tools/override.js'),
+                    to: path.resolve(__dirname, 'dist/pdf-viewer/web/override.js'),
+                    transform: (content) => terser.minify(content.toString()).code,
                     toType: 'file',
                 }, {
                     from: path.resolve(__dirname, 'pdfjs_viewer/web/viewer.html'),
                     to: path.resolve(__dirname, 'dist/pdf-viewer/web/viewer.html'),
-                    transform: (content) => minify(content.toString(), {
+                    transform: (content) => minify(content.toString().replace('<link rel="stylesheet" href="viewer.css">', '<link rel="stylesheet" href="viewer.css"><script src="override.js"></script>'), {
                         caseSensitive: true,
                         collapseBooleanAttributes: true,
                         collapseWhitespace: true,

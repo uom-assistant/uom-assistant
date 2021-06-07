@@ -59,7 +59,7 @@ if ($user['email'] === false || !isset($data['mailId']) || !isset($data['action'
 if ($data['action'] !== 'junk' && $data['action'] !== 'flag' && $data['action'] !== 'unflag' && $data['action'] !== 'seen' && $data['action'] !== 'delete' && $data['action'] !== 'allread') {
     rest_die('Invalid request.', $conn);
 }
-$id = (int)get_post_data()['mailId'];
+$id = (int)$data['mailId'];
 
 $imap = imap_open('{outlook.office365.com:993/imap/ssl}INBOX', $user['email'], $user['password']);
 
