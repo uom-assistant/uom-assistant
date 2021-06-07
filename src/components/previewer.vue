@@ -59,8 +59,8 @@
                         </div>
                     </div>
                     <div v-if="type === 'markdown'" class="md-viewer" :class="{ 'small-view': $vuetify.breakpoint.smAndDown}">
-                        <pre class="text-pre hljs-pre" :class="{ breakline: breakLine, hide: !rawView }" ref="codescroll" data-scrollname="code"><code class="language-md" ref="codeelemd"></code></pre>
-                        <div class="md-view" :class="{ hide: rawView }" ref="renderscroll" data-scrollname="render"><div ref="render"></div></div>
+                        <pre class="text-pre hljs-pre" :class="{ breakline: breakLine, hide: !rawView }" ref="codescroll" data-scrollname="code" @scroll="handleScroll"><code class="language-md" ref="codeelemd"></code></pre>
+                        <div class="md-view" :class="{ hide: rawView }" ref="renderscroll" data-scrollname="render" @scroll="handleScroll"><div ref="render"></div></div>
                     </div>
                     <iframe
                         v-if="type === 'pdf'"
@@ -315,10 +315,6 @@ export default {
                             ],
                         });
                         this.$refs.renderscroll.scrollTo(null, 0);
-
-                        // Sync scroll
-                        this.$refs.codescroll.addEventListener('scroll', this.handleScroll);
-                        this.$refs.renderscroll.addEventListener('scroll', this.handleScroll);
                     }
                 });
             });
@@ -330,11 +326,6 @@ export default {
             this.open = false;
             setTimeout(() => {
                 this.show = false;
-                if (this.type === 'markdown') {
-                    // Remove scroll listeners
-                    this.$refs.codescroll.removeEventListener('scroll', this.handleScroll);
-                    this.$refs.renderscroll.removeEventListener('scroll', this.handleScroll);
-                }
 
                 // Revoke blob URL
                 URL.revokeObjectURL(this.blob);
@@ -509,11 +500,6 @@ export default {
         }
         if (this.svgBlob !== '') {
             URL.revokeObjectURL(this.svgBlob);
-        }
-        if (this.type === 'markdown' && this.show) {
-            // Remove scroll listeners
-            this.$refs.codescroll.removeEventListener('scroll', this.handleScroll);
-            this.$refs.renderscroll.removeEventListener('scroll', this.handleScroll);
         }
     },
 };

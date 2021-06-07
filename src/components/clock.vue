@@ -77,18 +77,18 @@
         <div class="clock-outer handle">
             <div class="time-label label-left" :class="$vuetify.breakpoint.xs ? 'small-screen' : ''">
                 <span class="daylight-label">
-                    <v-icon v-if="localHour <= 5 || localHour >= 19">mdi-weather-night</v-icon>
+                    <v-icon v-if="localNight">mdi-weather-night</v-icon>
                     <v-icon v-else>mdi-white-balance-sunny</v-icon>
                 </span><br>
-                <span class="hour">{{ localHour }}</span>:{{ localMin }}:{{ sec }}<br>
+                <span class="hour" ref="hourLocal"></span>:<span ref="minLocal"></span>:<span ref="secLocal"></span><br>
                 <span class="label text-truncate d-inline-block">{{ $t('local_time') }}</span>
             </div>
             <div class="time-label label-right" :class="$vuetify.breakpoint.xs ? 'small-screen' : ''">
                 <span class="daylight-label">
-                    <v-icon v-if="otherHour <= 5 || otherHour >= 19">mdi-weather-night</v-icon>
+                    <v-icon v-if="remoteNight">mdi-weather-night</v-icon>
                     <v-icon v-else>mdi-white-balance-sunny</v-icon>
                 </span><br>
-                <span class="hour">{{ otherHour }}</span>:{{ otherMin }}:{{ sec }}<br>
+                <span class="hour" ref="hourRemote"></span>:<span ref="minRemote"></span>:<span ref="secRemote"></span><br>
                 <span class="label text-truncate d-inline-block">{{ `${$t(getCity)}${$t('uk_time')}` }}</span>
             </div>
         </div>
@@ -99,6 +99,13 @@
 import { mapState } from 'vuex';
 import * as tzList from '@/tools/tzList.json';
 
+let hourLocal = '';
+let minLocal = '';
+let hourRemote = '';
+let minRemote = '';
+
+let sec = '';
+
 export default {
     name: 'clock',
     props: {
@@ -106,17 +113,15 @@ export default {
     },
     data() {
         return {
-            min: '00',
-            sec: '00',
             loading: false,
             settings: false,
             timeZone: 'Europe/London',
             timeZoneList: [],
             base: 0,
             adjust: false,
-            nowObj: new Date(),
-            otherObj: this.convertTimeZone(new Date(), this.timeZone ? this.timeZone : 'Europe/London'),
             timer: null,
+            localNight: false,
+            remoteNight: false,
         };
     },
     methods: {
@@ -152,6 +157,53 @@ export default {
             });
         },
         /**
+         * Update clock UI
+         */
+        updateView() {
+            const now = new Date(new Date().valueOf() + this.base * 3600000);
+            const remoteNow = this.convertTimeZone(now, this.timeZone);
+
+            const secOld = sec;
+            const minLocalOld = minLocal;
+            const hourLocalOld = hourLocal;
+            const hourRemoteOld = hourRemote;
+
+            sec = `${now.getSeconds()}`.padStart(2, '0');
+            minLocal = `${now.getMinutes()}`.padStart(2, '0');
+            hourLocal = `${now.getHours()}`.padStart(2, '0');
+            minRemote = `${remoteNow.getMinutes()}`.padStart(2, '0');
+            hourRemote = `${remoteNow.getHours()}`.padStart(2, '0');
+
+            if (secOld !== sec) {
+                this.$refs.secLocal.textContent = sec;
+                this.$refs.secRemote.textContent = sec;
+            }
+            if (minLocalOld !== minLocal) {
+                this.$refs.minLocal.textContent = minLocal;
+                this.$refs.minRemote.textContent = minRemote;
+                this.$store.commit('setTimerMin', minLocal);
+                if (minLocal === '00') {
+                    this.$store.commit('setTimerHour', `${hourLocal}${new Date().valueOf()}`);
+                }
+            }
+            if (hourLocalOld !== hourLocal) {
+                this.$refs.hourLocal.textContent = hourLocal;
+                if (hourLocal <= 5 || hourLocal >= 19) {
+                    this.localNight = true;
+                } else {
+                    this.localNight = false;
+                }
+            }
+            if (hourRemoteOld !== hourRemote) {
+                this.$refs.hourRemote.textContent = hourRemote;
+                if (hourRemote <= 5 || hourRemote >= 19) {
+                    this.remoteNight = true;
+                } else {
+                    this.remoteNight = false;
+                }
+            }
+        },
+        /**
          * Store timezone settings
          */
         store() {
@@ -172,13 +224,6 @@ export default {
             this.$i18n.locale = this.locale;
             this.updateList();
         },
-        min() {
-            // Broadcast minute and hour change
-            this.$store.commit('setTimerMin', this.min);
-            if (this.min === '00') {
-                this.$store.commit('setTimerHour', `${`${new Date().getHours()}`.padStart(2, '0')}${new Date().valueOf()}`);
-            }
-        },
         timeZone() {
             // Store timezone settings when timezone changed
             this.store();
@@ -186,8 +231,30 @@ export default {
         base() {
             // Re-calculate date time when time travel base time changed
             const now = new Date(new Date().valueOf() + this.base * 3600000);
-            this.nowObj = now;
-            this.otherObj = this.convertTimeZone(now, this.timeZone);
+            const remoteNow = this.convertTimeZone(now, this.timeZone);
+
+            const hourLocalOld = hourLocal;
+            const hourRemoteOld = hourRemote;
+
+            hourLocal = `${now.getHours()}`.padStart(2, '0');
+            hourRemote = `${remoteNow.getHours()}`.padStart(2, '0');
+
+            if (hourLocalOld !== hourLocal) {
+                this.$refs.hourLocal.textContent = hourLocal;
+                if (hourLocal <= 5 || hourLocal >= 19) {
+                    this.localNight = true;
+                } else {
+                    this.localNight = false;
+                }
+            }
+            if (hourRemoteOld !== hourRemote) {
+                this.$refs.hourRemote.textContent = hourRemote;
+                if (hourRemote <= 5 || hourRemote >= 19) {
+                    this.remoteNight = true;
+                } else {
+                    this.remoteNight = false;
+                }
+            }
         },
     },
     computed: {
@@ -205,18 +272,6 @@ export default {
                 }
             }
             return 'London';
-        },
-        localMin() {
-            return `${this.nowObj.getMinutes()}`.padStart(2, '0');
-        },
-        otherMin() {
-            return `${this.otherObj.getMinutes()}`.padStart(2, '0');
-        },
-        localHour() {
-            return `${this.nowObj.getHours()}`.padStart(2, '0');
-        },
-        otherHour() {
-            return `${this.otherObj.getHours()}`.padStart(2, '0');
         },
     },
     mounted() {
@@ -236,13 +291,7 @@ export default {
         }
 
         // Update time every 1 second
-        this.timer = setInterval(() => {
-            const now = new Date(new Date().valueOf() + this.base * 3600000);
-            this.nowObj = now;
-            this.otherObj = this.convertTimeZone(now, this.timeZone);
-            this.sec = `${now.getSeconds()}`.padStart(2, '0');
-            this.min = `${now.getMinutes()}`.padStart(2, '0');
-        }, 1000);
+        this.timer = setInterval(this.updateView, 1000);
         this.updateList();
     },
     beforeDestroy() {
