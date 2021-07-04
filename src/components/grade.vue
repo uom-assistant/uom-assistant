@@ -12,128 +12,148 @@
             v-show="loading"
         ></v-progress-circular>
         <div class="grade-outer">
-            <h2 class="mr-5 handle">
+            <h2 class="pr-5 handle">
                 {{ $t('grade') }}
                 <v-btn icon small class="grade-goto" href="https://studentnet.cs.manchester.ac.uk/me/spot/" target="_blank" rel="noopener nofollow">
                     <v-icon>mdi-chevron-right</v-icon>
                 </v-btn>
             </h2>
-            <div class="subject-list" ref="list" :class="{ 'detail-expended': showMainChart }">
-                <v-card class="loading-bg mx-auto mb-2" v-show="!init && loading" outlined>
+            <v-skeleton-loader
+                v-if="!init && loading"
+                class="mx-auto loading-tab"
+                type="heading"
+            ></v-skeleton-loader>
+            <div class="loading-view" v-if="(!init && loading) || (!init && !loading) || (init && !loading && gradeListFilteredFlat.length === 0)" :class="{ 'not-inited-yet': (!init && !loading) || (init && !loading && gradeListFilteredFlat.length === 0) }">
+                <v-card class="loading-bg mx-auto mb-2" v-if="!init && loading" outlined>
                     <v-skeleton-loader
                         class="mx-auto "
                         type="list-item-two-line, divider, list-item-two-line, list-item"
                     ></v-skeleton-loader>
                 </v-card>
-                <div class="not-inited mx-auto mb-2" v-show="!init && !loading">
+                <div class="not-inited mx-auto mb-2" v-if="!init && !loading">
                     <span class="text-center pl-6 pr-6">{{ $t('cannot_fetch') }} <a href="https://github.com/yrccondor/uom-assistant/" target="_blank" rel="noreferrer noopener">{{ $t('learn_more') }}</a></span>
                 </div>
-                <div class="not-inited mx-auto mb-2" v-if="init && !loading && gradeListFiltered.length === 0">
+                <div class="not-inited mx-auto mb-2" v-if="init && !loading && gradeListFilteredFlat.length === 0">
                     <span>{{ $t('nothing') }}</span>
                 </div>
-                <v-card
-                    class="mx-auto rounded grade-item"
-                    outlined
-                    v-for="(subject, index) in gradeListFiltered"
-                    :key="index"
-                    :ref="`subject-${subject.subject}`"
-                >
-                    <div class="subject-summary">
-                        <v-progress-circular
-                            :rotate="-90"
-                            :size="49"
-                            :width="3"
-                            :value="subject.weightedGrade"
-                            color="primary"
-                            class="float-right ml-3"
-                        >
-                            {{ subject.weightedGrade }}<span class="text-caption">%</span>
-                        </v-progress-circular>
-                        <div class="text-truncate">{{ subjectNameMap(subject.subject) === subject.subject ? subject.name : subjectNameMap(subject.subject) }}</div>
-                        <span class="text--disabled text-body-2">
-                            <span :class="subjectColor(subject.subject)" class="subject-color-samll" v-if="subjectNameMap(subject.subject) !== subject.subject"></span>
-                            {{ subject.subject }}
-                        </span>
-                    </div>
-                    <v-divider class="mb-2" :class="{ hide: gradeExpending && gradeExpended === index }"></v-divider>
-                    <v-list flat class="list hide-when-expending" :class="{ hide: gradeExpending && gradeExpended === index }">
-                        <v-list-item v-for="(item, gradeIndex) in latestTwo(subject.detail)" :key="gradeIndex">
-                            <v-list-item-content>
-                                <v-list-item-title><v-icon class="mr-1" dense :title="$t('formative')" v-if="!item.summative">mdi-bookmark-off-outline</v-icon>{{ item.name }}</v-list-item-title>
-                                <v-list-item-subtitle>
-                                    <span>
-                                        <v-icon small>
-                                            mdi-clock-outline
-                                        </v-icon>
-                                        {{ getDate(new Date(item.time.replace(' ', 'T'))) }}
+            </div>
+            <v-tabs v-model="tabs" :class="{ shadow: headerShadow }" class="tab-items" @change="updateView" show-arrows v-show="init && gradeListFilteredFlat.length > 0">
+                <v-tab v-for="(semester, i) in gradeListFiltered" :key="`tab-${i}`">{{ gradeList[i].name }}</v-tab>
+            </v-tabs>
+
+            <v-tabs-items v-model="tabs">
+                <v-tab-item v-for="(semester, i) in gradeListFiltered" :key="`tab-item-${i}`">
+                    <v-container fluid class="tab-container">
+                        <div class="subject-list" :class="{ 'detail-expended': showMainChart }" :ref="`list${i}`" :data-scrollkey="`list${i}`" v-if="init">
+                            <div class="not-inited mx-auto mb-2" v-if="init && !loading && gradeListFiltered[i].length === 0">
+                                <span>{{ $t('nothing') }}</span>
+                            </div>
+                            <v-card
+                                class="mx-auto rounded grade-item"
+                                outlined
+                                v-for="(subject, index) in gradeListFiltered[i]"
+                                :key="index"
+                                :ref="`subject-${subject.subject}`"
+                            >
+                                <div class="subject-summary">
+                                    <v-progress-circular
+                                        :rotate="-90"
+                                        :size="49"
+                                        :width="3"
+                                        :value="subject.weightedGrade"
+                                        color="primary"
+                                        class="float-right ml-3"
+                                    >
+                                        {{ subject.weightedGrade }}<span class="text-caption">%</span>
+                                    </v-progress-circular>
+                                    <div class="text-truncate">{{ subjectNameMap(subject.subject) === subject.subject ? subject.name : subjectNameMap(subject.subject) }}</div>
+                                    <span class="text--disabled text-body-2">
+                                        <span :class="subjectColor(subject.subject)" class="subject-color-samll" v-if="subjectNameMap(subject.subject) !== subject.subject"></span>
+                                        {{ subject.subject }}
                                     </span>
-                                    <span class="orange--text ml-2" v-if="item.late">LATE</span>
-                                </v-list-item-subtitle>
-                            </v-list-item-content>
+                                </div>
+                                <v-divider class="mb-2" :class="{ hide: gradeExpending && gradeExpended === index }"></v-divider>
+                                <v-list flat class="list hide-when-expending" :class="{ hide: gradeExpending && gradeExpended === index }">
+                                    <v-list-item v-for="(item, gradeIndex) in latestTwo(subject.detail)" :key="gradeIndex">
+                                        <v-list-item-content>
+                                            <v-list-item-title><v-icon class="mr-1" dense :title="$t('formative')" v-if="!item.summative">mdi-bookmark-off-outline</v-icon>{{ item.name }}</v-list-item-title>
+                                            <v-list-item-subtitle>
+                                                <span>
+                                                    <v-icon small>
+                                                        mdi-clock-outline
+                                                    </v-icon>
+                                                    {{ getDate(new Date(item.time.replace(' ', 'T'))) }}
+                                                </span>
+                                                <span class="orange--text ml-2" v-if="item.late">LATE</span>
+                                            </v-list-item-subtitle>
+                                        </v-list-item-content>
 
-                            <v-list-item-action class="grade">
-                                {{ item.grade }}<span class="text--disabled">/{{ item.gradeAll }}</span>
-                                <v-progress-circular
-                                    :rotate="-90"
-                                    :size="17"
-                                    :width="2.3"
-                                    :value="(parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100"
-                                    :color="getColorByGrade((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100)"
-                                    :title="`${parseFloat(((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100).toFixed(2))}%`"
-                                    class="ml-2"
-                                ></v-progress-circular>
-                            </v-list-item-action>
-                        </v-list-item>
-                        <v-list-item class="more-info" @click="(e) => openDetail(index, e)">
-                            <v-list-item-content>
-                                <v-list-item-title>{{ $t('more_info') }}</v-list-item-title>
-                            </v-list-item-content>
+                                        <v-list-item-action class="grade">
+                                            {{ item.grade }}<span class="text--disabled">/{{ item.gradeAll }}</span>
+                                            <v-progress-circular
+                                                :rotate="-90"
+                                                :size="17"
+                                                :width="2.3"
+                                                :value="(parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100"
+                                                :color="getColorByGrade((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100)"
+                                                :title="`${parseFloat(((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100).toFixed(2))}%`"
+                                                class="ml-2"
+                                            ></v-progress-circular>
+                                        </v-list-item-action>
+                                    </v-list-item>
+                                    <v-list-item class="more-info" @click="(e) => openDetail(index, tabs, e)">
+                                        <v-list-item-content>
+                                            <v-list-item-title>{{ $t('more_info') }}</v-list-item-title>
+                                        </v-list-item-content>
 
-                            <v-list-item-action>
-                                <v-icon small>
-                                    mdi-arrow-right
-                                </v-icon>
-                            </v-list-item-action>
-                        </v-list-item>
-                    </v-list>
-                </v-card>
-                <div class="text--secondary text-caption more-click" :class="{ 'more-shown': moreShown }" v-show="gradeListEmpty.length > 0">
-                    <span @click="moreShown = !moreShown">
-                        <span class="d-inline-block mr-1">{{ $t('empty_subject') }}</span>
-                        <v-icon x-small class="icon-more" :class="{ 'more-shown': moreShown }">
-                            mdi-chevron-down
-                        </v-icon>
-                    </span>
-                </div>
-                <v-expand-transition>
-                    <div class="more-container" v-show="moreShown">
-                        <v-card
-                            class="mx-auto rounded grade-item"
-                            outlined
-                            v-for="(subject, index) in gradeListEmpty"
-                            :key="index"
-                        >
-                            <div class="subject-summary">
-                                <v-progress-circular
-                                    :rotate="-90"
-                                    :size="49"
-                                    :width="3"
-                                    :value="subject.weightedGrade"
-                                    color="grey"
-                                    class="float-right ml-3"
-                                >
-                                    0<span class="text-caption">%</span>
-                                </v-progress-circular>
-                                <div class="text-truncate">{{ subjectNameMap(subject.subject) === subject.subject ? subject.name : subjectNameMap(subject.subject) }}</div>
-                                <span class="text--disabled text-body-2">
-                                    <span :class="subjectColor(subject.subject)" class="subject-color-samll" v-if="subjectNameMap(subject.subject) !== subject.subject"></span>
-                                    {{ subject.subject }}
+                                        <v-list-item-action>
+                                            <v-icon small>
+                                                mdi-arrow-right
+                                            </v-icon>
+                                        </v-list-item-action>
+                                    </v-list-item>
+                                </v-list>
+                            </v-card>
+                            <div class="text--secondary text-caption more-click" :class="{ 'more-shown': moreShown.includes(i) }" v-show="gradeListEmpty[i].length > 0" v-if="init && gradeListEmpty.length > 0 && gradeListEmpty[i].length > 0">
+                                <span @click="toggleMore(i)">
+                                    <span class="d-inline-block mr-1">{{ $t('empty_subject') }}</span>
+                                    <v-icon x-small class="icon-more" :class="{ 'more-shown': moreShown.includes(i) }">
+                                        mdi-chevron-down
+                                    </v-icon>
                                 </span>
                             </div>
-                        </v-card>
-                    </div>
-                </v-expand-transition>
-            </div>
+                            <v-expand-transition>
+                                <div class="more-container" v-show="moreShown.includes(i)" v-if="init && gradeListEmpty.length > 0 && gradeListEmpty[i].length > 0">
+                                    <v-card
+                                        class="mx-auto rounded grade-item"
+                                        outlined
+                                        v-for="(subject, index) in gradeListEmpty[i]"
+                                        :key="index"
+                                    >
+                                        <div class="subject-summary">
+                                            <v-progress-circular
+                                                :rotate="-90"
+                                                :size="49"
+                                                :width="3"
+                                                :value="subject.weightedGrade"
+                                                color="grey"
+                                                class="float-right ml-3"
+                                            >
+                                                0<span class="text-caption">%</span>
+                                            </v-progress-circular>
+                                            <div class="text-truncate">{{ subjectNameMap(subject.subject) === subject.subject ? subject.name : subjectNameMap(subject.subject) }}</div>
+                                            <span class="text--disabled text-body-2">
+                                                <span :class="subjectColor(subject.subject)" class="subject-color-samll" v-if="subjectNameMap(subject.subject) !== subject.subject"></span>
+                                                {{ subject.subject }}
+                                            </span>
+                                        </div>
+                                    </v-card>
+                                </div>
+                            </v-expand-transition>
+                        </div>
+                    </v-container>
+                </v-tab-item>
+            </v-tabs-items>
         </div>
         <div class="subject-detail" :class="{ shown: gradeExpending }" :style="{ top: `${detailLayer.top}px`, left: `${detailLayer.left}px`, width: (listOverflow ? '100%' : `${detailLayer.width}px`), height: `${detailLayer.height}px` }">
             <v-btn icon class="icon-close" @click="closeDetail" :class="{ 'shown': showMainChart }">
@@ -143,44 +163,44 @@
             </v-btn>
             <div>
                 <chart
-                    v-if="!(gradeExpended < 0 || gradeExpended > gradeListFiltered.length - 1)"
+                    v-if="!(gradeExpended < 0 || openedTab < 0 || gradeExpended > gradeListFiltered[openedTab].length - 1)"
                     class="main-chart"
                     :width="3"
                     :class="{ 'show-chart': showMainChart }"
-                    :value="allGradeNumbers(gradeListFiltered[gradeExpended].detail)"
+                    :value="allGradeNumbers(gradeListFiltered[openedTab][gradeExpended].detail)"
                     :key="`chart-${gradeExpended}-${$vuetify.theme.dark + 1}`"
                 ></chart>
                 <div
                     class="subject-summary"
-                    v-if="!(gradeExpended < 0 || gradeExpended > gradeListFiltered.length - 1)"
+                    v-if="!(gradeExpended < 0 || openedTab < 0 || gradeExpended > gradeListFiltered[openedTab].length - 1)"
                     :class="{ 'shown': showMainChart }"
                 >
                     <v-progress-circular
                         :rotate="-90"
                         :size="49"
                         :width="3"
-                        :value="gradeListFiltered[gradeExpended].weightedGrade"
+                        :value="gradeListFiltered[openedTab][gradeExpended].weightedGrade"
                         color="primary"
                         class="float-right ml-3"
                     >
-                        {{ gradeListFiltered[gradeExpended].weightedGrade }}<span class="text-caption">%</span>
+                        {{ gradeListFiltered[openedTab][gradeExpended].weightedGrade }}<span class="text-caption">%</span>
                     </v-progress-circular>
-                    <div class="text-truncate">{{ subjectNameMap(gradeListFiltered[gradeExpended].subject) === gradeListFiltered[gradeExpended].subject ? gradeListFiltered[gradeExpended].name : subjectNameMap(gradeListFiltered[gradeExpended].subject) }}</div>
+                    <div class="text-truncate">{{ subjectNameMap(gradeListFiltered[openedTab][gradeExpended].subject) === gradeListFiltered[openedTab][gradeExpended].subject ? gradeListFiltered[openedTab][gradeExpended].name : subjectNameMap(gradeListFiltered[openedTab][gradeExpended].subject) }}</div>
                     <span class="text--disabled text-body-2">
-                        <span :class="subjectColor(gradeListFiltered[gradeExpended].subject)" class="subject-color-samll" v-if="subjectNameMap(gradeListFiltered[gradeExpended].subject) !== gradeListFiltered[gradeExpended].subject"></span>
-                        {{ gradeListFiltered[gradeExpended].subject }}
+                        <span :class="subjectColor(gradeListFiltered[openedTab][gradeExpended].subject)" class="subject-color-samll" v-if="subjectNameMap(gradeListFiltered[openedTab][gradeExpended].subject) !== gradeListFiltered[openedTab][gradeExpended].subject"></span>
+                        {{ gradeListFiltered[openedTab][gradeExpended].subject }}
                     </span>
                 </div>
             </div>
-            <v-divider v-if="!(gradeExpended < 0 || gradeExpended > gradeListFiltered.length - 1) && gradeListFiltered[gradeExpended].detail.length > 0" class="mt-3"></v-divider>
-            <div class="detail-grades-list" :class="{ shown: listOverflow }" v-if="!(gradeExpended < 0 || gradeExpended > gradeListFiltered.length - 1) && gradeListFiltered[gradeExpended].detail.length > 0">
+            <v-divider v-if="!(gradeExpended < 0 || openedTab < 0 || gradeExpended > gradeListFiltered[openedTab].length - 1) && gradeListFiltered[openedTab][gradeExpended].detail.length > 0" class="mt-3"></v-divider>
+            <div class="detail-grades-list" :class="{ shown: listOverflow }" v-if="!(gradeExpended < 0 || openedTab < 0 || gradeExpended > gradeListFiltered[openedTab].length - 1) && gradeListFiltered[openedTab][gradeExpended].detail.length > 0">
                 <v-list
                     flat
                     class="list"
                     :class="{ 'shown': showMainChart }"
-                    v-if="!(gradeExpended < 0 || gradeExpended > gradeListFiltered.length - 1)"
+                    v-if="!(gradeExpended < 0 || openedTab < 0 || gradeExpended > gradeListFiltered[openedTab].length - 1)"
                 >
-                    <v-list-item v-for="(item, gradeIndex) in sortListByDate(gradeListFiltered[gradeExpended].detail)" :key="gradeIndex">
+                    <v-list-item v-for="(item, gradeIndex) in sortListByDate(gradeListFiltered[openedTab][gradeExpended].detail)" :key="gradeIndex">
                         <div v-if="!Array.isArray(item)" class="list-item-warpper">
                             <v-list-item-content>
                                 <v-list-item-title><v-icon class="mr-1" dense :title="$t('formative')" v-if="!item.summative">mdi-bookmark-off-outline</v-icon>{{ item.name }}</v-list-item-title>
@@ -286,6 +306,7 @@ import { vsprintf } from 'sprintf-js';
 import chart from '@/components/chart.vue';
 
 import checkResponse from '@/mixins/checkResponse';
+import scroll from '@/mixins/scroll';
 
 import betterFetch from '@/tools/betterFetch';
 import formatDate from '@/tools/formatDate';
@@ -298,15 +319,17 @@ export default {
     props: {
         searchid: Number,
     },
-    mixins: [checkResponse],
+    mixins: [checkResponse, scroll],
     data() {
         return {
             loading: false,
             init: false,
             timer: null,
             gradeList: [],
-            moreShown: false,
+            moreShown: [],
             gradeExpended: -1,
+            openedTab: -1,
+            tabs: 0,
             detailLayer: {
                 top: 0,
                 left: 0,
@@ -405,12 +428,49 @@ export default {
             // Update data
             this.$store.commit('setBackendStatus', true);
             this.loading = false;
-            this.init = true;
             this.gradeList = response.data.grade;
+
+            if (!this.init) {
+                // Find the last item with non-empty courses
+                for (let i = this.gradeList.length - 1; i >= 0; i -= 1) {
+                    if (this.gradeListFiltered[i].length > 0) {
+                        this.tabs = i;
+                        break;
+                    }
+                }
+
+                // Initialize scroll listeners
+                this.$nextTick(() => {
+                    if (this.$refs[`list${this.tabs}`] && this.$refs[`list${this.tabs}`][0]) {
+                        this.initScroll(this.$refs[`list${this.tabs}`][0]);
+                    }
+                });
+            }
+
+            this.init = true;
+
             this.$store.commit('setAttendance', response.data.attendance);
             this.$nextTick(() => {
                 this.relocate();
             });
+        },
+        /**
+         * Update view
+         * @param {number} index tab index
+         */
+        updateView(index) {
+            this.$nextTick(() => {
+                this.$nextTick(() => {
+                    this.$nextTick(() => {
+                        if (this.$refs[`list${index}`] && this.$refs[`list${index}`][0]) {
+                            this.initScroll(this.$refs[`list${index}`][0]);
+                        }
+                    });
+                });
+            });
+            setTimeout(() => {
+                this.relocate();
+            }, 400);
         },
         /**
          * Map from subject ID to subject color
@@ -508,23 +568,26 @@ export default {
         /**
          * Open a layer to show details of a subject
          * @param {number} index subject index
+         * @param {number} tab tab index
          * @param {Event} e click event
          */
-        openDetail(index, e, selected = false) {
+        openDetail(index, tab, e, selected = false) {
             // Set size for detail layer
             const ele = selected ? e[0].$el : e.target.closest('.grade-item') || e.target;
-            this.detailLayer.top = ele.offsetTop - this.$refs.list.scrollTop;
+            this.detailLayer.top = ele.offsetTop - this.$refs[`list${tab}`][0].scrollTop + 95;
             this.detailLayer.left = 20;
             this.detailLayer.width = ele.clientWidth + 2;
             this.detailLayer.height = ele.clientHeight + 2;
 
             this.targetEle = ele;
-            this.targetSize.top = ele.offsetTop - this.$refs.list.scrollTop;
+            this.targetSize.top = ele.offsetTop - this.$refs[`list${tab}`][0].scrollTop + 95;
             this.targetSize.width = ele.clientWidth + 2;
             this.targetSize.height = ele.clientHeight + 2;
 
+            this.openedTab = tab;
+
             // If there is only one group, expend it
-            if (this.gradeListFiltered[index].detail.length === 1 && Array.isArray(this.gradeListFiltered[index].detail[0])) {
+            if (this.gradeListFiltered[tab][index].detail.length === 1 && Array.isArray(this.gradeListFiltered[tab][index].detail[0])) {
                 this.expendingSubTree = [0];
             } else {
                 this.expendingSubTree = [];
@@ -547,8 +610,37 @@ export default {
                 });
             });
         },
-        openDetailFromSearch(index, subject) {
-            this.openDetail(index, this.$refs[`subject-${subject}`], true);
+        /**
+         * Open course detail from search
+         * @param {number} index subject index
+         * @param {number} tab tab index
+         * @param {string} subject course ID
+         */
+        openDetailFromSearch(index, tab, subject) {
+            if (tab === this.tabs) {
+                this.openDetail(index, tab, this.$refs[`subject-${subject}`], true);
+            } else {
+                // Different tab
+                if (this.listOverflow) {
+                    // Course detail layer already opened
+                    this.closeDetail();
+                    setTimeout(() => {
+                        this.tabs = tab;
+                        this.$nextTick(() => {
+                            setTimeout(() => {
+                                this.openDetail(index, tab, this.$refs[`subject-${subject}`], true);
+                            }, 300);
+                        });
+                    }, 600);
+                } else {
+                    this.tabs = tab;
+                    this.$nextTick(() => {
+                        setTimeout(() => {
+                            this.openDetail(index, tab, this.$refs[`subject-${subject}`], true);
+                        }, 300);
+                    });
+                }
+            }
         },
         /**
          * Close detail layer
@@ -571,7 +663,16 @@ export default {
             setTimeout(() => {
                 this.gradeExpended = -1;
                 this.gradeExpending = false;
+                this.openedTab = -1;
             }, 600);
+        },
+        toggleMore(index) {
+            const findIndex = this.moreShown.indexOf(index);
+            if (findIndex === -1) {
+                this.moreShown.push(index);
+            } else {
+                this.moreShown.splice(findIndex, 1);
+            }
         },
         /**
          * Sort the given list by date with deepth 1 and return a new list
@@ -638,7 +739,7 @@ export default {
                 id: this.searchid,
                 payload: {
                     name: 'grade',
-                    key: 'name',
+                    key: 'searchId',
                     indexes: ['name', 'subject'],
                     data: this.searchIndexMap,
                 },
@@ -647,7 +748,7 @@ export default {
         searchNotification() {
             // Handle search actions
             if (this.searchNotification.target === 'grade') {
-                this.openDetailFromSearch(this.searchNotification.payload.index, this.searchNotification.payload.subject);
+                this.openDetailFromSearch(this.searchNotification.payload.index, this.searchNotification.payload.tab, this.searchNotification.payload.subject);
             }
         },
     },
@@ -663,28 +764,57 @@ export default {
         }),
         gradeListFiltered() {
             // Filter out empty subjects
-            return this.gradeList.filter((item) => (item.weightedGrade !== '0' || item.detail.length !== 0));
+            const result = [];
+            for (const semester of this.gradeList) {
+                result.push(semester.data.filter((item) => (item.weightedGrade !== '0' || item.detail.length !== 0)));
+            }
+            return result;
+        },
+        gradeListFilteredFlat() {
+            // Filter out empty subjects and flat the array
+            return this.gradeListFiltered.flat();
         },
         gradeListEmpty() {
             // Filter out non-empty subjects
-            return this.gradeList.filter((item) => (item.weightedGrade === '0' && item.detail.length === 0));
+            const result = [];
+            for (const semester of this.gradeList) {
+                result.push(semester.data.filter((item) => (item.weightedGrade === '0' && item.detail.length === 0)));
+            }
+            return result;
         },
         searchIndexMap() {
             // Build subject index
-            let newList = [];
+            const flatedList = [];
             for (let i = 0; i < this.gradeListFiltered.length; i += 1) {
-                newList.push(this.gradeListFiltered[i]);
+                let index = 0;
+                for (const item of this.gradeListFiltered[i]) {
+                    const itemCopy = { ...item };
+                    itemCopy.indexName = this.gradeList[i].name;
+                    itemCopy.tabIndex = i;
+                    itemCopy.rawIndex = index;
+                    flatedList.push(itemCopy);
+                    index += 1;
+                }
+            }
+
+            let newList = [];
+            for (let i = 0; i < flatedList.length; i += 1) {
+                newList.push(flatedList[i]);
                 newList[i].searchType = 'subject';
-                newList[i].rawIndex = i;
+                newList[i].searchId = `subject-${newList[i].name}${i}-${newList[i].indexName}`;
             }
 
             // Build coursework grade index
             let courseworks = [];
             for (const subject of newList) {
                 const newDetailList = subject.detail.flat().sort((a, b) => ((new Date(b.time.replace(' ', 'T')).valueOf() - new Date(a.time.replace(' ', 'T')).valueOf()) <= 0 ? -1 : 1));
+                let index = 0;
                 for (const item of newDetailList) {
                     item.searchType = 'grade';
+                    item.indexName = subject.indexName;
                     item.subject = subject.subject;
+                    item.searchId = `coursework-${item.name}${index}-${subject.indexName}`;
+                    index += 1;
                 }
                 courseworks = courseworks.concat(newDetailList);
             }
@@ -723,35 +853,38 @@ export default {
     padding-left: 0;
     padding-right: 0;
     overflow: hidden;
-    background-color: #F8F8F8!important;
     border-color: #E0E0E0!important;
     .loading {
         position: absolute;
         top: 10px;
         right: 10px;
+        z-index: 10;
     }
     h2 {
+        position: relative;
+        z-index: 3;
+        background-color: white;
         font-size: 18px;
         font-weight: normal;
         opacity: .87;
-        margin-top: 18px;
-        margin-left: 20px;
+        padding-top: 18px;
+        padding-left: 20px;
         .clickable {
             cursor: pointer;
             transition: all .2s;
         }
     }
-    .subject-list {
-        margin-top: 12px;
-        padding: 0 20px 12px 20px;
-        min-height: 126px;
-        max-height: 500px;
-        overflow-y: auto;
-        transition: min-height .5s .3s;
-        &.detail-expended {
-            min-height: 500px;
-            transition: min-height .5s 0s;
+    .loading-tab{
+        padding: 12px;
+        .v-skeleton-loader__heading {
+            width: 100px;
         }
+    }
+    .loading-view {
+        padding: 20px 20px 12px 20px;
+        min-height: 126px;
+        max-height: 464px;
+        background-color: #F5F5F5;
         .loading-bg {
             border-radius: 6px;
             & > div > .v-skeleton-loader__bone:not(.v-skeleton-loader__divider) {
@@ -760,6 +893,29 @@ export default {
             & > div > .v-skeleton-loader__divider {
                 border-radius: 0;
                 height: 1px;
+            }
+        }
+    }
+    .tab-items {
+        position: relative;
+        z-index: 2;
+        transition: all .2s;
+        &.shadow {
+            box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 10%), 0px 4px 5px 0px rgba(0, 0, 0, 7%), 0px 1px 10px 0px rgba(0, 0, 0, 6%)!important;
+        }
+    }
+    .tab-container {
+        margin: 0;
+        padding: 0;
+        .subject-list {
+            padding: 20px 20px 12px 20px;
+            min-height: 126px;
+            max-height: 464px;
+            overflow-y: auto;
+            transition: min-height .5s .3s;
+            &.detail-expended {
+                min-height: 464px;
+                transition: min-height .5s 0s;
             }
         }
     }
@@ -994,16 +1150,25 @@ export default {
 #app.theme--dark .grade-container {
     background-color: #1E1E1E!important;
     border-color: #393939!important;
+    h2 {
+        background-color: #1E1E1E;
+    }
+    .loading-view {
+        background-color: #272727;
+        &.not-inited-yet {
+            background-color: #1E1E1E;
+        }
+    }
     .subject-list{
         .loading-bg {
-            background-color: #272727;
+            background-color: #1E1E1E;
             & > div > .v-skeleton-loader__bone:not(.v-skeleton-loader__divider) {
                 background: transparent;
             }
         }
     }
     .grade-item {
-        background-color: #272727;
+        background-color: #1E1E1E;
         .more-info {
             &:hover, &:focus {
                 background-color: rgba(255, 255, 255, .04);
@@ -1011,7 +1176,7 @@ export default {
         }
     }
     .subject-detail {
-        background-color: #272727;
+        background-color: #1E1E1E;
     }
 }
 </style>

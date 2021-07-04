@@ -20,7 +20,7 @@
                 <div class="text-truncate">{{ subjectLongNameMap(subject.subject) === subject.subject ? subject.name : subjectLongNameMap(subject.subject) }}</div>
                 <span class="text--disabled text-body-2">
                     <span :class="subjectColor(subject.subject)" class="subject-color-samll" v-if="subjectLongNameMap(subject.subject) !== subject.subject"></span>
-                    {{ subject.subject }}
+                    {{ subject.subject }} <span class="d-inline-block mx-1">•</span> {{ subject.indexName }}
                 </span>
             </div>
             <v-divider class="mb-2"></v-divider>
@@ -52,7 +52,7 @@
                         ></v-progress-circular>
                     </v-list-item-action>
                 </v-list-item>
-                <v-list-item class="more-info" @click="openSubject(subject.rawIndex, subject.subject)">
+                <v-list-item class="more-info" @click="openSubject(subject.rawIndex, subject.tabIndex, subject.subject)">
                     <v-list-item-content>
                         <v-list-item-title>{{ $t('more_info') }}</v-list-item-title>
                     </v-list-item-content>
@@ -75,15 +75,15 @@
                     <v-list-item-content>
                         <v-list-item-title><v-icon class="mr-1" dense :title="$t('formative')" v-if="!item.summative">mdi-bookmark-off-outline</v-icon>{{ item.name }}</v-list-item-title>
                         <v-list-item-subtitle>
-                            <span>
+                            <span class="mr-2">
                                 <v-icon small>
                                     mdi-clock-outline
                                 </v-icon>
                                 {{ getDate(new Date(item.time.replace(' ', 'T'))) }}
                             </span>
                             <span>
-                                <span :class="subjectColor(item.subject)" class="subject-color-samll ml-2" v-if="subjectNameMap(item.subject) !== item.subject"></span>
-                                {{ subjectNameMap(item.subject) }}
+                                <span :class="subjectColor(item.subject)" class="subject-color-samll" v-if="subjectNameMap(item.subject) !== item.subject"></span>
+                                {{ subjectNameMap(item.subject) }} <span class="d-inline-block mx-1">•</span> {{ item.indexName }}
                             </span>
                             <span class="orange--text ml-2" v-if="item.late">LATE</span>
                         </v-list-item-subtitle>
@@ -215,12 +215,13 @@ export default {
         /**
          * Open an subject in widget
          * @param {number} index subject index
+         * @param {number} tab tab index
          * @param {string} subject subject ID
          */
-        openSubject(index, subject) {
+        openSubject(index, tab, subject) {
             this.$store.commit('setSearchNotification', {
                 target: 'grade',
-                payload: { index, subject },
+                payload: { index, tab, subject },
             });
             this.$parent.$parent.searchOpened = false;
         },

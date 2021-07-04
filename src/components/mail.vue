@@ -4,7 +4,7 @@
         outlined
     >
         <div class="mail-outer">
-            <h2 class="handle">
+            <h2 class="handle" :class="{ shadow: headerShadow }">
                 {{ $t('mail') }}
                 <span class="num-badge" v-show="mailUnseen.length > 0">{{ mailUnseen.length }}</span>
                 <v-progress-circular
@@ -84,7 +84,7 @@
                 type="list-item-avatar-three-line@4"
                 v-if="!init && loading"
             ></v-skeleton-loader>
-            <div class="scroll" v-if="mails.length > 0">
+            <div class="scroll" v-if="mails.length > 0" ref="scrolllist">
                 <v-list flat class="list">
                     <v-list-item v-for="(mail, index) in mails" :key="mail.id" @click.stop="openMail(mail.id)" :class="{ flaged: mail.flagged, unseen: mail.unseen }" @contextmenu.prevent="(e) => showListMenu(e, mail.id)">
                         <v-list-item-avatar :color="(mail.flagged || mail.unseen) ? 'uomthemelight' : ($vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2')" v-if="getSubjectId(mail.subject, mail.from) === false" :class="{ 'black--text': ((mail.flagged || mail.unseen) && $vuetify.theme.dark) }">
@@ -887,6 +887,7 @@ import previewer from '@/components/previewer.vue';
 import checkResponse from '@/mixins/checkResponse';
 import liveLinks from '@/mixins/liveLinks';
 import clipboard from '@/mixins/clipboard';
+import scroll from '@/mixins/scroll';
 
 import betterFetch from '@/tools/betterFetch';
 import fetchDownload from '@/tools/fetchDownload';
@@ -903,7 +904,7 @@ export default {
         codemirror,
         previewer,
     },
-    mixins: [checkResponse, liveLinks, clipboard],
+    mixins: [checkResponse, liveLinks, clipboard, scroll],
     data() {
         return {
             loading: false,
@@ -1758,6 +1759,11 @@ export default {
 
             if (!update) {
                 // Is not updating, skip checking new mails
+                if (!this.init) {
+                    this.$nextTick(() => {
+                        this.initScroll(this.$refs.scrolllist);
+                    });
+                }
                 this.init = true;
                 this.mails = response.data.sort((a, b) => (b.date - a.date));
             } else {
@@ -3471,9 +3477,10 @@ export default {
         font-size: 18px;
         font-weight: normal;
         opacity: .87;
-        margin-top: 18px;
-        margin-bottom: 15px;
-        margin-left: 20px;
+        padding-top: 18px;
+        padding-bottom: 15px;
+        padding-left: 20px;
+        transition: all .2s;
         .md-icon {
             padding-bottom: 2px;
         }
@@ -3489,6 +3496,9 @@ export default {
         .refresh-loading {
             animation: refresh 1.5s infinite linear;
             display: flex;
+        }
+        &.shadow {
+            box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 10%), 0px 4px 5px 0px rgba(0, 0, 0, 7%), 0px 1px 10px 0px rgba(0, 0, 0, 6%)!important;
         }
     }
     .v-skeleton-loader .v-skeleton-loader__list-item-avatar-three-line {
@@ -3540,6 +3550,9 @@ export default {
             margin-top: 18px;
             margin-bottom: 15px;
             margin-left: 20px;
+            padding-top: 0;
+            padding-bottom: 0;
+            padding-left: 0;
             .layer-title {
                 vertical-align: middle;
             }
@@ -3579,6 +3592,9 @@ export default {
             justify-content: center;
             align-items: center;
             cursor: grabbing;
+            padding-top: 0;
+            padding-bottom: 0;
+            padding-left: 0;
             .expand-handle {
                 width: 40px;
                 height: 5px;
@@ -3590,6 +3606,9 @@ export default {
             transition: top 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
             h2 {
                 cursor: grab;
+                padding-top: 0;
+                padding-bottom: 0;
+                padding-left: 0;
             }
         }
         .expand-tab-item {
@@ -4105,7 +4124,7 @@ export default {
     }
     .mail-outer {
         width: 100%;
-        height: 542px;
+        height: 560px;
     }
     .scroll {
         height: 500px;

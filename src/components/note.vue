@@ -12,35 +12,37 @@
             v-show="loading"
         ></v-progress-circular>
         <div class="note-outer">
-            <h2 class="handle" v-show="!multi">
-                {{ $t('note') }}
-                <v-icon class="ml-1 md-icon" :title="$t('md_support')">
-                    mdi-language-markdown
-                </v-icon>
-                <v-btn icon small class="float-right mr-4" :title="$t('new')" @click.stop="addOne(false)">
-                    <v-icon>mdi-plus</v-icon>
-                </v-btn>
-                <v-btn icon small class="float-right mr-2" :title="$t('select')" @click.stop="multi = true" v-show="notes.length > 0">
-                    <v-icon>mdi-checkbox-multiple-blank-outline</v-icon>
-                </v-btn>
-            </h2>
-            <h2 class="handle" v-show="multi">
-                {{ formatString($t('num_selected'), [ifNotes.length]) }}
-                <v-btn icon small class="float-right mr-4" :title="allSelected ? $t('select_none') : $t('select_all')" @click.stop="selectAll">
-                    <v-icon>{{ allSelected ? 'mdi-playlist-remove' : 'mdi-playlist-check' }}</v-icon>
-                </v-btn>
-                <v-btn icon small class="float-right mr-2" :title="$t('cancel_select')" @click.stop="multi = false">
-                    <v-icon>mdi-close</v-icon>
-                </v-btn>
-                <span class="float-right mr-2 ml-0" :class="$vuetify.theme.dark ? 'grey--text text--darken-2' : 'grey--text text--lighten-2'" v-show="ifNotes.length > 0">|</span>
-                <v-btn icon small class="float-right mr-2" :title="$t('delete_selected')" @click.stop="removeSelectedConfirm" v-show="ifNotes.length > 0">
-                    <v-icon>mdi-delete-outline</v-icon>
-                </v-btn>
-                <v-btn icon small class="float-right mr-2" :title="$t('download_selected')" @click.stop="downloadSelected" v-show="ifNotes.length > 0">
-                    <v-icon>mdi-arrow-collapse-down</v-icon>
-                </v-btn>
-            </h2>
-            <div class="scroll" v-if="notes.length !== 0">
+            <div :class="{ shadow: headerShadow }" class="titles">
+                <h2 class="handle" v-show="!multi">
+                    {{ $t('note') }}
+                    <v-icon class="ml-1 md-icon" :title="$t('md_support')">
+                        mdi-language-markdown
+                    </v-icon>
+                    <v-btn icon small class="float-right mr-4" :title="$t('new')" @click.stop="addOne(false)">
+                        <v-icon>mdi-plus</v-icon>
+                    </v-btn>
+                    <v-btn icon small class="float-right mr-2" :title="$t('select')" @click.stop="multi = true" v-show="notes.length > 0">
+                        <v-icon>mdi-checkbox-multiple-blank-outline</v-icon>
+                    </v-btn>
+                </h2>
+                <h2 class="handle" v-show="multi">
+                    {{ formatString($t('num_selected'), [ifNotes.length]) }}
+                    <v-btn icon small class="float-right mr-4" :title="allSelected ? $t('select_none') : $t('select_all')" @click.stop="selectAll">
+                        <v-icon>{{ allSelected ? 'mdi-playlist-remove' : 'mdi-playlist-check' }}</v-icon>
+                    </v-btn>
+                    <v-btn icon small class="float-right mr-2" :title="$t('cancel_select')" @click.stop="multi = false">
+                        <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                    <span class="float-right mr-2 ml-0" :class="$vuetify.theme.dark ? 'grey--text text--darken-2' : 'grey--text text--lighten-2'" v-show="ifNotes.length > 0">|</span>
+                    <v-btn icon small class="float-right mr-2" :title="$t('delete_selected')" @click.stop="removeSelectedConfirm" v-show="ifNotes.length > 0">
+                        <v-icon>mdi-delete-outline</v-icon>
+                    </v-btn>
+                    <v-btn icon small class="float-right mr-2" :title="$t('download_selected')" @click.stop="downloadSelected" v-show="ifNotes.length > 0">
+                        <v-icon>mdi-arrow-collapse-down</v-icon>
+                    </v-btn>
+                </h2>
+            </div>
+            <div class="scroll" v-if="notes.length !== 0" ref="scrolllist">
                 <v-list flat class="list">
                     <v-list-item-group
                         v-model="ifNotes"
@@ -262,6 +264,8 @@ import 'codemirror/addon/selection/active-line';
 import 'codemirror/addon/edit/closebrackets';
 import 'codemirror/addon/edit/matchbrackets';
 
+import scroll from '@/mixins/scroll';
+
 import formatDateTime from '@/tools/formatDateTime';
 import debounce from '@/tools/debounce';
 import csv from '@/tools/csvHighlight';
@@ -319,6 +323,7 @@ export default {
     props: {
         searchid: Number,
     },
+    mixins: [scroll],
     data() {
         return {
             disableNew: false,
@@ -790,6 +795,10 @@ export default {
             this.notes = storaged;
         }
 
+        this.$nextTick(() => {
+            this.initScroll(this.$refs.scrolllist);
+        });
+
         // Sync with backend every 30 minutes
         this.timer = setInterval(() => {
             this.sync();
@@ -867,17 +876,30 @@ export default {
         right: 10px;
         z-index: 99;
     }
+    .titles {
+        position: relative;
+        z-index: 2;
+        height: 60px;
+        transition: all .2s;
+        &.shadow {
+            box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 10%), 0px 4px 5px 0px rgba(0, 0, 0, 7%), 0px 1px 10px 0px rgba(0, 0, 0, 6%)!important;
+        }
+    }
     h2 {
         font-size: 18px;
         font-weight: normal;
         opacity: .87;
-        margin-top: 18px;
-        margin-bottom: 15px;
+        padding-top: 18px;
+        padding-bottom: 15px;
         margin-left: 20px;
         height: 27px;
         .md-icon {
             padding-bottom: 2px;
         }
+    }
+    .scroll {
+        position: relative;
+        z-index: 1;
     }
     .editor-layer-mask {
         position: absolute;
@@ -912,6 +934,8 @@ export default {
             margin-top: 18px;
             margin-bottom: 15px;
             margin-left: 20px;
+            padding-top: 0;
+            padding-bottom: 0;
             .title-input {
                 -webkit-appearance: none;
                 width: calc(100% - 120px);
@@ -1158,7 +1182,7 @@ export default {
     }
     .note-outer {
         width: 100%;
-        height: 542px;
+        height: 560px;
     }
     .scroll {
         height: 500px;

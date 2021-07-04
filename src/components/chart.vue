@@ -78,10 +78,10 @@ export default {
     }
     &.dark-mode {
         .base {
-            background-color: #493E4C;
+            background-color: #423745;
         }
         .mask {
-            background-image: linear-gradient(to bottom, rgba(39, 39, 39, 0) 0%, rgba(39, 39, 39, 1) 100%);
+            background-image: linear-gradient(to bottom, rgba(30, 30, 30, 0) 0%, rgba(30, 30, 30, 1) 100%);
         }
     }
 }
