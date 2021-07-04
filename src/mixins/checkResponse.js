@@ -2,6 +2,11 @@ import checkBackendVersion from '@/tools/checkBackendVersion';
 
 export default {
     methods: {
+        /**
+         * Check whether the response from backend is valid
+         * @param {Object} response response object
+         * @returns {boolean} `true` if it's valid
+         */
         checkResponse(response) {
             if (Object.prototype.toString.call(response) !== '[object Object]' || !response.uomabVersion) {
                 // Not a valid UoM Assistant backend
