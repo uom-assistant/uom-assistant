@@ -53,7 +53,7 @@
                                 outlined
                                 v-for="(subject, index) in gradeListFiltered[i]"
                                 :key="index"
-                                :ref="`subject-${subject.subject}`"
+                                :ref="`subject-${subject.subject}-${i}`"
                             >
                                 <div class="subject-summary">
                                     <v-progress-circular
@@ -618,7 +618,7 @@ export default {
          */
         openDetailFromSearch(index, tab, subject) {
             if (tab === this.tabs) {
-                this.openDetail(index, tab, this.$refs[`subject-${subject}`], true);
+                this.openDetail(index, tab, this.$refs[`subject-${subject}-${tab}`], true);
             } else {
                 // Different tab
                 if (this.listOverflow) {
@@ -628,7 +628,7 @@ export default {
                         this.tabs = tab;
                         this.$nextTick(() => {
                             setTimeout(() => {
-                                this.openDetail(index, tab, this.$refs[`subject-${subject}`], true);
+                                this.openDetail(index, tab, this.$refs[`subject-${subject}-${tab}`], true);
                             }, 300);
                         });
                     }, 600);
@@ -636,7 +636,7 @@ export default {
                     this.tabs = tab;
                     this.$nextTick(() => {
                         setTimeout(() => {
-                            this.openDetail(index, tab, this.$refs[`subject-${subject}`], true);
+                            this.openDetail(index, tab, this.$refs[`subject-${subject}-${tab}`], true);
                         }, 300);
                     });
                 }

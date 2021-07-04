@@ -2318,7 +2318,7 @@ export default {
                 return;
             }
 
-            if (!this.viewer.translated[this.viewer.translateFrom]) {
+            if (!this.viewer.translated[this.viewer.translateFrom] || (this.viewer.translated[this.viewer.translateFrom] && this.viewer.translated[this.viewer.translateFrom][3]) !== this.preferredTranslateTo[1].locale) {
                 // If translation result is not cached
                 this.viewer.translateState = 'loading';
                 this.loading = true;
@@ -2426,6 +2426,7 @@ export default {
                     this.viewer.translatedSubject,
                     this.viewer.translatedBody,
                     this.viewer.translatedBodyRaw,
+                    this.preferredTranslateTo[1].locale,
                 ];
                 if (this.viewer.translateFrom === 'auto') {
                     this.viewer.translated.auto = [...this.viewer.translated[response.data.source]];

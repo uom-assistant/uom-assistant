@@ -115,8 +115,14 @@ try {
             'key' => UOMA_CONFIG['mail_translator_config']['token'],
             'target' => $data['to'],
             'format' => 'html',
-            'q' => $data['subject'] !== '' ? array($data['body'], $data['subject']) : $data['body']
+            'q' => $data['body']
         ));
+        
+        if ($data['subject'] !== '') {
+            $query .= '&'.http_build_query(array(
+                'q' => $data['subject'],
+            ));
+        }
 
         if ($data['from'] !== 'auto') {
             $query .= '&'.http_build_query(array(
