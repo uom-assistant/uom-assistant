@@ -886,7 +886,8 @@ import 'codemirror/addon/edit/matchbrackets';
 
 import previewer from '@/components/previewer.vue';
 
-import checkBackendVersion from '@/tools/checkBackendVersion';
+import checkResponse from '@/mixins/checkResponse';
+
 import betterFetch from '@/tools/betterFetch';
 import fetchDownload from '@/tools/fetchDownload';
 import formatDateTime from '@/tools/formatDateTime';
@@ -904,6 +905,7 @@ export default {
         codemirror,
         previewer,
     },
+    mixins: [checkResponse],
     data() {
         return {
             loading: false,
@@ -1743,66 +1745,8 @@ export default {
                 return;
             }
 
-            if (Object.prototype.toString.call(response) !== '[object Object]' || !response.uomabVersion) {
-                // Not a valid UoM Assistant backend
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('backend_error'),
-                        content: this.$t('backend_error_body'),
-                        type: 'error',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
-                this.loading = false;
-                return;
-            }
-
-            if (!checkBackendVersion(response.uomabVersion)) {
-                // Version error
-                this.$store.commit('addError', {
-                    title: this.$t('backend_error'),
-                    content: this.$t('version_error'),
-                    type: 'error',
-                });
-                this.loading = false;
-                return;
-            }
-
-            if (!response.success) {
-                // Request error
-                this.$store.commit('addError', {
-                    title: this.$t('request_error'),
-                    content: response.reason,
-                    type: 'error',
-                });
-                this.loading = false;
-                return;
-            }
-
-            if (response.maintenance) {
-                // Backend maintenance
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('backend_maintenance'),
-                        content: this.$t('backend_maintenance_body'),
-                        type: 'warning',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
-                this.loading = false;
-                return;
-            }
-
-            if (response.data.tokenRequired) {
-                // Wrong Token
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('token_error'),
-                        content: this.$t('token_error_body'),
-                        type: 'error',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
+            // Check response
+            if (!this.checkResponse(response)) {
                 this.loading = false;
                 return;
             }
@@ -1907,94 +1851,8 @@ export default {
                 return;
             }
 
-            if (Object.prototype.toString.call(response) !== '[object Object]' || !response.uomabVersion) {
-                // Not a valid UoM Assistant backend
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('backend_error'),
-                        content: this.$t('backend_error_body'),
-                        type: 'error',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
-                this.loading = false;
-                if (action === 'body' && mailId === this.viewing) {
-                    this.loadingBody = false;
-                } else if (action === 'flag' || action === 'unflag') {
-                    if (this.loadingFlag.indexOf(mailId) !== -1) {
-                        this.loadingFlag.splice(this.loadingFlag.indexOf(mailId), 1);
-                    }
-                }
-                return;
-            }
-
-            if (!checkBackendVersion(response.uomabVersion)) {
-                // Version error
-                this.$store.commit('addError', {
-                    title: this.$t('backend_error'),
-                    content: this.$t('version_error'),
-                    type: 'error',
-                });
-                this.loading = false;
-                if (action === 'body' && mailId === this.viewing) {
-                    this.loadingBody = false;
-                } else if (action === 'flag' || action === 'unflag') {
-                    if (this.loadingFlag.indexOf(mailId) !== -1) {
-                        this.loadingFlag.splice(this.loadingFlag.indexOf(mailId), 1);
-                    }
-                }
-                return;
-            }
-
-            if (!response.success) {
-                // Request error
-                this.$store.commit('addError', {
-                    title: this.$t('request_error'),
-                    content: response.reason,
-                    type: 'error',
-                });
-                this.loading = false;
-                if (action === 'body' && mailId === this.viewing) {
-                    this.loadingBody = false;
-                } else if (action === 'flag' || action === 'unflag') {
-                    if (this.loadingFlag.indexOf(mailId) !== -1) {
-                        this.loadingFlag.splice(this.loadingFlag.indexOf(mailId), 1);
-                    }
-                }
-                return;
-            }
-
-            if (response.maintenance) {
-                // Backend maintenance
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('backend_maintenance'),
-                        content: this.$t('backend_maintenance_body'),
-                        type: 'warning',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
-                this.loading = false;
-                if (action === 'body' && mailId === this.viewing) {
-                    this.loadingBody = false;
-                } else if (action === 'flag' || action === 'unflag') {
-                    if (this.loadingFlag.indexOf(mailId) !== -1) {
-                        this.loadingFlag.splice(this.loadingFlag.indexOf(mailId), 1);
-                    }
-                }
-                return;
-            }
-
-            if (response.data.tokenRequired) {
-                // Wrong Token
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('token_error'),
-                        content: this.$t('token_error_body'),
-                        type: 'error',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
+            // Check response
+            if (!this.checkResponse(response)) {
                 this.loading = false;
                 if (action === 'body' && mailId === this.viewing) {
                     this.loadingBody = false;
@@ -2260,7 +2118,7 @@ export default {
          * Open viewer layer and show the mail by ID
          * @param {number} id mail ID
          */
-        async openMail(id) {
+        openMail(id) {
             // Mail not found
             const mail = this.mails.find((item) => item.id === id);
             if (!mail) {
@@ -2512,70 +2370,8 @@ export default {
                     return;
                 }
 
-                if (Object.prototype.toString.call(response) !== '[object Object]' || !response.uomabVersion) {
-                    // Not a valid UoM Assistant backend
-                    if (this.backendStatus) {
-                        this.$store.commit('addError', {
-                            title: this.$t('backend_error'),
-                            content: this.$t('backend_error_body'),
-                            type: 'error',
-                        });
-                        this.$store.commit('setBackendStatus', false);
-                    }
-                    this.loading = false;
-                    this.viewer.translateState = 'source';
-                    return;
-                }
-
-                if (!checkBackendVersion(response.uomabVersion)) {
-                    // Version error
-                    this.$store.commit('addError', {
-                        title: this.$t('backend_error'),
-                        content: this.$t('version_error'),
-                        type: 'error',
-                    });
-                    this.loading = false;
-                    this.viewer.translateState = 'source';
-                    return;
-                }
-
-                if (!response.success) {
-                    // Request error
-                    this.$store.commit('addError', {
-                        title: this.$t('request_error'),
-                        content: response.reason,
-                        type: 'error',
-                    });
-                    this.loading = false;
-                    this.viewer.translateState = 'source';
-                    return;
-                }
-
-                if (response.maintenance) {
-                    // Backend maintenance
-                    if (this.backendStatus) {
-                        this.$store.commit('addError', {
-                            title: this.$t('backend_maintenance'),
-                            content: this.$t('backend_maintenance_body'),
-                            type: 'warning',
-                        });
-                        this.$store.commit('setBackendStatus', false);
-                    }
-                    this.loading = false;
-                    this.viewer.translateState = 'source';
-                    return;
-                }
-
-                if (response.data.tokenRequired) {
-                    // Wrong Token
-                    if (this.backendStatus) {
-                        this.$store.commit('addError', {
-                            title: this.$t('token_error'),
-                            content: this.$t('token_error_body'),
-                            type: 'error',
-                        });
-                        this.$store.commit('setBackendStatus', false);
-                    }
+                // Check response
+                if (!this.checkResponse(response)) {
                     this.loading = false;
                     this.viewer.translateState = 'source';
                     return;
@@ -2676,72 +2472,8 @@ export default {
                 return;
             }
 
-            if (Object.prototype.toString.call(response) !== '[object Object]' || !response.uomabVersion) {
-                // Not a valid UoM Assistant backend
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('backend_error'),
-                        content: this.$t('backend_error_body'),
-                        type: 'error',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
-                this.loading = false;
-                this.viewer.translateState = 'source';
-                return;
-            }
-
-            if (!checkBackendVersion(response.uomabVersion)) {
-                // Version error
-                this.$store.commit('addError', {
-                    title: this.$t('backend_error'),
-                    content: this.$t('version_error'),
-                    type: 'error',
-                });
-                this.loading = false;
-                this.viewer.translateState = 'source';
-                return;
-            }
-
-            if (!response.success) {
-                // Request error
-                this.$store.commit('addError', {
-                    title: this.$t('request_error'),
-                    content: response.reason,
-                    type: 'error',
-                });
-                this.loading = false;
-                this.viewer.translateState = 'source';
-                return;
-            }
-
-            if (response.maintenance) {
-                // Backend maintenance
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('backend_maintenance'),
-                        content: this.$t('backend_maintenance_body'),
-                        type: 'warning',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
-                this.loading = false;
-                this.viewer.translateState = 'source';
-                return;
-            }
-
-            if (response.data.tokenRequired) {
-                // Wrong Token
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('token_error'),
-                        content: this.$t('token_error_body'),
-                        type: 'error',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
-                this.loading = false;
-                this.viewer.translateState = 'source';
+            // Check response
+            if (!this.checkResponse(response)) {
                 return;
             }
 

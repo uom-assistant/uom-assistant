@@ -498,6 +498,11 @@ export default {
             this.notes.splice(this.toRemove, 1);
             this.previews.splice(this.toRemove, 1);
             this.removeNoteConfirm = false;
+
+            // If all notes are deleted, exit multi selection mode
+            if (this.notes.length === 0 && this.multi) {
+                this.multi = false;
+            }
         },
         /**
          * Download a note
@@ -582,6 +587,11 @@ export default {
                 }
                 this.notes = newNotes;
                 this.previews = newPreviews;
+
+                // If all notes are deleted, exit multi selection mode
+                if (this.notes.length === 0 && this.multi) {
+                    this.multi = false;
+                }
             }
             this.ifNotes = [];
         },

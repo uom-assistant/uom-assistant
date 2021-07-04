@@ -225,7 +225,8 @@ import localForage from 'localforage';
 import Vue from 'vue';
 import VueClipboard from 'vue-clipboard2';
 
-import checkBackendVersion from '@/tools/checkBackendVersion';
+import checkResponse from '@/mixins/checkResponse';
+
 import formatDateTime from '@/tools/formatDateTime';
 import betterFetch from '@/tools/betterFetch';
 
@@ -233,6 +234,7 @@ Vue.use(VueClipboard);
 
 export default {
     name: 'calendar',
+    mixins: [checkResponse],
     data() {
         return {
             loading: false,
@@ -418,66 +420,8 @@ export default {
                 return;
             }
 
-            if (Object.prototype.toString.call(response) !== '[object Object]' || !response.uomabVersion) {
-                // Not a valid UoM Assistant backend
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('backend_error'),
-                        content: this.$t('backend_error_body'),
-                        type: 'error',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
-                this.loading = false;
-                return;
-            }
-
-            if (!checkBackendVersion(response.uomabVersion)) {
-                // Version error
-                this.$store.commit('addError', {
-                    title: this.$t('backend_error'),
-                    content: this.$t('version_error'),
-                    type: 'error',
-                });
-                this.loading = false;
-                return;
-            }
-
-            if (!response.success) {
-                // Request error
-                this.$store.commit('addError', {
-                    title: this.$t('request_error'),
-                    content: response.reason,
-                    type: 'error',
-                });
-                this.loading = false;
-                return;
-            }
-
-            if (response.maintenance) {
-                // Backend maintenance
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('backend_maintenance'),
-                        content: this.$t('backend_maintenance_body'),
-                        type: 'warning',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
-                this.loading = false;
-                return;
-            }
-
-            if (response.data.tokenRequired) {
-                // Wrong Token
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('token_error'),
-                        content: this.$t('token_error_body'),
-                        type: 'error',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
+            // Check response
+            if (!this.checkResponse(response)) {
                 this.loading = false;
                 return;
             }
@@ -498,6 +442,7 @@ export default {
             let rawData = [[], [], []];
             try {
                 rawData = parse(response.data);
+                this.$store.commit('setBackendStatus', true);
             } catch (icalerr) {
                 this.$store.commit('addError', {
                     title: this.$t('ical_error'),
@@ -858,13 +803,24 @@ export default {
         padding-right: 11px;
         padding-bottom: 11px;
     }
-    .v-calendar-weekly__week button.v-btn.v-size--small {
-        width: 35px;
-        height: 35px;
-        margin-bottom: 5px;
+    .v-calendar-weekly__week {
+        .v-calendar-weekly__day:last-child {
+            border-right: none!important;
+            padding-right: 1.25px;
+        }
+        button.v-btn.v-size--small {
+            width: 35px;
+            height: 35px;
+            margin-bottom: 5px;
+        }
     }
-    .v-calendar-weekly__head-weekday {
-        padding-top: 5px;
+    .v-calendar-weekly__head {
+        .v-calendar-weekly__head-weekday {
+            padding-top: 5px;
+            &:last-child {
+                border-right: none!important;
+            }
+        }
     }
     .theme--light.v-calendar-events .v-event-more {
         background-color: transparent;

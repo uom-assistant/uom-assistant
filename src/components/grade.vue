@@ -285,7 +285,8 @@ import { vsprintf } from 'sprintf-js';
 
 import chart from '@/components/chart.vue';
 
-import checkBackendVersion from '@/tools/checkBackendVersion';
+import checkResponse from '@/mixins/checkResponse';
+
 import betterFetch from '@/tools/betterFetch';
 import formatDate from '@/tools/formatDate';
 
@@ -297,6 +298,7 @@ export default {
     props: {
         searchid: Number,
     },
+    mixins: [checkResponse],
     data() {
         return {
             loading: false,
@@ -366,70 +368,8 @@ export default {
                 return;
             }
 
-            if (Object.prototype.toString.call(response) !== '[object Object]' || !response.uomabVersion) {
-                // Not a valid UoM Assistant backend
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('backend_error'),
-                        content: this.$t('backend_error_body'),
-                        type: 'error',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
-                this.loading = false;
-                this.$store.commit('setAttendance', false);
-                return;
-            }
-
-            if (!checkBackendVersion(response.uomabVersion)) {
-                // Version error
-                this.$store.commit('addError', {
-                    title: this.$t('backend_error'),
-                    content: this.$t('version_error'),
-                    type: 'error',
-                });
-                this.loading = false;
-                this.$store.commit('setAttendance', false);
-                return;
-            }
-
-            if (!response.success) {
-                // Request error
-                this.$store.commit('addError', {
-                    title: this.$t('request_error'),
-                    content: response.reason,
-                    type: 'error',
-                });
-                this.loading = false;
-                this.$store.commit('setAttendance', false);
-                return;
-            }
-
-            if (response.maintenance) {
-                // Backend maintenance
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('backend_maintenance'),
-                        content: this.$t('backend_maintenance_body'),
-                        type: 'warning',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
-                this.loading = false;
-                this.$store.commit('setAttendance', false);
-                return;
-            }
-
-            if (response.data.tokenRequired) {
-                // Wrong Token
-                if (this.backendStatus) {
-                    this.$store.commit('addError', {
-                        title: this.$t('token_error'),
-                        content: this.$t('token_error_body'),
-                        type: 'error',
-                    });
-                    this.$store.commit('setBackendStatus', false);
-                }
+            // Check response
+            if (!this.checkResponse(response)) {
                 this.loading = false;
                 this.$store.commit('setAttendance', false);
                 return;
