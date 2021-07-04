@@ -45,10 +45,10 @@ if (UOMA_RATE_LIMIT) {
         try {
             $rateLimiter->limit($apiKey, Rate::custom(2, 10));
         } catch (LimitExceeded $exception) {
-            rest_die('Rate limit exceeded.');
+            rest_die('Rate limit exceeded.', $conn);
         }
     } else {
-        rest_die('Rate limit error.');
+        rest_die('Rate limit error.', $conn);
     }
 }
 

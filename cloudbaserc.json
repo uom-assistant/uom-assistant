@@ -1,0 +1,17 @@
+{
+    "envId": "{{envId}}",
+    "framework": {
+        "plugins": {
+        "client": {
+            "use": "@cloudbase/framework-plugin-website",
+            "inputs": {
+            "installCommand": "npm install --prefer-offline --no-audit --progress=false",
+            "buildCommand": "npm run build",
+            "outputPath": "dist",
+            "cloudPath": "/path",
+            "ignore": [".git", ".github", "node_modules", "backend", "configs", "github_assets", "READMEs", "scripts", "cloudbaserc.js"]
+            }
+        }
+        }
+    }
+}

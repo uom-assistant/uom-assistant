@@ -1,0 +1,30 @@
+{
+    "version": "2.0",
+    "envId": "{{env.ENV_ID}}",
+    "framework":{
+        "name":"uom-assistant",
+        "plugins":{
+            "client": {
+                "use": "@cloudbase/framework-plugin-container",
+                "inputs": {
+                    "cpu": 0.5,
+                    "mem": 1,
+                    "serviceName": "uom-assistant",
+                    "servicePath": "/",
+                    "localPath": "/",
+                    "mode":"high-availability",
+                    "uploadType": "package",
+                    "containerPort": 80
+                }
+            }
+        },
+        "requirement": {
+            "addons": [
+                {
+                    "type": "CynosDB",
+                    "name": "uoma"
+                }
+            ]
+        }
+    }
+}

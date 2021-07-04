@@ -94,4 +94,6 @@ if (!empty($attachments)) {
 
 $mailbox->disconnect();
 
+$conn->close();
+
 ?>

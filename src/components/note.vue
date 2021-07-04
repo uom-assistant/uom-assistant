@@ -220,6 +220,8 @@ import mdSub from 'markdown-it-sub';
 import mdSup from 'markdown-it-sup';
 import mdSpan from 'markdown-it-bracketed-spans';
 import mdAttrs from 'markdown-it-attrs';
+import mdTable from 'markdown-it-multimd-table';
+import mdContainer from 'markdown-it-container';
 
 import javascript from 'highlight.js/lib/languages/javascript';
 import python from 'highlight.js/lib/languages/python';
@@ -823,6 +825,15 @@ export default {
         this.md.use(mdAttrs, {
             allowedAttributes: ['red', 'orange', 'yellow', 'green', 'teal', 'blue', 'purple', 'grey', 'bg-red', 'bg-orange', 'bg-yellow', 'bg-green', 'bg-teal', 'bg-blue', 'bg-purple', 'bg-grey', 'big', 'small', 'mask', 'blur', 'style'],
         });
+        this.md.use(mdTable, {
+            multiline: true,
+            rowspan: true,
+            headerless: true,
+        });
+        this.md.use(mdContainer, 'info');
+        this.md.use(mdContainer, 'success');
+        this.md.use(mdContainer, 'warning');
+        this.md.use(mdContainer, 'error');
 
         this.buildPreviews();
         this.buildSearchIndex();
@@ -996,6 +1007,31 @@ export default {
                     &:hover {
                         filter: blur(0);
                     }
+                }
+                div.success, div.info, div.warning, div.error {
+                    display: flex;
+                    &:before {
+                        font-family: 'Material Design Icons';
+                        font-size: 20px;
+                        height: 20px;
+                        line-height: 20px;
+                    }
+                    & > p {
+                        margin-left: 10px;
+                        line-height: 20px;
+                    }
+                }
+                div.success:before {
+                    content: '\F05E1';
+                }
+                div.info:before {
+                    content: '\F02FD';
+                }
+                div.warning:before {
+                    content: '\F002A';
+                }
+                div.error:before {
+                    content: '\F05D6';
                 }
             }
         }

@@ -2,6 +2,12 @@
 ul, ol, p {
     margin-bottom: 12px;
 }
+table ul, table ol, table p {
+    margin-bottom: 0;
+}
+table ul, table ol {
+    text-align: left;
+}
 img {
     margin: 0 auto;
     max-width: 100%;
@@ -73,4 +79,29 @@ blockquote {
 }
 [small] {
     font-size: 12px;
+}
+div.success, div.info, div.warning, div.error {
+    padding: 15px;
+    border-radius: 6px;
+    margin: 12px 0;
+}
+div.success > p, div.info > p, div.warning > p, div.error > p {
+    margin: 0;
+    word-break: break-word;
+}
+div.success {
+    color: rgb(76, 175, 80);
+    background-color: rgba(76, 175, 80, .12)!important;
+}
+div.info {
+    color: rgb(33, 150, 243);
+    background-color: rgba(33, 150, 243, .12)!important;
+}
+div.warning {
+    color: rgb(255, 152, 0);
+    background-color: rgba(255, 152, 0, .12)!important;
+}
+div.error {
+    color: rgb(244, 67, 54);
+    background-color: rgba(244, 67, 54, .12)!important;
 }

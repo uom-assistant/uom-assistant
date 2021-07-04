@@ -468,7 +468,9 @@ export default {
             this.init = true;
             this.gradeList = response.data.grade;
             this.$store.commit('setAttendance', response.data.attendance);
-            this.relocate();
+            this.$nextTick(() => {
+                this.relocate();
+            });
         },
         /**
          * Map from subject ID to subject color

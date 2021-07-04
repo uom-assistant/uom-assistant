@@ -610,8 +610,9 @@ export default [
             data: {
                 id: 292,
                 attachments: [['test.pdf', 3840], ['test2.vue', 3840], ['Dockerfile', 3840], ['hi.zip', 3840], ['unknow.something', 3840]],
-                content: '<div>hhh</div><p>testest</p><p>testest</p><p>testest <a href="https://github.com">GitHub</a></p><img src="https://www.bing.com/th?id=OHR.HinterseeRamsau_ROW5331031469_1920x1080.jpg&rf=LaDigue_1920x1080.jpg"><p>Lorem ipsum dolor sit amet, eu duo noster maluisset incorrupte, zril dolor ex est. Doming vocibus accusamus sed te. Ea aperiam theophrastus eos, soluta integre at vim, ex diceret aliquando voluptatum vel. Eam cu error eripuit dolorum. Per vero tractatos ad.</p><div style="width: 600px;">hhh</div>',
+                content: '<div>hhh</div><p>testest</p>   \n\n\n\n       <style>p{color:red}</style><p>testest</p><p>testest <a href="https://github.com">GitHub</a></p><img src="https://www.bing.com/th?id=OHR.HinterseeRamsau_ROW5331031469_1920x1080.jpg&rf=LaDigue_1920x1080.jpg"><p>Lorem ipsum dolor sit amet, eu duo noster maluisset incorrupte, zril dolor ex est. Doming vocibus accusamus sed te. Ea aperiam theophrastus eos, soluta integre at vim, ex diceret aliquando voluptatum vel. Eam cu error eripuit dolorum. Per vero tractatos ad.</p>   <style>p{color:blue}</style>    <div style="width: 600px;">hhh</div>',
                 plainContent: 'hhh\ntestest\ntestest\ntestest GitHub\nLorem ipsum dolor sit amet, eu duo noster maluisset incorrupte, zril dolor ex est. Doming vocibus accusamus sed te. Ea aperiam theophrastus eos, soluta integre at vim, ex diceret aliquando voluptatum vel. Eam cu error eripuit dolorum. Per vero tractatos ad.\nhhh',
+                translator: 'deepl',
             },
         },
         after: 3000,
@@ -636,5 +637,38 @@ export default [
             data: {},
         },
         after: 3000,
+    },
+    {
+        url: 'path:/mail/translate/',
+        method: 'post',
+        status: 200,
+        headers: {},
+        response: {
+            success: true,
+            uomabVersion: '0.1.0',
+            maintenance: false,
+            data: {
+                id: 292,
+                source: 'en',
+                translatedSubject: 'COMP15212 编程 2 2077-78 第二学期。第N周 COMP16412的材料现已提供',
+                translatedBody: '<div>哈哈哈</div><p>测试测试</p><p>测试测试</p><p>测试测试 <a href="https://github.com">GitHub</a></p><img src="https://www.bing.com/th?id=OHR.HinterseeRamsau_ROW5331031469_1920x1080.jpg&rf=LaDigue_1920x1080.jpg"><p>財舎必格孝岐訟済源会図囲級権会同城。児鬼突所高作界抗員設映臓酒賞映団図断民提。受美体方由消今木散背民職笑学育緩者。前寄度図軽果掲像対無貸目表旅。時固詳子稿葉稿就売甲賞引録結東色論山。美図全仕月紹守最助件音無性通出治。更転団情博局見康共咲徳飯惑検。</p><div style="width: 600px;">哈哈哈</div>',
+            },
+        },
+        after: 3000,
+    },
+    {
+        url: 'path:/mail/translator/',
+        method: 'post',
+        status: 200,
+        headers: {},
+        response: {
+            success: true,
+            uomabVersion: '0.1.0',
+            maintenance: false,
+            data: {
+                translator: 'google',
+            },
+        },
+        after: 500,
     },
 ];

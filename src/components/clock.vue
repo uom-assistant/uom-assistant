@@ -158,8 +158,9 @@ export default {
         },
         /**
          * Update clock UI
+         * @param {boolean} init whether it's for init the view
          */
-        updateView() {
+        updateView(init = false) {
             const now = new Date(new Date().valueOf() + this.base * 3600000);
             const remoteNow = this.convertTimeZone(now, this.timeZone);
 
@@ -174,19 +175,21 @@ export default {
             minRemote = `${remoteNow.getMinutes()}`.padStart(2, '0');
             hourRemote = `${remoteNow.getHours()}`.padStart(2, '0');
 
-            if (secOld !== sec) {
+            if (secOld !== sec || init) {
                 this.$refs.secLocal.textContent = sec;
                 this.$refs.secRemote.textContent = sec;
             }
-            if (minLocalOld !== minLocal) {
+            if (minLocalOld !== minLocal || init) {
                 this.$refs.minLocal.textContent = minLocal;
                 this.$refs.minRemote.textContent = minRemote;
-                this.$store.commit('setTimerMin', minLocal);
-                if (minLocal === '00') {
-                    this.$store.commit('setTimerHour', `${hourLocal}${new Date().valueOf()}`);
+                if (!init) {
+                    this.$store.commit('setTimerMin', minLocal);
+                    if (minLocal === '00') {
+                        this.$store.commit('setTimerHour', `${hourLocal}${new Date().valueOf()}`);
+                    }
                 }
             }
-            if (hourLocalOld !== hourLocal) {
+            if (hourLocalOld !== hourLocal || init) {
                 this.$refs.hourLocal.textContent = hourLocal;
                 if (hourLocal <= 5 || hourLocal >= 19) {
                     this.localNight = true;
@@ -194,7 +197,7 @@ export default {
                     this.localNight = false;
                 }
             }
-            if (hourRemoteOld !== hourRemote) {
+            if (hourRemoteOld !== hourRemote || init) {
                 this.$refs.hourRemote.textContent = hourRemote;
                 if (hourRemote <= 5 || hourRemote >= 19) {
                     this.remoteNight = true;
@@ -291,6 +294,7 @@ export default {
         }
 
         // Update time every 1 second
+        this.updateView(true);
         this.timer = setInterval(this.updateView, 1000);
         this.updateList();
     },

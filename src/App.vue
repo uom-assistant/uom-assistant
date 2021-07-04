@@ -432,6 +432,7 @@ import clockSearch from '@/components/search/clock.vue';
 import checkBackendVersion from '@/tools/checkBackendVersion';
 import betterFetch from '@/tools/betterFetch';
 import formatDateTime from '@/tools/formatDateTime';
+import updateStorage from '@/tools/update';
 import localeList from '@/locales/localeList';
 import * as version from '../public/version.json';
 
@@ -802,6 +803,10 @@ export default {
         this.$i18n.locale = this.locale;
         localStorage.setItem('language', this.$i18n.locale);
 
+        // Set version
+        updateStorage();
+        localStorage.setItem('uoma_version', version.version);
+
         // Check if updating
         const updating = localStorage.getItem('update_frontend') || 'false';
         if (updating === 'true') {
@@ -899,7 +904,7 @@ html::-webkit-scrollbar {
         position: fixed;
         z-index: 9999;
     }
-    .text-h1, .overline, .title {
+    .text-h1, .overline, .title, .mail-view-subject > span, .mail-detail .text-body-2, .mail-translation .text-body-2 {
         font-family: Roboto, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif!important;
     }
     .v-application--wrap > header {

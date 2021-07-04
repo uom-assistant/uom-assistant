@@ -27,6 +27,7 @@ module.exports = {
         workboxOptions: {
             skipWaiting: true,
             clientsClaim: true,
+            exclude: [/version\.json/, /\/plugins\//, /\.htaccess/],
             runtimeCaching: [
                 {
                     urlPattern: new RegExp('https://fonts.googleapis.com/'),
@@ -35,14 +36,6 @@ module.exports = {
                 {
                     urlPattern: new RegExp('https://cdn.jsdelivr.net/npm/@mdi/font@latest/'),
                     handler: 'StaleWhileRevalidate',
-                },
-                {
-                    urlPattern: new RegExp('version.json'),
-                    handler: 'NetworkOnly',
-                },
-                {
-                    urlPattern: /\/plugins\//,
-                    handler: 'NetworkOnly',
                 },
             ],
         },

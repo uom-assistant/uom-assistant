@@ -45,10 +45,10 @@ if (UOMA_RATE_LIMIT) {
         try {
             $rateLimiter->limit($apiKey, Rate::custom(2, 5));
         } catch (LimitExceeded $exception) {
-            rest_die('Rate limit exceeded.');
+            rest_die('Rate limit exceeded.', $conn);
         }
     } else {
-        rest_die('Rate limit error.');
+        rest_die('Rate limit error.', $conn);
     }
 }
 
@@ -71,9 +71,9 @@ $mailbox->setPathDelimiter('/');
 try {
     $email = $mailbox->getMail($id, true);
 } catch(PhpImap\Exceptions\ConnectionException $e) {
-    rest_die('IMAP connection failed.');
+    rest_die('IMAP connection failed.', $conn);
 } catch(UnexpectedValueException $e) {
-    rest_die('Unable to login.');
+    rest_die('Unable to login.', $conn);
 }
 
 if (!empty($email->autoSubmitted)) {
@@ -165,13 +165,22 @@ if (!empty($attachments)) {
     }
 }
 
+$translator = false;
+
+if (UOMA_CONFIG['allow_mail_translator'] && !(!UOMA_CONFIG['mail_translator_config'] || (UOMA_CONFIG['mail_translator_config']['service'] !== 'deepl' && UOMA_CONFIG['mail_translator_config']['service'] !== 'azure' && UOMA_CONFIG['mail_translator_config']['service'] !== 'google') || (UOMA_CONFIG['mail_translator_config']['service'] === 'azure' && UOMA_CONFIG['mail_translator_config']['service'] === 'region') || UOMA_CONFIG['mail_translator_config']['gateway'] === '' || UOMA_CONFIG['mail_translator_config']['token'] === '')) {
+    $translator = UOMA_CONFIG['mail_translator_config']['service'];
+}
+
 rest_response(array(
     'id' => $id,
     'attachments' => $attachment_list,
     'content' => $email->textHtml ? mb_convert_encoding($email->textHtml, 'UTF-8', mb_detect_encoding($email->textHtml, $encode_array)) : $email->textPlain,
     'plainContent' => $email->textPlain,
+    'translator' => $translator，
 ));
 
 $mailbox->disconnect();
+
+$conn->close();
 
 ?>

@@ -14,7 +14,7 @@
 /**
  * This is the main config file for UoM Assistant Backend
  * You can modify configurations here
- * Documentation: https://github.com/yrccondor/uom-assistant/backend/README.md
+ * Documentation: https://github.com/yrccondor/uom-assistant/blob/master/backend/README.md
  */
 
 // Backend version
@@ -32,7 +32,7 @@ define('UOMA_REDIS', array(
     'port' => 6379,
 ));
 
-// Set the user agent used in external HTTP requests. More at https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
+// Set the user agent used in external HTTP requests. More at https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
 define('UOMA_USER_AGENT', 'UOM-ASSISTANT-BACKEND/'.UOMA_VERSION.' Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.0 Safari/537.36');
 
 // Info needed for MySQL database connection
@@ -61,18 +61,21 @@ define('UOMA_CONFIG', array(
     // If non-empty, a message will be shown in the frontend when a user is connected to this backend instance
     'welcome_message' => '',
 
-    // Controls which frontend can connect to this backend. Can be a string or an array (auto match). More at https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
+    // Controls which frontend can connect to this backend. Can be a string or an array (auto match). More at https://developer.mozilla.org/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
     'access_control_allow_origin' => '*',
 
     // If true, the mail widget will show a translator and user can translate a mail to their preferred language
-    'allow_mail_translator' => true,
+    'allow_mail_translator' => false,
 
     'mail_translator_config' => array(
         // The translation service will using, supports 'deepl', 'azure' or 'google'
-        'service' => 'deepl',
+        'service' => 'google',
 
-        // Translation APi gateway. More at https://github.com/yrccondor/uom-assistant/backend/README.md
+        // Translation API gateway. More at https://github.com/yrccondor/uom-assistant/blob/master/backend/README.md
         'gateway' => '',
+
+        // Translation API region. Only works on Azure API. More at https://docs.microsoft.com/azure/cognitive-services/translator/reference/v3-0-reference#authenticating-with-a-multi-service-resource. For other translation services, just leave it blank
+        'region' => '',
 
         // Your translation API token
         'token' => ''

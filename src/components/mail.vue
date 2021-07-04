@@ -37,6 +37,15 @@
                             </v-list-item-content>
                         </v-list-item>
                         <v-divider></v-divider>
+                        <v-list-item class="pt-2 pb-2 mail-all-read" @click="openTranslationSettingsDialog">
+                            <v-list-item-icon>
+                                <v-icon>mdi-translate</v-icon>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                                <v-list-item-title>{{ $t('translation_settings') }}…</v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-divider></v-divider>
                         <v-list-item-group
                             v-model="ifNotify"
                             multiple
@@ -207,7 +216,7 @@
             </h2>
             <v-divider></v-divider>
             <div class="viewer" ref="viewerDom">
-                <h1 class="text-subtitle-1 px-5 py-3 mail-view-subject"><span v-if="viewer.subject !== false">{{ viewer.subject }}</span><em v-else>{{ $t('no_subject') }}</em></h1>
+                <h1 class="text-subtitle-1 px-5 py-3 mail-view-subject"><span v-if="viewer.subject !== false">{{ viewer.translateState !== 'translated' ? viewer.subject : viewer.translatedSubject }}</span><em v-else>{{ $t('no_subject') }}</em></h1>
                 <div v-show="viewer.courseId !== ''" class="subject-subtitle mx-5 text--disabled text-body-2 pb-3 text-truncate">
                     <v-menu
                         :close-on-content-click="false"
@@ -432,6 +441,78 @@
                         </div>
                     </v-expand-transition>
                 </div>
+                <div class="mail-translation mx-5 pa-3 pr-2 mt-2" v-if="translateEnabled && viewer.translator && viewer.textContent !== '' && viewer.sourceLang !== 'und' && languageMap[viewer.sourceLang] && viewer.sourceLang !== preferredTranslateTo[0] && preferredTranslateTo[1][viewer.translator] !== false && !(!loadingBody && (!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML && viewer.bodyRawHTML !== '')">
+                    <div class="translation-notice">
+                        <v-icon class="mr-2">mdi-translate</v-icon>
+                        <span class="text-body-2">{{ formatString($t('in_language'), [Array.isArray(languageMap[viewer.sourceLang]) ? $t(`lang_${viewer.sourceLang}`) : $t(`lang_${languageMap[viewer.sourceLang].locale}`)]) }}</span>
+                        <v-btn icon @click.stop="viewTranslationExpanded = !viewTranslationExpanded" small class="float-right expand-btn" :title="$t('more')">
+                            <v-icon :class="{ 'detail-expanded': viewTranslationExpanded }">mdi-chevron-down</v-icon>
+                        </v-btn>
+                    </div>
+                    <v-expand-transition>
+                        <div class="expand" v-show="viewTranslationExpanded">
+                            <div class="d-flex">
+                                <v-autocomplete
+                                    class="translate-from mt-4 mr-1 flex-grow-1"
+                                    v-model="viewer.translateFrom"
+                                    outlined
+                                    dense
+                                    hide-details
+                                    item-value="code"
+                                    item-text="name"
+                                    :items="translateFromList(viewer.translator)"
+                                    :label="$t('translate_from')"
+                                    :no-data-text="$t('no_language')"
+                                    :key="`lang-from-${locale}`"
+                                    :disabled="viewer.translateState !== 'source'"
+                                    :menu-props="{
+                                        closeOnClick: false,
+                                        closeOnContentClick: false,
+                                        disableKeys: true,
+                                        openOnClick: false,
+                                        maxHeight: 304,
+                                        offsetY: true,
+                                        offsetOverflow: true,
+                                        transition: 'slide-y-transition'
+                                    }"
+                                ></v-autocomplete>
+                                <v-text-field
+                                    class="translate-to mt-4 ml-1 mr-1 flex-grow-1"
+                                    outlined
+                                    dense
+                                    hide-details
+                                    :readonly="viewer.translateState === 'source'"
+                                    :disabled="viewer.translateState !== 'source'"
+                                    :value="this.$t(`lang_${preferredTranslateTo[1].locale}`)"
+                                    :label="$t('translate_to')"
+                                ></v-text-field>
+                            </div>
+                            <div class="d-flex justify-space-between align-center mt-2">
+                                <span class="text--disabled text-body-2 d-inline-block mt-1">
+                                    <v-icon small class="text--disabled service-icon" v-if="viewer.translator !== 'deepl'">{{ viewer.translator === 'azure' ? 'mdi-microsoft-azure' : 'mdi-google-translate' }}</v-icon><svg class="deepl-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 54 68" v-else><path class="deepl-bg" d="M.188 17.274v26.81c0 1.393.73 2.67 1.921 3.367l23.063 13.386a3.797 3.797 0 003.844 0L52.078 47.45A3.887 3.887 0 0054 44.085v-26.81c0-1.394-.73-2.67-1.922-3.367L29.016.522a3.797 3.797 0 00-3.844 0L2.109 13.947a3.871 3.871 0 00-1.921 3.327z"/><path class="deepl-bg" d="M36.703 67.53l-.038-5.803.038-5.339-13.453 3.327"/><path class="deepl-bg" d="M36.088 55.924l2.537-.658-.961.542c-.577.348-.961.967-.961 1.663v1.084l-.615-2.631z"/><path class="deepl-line" d="M17.79 18.474a3.95 3.95 0 015.535 0 4.016 4.016 0 010 5.804 3.95 3.95 0 01-5.535 0 4.016 4.016 0 010-5.804zM35.087 28.572a3.95 3.95 0 015.535 0 4.016 4.016 0 010 5.803 3.95 3.95 0 01-5.535 0 4.016 4.016 0 010-5.803zM17.79 39.25a3.95 3.95 0 015.535 0 4.016 4.016 0 010 5.803 3.95 3.95 0 01-5.535 0 4.016 4.016 0 010-5.803z"/><path class="deepl-line" d="M22.48 23.542l11.532 6.693 1.922-1.083-11.532-6.732-1.922 1.122zM34.78 35.148l-10.378 6.035-1.922-1.121 10.379-5.997 1.922 1.083z"/></svg>{{ formatString($t('powered_by'), [(viewer.translator === 'azure' ? 'Microsoft Azure' : (viewer.translator === 'google' ? 'Google' : 'DeepL'))]) }}
+                                </span>
+                                <v-btn
+                                    text
+                                    small
+                                    color="primary"
+                                    class="mr-1 mb-n1"
+                                    @click="translateMail"
+                                    :loading="viewer.translateState === 'loading'"
+                                    :disabled="viewer.translateState === 'loading'"
+                                    v-if="viewer.translateState !== 'translated'"
+                                >{{ $t('translate') }}</v-btn>
+                                <v-btn
+                                    text
+                                    small
+                                    color="primary"
+                                    class="mr-1 mb-n1"
+                                    @click="restoreMail"
+                                    v-else
+                                >{{ $t('source') }}</v-btn>
+                            </div>
+                        </div>
+                    </v-expand-transition>
+                </div>
                 <v-skeleton-loader
                     class="mx-auto"
                     type="list-item-three-line, list-item-two-line"
@@ -499,7 +580,7 @@
                     allowtransparency="true"
                     sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
                     :title="$t('mail_body')"
-                    :srcdoc="((!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML) ? '' : viewer.bodyHTML"
+                    :srcdoc="viewer.translateState !== 'translated' ? (((!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML) ? '' : viewer.bodyHTML) : viewer.translatedBody"
                     :height="`${sandboxHeight < 10 ? 0 : (sandboxHeight + 16)}px`"
                     @load="updateSandboxHeight"
                 />
@@ -544,6 +625,7 @@
                     ref="from"
                     @input="checkEmail('editingTo')"
                     @keydown="(e) => checkUnlistedEmail('editingTo', e)"
+                    @blur="checkUnlistedEmailOnBlur('editingTo')"
                 ></v-combobox>
                 <v-divider></v-divider>
                 <v-combobox
@@ -563,6 +645,7 @@
                     ref="ccInput"
                     @input="checkEmail('editingCc')"
                     @keydown="(e) => checkUnlistedEmail('editingCc', e)"
+                    @blur="checkUnlistedEmailOnBlur('editingCc')"
                 ></v-combobox>
                 <v-divider></v-divider>
                 <codemirror v-model="code" :options="cmOption" class="md-editor" :key="cmRefresh" ref="codemirror"></codemirror>
@@ -700,14 +783,78 @@
                     {{ $t('too_many_attachments_body') }}
                 </v-card-text>
                 <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
-                    color="primary"
-                    text
-                    @click="tooManyAttachments = false"
-                >
-                    {{ $t('ok') }}
-                </v-btn>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="tooManyAttachments = false"
+                    >
+                        {{ $t('ok') }}
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog
+            v-model="translateSettingsDialog"
+            max-width="500"
+            content-class="translate-settings"
+            persistent
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('translation_settings') }}
+                </v-card-title>
+                <v-card-text>
+                    <div>
+                        <v-switch
+                            v-model="editingTranslateEnabled"
+                            :label="$t('enable_translate')"
+                        ></v-switch>
+                    </div>
+                    <p class="text--disabled">{{ $t('translation_tip') }}</p>
+                    <v-autocomplete
+                        class="mt-8 mb-4"
+                        v-model="editingPreferredTranslateTo"
+                        outlined
+                        dense
+                        hide-details
+                        item-value="code"
+                        item-text="name"
+                        prepend-inner-icon="mdi-translate"
+                        :items="preferredLanguageList"
+                        :label="$t('translate_to_language')"
+                        :no-data-text="$t('no_language')"
+                        :key="`preferred-lang-to-${locale}`"
+                        :disabled="!editingTranslateEnabled"
+                        :menu-props="{
+                            closeOnClick: false,
+                            closeOnContentClick: false,
+                            disableKeys: true,
+                            openOnClick: false,
+                            maxHeight: 304,
+                            offsetY: true,
+                            offsetOverflow: true,
+                            transition: 'slide-y-transition'
+                        }"
+                    ></v-autocomplete>
+                    <p class="text--disabled mb-2" v-show="editingPreferredTranslateTo && editingPreferredTranslateTo[1] && (editingPreferredTranslateTo[1].google === false || editingPreferredTranslateTo[1].azure === false || editingPreferredTranslateTo[1].deepl === false)">{{ $t('language_unsupported_tip') }}</p>
+                    <p class="text--disabled mb-0">{{ $t('language_tip') }}</p>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        text
+                        @click="translateSettingsDialog = false"
+                    >
+                        {{ $t('cancel') }}
+                    </v-btn>
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="saveTranslationSettingsDialog"
+                    >
+                        {{ $t('save') }}
+                    </v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -723,11 +870,14 @@ import { vsprintf } from 'sprintf-js';
 import { saveAs } from 'file-saver';
 import localForage from 'localforage';
 import markdown from 'markdown-it';
+import franc from 'franc-min';
 
 import mdSub from 'markdown-it-sub';
 import mdSup from 'markdown-it-sup';
 import mdSpan from 'markdown-it-bracketed-spans';
 import mdAttrs from 'markdown-it-attrs';
+import mdTable from 'markdown-it-multimd-table';
+import mdContainer from 'markdown-it-container';
 
 import 'codemirror/mode/markdown/markdown';
 import 'codemirror/addon/selection/active-line';
@@ -776,6 +926,9 @@ export default {
             editingCcInput: null,
             mailHostListTo: [],
             mailHostListCc: [],
+            backupInput: '',
+            backupList: [],
+            useBackup: false,
             expandTab: 0,
             isDragOver: false,
             editingAttachments: [],
@@ -794,6 +947,7 @@ export default {
             viewing: -1,
             viewDetailExpanded: false,
             viewAttachmentExpanded: false,
+            viewTranslationExpanded: false,
             sandboxHeight: 0,
             listMenu: false,
             listMenuX: 0,
@@ -803,6 +957,11 @@ export default {
             copyingIndex: -1,
             cachedMails: [],
             cachedAttachments: [],
+            translateSettingsDialog: false,
+            translateEnabled: true,
+            preferredTranslateTo: null,
+            editingTranslateEnabled: true,
+            editingPreferredTranslateTo: null,
             fileIconMap: {
                 pdf: 'file-pdf-outline',
                 zip: 'zip-box-outline',
@@ -912,6 +1071,10 @@ export default {
                 ics: 'calendar-month-outline',
                 c4d: 'cube-outline',
                 fbx: 'cube-outline',
+                tex: 'format-text',
+                dtx: 'format-text',
+                ins: 'format-text',
+                sty: 'format-text',
             },
             previewMap: {
                 png: 'image',
@@ -955,6 +1118,9 @@ export default {
                 json: 'code',
                 java: 'code',
                 tex: 'code',
+                dtx: 'code',
+                ins: 'code',
+                sty: 'code',
                 lisp: 'code',
                 lua: 'code',
                 rs: 'code',
@@ -978,11 +1144,378 @@ export default {
                 bodyHTML: '',
                 bodyRawHTML: '',
                 bodyText: '',
+                plainContent: '',
                 textContent: '',
                 allowHTML: false,
                 untrust: false,
                 attachments: [],
                 courseId: '',
+                sourceLang: 'und',
+                translateFrom: 'auto',
+                translateState: 'source',
+                translated: false,
+                translatedSubject: '',
+                translatedBody: '',
+                translatedBodyRaw: '',
+                translator: false,
+            },
+            languageMap: {
+                cmn: [
+                    {
+                        locale: 'zh',
+                        direction: 'ltr',
+                        deepl: 'ZH',
+                        google: 'zh-CN',
+                        azure: 'zh-Hans',
+                    },
+                    {
+                        locale: 'zh_tw',
+                        direction: 'ltr',
+                        deepl: false,
+                        google: 'zh-TW',
+                        azure: 'zh-Hant',
+                    },
+                ],
+                spa: {
+                    locale: 'es',
+                    direction: 'ltr',
+                    deepl: 'ES',
+                    google: 'es',
+                    azure: 'es',
+                },
+                eng: {
+                    locale: 'en',
+                    direction: 'ltr',
+                    deepl: 'EN',
+                    google: 'en',
+                    azure: 'en',
+                },
+                rus: {
+                    locale: 'ru',
+                    direction: 'ltr',
+                    deepl: 'RU',
+                    google: 'ru',
+                    azure: 'ru',
+                },
+                arb: {
+                    locale: 'ar',
+                    direction: 'rtl',
+                    deepl: false,
+                    google: 'ar',
+                    azure: 'ar',
+                },
+                ben: {
+                    locale: 'bn',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'bn',
+                    azure: 'bn',
+                },
+                hin: {
+                    locale: 'hi',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'hi',
+                    azure: 'hi',
+                },
+                por: [
+                    {
+                        locale: 'pt_pt',
+                        direction: 'ltr',
+                        deepl: 'PT',
+                        google: 'pt',
+                        azure: 'pt-PT',
+                    },
+                    {
+                        locale: 'pt',
+                        direction: 'ltr',
+                        deepl: 'PT',
+                        google: 'pt',
+                        azure: 'pt',
+                    },
+                ],
+                ind: {
+                    locale: 'id',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'id',
+                    azure: 'id',
+                },
+                jpn: {
+                    locale: 'ja',
+                    direction: 'ltr',
+                    deepl: 'JA',
+                    google: 'ja',
+                    azure: 'ja',
+                },
+                fra: {
+                    locale: 'fr',
+                    direction: 'ltr',
+                    deepl: 'FR',
+                    google: 'fr',
+                    azure: 'fr',
+                },
+                deu: {
+                    locale: 'de',
+                    direction: 'ltr',
+                    deepl: 'DE',
+                    google: 'de',
+                    azure: 'de',
+                },
+                jav: {
+                    locale: 'jv',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'jv',
+                    azure: false,
+                },
+                kor: {
+                    locale: 'ko',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'ko',
+                    azure: 'ko',
+                },
+                tel: {
+                    locale: 'te',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'te',
+                    azure: 'te',
+                },
+                vie: {
+                    locale: 'vi',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'vi',
+                    azure: 'vi',
+                },
+                mar: {
+                    locale: 'mr',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'mr',
+                    azure: 'mr',
+                },
+                ita: {
+                    locale: 'it',
+                    direction: 'ltr',
+                    deepl: 'IT',
+                    google: 'it',
+                    azure: 'it',
+                },
+                tam: {
+                    locale: 'ta',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'ta',
+                    azure: 'ta',
+                },
+                tur: {
+                    locale: 'tr',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'tr',
+                    azure: 'tr',
+                },
+                urd: {
+                    locale: 'ur',
+                    direction: 'rtl',
+                    deepl: false,
+                    google: 'ur',
+                    azure: 'ur',
+                },
+                guj: {
+                    locale: 'gu',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'gu',
+                    azure: 'gu',
+                },
+                pol: {
+                    locale: 'pl',
+                    direction: 'ltr',
+                    deepl: 'PL',
+                    google: 'pl',
+                    azure: 'pl',
+                },
+                ukr: {
+                    locale: 'uk',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'uk',
+                    azure: 'it',
+                },
+                fas: {
+                    locale: 'fa',
+                    direction: 'rtl',
+                    deepl: false,
+                    google: 'fa',
+                    azure: 'fa',
+                },
+                kan: {
+                    locale: 'kn',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'kn',
+                    azure: 'kn',
+                },
+                mal: {
+                    locale: 'ml',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'ml',
+                    azure: 'ml',
+                },
+                mya: {
+                    locale: 'my',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'my',
+                    azure: 'my',
+                },
+                ori: {
+                    locale: 'or',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'or',
+                    azure: 'or',
+                },
+                swh: {
+                    locale: 'sw',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'sw',
+                    azure: 'sw',
+                },
+                sun: {
+                    locale: 'su',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'su',
+                    azure: false,
+                },
+                ron: {
+                    locale: 'ro',
+                    direction: 'ltr',
+                    deepl: 'RO',
+                    google: 'ro',
+                    azure: 'ro',
+                },
+                pan: {
+                    locale: 'pa',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'pa',
+                    azure: 'pa',
+                },
+                amh: {
+                    locale: 'am',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'am',
+                    azure: 'am',
+                },
+                hau: {
+                    locale: 'ha',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'ha',
+                    azure: false,
+                },
+                bos: {
+                    locale: 'bs',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'bs',
+                    azure: 'bs',
+                },
+                hrv: {
+                    locale: 'hr',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'hr',
+                    azure: 'hr',
+                },
+                nld: {
+                    locale: 'nl',
+                    direction: 'ltr',
+                    deepl: 'NL',
+                    google: 'nl',
+                    azure: 'nl',
+                },
+                srp: [
+                    {
+                        locale: 'sr_cy',
+                        direction: 'ltr',
+                        deepl: false,
+                        google: 'sr',
+                        azure: 'sr-Cyrl',
+                    },
+                    {
+                        locale: 'sr_la',
+                        direction: 'ltr',
+                        deepl: false,
+                        google: 'sr',
+                        azure: 'sr-Latn',
+                    },
+                ],
+                tha: {
+                    locale: 'th',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'th',
+                    azure: 'th',
+                },
+                ckb: {
+                    locale: 'ku',
+                    direction: 'rtl',
+                    deepl: false,
+                    google: 'ku',
+                    azure: 'ku',
+                },
+                yor: {
+                    locale: 'yo',
+                    direction: 'ltr',
+                    deepl: false,
+                    google: 'yo',
+                    azure: false,
+                },
+                hun: {
+                    locale: 'hu',
+                    direction: 'ltr',
+                    deepl: 'HU',
+                    google: 'hu',
+                    azure: 'hu',
+                },
+                ell: {
+                    locale: 'el',
+                    direction: 'ltr',
+                    deepl: 'EL',
+                    google: 'el',
+                    azure: 'el',
+                },
+                ces: {
+                    locale: 'cs',
+                    direction: 'ltr',
+                    deepl: 'CS',
+                    google: 'cs',
+                    azure: 'cs',
+                },
+                bul: {
+                    locale: 'bg',
+                    direction: 'ltr',
+                    deepl: 'BG',
+                    google: 'bg',
+                    azure: 'bg',
+                },
+                swe: {
+                    locale: 'sv',
+                    direction: 'ltr',
+                    deepl: 'SV',
+                    google: 'sv',
+                    azure: 'sv',
+                },
             },
             trustedHosts: [
                 'manchester.ac.uk',
@@ -1048,6 +1581,7 @@ export default {
                             'brain performance',
                             'bio-hackers',
                             'bio hackers',
+                            'dissertation',
                         ], 0.4,
                     ],
                     [
@@ -1480,16 +2014,23 @@ export default {
                 this.loadingBody = false;
 
                 if (response.data.content === '') {
+                    // Empty body
                     this.viewer.bodyHTML = `<html><head><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}</style></head><body> </body></html>`;
                     this.viewer.bodyRawHTML = '';
                     this.viewer.textContent = '';
                     this.viewer.bodyText = '';
+                    this.viewer.plainContent = '';
                     this.viewer.untrust = false;
+                    this.viewer.sourceLang = 'und';
+                    this.viewer.translator = false;
                 } else {
-                    this.viewer.bodyHTML = `<base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}${response.data.content.match(/<[^>]+>\s+(?=<)|<[^>]+>/g) === null ? this.sandboxCssText : ''}</style>${response.data.content}`;
+                    this.viewer.bodyHTML = `<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"><base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}${(response.data.content === response.data.plainContent || response.data.content.match(/<[^>]+>\s+(?=<)|<[^>]+>/g) === null) ? this.sandboxCssText : ''}</style>${response.data.content}`;
                     this.viewer.bodyRawHTML = `${response.data.content}`;
                     this.viewer.textContent = this.getInnerText(new DOMParser().parseFromString(response.data.content, 'text/html').body);
                     this.viewer.bodyText = response.data.plainContent === '' ? this.viewer.textContent : response.data.plainContent;
+                    this.viewer.plainContent = response.data.plainContent;
+                    this.viewer.sourceLang = franc(this.viewer.textContent);
+                    this.viewer.translator = response.data.translator;
 
                     // Check if the content is untrusted
                     this.viewer.untrust = this.checkUntrust(this.viewer.textContent);
@@ -1500,10 +2041,13 @@ export default {
                 // Cache mail body
                 if (this.cachedMails.findIndex((item) => item.id === response.data.id) === -1) {
                     response.data.textContent = this.viewer.textContent;
+                    response.data.translated = {};
+
                     if (this.cachedMails.length === 20) {
                         this.cachedMails.shift();
                     }
                     this.cachedMails.push(response.data);
+
                     const cacheList = await localForage.getItem('mail_cache') || [];
                     if (cacheList.length === 10) {
                         cacheList.shift();
@@ -1726,6 +2270,7 @@ export default {
             this.viewing = id;
             this.viewDetailExpanded = false;
             this.viewAttachmentExpanded = false;
+            this.viewTranslationExpanded = false;
             this.viewer.subject = mail.subject;
             this.viewer.from = mail.from;
             this.viewer.fromAddress = mail.fromAddress;
@@ -1740,6 +2285,14 @@ export default {
             this.viewer.textContent = '';
             this.viewer.allowHTML = false;
             this.viewer.untrust = false;
+            this.viewer.sourceLang = 'und';
+            this.viewer.translateFrom = 'auto';
+            this.viewer.translateState = 'source';
+            this.viewer.translated = {};
+            this.viewer.translatedSubject = mail.subject;
+            this.viewer.translatedBody = '';
+            this.viewer.translatedBodyRaw = '';
+            this.viewer.translator = false;
             this.$refs.viewerDom.scrollTop = 0;
             this.viewer.courseId = this.getSubjectId(mail.subject, mail.from) || '';
             this.$nextTick(() => {
@@ -1774,17 +2327,27 @@ export default {
                 this.$nextTick(() => {
                     // Set mail body
                     if (cachedMail.content === '') {
+                        // Empty body
                         this.viewer.bodyHTML = `<html><head><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}</style></head><body> </body></html>`;
                         this.viewer.bodyRawHTML = '';
                         this.viewer.textContent = '';
                         this.viewer.bodyText = '';
+                        this.viewer.plainContent = '';
                         this.viewer.untrust = false;
+                        this.viewer.sourceLang = 'und';
+                        this.viewer.translator = false;
+                        this.viewer.translated = {};
                     } else {
-                        this.viewer.bodyHTML = `<base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}${cachedMail.content.match(/<[^>]+>\s+(?=<)|<[^>]+>/g) === null ? this.sandboxCssText : ''}</style>${cachedMail.content}`;
+                        this.viewer.bodyHTML = `<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"><base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}${(cachedMail.content === cachedMail.plainContent || cachedMail.content.match(/<[^>]+>\s+(?=<)|<[^>]+>/g) === null) ? this.sandboxCssText : ''}</style>${cachedMail.content}`;
                         this.viewer.bodyRawHTML = `${cachedMail.content}`;
                         this.viewer.textContent = cachedMail.textContent;
                         this.viewer.bodyText = cachedMail.plainContent === '' ? this.viewer.textContent : cachedMail.plainContent;
+                        this.viewer.plainContent = cachedMail.plainContent;
                         this.viewer.untrust = this.checkUntrust(this.viewer.textContent);
+                        this.viewer.sourceLang = franc(this.viewer.textContent);
+                        this.viewer.translator = false;
+                        this.viewer.translated = cachedMail.translated;
+                        this.checkTranslator();
                     }
                     this.viewer.attachments = cachedMail.attachments;
                 });
@@ -1888,14 +2451,438 @@ export default {
             this.doAction(id, 'delete');
         },
         /**
+         * Translate current mail
+         */
+        async translateMail() {
+            if (!this.backend.url || !this.account.username || !this.account.password || !this.account.email || this.viewing === -1) {
+                return;
+            }
+
+            if (!this.viewer.translated[this.viewer.translateFrom]) {
+                // If translation result is not cached
+                this.viewer.translateState = 'loading';
+                this.loading = true;
+
+                let minBody = '';
+                let styleList = [];
+                let imgSrcList = [];
+                let inlineStyleList = [];
+                const direction = this.preferredTranslateTo[1].direction;
+                let HTMLFlag = true;
+
+                if (this.viewer.bodyRawHTML === this.viewer.plainContent || this.viewer.bodyRawHTML.match(/<[^>]+>\s+(?=<)|<[^>]+>/g) === null) {
+                    // Body is plain text
+                    minBody = this.viewer.bodyRawHTML;
+                    HTMLFlag = false;
+                } else {
+                    // Minify the mail body
+                    const minResult = this.getMinBodyHTML(new DOMParser().parseFromString(this.viewer.bodyRawHTML.replace(/(?=<!--)([\s\S]*?)-->/gmi, ''), 'text/html').body);
+                    minBody = minResult[0];
+                    styleList = minResult[1];
+                    imgSrcList = minResult[2];
+                    inlineStyleList = minResult[3];
+                }
+
+                let requestFailed = false;
+                // Send request
+                const response = await betterFetch(`https://${this.backend.url}/mail/translate/`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        token: this.backend.token ? this.backend.token : '',
+                        email: this.account.email,
+                        mailId: this.viewing,
+                        subject: this.viewer.subject,
+                        body: minBody,
+                        from: this.viewer.translateFrom,
+                        to: this.preferredTranslateTo[1][this.viewer.translator],
+                    }),
+                }).catch(() => {
+                    // Network error
+                    this.loading = false;
+                    this.viewer.translateState = 'source';
+                    this.$store.commit('addError', {
+                        title: this.$t('network_error'),
+                        content: this.$t('network_error_body'),
+                        type: 'warning',
+                    });
+                    requestFailed = true;
+                });
+
+                if (requestFailed) {
+                    return;
+                }
+
+                if (Object.prototype.toString.call(response) !== '[object Object]' || !response.uomabVersion) {
+                    // Not a valid UoM Assistant backend
+                    if (this.backendStatus) {
+                        this.$store.commit('addError', {
+                            title: this.$t('backend_error'),
+                            content: this.$t('backend_error_body'),
+                            type: 'error',
+                        });
+                        this.$store.commit('setBackendStatus', false);
+                    }
+                    this.loading = false;
+                    this.viewer.translateState = 'source';
+                    return;
+                }
+
+                if (!checkBackendVersion(response.uomabVersion)) {
+                    // Version error
+                    this.$store.commit('addError', {
+                        title: this.$t('backend_error'),
+                        content: this.$t('version_error'),
+                        type: 'error',
+                    });
+                    this.loading = false;
+                    this.viewer.translateState = 'source';
+                    return;
+                }
+
+                if (!response.success) {
+                    // Request error
+                    this.$store.commit('addError', {
+                        title: this.$t('request_error'),
+                        content: response.reason,
+                        type: 'error',
+                    });
+                    this.loading = false;
+                    this.viewer.translateState = 'source';
+                    return;
+                }
+
+                if (response.maintenance) {
+                    // Backend maintenance
+                    if (this.backendStatus) {
+                        this.$store.commit('addError', {
+                            title: this.$t('backend_maintenance'),
+                            content: this.$t('backend_maintenance_body'),
+                            type: 'warning',
+                        });
+                        this.$store.commit('setBackendStatus', false);
+                    }
+                    this.loading = false;
+                    this.viewer.translateState = 'source';
+                    return;
+                }
+
+                if (response.data.tokenRequired) {
+                    // Wrong Token
+                    if (this.backendStatus) {
+                        this.$store.commit('addError', {
+                            title: this.$t('token_error'),
+                            content: this.$t('token_error_body'),
+                            type: 'error',
+                        });
+                        this.$store.commit('setBackendStatus', false);
+                    }
+                    this.loading = false;
+                    this.viewer.translateState = 'source';
+                    return;
+                }
+
+                if (response.data.id !== this.viewing) {
+                    this.loading = false;
+                    this.viewer.translateState = 'source';
+                    return;
+                }
+
+                this.$store.commit('setBackendStatus', true);
+                this.loading = false;
+                this.viewer.translateState = 'translated';
+
+                // Update language detection result
+                if (this.viewer.translateFrom === 'auto') {
+                    for (const item of Object.entries(this.languageMap)) {
+                        if (Array.isArray(item[1])) {
+                            let foundFlag = false;
+                            for (const lang of item[1]) {
+                                if (lang[this.viewer.translator] === response.data.source) {
+                                    this.viewer.sourceLang = item[0];
+                                    foundFlag = true;
+                                    break;
+                                }
+                            }
+                            if (foundFlag) {
+                                break;
+                            }
+                        } else {
+                            if (item[1][this.viewer.translator] === response.data.source) {
+                                this.viewer.sourceLang = item[0];
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Restore the mail body and display the result
+                const mailHTML = new DOMParser().parseFromString(this.viewer.bodyRawHTML, 'text/html');
+                mailHTML.body.innerHTML = response.data.translatedBody;
+
+                this.viewer.translatedSubject = response.data.translatedSubject;
+                this.viewer.translatedBody = `<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"><base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}${(this.viewer.bodyRawHTML === this.viewer.plainContent || this.viewer.bodyRawHTML.match(/<[^>]+>\s+(?=<)|<[^>]+>/g) === null) ? this.sandboxCssText : ''}body{direction:${direction}}</style>${HTMLFlag ? this.getStyleString(styleList) : ''}${this.revertImgAndStyle(mailHTML, imgSrcList, inlineStyleList)}`;
+                this.viewer.translatedBodyRaw = this.revertImgAndStyle(mailHTML, imgSrcList, inlineStyleList);
+
+                // Cache result
+                this.viewer.translated[response.data.source] = [
+                    this.viewer.translatedSubject,
+                    this.viewer.translatedBody,
+                    this.viewer.translatedBodyRaw,
+                ];
+                if (this.viewer.translateFrom === 'auto') {
+                    this.viewer.translated.auto = [...this.viewer.translated[response.data.source]];
+                }
+
+                const cacheIndex = this.cachedMails.findIndex((item) => item.id === response.data.id);
+                if (cacheIndex !== -1) {
+                    this.cachedMails[cacheIndex].translated = this.viewer.translated;
+                }
+            } else {
+                // Cache found, use cache
+                this.viewer.translateState = 'translated';
+                this.viewer.translatedSubject = this.viewer.translated[this.viewer.translateFrom][0];
+                this.viewer.translatedBody = this.viewer.translated[this.viewer.translateFrom][1];
+                this.viewer.translatedBodyRaw = this.viewer.translated[this.viewer.translateFrom][2];
+            }
+        },
+        /**
+         * Check current translator from backend
+         */
+        async checkTranslator() {
+            if (!this.backend.url || !this.account.username || !this.account.password || !this.account.email || this.viewing === -1) {
+                return;
+            }
+            let requestFailed = false;
+            // Send request
+            const response = await betterFetch(`https://${this.backend.url}/mail/translator/`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    token: this.backend.token ? this.backend.token : '',
+                    email: this.account.email,
+                }),
+            }).catch(() => {
+                // Network error
+                this.loading = false;
+                this.viewer.translateState = 'source';
+                this.$store.commit('addError', {
+                    title: this.$t('network_error'),
+                    content: this.$t('network_error_body'),
+                    type: 'warning',
+                });
+                requestFailed = true;
+            });
+
+            if (requestFailed) {
+                return;
+            }
+
+            if (Object.prototype.toString.call(response) !== '[object Object]' || !response.uomabVersion) {
+                // Not a valid UoM Assistant backend
+                if (this.backendStatus) {
+                    this.$store.commit('addError', {
+                        title: this.$t('backend_error'),
+                        content: this.$t('backend_error_body'),
+                        type: 'error',
+                    });
+                    this.$store.commit('setBackendStatus', false);
+                }
+                this.loading = false;
+                this.viewer.translateState = 'source';
+                return;
+            }
+
+            if (!checkBackendVersion(response.uomabVersion)) {
+                // Version error
+                this.$store.commit('addError', {
+                    title: this.$t('backend_error'),
+                    content: this.$t('version_error'),
+                    type: 'error',
+                });
+                this.loading = false;
+                this.viewer.translateState = 'source';
+                return;
+            }
+
+            if (!response.success) {
+                // Request error
+                this.$store.commit('addError', {
+                    title: this.$t('request_error'),
+                    content: response.reason,
+                    type: 'error',
+                });
+                this.loading = false;
+                this.viewer.translateState = 'source';
+                return;
+            }
+
+            if (response.maintenance) {
+                // Backend maintenance
+                if (this.backendStatus) {
+                    this.$store.commit('addError', {
+                        title: this.$t('backend_maintenance'),
+                        content: this.$t('backend_maintenance_body'),
+                        type: 'warning',
+                    });
+                    this.$store.commit('setBackendStatus', false);
+                }
+                this.loading = false;
+                this.viewer.translateState = 'source';
+                return;
+            }
+
+            if (response.data.tokenRequired) {
+                // Wrong Token
+                if (this.backendStatus) {
+                    this.$store.commit('addError', {
+                        title: this.$t('token_error'),
+                        content: this.$t('token_error_body'),
+                        type: 'error',
+                    });
+                    this.$store.commit('setBackendStatus', false);
+                }
+                this.loading = false;
+                this.viewer.translateState = 'source';
+                return;
+            }
+
+            // Set result
+            this.$store.commit('setBackendStatus', true);
+            this.viewer.translator = response.data.translator;
+        },
+        /**
+         * Restore current mail from translated state
+         */
+        restoreMail() {
+            this.viewer.translateState = 'source';
+        },
+        /**
+         * Get minified body HTML
+         * @param {HTMLElement} body body element
+         * @returns {array} `[minified body HTML, an array of extracted styles, an array of extracted image srcs, an array of extracted inline styles]`
+         */
+        getMinBodyHTML(body) {
+            const styleList = [];
+            const imgSrcList = [];
+            const inlineStyleList = [body.getAttribute('style')];
+
+            body.removeAttribute('style');
+
+            // Extract styles
+            for (const dom of body.querySelectorAll('style')) {
+                styleList.push(dom.textContent);
+                dom.parentNode.removeChild(dom);
+            }
+            // Extract image srcs
+            for (const dom of body.querySelectorAll('img')) {
+                imgSrcList.push(dom.getAttribute('src'));
+                dom.removeAttribute('src');
+            }
+            // Extract inline styles
+            for (const dom of body.querySelectorAll('img, table, thead, tbody, tfoot, section, h1, h2, h3, h4, h5, h6, svg')) {
+                inlineStyleList.push(dom.getAttribute('style'));
+                dom.removeAttribute('src');
+            }
+
+            return [body.innerHTML.replace(/\n{1,}/gm, ' ').replace(/ {2,}/gm, ' '), styleList, imgSrcList, inlineStyleList];
+        },
+        /**
+         * Build a style element string for restore extracted styles
+         * @param {array} styleList an array of extracted styles
+         * @returns {string} a string of the built style element
+         */
+        getStyleString(styleList) {
+            let result = '';
+            for (const item of styleList) {
+                result += `<style>${item}</style>`;
+            }
+            return result;
+        },
+        /**
+         * Restore image srcs and inline styles and get the HTML string of the document
+         * @param {HTMLElement} doc the translated document
+         * @param {array} imgSrcList an array of extracted image srcs
+         * @param {array} inlineStyleList an array of extracted inline styles
+         * @returns {string} a string of the restored document
+         */
+        revertImgAndStyle(doc, imgSrcList, inlineStyleList) {
+            // Restore image srcs
+            for (const dom of doc.body.querySelectorAll('img')) {
+                dom.setAttribute('src', imgSrcList.shift());
+            }
+
+            doc.body.setAttribute('style', inlineStyleList.shift());
+
+            // Restore inline styles
+            for (const dom of doc.body.querySelectorAll('img, table, thead, tbody, tfoot, section, h1, h2, h3, h4, h5, h6, svg')) {
+                dom.setAttribute('style', inlineStyleList.shift());
+            }
+            return doc.documentElement.innerHTML;
+        },
+        /**
+         * Build 'translate from' language list based on the given service
+         * @param {string} service service name
+         * @returns {array} an array of available languages
+         */
+        translateFromList(service) {
+            const result = Object.entries(this.languageMap).map((item) => {
+                if (Array.isArray(item[1])) {
+                    // If the language have variants
+                    if (item[1][0][service]) {
+                        return {
+                            name: this.$t(`lang_${item[0]}`),
+                            code: item[1][0][service],
+                        };
+                    }
+                    return false;
+                }
+                if (item[1][service]) {
+                    return {
+                        name: this.$t(`lang_${item[1].locale}`),
+                        code: item[1][service],
+                    };
+                }
+                return false;
+            }).filter((item) => item !== false);
+
+            // Add 'auto detection'
+            result.unshift({
+                name: this.$t('lang_auto'),
+                code: 'auto',
+            });
+
+            return result;
+        },
+        /**
+         * Open the translation settings dialog
+         */
+        openTranslationSettingsDialog() {
+            this.editingTranslateEnabled = this.translateEnabled;
+            this.editingPreferredTranslateTo = this.preferredTranslateTo;
+            this.translateSettingsDialog = true;
+        },
+        /**
+         * Save and close the translation settings dialog
+         */
+        saveTranslationSettingsDialog() {
+            this.translateEnabled = this.editingTranslateEnabled;
+            this.preferredTranslateTo = this.editingPreferredTranslateTo;
+            this.translateSettingsDialog = false;
+
+            // Save to localStorage
+            localStorage.setItem('mail_enable_translation', this.translateEnabled);
+            localStorage.setItem('mail_preferred_language', JSON.stringify(this.preferredTranslateTo));
+        },
+        /**
          * Update the height of the sandbox
          */
         updateSandboxHeight() {
-            if (this.$refs.sandbox) {
+            if (this.$refs.sandbox && this.$refs.sandbox.contentWindow.document.body) {
                 this.sandboxHeight = this.$refs.sandbox.contentWindow.document.body.scrollHeight + 0.5;
                 setTimeout(() => {
-                    this.sandboxHeight = this.$refs.sandbox.contentWindow.document.body.scrollHeight + 0.5;
-                }, 1000);
+                    if (this.$refs.sandbox && this.$refs.sandbox.contentWindow.document.body) {
+                        this.sandboxHeight = this.$refs.sandbox.contentWindow.document.body.scrollHeight + 0.5;
+                    }
+                }, 500);
             }
         },
         /**
@@ -2266,7 +3253,24 @@ export default {
          * @param {string} name input name
          */
         checkEmail(name) {
-            if (!/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i.test(this[name][this[name].length - 1])) {
+            // Handle repeated mail addresses
+            if (this.useBackup) {
+                this.$nextTick(() => {
+                    this.$nextTick(() => {
+                        this[name] = this.backupList;
+                        this.$nextTick(() => {
+                            this.$nextTick(() => {
+                                this[`${name}Input`] = this.backupInput;
+                                this.useBackup = false;
+                            });
+                        });
+                    });
+                });
+                return;
+            }
+
+            // Handle invalid mail addresses
+            if (this[name].length > 0 && !/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i.test(this[name][this[name].length - 1])) {
                 const data = this[name].pop();
                 this.$nextTick(() => {
                     this.$nextTick(() => {
@@ -2276,13 +3280,24 @@ export default {
             }
         },
         /**
+         * Check if the inputed mail address is out of list on blur
+         * @param {string} name input name
+         */
+        checkUnlistedEmailOnBlur(name) {
+            if (this[name].includes(this[`${name}Input`])) {
+                this.backupInput = this[`${name}Input`];
+                this.backupList = [...this[name]];
+                this.useBackup = true;
+            }
+        },
+        /**
          * Check if input is a valid email when pressing enter and the mail address is out of list
          * @param {string} name input name
          * @param {Event} e keyDown event
          */
         checkUnlistedEmail(name, e) {
             if (e.code === 'Enter') {
-                if (this.$refs[name === 'editingTo' ? 'from' : 'ccInput'].computedItems.length === 0 && /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i.test(this[`${name}Input`])) {
+                if (this.$refs[name === 'editingTo' ? 'from' : 'ccInput'].computedItems.length === 0 && !this[name].includes(this[`${name}Input`]) && /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i.test(this[`${name}Input`])) {
                     this[name].push(this[`${name}Input`]);
                     this[`${name}Input`] = '';
                 }
@@ -2586,6 +3601,46 @@ export default {
                 this.mailHostListCc = [];
             }
         },
+        editingTo(newVal, oldVal) {
+            // Keep inputed value when deleting chips
+            if (Array.isArray(newVal) && Array.isArray(oldVal)) {
+                if (newVal.length === oldVal.length - 1) {
+                    const data = this.editingToInput;
+                    this.$nextTick(() => {
+                        this.$nextTick(() => {
+                            this.editingToInput = null;
+                            if (data !== null) {
+                                this.$nextTick(() => {
+                                    this.$nextTick(() => {
+                                        this.editingToInput = `${data}`;
+                                    });
+                                });
+                            }
+                        });
+                    });
+                }
+            }
+        },
+        editingCc(newVal, oldVal) {
+            // Keep inputed value when deleting chips
+            if (Array.isArray(newVal) && Array.isArray(oldVal)) {
+                if (newVal.length === oldVal.length - 1) {
+                    const data = this.editingCcInput;
+                    this.$nextTick(() => {
+                        this.$nextTick(() => {
+                            this.editingCcInput = null;
+                            if (data !== null) {
+                                this.$nextTick(() => {
+                                    this.$nextTick(() => {
+                                        this.editingCcInput = `${data}`;
+                                    });
+                                });
+                            }
+                        });
+                    });
+                }
+            }
+        },
         mode() {
             if (this.mode === 'edit') {
                 // Refresh editor otherwise it will not shown
@@ -2618,7 +3673,10 @@ export default {
         darkMode() {
             // Update styles in sandbox when dark mode is on/off
             if (this.viewerOpened) {
-                this.viewer.bodyHTML = `<base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}${this.viewer.bodyRawHTML.match(/<[^>]+>\s+(?=<)|<[^>]+>/g) === null ? this.sandboxCssText : ''}</style>${this.viewer.bodyRawHTML}`;
+                this.viewer.bodyHTML = `<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"><base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}${(this.viewer.bodyRawHTML === this.viewer.plainContent || this.viewer.bodyRawHTML.match(/<[^>]+>\s+(?=<)|<[^>]+>/g) === null) ? this.sandboxCssText : ''}</style>${this.viewer.bodyRawHTML}`;
+                if (this.viewer.translated) {
+                    this.viewer.translatedBody = `<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"><base target="_blank"><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}${(this.viewer.bodyRawHTML === this.viewer.plainContent || this.viewer.bodyRawHTML.match(/<[^>]+>\s+(?=<)|<[^>]+>/g) === null) === null ? this.sandboxCssText : ''}</style>${this.viewer.translatedBodyRaw}`;
+                }
             }
         },
     },
@@ -2636,9 +3694,40 @@ export default {
             // Filter out unread mails
             return this.mails.filter((item) => (item.unseen));
         },
+        preferredLanguageList() {
+            const result = Object.entries(this.languageMap).map((item) => {
+                if (Array.isArray(item[1])) {
+                    // If the language have variants
+                    return item[1].map((lang) => ({
+                        name: this.$t(`lang_${lang.locale}`),
+                        code: [item[0], lang],
+                    }));
+                }
+                return {
+                    name: this.$t(`lang_${item[1].locale}`),
+                    code: [item[0], item[1]],
+                };
+            }).flat();
+            return result;
+        },
     },
     async mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
+
+        // Read settings from localstorage
+        if (localStorage.getItem('mail_enable_translation')) {
+            this.translateEnabled = localStorage.getItem('mail_enable_translation') === 'true';
+        } else {
+            this.translateEnabled = true;
+            localStorage.setItem('mail_enable_translation', 'true');
+        }
+
+        if (localStorage.getItem('mail_preferred_language')) {
+            this.preferredTranslateTo = JSON.parse(localStorage.getItem('mail_preferred_language'));
+        } else {
+            this.preferredTranslateTo = ['eng', this.languageMap.eng];
+            localStorage.setItem('mail_preferred_language', JSON.stringify(['eng', this.languageMap.eng]));
+        }
 
         // Render note
         this.md = markdown({
@@ -2656,6 +3745,15 @@ export default {
         this.md.use(mdAttrs, {
             allowedAttributes: ['red', 'orange', 'yellow', 'green', 'teal', 'blue', 'purple', 'grey', 'bg-red', 'bg-orange', 'bg-yellow', 'bg-green', 'bg-teal', 'bg-blue', 'bg-purple', 'bg-grey', 'big', 'small', 'style'],
         });
+        this.md.use(mdTable, {
+            multiline: true,
+            rowspan: true,
+            headerless: true,
+        });
+        this.md.use(mdContainer, 'info');
+        this.md.use(mdContainer, 'success');
+        this.md.use(mdContainer, 'warning');
+        this.md.use(mdContainer, 'error');
 
         // Restore settings
         this.isSettingSound = true;
@@ -2936,7 +4034,7 @@ export default {
             line-height: 1.7rem;
             opacity: .9;
         }
-        .mail-detail{
+        .mail-detail {
             background-color: #F3F3F3;
             border-radius: 8px;
             .mail-from-line {
@@ -2952,6 +4050,9 @@ export default {
                             transform: rotate(180deg);
                         }
                     }
+                }
+                & > span > i {
+                    margin-left: -3px!important;
                 }
                 .v-chip {
                     width: fit-content;
@@ -3062,6 +4163,50 @@ export default {
                 }
             }
         }
+        .mail-translation {
+            background-color: #F3F3F3;
+            border-radius: 8px;
+            .translation-notice {
+                position: relative;
+                white-space: nowrap;
+                .expand-btn {
+                    position: absolute;
+                    top: -1px;
+                    right: 0;
+                    i {
+                        transition: all .3s;
+                        &.detail-expanded {
+                            transform: rotate(180deg);
+                        }
+                    }
+                }
+                & > i {
+                    font-size: 21px;
+                }
+            }
+            .expand {
+                .translate-from, .translate-to {
+                    width: 50%;
+                }
+                .service-icon {
+                    margin-top: -2px;
+                    margin-right: 6px;
+                }
+                svg.deepl-logo {
+                    width: 14px;
+                    height: 14px;
+                    margin-right: 6px;
+                    vertical-align: middle;
+                    margin-top: -2px;
+                    .deepl-bg {
+                        fill: #979797;
+                    }
+                    .deepl-line {
+                        fill: #F3F3F3;
+                    }
+                }
+            }
+        }
         .v-skeleton-loader {
             & > div {
                 padding: 0 20px;
@@ -3161,6 +4306,9 @@ export default {
             .v-select__selections {
                 max-height: 150px;
                 overflow: auto;
+            }
+            &.v-autocomplete--is-selecting-index input {
+                opacity: 1;
             }
         }
         .md-editor {
@@ -3366,6 +4514,9 @@ export default {
         }
     }
 }
+.translate-settings .v-input--selection-controls__input {
+    margin-right: 16px;
+}
 #app.theme--dark .mail-container {
     h2 {
         .num-badge {
@@ -3373,8 +4524,21 @@ export default {
         }
     }
     .viewer-layer {
-        .mail-detail{
+        .mail-detail {
             background-color: #2C2C2C;
+        }
+        .mail-translation {
+            background-color: #2C2C2C;
+            .expand {
+                svg {
+                    .deepl-bg {
+                        fill: #969696;
+                    }
+                    .deepl-line {
+                        fill: #2C2C2C;
+                    }
+                }
+            }
         }
         .attachment-list {
             .attachment-item {
@@ -3505,7 +4669,6 @@ export default {
         "network_error_body": "Cannot fetch related mail data from backend",
         "cannot_download": "Unable to download attachment from the backend",
         "learn_more": "Learn more",
-        "new_mail": "New Mail",
         "md_support": "Markdown supported",
         "view": "Preview",
         "edit": "Edit",
@@ -3561,7 +4724,76 @@ export default {
         "too_many_attachments_body": "You can add up to 10 attachments or 15 MB in total.",
         "ok": "OK",
         "drop_file": "Drop your files here",
-        "preview": "Preview"
+        "preview": "Preview",
+        "translation_settings": "Translation settings",
+        "translation_tip": "When enabled, the translation panel will be displayed when the email is available for translation. The content of the mail will be sent to a third-party translation service. By using translation you are agreeing to the ToS of the service. The translation service provider can be found at the bottom left of the translation panel.",
+        "language_unsupported_tip": "This language may not be supported by the translation service provided by the backend. When this language is not supported, the translation panel will not be displayed.",
+        "language_tip": "The translation panel will only be displayed if the language of the mail differs from the target language. Mail language detection is done locally and automatically.",
+        "cancel": "Cancel",
+        "save": "Save",
+        "powered_by": "Powered by %s",
+        "enable_translate": "Enable mail translation",
+        "translate": "Translate",
+        "source": "Source",
+        "in_language": "It seems like %s",
+        "translate_from": "Source",
+        "translate_to": "Target",
+        "translate_to_language": "Target language",
+        "no_language": "No language found",
+        "lang_auto": "Auto detect",
+        "lang_cmn": "Chinese",
+        "lang_zh": "Chinese (Simplified)",
+        "lang_zh_tw": "Chinese (Traditional)",
+        "lang_es": "Spanish",
+        "lang_en": "English",
+        "lang_ru": "Russian",
+        "lang_ar": "Arabic",
+        "lang_bn": "Bengali",
+        "lang_hi": "Hindi",
+        "lang_por": "Portuguese",
+        "lang_pt_pt": "Portuguese (Portugal)",
+        "lang_pt": "Portuguese (Brazil)",
+        "lang_id": "Indonesian",
+        "lang_ja": "Japanese",
+        "lang_fr": "French",
+        "lang_de": "German",
+        "lang_jv": "Javanese",
+        "lang_ko": "Korean",
+        "lang_te": "Telugu",
+        "lang_vi": "Vietnamese",
+        "lang_mr": "Marathi",
+        "lang_it": "Italian",
+        "lang_ta": "Tamil",
+        "lang_tr": "Turkish",
+        "lang_ur": "Urdu",
+        "lang_gu": "Gujarati",
+        "lang_pl": "Polish",
+        "lang_uk": "Ukrainian",
+        "lang_fa": "Persian",
+        "lang_kn": "Kannada",
+        "lang_ml": "Maithili",
+        "lang_my": "Burmese",
+        "lang_or": "Oriya (Oria)",
+        "lang_sw": "Swahili",
+        "lang_su": "Sundanese",
+        "lang_ro": "Romanian",
+        "lang_pa": "Panjabi",
+        "lang_am": "Amharic",
+        "lang_ha": "Hausa",
+        "lang_bs": "Bosnian",
+        "lang_hr": "Croatian",
+        "lang_nl": "Dutch",
+        "lang_srp": "Serbian",
+        "lang_sr_cy": "Serbian (Cyrillic)",
+        "lang_sr_la": "Serbian (Latin)",
+        "lang_th": "Thai",
+        "lang_ku": "Central Kurdish",
+        "lang_yo": "Yoruba",
+        "lang_hu": "Hungarian",
+        "lang_el": "Greek",
+        "lang_cs": "Czech",
+        "lang_bg": "Bulgarian",
+        "lang_sv": "Swedish"
     },
     "zh": {
         "mail": "收件箱",
@@ -3570,7 +4802,6 @@ export default {
         "network_error_body": "无法从后端获取相关邮件信息",
         "cannot_download": "无法从后端下载附件",
         "learn_more": "了解更多",
-        "new_mail": "新邮件",
         "md_support": "支持 Markdown",
         "view": "预览",
         "edit": "编辑",
@@ -3627,7 +4858,76 @@ export default {
         "too_many_attachments_body": "你可以添加最多 10 个或总大小不超过 15MB 的附件。",
         "ok": "好",
         "drop_file": "在此放下文件",
-        "preview": "预览"
+        "preview": "预览",
+        "translation_settings": "翻译设置",
+        "translation_tip": "启用邮件翻译后，在邮件可被翻译时将会显示翻译面板。翻译邮件需要将邮件内容发送至第三方翻译服务，使用翻译即代表你同意此服务的使用条款。具体的翻译服务提供商可以在翻译面板的左下方找到。",
+        "language_unsupported_tip": "后端提供的翻译服务可能不支持此语言。当此语言不受支持时，翻译面板将不会显示。",
+        "language_tip": "只有当邮件语言与目标语言不同时，翻译面板才会显示。检测邮件语言是在本地自动进行的。",
+        "cancel": "取消",
+        "save": "保存",
+        "powered_by": "由 %s 翻译",
+        "enable_translate": "启用邮件翻译",
+        "translate": "翻译",
+        "source": "原文",
+        "in_language": "此邮件似乎使用了%s",
+        "translate_from": "源语言",
+        "translate_to": "目标语言",
+        "translate_to_language": "目标语言",
+        "no_language": "找不到语言",
+        "lang_auto": "自动检测",
+        "lang_cmn": "中文",
+        "lang_zh": "中文（简体）",
+        "lang_zh_tw": "中文（繁体）",
+        "lang_es": "西班牙语",
+        "lang_en": "英语",
+        "lang_ru": "俄语",
+        "lang_ar": "阿拉伯语",
+        "lang_bn": "孟加拉语",
+        "lang_hi": "印地语",
+        "lang_por": "葡萄牙语",
+        "lang_pt_pt": "葡萄牙语（葡萄牙）",
+        "lang_pt": "葡萄牙语（巴西）",
+        "lang_id": "印度尼西亚语",
+        "lang_ja": "日语",
+        "lang_fr": "法语",
+        "lang_de": "德语",
+        "lang_jv": "爪哇语",
+        "lang_ko": "韩语",
+        "lang_te": "泰卢固语",
+        "lang_vi": "越南语",
+        "lang_mr": "马拉地语",
+        "lang_it": "意大利语",
+        "lang_ta": "泰米尔语",
+        "lang_tr": "土耳其语",
+        "lang_ur": "乌尔都语",
+        "lang_gu": "古吉拉特语",
+        "lang_pl": "波兰语",
+        "lang_uk": "乌克兰语",
+        "lang_fa": "波斯语",
+        "lang_kn": "卡纳达语",
+        "lang_ml": "马拉雅拉姆文",
+        "lang_my": "缅甸语",
+        "lang_or": "奥里亚语（奥里亚）",
+        "lang_sw": "斯瓦希里语",
+        "lang_su": "巽他语",
+        "lang_ro": "罗马尼亚语",
+        "lang_pa": "旁遮普语",
+        "lang_am": "阿姆哈拉语",
+        "lang_ha": "豪萨语",
+        "lang_bs": "波斯尼亚语",
+        "lang_hr": "克罗地亚语",
+        "lang_nl": "荷兰语",
+        "lang_srp": "塞尔维亚语",
+        "lang_sr_cy": "塞尔维亚语 (西里尔文)",
+        "lang_sr_la": "塞尔维亚语 (拉丁文)",
+        "lang_th": "泰语",
+        "lang_ku": "中部库尔德语",
+        "lang_yo": "约鲁巴语",
+        "lang_hu": "匈牙利语",
+        "lang_el": "希腊语",
+        "lang_cs": "捷克语",
+        "lang_bg": "保加利亚语",
+        "lang_sv": "瑞典语"
     }
 }
 </i18n>
