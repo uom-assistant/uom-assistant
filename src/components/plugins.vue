@@ -1066,6 +1066,7 @@ export default {
         height: 100%;
         width: 100%;
         background: white;
+        z-index: 4;
         h2 {
             padding-left: 14px;
             padding-bottom: 8px;
