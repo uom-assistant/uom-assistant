@@ -5,7 +5,7 @@
         outlined
     >
         <div class="plugin-outer">
-            <h2 class="handle">
+            <h2 class="handle" :class="{ shadow: headerShadow }">
                 <span class="h2-title">{{ $t('plugins') }}</span>
                 <v-progress-circular
                     indeterminate
@@ -24,7 +24,7 @@
                 type="list-item-avatar-three-line@3"
                 v-if="!init && loading"
             ></v-skeleton-loader>
-            <div class="scroll" v-if="plugins.length > 0">
+            <div class="scroll" v-if="plugins.length > 0" @scroll.passive="scrollHandler">
                 <v-list flat class="list" three-line>
                     <v-list-item v-for="(item, index) in plugins" :key="item.id" @click="openPlugin(index)">
                         <v-badge
@@ -400,6 +400,8 @@
 import { mapState } from 'vuex';
 import { vsprintf } from 'sprintf-js';
 
+import scroll from '@/mixins/scroll';
+
 import betterFetch from '@/tools/betterFetch';
 
 export default {
@@ -407,6 +409,7 @@ export default {
     props: {
         searchid: Number,
     },
+    mixins: [scroll],
     data() {
         return {
             init: false,
@@ -1008,14 +1011,22 @@ export default {
         padding-top: 16px;
         padding-bottom: 15px;
         padding-left: 20px;
+        position: relative;
+        z-index: 2;
+        transition: all .2s;
         span.h2-title {
             vertical-align: text-top;
+        }
+        &.shadow {
+            box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 10%), 0px 4px 5px 0px rgba(0, 0, 0, 7%), 0px 1px 10px 0px rgba(0, 0, 0, 6%)!important;
         }
     }
     .scroll {
         height: 420px;
         overflow: auto;
         width: 100%;
+        position: relative;
+        z-index: 1;
     }
     .plugin-panel {
         display: none;

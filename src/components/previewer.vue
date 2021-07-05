@@ -59,8 +59,8 @@
                         </div>
                     </div>
                     <div v-if="type === 'markdown'" class="md-viewer" :class="{ 'small-view': $vuetify.breakpoint.smAndDown}">
-                        <pre class="text-pre hljs-pre" :class="{ breakline: breakLine, hide: !rawView }" ref="codescroll" data-scrollname="code" @scroll="handleScroll"><code class="language-md" ref="codeelemd"></code></pre>
-                        <div class="md-view" :class="{ hide: rawView }" ref="renderscroll" data-scrollname="render" @scroll="handleScroll"><div ref="render"></div></div>
+                        <pre class="text-pre hljs-pre" :class="{ breakline: breakLine, hide: !rawView }" ref="codescroll" data-scrollname="code" @scroll.passive="handleScroll"><code class="language-md" ref="codeelemd"></code></pre>
+                        <div class="md-view" :class="{ hide: rawView }" ref="renderscroll" data-scrollname="render" @scroll.passive="handleScroll"><div ref="render"></div></div>
                     </div>
                     <iframe
                         v-if="type === 'pdf'"

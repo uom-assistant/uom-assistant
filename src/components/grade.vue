@@ -44,7 +44,7 @@
             <v-tabs-items v-model="tabs">
                 <v-tab-item v-for="(semester, i) in gradeListFiltered" :key="`tab-item-${i}`">
                     <v-container fluid class="tab-container">
-                        <div class="subject-list" :class="{ 'detail-expended': showMainChart }" :ref="`list${i}`" :data-scrollkey="`list${i}`" v-if="init">
+                        <div class="subject-list" :class="{ 'detail-expended': showMainChart }" :ref="`list${i}`" v-if="init" @scroll.passive="scrollHandler">
                             <div class="not-inited mx-auto mb-2" v-if="init && !loading && gradeListFiltered[i].length === 0">
                                 <span>{{ $t('nothing') }}</span>
                             </div>
@@ -438,13 +438,6 @@ export default {
                         break;
                     }
                 }
-
-                // Initialize scroll listeners
-                this.$nextTick(() => {
-                    if (this.$refs[`list${this.tabs}`] && this.$refs[`list${this.tabs}`][0]) {
-                        this.initScroll(this.$refs[`list${this.tabs}`][0]);
-                    }
-                });
             }
 
             this.init = true;
@@ -463,7 +456,16 @@ export default {
                 this.$nextTick(() => {
                     this.$nextTick(() => {
                         if (this.$refs[`list${index}`] && this.$refs[`list${index}`][0]) {
-                            this.initScroll(this.$refs[`list${index}`][0]);
+                            this.scrollHandler({
+                                target: this.$refs[`list${index}`][0],
+                            });
+                            setTimeout(() => {
+                                if (this.$refs[`list${index}`] && this.$refs[`list${index}`][0]) {
+                                    this.scrollHandler({
+                                        target: this.$refs[`list${index}`][0],
+                                    });
+                                }
+                            }, 50);
                         }
                     });
                 });
@@ -603,7 +605,7 @@ export default {
                     this.detailLayer.top = 0;
                     this.detailLayer.left = 0;
                     this.detailLayer.width = document.getElementsByClassName('grade-container')[0].clientWidth;
-                    this.detailLayer.height = 560.25;
+                    this.detailLayer.height = 562.25;
                     setTimeout(() => {
                         this.listOverflow = true;
                     }, 600);
@@ -883,7 +885,7 @@ export default {
     .loading-view {
         padding: 20px 20px 12px 20px;
         min-height: 126px;
-        max-height: 464px;
+        max-height: 466px;
         background-color: #F5F5F5;
         .loading-bg {
             border-radius: 6px;
@@ -910,11 +912,11 @@ export default {
         .subject-list {
             padding: 20px 20px 12px 20px;
             min-height: 126px;
-            max-height: 464px;
+            max-height: 466px;
             overflow-y: auto;
             transition: min-height .5s .3s;
             &.detail-expended {
-                min-height: 464px;
+                min-height: 466px;
                 transition: min-height .5s 0s;
             }
         }

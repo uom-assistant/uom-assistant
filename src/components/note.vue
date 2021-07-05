@@ -42,7 +42,7 @@
                     </v-btn>
                 </h2>
             </div>
-            <div class="scroll" v-if="notes.length !== 0" ref="scrolllist">
+            <div class="scroll" v-if="notes.length !== 0" @scroll.passive="scrollHandler">
                 <v-list flat class="list">
                     <v-list-item-group
                         v-model="ifNotes"
@@ -112,8 +112,8 @@
                 </v-btn>
             </h2>
             <v-divider></v-divider>
-            <codemirror v-model="code" :options="cmOption" class="md-editor" v-show="mode === 'edit'" :key="cmRefresh" ref="codemirror" @scroll="onScroll"></codemirror>
-            <div class="render-result" v-show="mode === 'view'" @dblclick="mode = 'edit'" @scroll="onScrollView" ref="renderScroll"><div ref="render"></div></div>
+            <codemirror v-model="code" :options="cmOption" class="md-editor" v-show="mode === 'edit'" :key="cmRefresh" ref="codemirror" @scroll.passive="onScroll"></codemirror>
+            <div class="render-result" v-show="mode === 'view'" @scroll.passive="onScrollView" ref="renderScroll"><div ref="render"></div></div>
         </div>
         <v-dialog
             v-model="removeConfirm"
@@ -794,10 +794,6 @@ export default {
         if (storaged !== null) {
             this.notes = storaged;
         }
-
-        this.$nextTick(() => {
-            this.initScroll(this.$refs.scrolllist);
-        });
 
         // Sync with backend every 30 minutes
         this.timer = setInterval(() => {

@@ -84,7 +84,7 @@
                 type="list-item-avatar-three-line@4"
                 v-if="!init && loading"
             ></v-skeleton-loader>
-            <div class="scroll" v-if="mails.length > 0" ref="scrolllist">
+            <div class="scroll" v-if="mails.length > 0" @scroll.passive="scrollHandler">
                 <v-list flat class="list">
                     <v-list-item v-for="(mail, index) in mails" :key="mail.id" @click.stop="openMail(mail.id)" :class="{ flaged: mail.flagged, unseen: mail.unseen }" @contextmenu.prevent="(e) => showListMenu(e, mail.id)">
                         <v-list-item-avatar :color="(mail.flagged || mail.unseen) ? 'uomthemelight' : ($vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2')" v-if="getSubjectId(mail.subject, mail.from) === false" :class="{ 'black--text': ((mail.flagged || mail.unseen) && $vuetify.theme.dark) }">
@@ -1759,11 +1759,6 @@ export default {
 
             if (!update) {
                 // Is not updating, skip checking new mails
-                if (!this.init) {
-                    this.$nextTick(() => {
-                        this.initScroll(this.$refs.scrolllist);
-                    });
-                }
                 this.init = true;
                 this.mails = response.data.sort((a, b) => (b.date - a.date));
             } else {
@@ -3481,6 +3476,8 @@ export default {
         padding-top: 18px;
         padding-bottom: 15px;
         padding-left: 20px;
+        position: relative;
+        z-index: 2;
         transition: all .2s;
         .md-icon {
             padding-bottom: 2px;
@@ -4130,6 +4127,8 @@ export default {
     .scroll {
         height: 500px;
         overflow: auto;
+        position: relative;
+        z-index: 1;
     }
 }
 .mail-all-read {

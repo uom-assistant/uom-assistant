@@ -1,5 +1,4 @@
 let scroll = 0;
-let scrollEle = null;
 let headerShadowCopy = false;
 
 export default {
@@ -9,21 +8,6 @@ export default {
         };
     },
     methods: {
-        /**
-         * Initialize scroll listener
-         * @param {HTMLElement} ele the scroll source
-         */
-        initScroll(ele) {
-            if (scrollEle !== null) {
-                scrollEle.removeEventListener('scroll', this.scrollHandler);
-            }
-            scrollEle = ele;
-            ele.addEventListener('scroll', this.scrollHandler);
-
-            this.scrollHandler({
-                target: ele,
-            });
-        },
         /**
          * Handle scroll event
          * @param {Event} e scroll event
@@ -39,10 +23,5 @@ export default {
                 headerShadowCopy = false;
             }
         },
-    },
-    beforeDestroy() {
-        if (scrollEle !== null) {
-            scrollEle.removeEventListener('scroll', this.scrollHandler);
-        }
     },
 };
