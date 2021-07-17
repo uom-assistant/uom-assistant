@@ -176,7 +176,7 @@ rest_response(array(
     'attachments' => $attachment_list,
     'content' => $email->textHtml ? mb_convert_encoding($email->textHtml, 'UTF-8', mb_detect_encoding($email->textHtml, $encode_array)) : $email->textPlain,
     'plainContent' => $email->textPlain,
-    'translator' => $translator，
+    'translator' => $translator,
 ));
 
 $mailbox->disconnect();

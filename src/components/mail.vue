@@ -140,7 +140,7 @@
                 {{ $t('nothing') }}
             </div>
             <div class="empty" v-if="!loading && !init">
-                <span class="text-center pl-6 pr-6">{{ $t('cannot_fetch') }} <a href="https://github.com/yrccondor/uom-assistant/" target="_blank" rel="noreferrer noopener">{{ $t('learn_more') }}</a></span>
+                <span class="text-center pl-6 pr-6">{{ $t('cannot_fetch') }} <a href="https://github.com/uom-assistant/uom-assistant/wiki" target="_blank" rel="noreferrer noopener">{{ $t('learn_more') }}</a></span>
             </div>
         </div>
         <div class="viewer-layer-mask" :class="{ opened: viewerOpened }"></div>

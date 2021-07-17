@@ -4,7 +4,7 @@
 
 ![Main Screen](../github_assets/uoma.jpg)
 
-Languages: [English](https://github.com/yrccondor/uom-assistant) | Chinese (Simplified)
+Languages: [English](https://github.com/uom-assistant/uom-assistant) | Chinese (Simplified)
 
 
 ## 介绍
@@ -32,7 +32,7 @@ Languages: [English](https://github.com/yrccondor/uom-assistant) | Chinese (Simp
 
 ### 前端
 
-从 [Releases](https://github.com/yrccondor/uom-assistant/releases) 下载最新的 `frontend.zip`，并将所有文件解压到你站点的根目录。请注意曼大助手必须被部署于站点根目录。
+从 [Releases](https://github.com/uom-assistant/uom-assistant/releases) 下载最新的 `frontend.zip`，并将所有文件解压到你站点的根目录。请注意曼大助手必须被部署于站点根目录。
 
 要使页面路由正确工作，你可能需要修改服务器的配置文件。如果你正在使用 Nginx，你可以将以下内容添加进站点配置：
 
@@ -58,22 +58,22 @@ location / {
 #### 通过 JAMstack 平台部署前端
 
 <p>
-<a href="https://app.netlify.com/start/deploy?repository=https://github.com/yrccondor/uom-assistant" title="Deploy to Netlify"><img src="https://www.netlify.com/img/deploy/button.svg" alt="Deploy to Netlify"/></a>&nbsp;&nbsp;<a href="https://vercel.com/new/git/external?repository-url=https%3A%2F%2Fgithub.com%2Fyrccondor%2Fuom-assistant&project-name=uom-assistant&repository-name=uom-assistant" title="Deploy with Vercel"><img src="https://vercel.com/button" alt="Deploy with Vercel"/></a>&nbsp;&nbsp;<a href="https://console.cloud.tencent.com/tcb/env/index?action=CreateAndDeployCloudBaseProject&appUrl=https%3A%2F%2Fgithub.com%2Fyrccondor%2Fuom-assistant&branch=master&appName=uom-assistant" title="Deploy to Tencent CloudBase"><img src="https://main.qcloudimg.com/raw/67f5a389f1ac6f3b4d04c7256438e44f.svg" alt="Deploy to Tencent CloudBase"/></a>
+<a href="https://app.netlify.com/start/deploy?repository=https://github.com/uom-assistant/uom-assistant" title="Deploy to Netlify"><img src="https://www.netlify.com/img/deploy/button.svg" alt="Deploy to Netlify"/></a>&nbsp;&nbsp;<a href="https://vercel.com/new/git/external?repository-url=https%3A%2F%2Fgithub.com%2Fuom-assistant%2Fuom-assistant&project-name=uom-assistant&repository-name=uom-assistant" title="Deploy with Vercel"><img src="https://vercel.com/button" alt="Deploy with Vercel"/></a>&nbsp;&nbsp;<a href="https://console.cloud.tencent.com/tcb/env/index?action=CreateAndDeployCloudBaseProject&appUrl=https%3A%2F%2Fgithub.com%2Fuom-assistant%2Fuom-assistant&branch=master&appName=uom-assistant" title="Deploy to Tencent CloudBase"><img src="https://main.qcloudimg.com/raw/67f5a389f1ac6f3b4d04c7256438e44f.svg" alt="Deploy to Tencent CloudBase"/></a>
 </p>
 
 或[使用 Cloudflare Pages 部署](https://dash.cloudflare.com/?to=/:account/pages/new)
 
 ### 后端
 
-从 [Releases](https://github.com/yrccondor/uom-assistant/releases) 下载最新的 `backend.zip`，并将所有文件解压到你站点的合适位置，按你的需求编辑 `config.php` 即可。请注意邮件相关功能需要以下 PHP 扩展：`fileinfo`、`imap` 和 `mbstring`。
+从 [Releases](https://github.com/uom-assistant/uom-assistant/releases) 下载最新的 `backend.zip`，并将所有文件解压到你站点的合适位置，按你的需求编辑 `config.php` 即可。请注意邮件相关功能需要以下 PHP 扩展：`fileinfo`、`imap` 和 `mbstring`。
 
 #### 通过 Serverless 平台部署后端
 
 <p>
-<a href="https://heroku.com/deploy" title="Deploy to Heroku"><img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy to Heroku"></a>&nbsp;&nbsp;<a href="https://console.cloud.tencent.com/tcb/env/index?action=CreateAndDeployCloudBaseProject&appUrl=https%3A%2F%2Fgithub.com%2Fyrccondor%2Fuom-assistant&workDir=backend&branch=master&appName=uom-assistant" title="Deploy to Tencent CloudBase"><img src="https://main.qcloudimg.com/raw/67f5a389f1ac6f3b4d04c7256438e44f.svg" alt="Deploy to Tencent CloudBase"/></a>
+<a href="https://heroku.com/deploy" title="Deploy to Heroku"><img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy to Heroku"></a>&nbsp;&nbsp;<a href="https://console.cloud.tencent.com/tcb/env/index?action=CreateAndDeployCloudBaseProject&appUrl=https%3A%2F%2Fgithub.com%2Fuom-assistant%2Fuom-assistant&workDir=backend&branch=master&appName=uom-assistant" title="Deploy to Tencent CloudBase"><img src="https://main.qcloudimg.com/raw/67f5a389f1ac6f3b4d04c7256438e44f.svg" alt="Deploy to Tencent CloudBase"/></a>
 </p>
 
-[有关后端使用的更多信息](https://github.com/yrccondor/uom-assistant/blob/master/backend/README.md)
+[有关后端使用的更多信息](https://github.com/uom-assistant/uom-assistant/blob/master/backend/README.md)
 
 ### 使用 Docker 部署
 

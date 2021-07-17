@@ -14,7 +14,7 @@
 /**
  * This is the main config file for UoM Assistant Backend
  * You can modify configurations here
- * Documentation: https://github.com/yrccondor/uom-assistant/blob/master/backend/README.md
+ * Documentation: https://github.com/uom-assistant/uom-assistant/blob/master/backend/README.md
  */
 
 // Backend version
@@ -71,7 +71,7 @@ define('UOMA_CONFIG', array(
         // The translation service will using, supports 'deepl', 'azure' or 'google'
         'service' => 'google',
 
-        // Translation API gateway. More at https://github.com/yrccondor/uom-assistant/blob/master/backend/README.md
+        // Translation API gateway. More at https://github.com/uom-assistant/uom-assistant/blob/master/backend/README.md
         'gateway' => '',
 
         // Translation API region. Only works on Azure API. More at https://docs.microsoft.com/azure/cognitive-services/translator/reference/v3-0-reference#authenticating-with-a-multi-service-resource. For other translation services, just leave it blank

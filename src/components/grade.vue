@@ -31,7 +31,7 @@
                     ></v-skeleton-loader>
                 </v-card>
                 <div class="not-inited mx-auto mb-2" v-if="!init && !loading">
-                    <span class="text-center pl-6 pr-6">{{ $t('cannot_fetch') }} <a href="https://github.com/yrccondor/uom-assistant/" target="_blank" rel="noreferrer noopener">{{ $t('learn_more') }}</a></span>
+                    <span class="text-center pl-6 pr-6">{{ $t('cannot_fetch') }} <a href="https://github.com/uom-assistant/uom-assistant/wiki" target="_blank" rel="noreferrer noopener">{{ $t('learn_more') }}</a></span>
                 </div>
                 <div class="not-inited mx-auto mb-2" v-if="init && !loading && gradeListFilteredFlat.length === 0">
                     <span>{{ $t('nothing') }}</span>
@@ -886,7 +886,7 @@ export default {
         padding: 20px 20px 12px 20px;
         min-height: 126px;
         max-height: 466px;
-        background-color: #F5F5F5;
+        background-color: #FFFFFF;
         .loading-bg {
             border-radius: 6px;
             & > div > .v-skeleton-loader__bone:not(.v-skeleton-loader__divider) {

@@ -469,6 +469,7 @@ export default {
                     ],
                     calendar: [
                         'events:read',
+                        'events:write',
                         'view:read',
                         'view:write',
                     ],

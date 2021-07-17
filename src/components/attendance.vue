@@ -47,7 +47,7 @@
                 {{ $t('nothing') }}
             </div>
             <div class="empty higher" v-if="!init && !loading">
-                <span class="text-center pl-6 pr-6">{{ $t('cannot_fetch') }} <a href="https://github.com/yrccondor/uom-assistant/" target="_blank" rel="noreferrer noopener">{{ $t('learn_more') }}</a></span>
+                <span class="text-center pl-6 pr-6">{{ $t('cannot_fetch') }} <a href="https://github.com/uom-assistant/uom-assistant/wiki" target="_blank" rel="noreferrer noopener">{{ $t('learn_more') }}</a></span>
             </div>
             <v-list flat class="list">
                 <v-list-item v-for="(record, index) in absentRecord" :key="index">
