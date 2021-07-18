@@ -19,7 +19,7 @@
                     <div class="overline mb-2">
                         {{ $t('overview') }}
                     </div>
-                    <v-list-item-title class="headline mb-1">
+                    <v-list-item-title class="headline mb-1 now-date">
                         {{ nowDate }}
                     </v-list-item-title>
                     <v-list-item-subtitle class="mb-2">
@@ -386,6 +386,9 @@ export default {
 }
 .theme--dark .home {
     background-color: #272727;
+}
+.now-date::first-letter {
+    text-transform: uppercase;
 }
 #blocks {
     width: 100%;

@@ -9,7 +9,7 @@ export default [
         timeFormat: (yr, mo, da) => `${da}/${mo}/${yr}`,
         timeFormatTime: (yr, mo, da, hr, mi) => `${da}/${mo}/${yr} ${hr}:${mi}`,
         timeFormatTimeSecond: (yr, mo, da, hr, mi, sc) => `${da}/${mo}/${yr} ${hr}:${mi}:${sc}`,
-        timeFormatWeek: (mo, da, wd) => `${da} ${mo}, ${wd}`,
+        timeFormatWeek: (mo, da, wd) => `${wd}, ${da} ${mo}`,
     },
     {
         name: '中文（简体）',
@@ -22,5 +22,17 @@ export default [
         timeFormatTime: (yr, mo, da, hr, mi) => `${yr}${mo}${da} ${hr}:${mi}`,
         timeFormatTimeSecond: (yr, mo, da, hr, mi, sc) => `${yr}${mo}${da} ${hr}:${mi}:${sc}`,
         timeFormatWeek: (mo, da, wd) => `${mo}${da}，${wd}`,
+    },
+    {
+        name: 'Español',
+        locale: 'es',
+        localeName: 'es',
+        iso: 'es',
+        iso3: 'spa',
+        direction: 'ltr',
+        timeFormat: (yr, mo, da) => `${da}/${mo}/${yr}`,
+        timeFormatTime: (yr, mo, da, hr, mi) => `${da}/${mo}/${yr} ${hr}:${mi}`,
+        timeFormatTimeSecond: (yr, mo, da, hr, mi, sc) => `${da}/${mo}/${yr} ${hr}:${mi}:${sc}`,
+        timeFormatWeek: (mo, da, wd) => `${wd}, ${da} de ${mo}`,
     },
 ];
