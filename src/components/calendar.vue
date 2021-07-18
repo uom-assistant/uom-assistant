@@ -902,6 +902,23 @@ export default {
         "quick_teams": "快速启动 Teams 会议",
         "copy_passcode": "复制密码",
         "self_study": "（自学）"
+    },
+    "es": {
+        "today": "今天",
+        "day": "日视图",
+        "week": "周视图",
+        "month": "月视图",
+        "from": "从：",
+        "to": "到：",
+        "course_ddl": "作业到期",
+        "coursework": "作业",
+        "subject_home": "科目主页",
+        "ical_error": "无法解析 ical 文件",
+        "network_error_body": "无法从日历订阅 URL 获取最新事件",
+        "quick_zoom": "快速启动 Zoom 会议",
+        "quick_teams": "快速启动 Teams 会议",
+        "copy_passcode": "复制密码",
+        "self_study": "（自学）"
     }
 }
 </i18n>
