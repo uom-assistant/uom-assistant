@@ -912,7 +912,7 @@ export default {
         "to": "Hasta: ",
         "course_ddl": "Fecha límite para trabajo de curso",
         "coursework": "Trabajo de curso",
-        "subject_home": "Página principal de curso",
+        "subject_home": "Página principal de asignatura",
         "ical_error": "No ha sido posible analizar los archivos ical.",
         "network_error_body": "No ha sido posible obtener los últimos eventos desde la subscripción del calendario.",
         "quick_zoom": "Acceso rápido a Zoom",
