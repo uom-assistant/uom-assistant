@@ -915,10 +915,10 @@ export default {
         "subject_home": "Página principal de asignatura",
         "ical_error": "No ha sido posible analizar los archivos ical.",
         "network_error_body": "No ha sido posible obtener los últimos eventos desde la subscripción del calendario.",
-        "quick_zoom": "Acceso rápido a Zoom",
-        "quick_teams": "Acceso rápido a Teams",
+        "quick_zoom": "Acceder a Zoom",
+        "quick_teams": "Acceder a Teams",
         "copy_passcode": "Copiar contraseña",
-        "self_study": "Aprendizaje independiente"
+        "self_study": " (Aprendizaje independiente) "
     }
 }
 </i18n>

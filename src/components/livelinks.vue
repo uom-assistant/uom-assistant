@@ -245,8 +245,8 @@ export default {
         "live_links": "Enlaces de clases online",
         "nothing": "No hay enlaces",
         "no_class": "No hay clases todavía",
-        "quick_zoom": "Acceso rápido a Zoom",
-        "quick_teams": "Acceso rápido a Teams",
+        "quick_zoom": "Acceder a Zoom",
+        "quick_teams": "Acceder a Teams",
         "copy_passcode": "Copiar contraseña"
     }
 }

@@ -700,15 +700,15 @@ export default {
         "subject_color": "Color de asignatura",
         "hide_subject": "Esconder esta asignatura",
         "add_link": "Añadir enlace de una sesión online",
-        "link_format": "URL[nombre][contraseña]",
+        "link_format": "URL[ nombre][ contraseña]",
         "delete_subject": "Eliminar asignatura",
         "delete_subject_text": "Está seguro de eliminar la asignatura",
         "delete_subject_mark": "?",
         "error": "No se ha podido guardar",
         "same_id": "Este número de asignatura ya está conectada a otra asignatura. Cambios no se ha guardado.",
         "ok": "OK",
-        "quick_zoom": "Acceso rápido a Zoom",
-        "quick_teams": "Acceso rápido a Teams"
+        "quick_zoom": "Acceder a Zoom",
+        "quick_teams": "Acceder a Teams"
     }
 }
 </i18n>
