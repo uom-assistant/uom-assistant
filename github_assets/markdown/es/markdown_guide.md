@@ -32,28 +32,28 @@ Acorde a la Teoría de Procrastinación^[1]^, cuando más tarde empiezes~（un t
 - [ ] Otra cosa sin hacer
 - [x] Esto está hecho
 
-## Tipo de mensajes
+## Consejos
 
 Aplicable en el editor de correos
 
-Hay cuatro formas de mensaje: `success`, `info`, `warning` y `error`.
+Hay cuatro formas de consejos: `success`, `info`, `warning` y `error`.
 
 ```markdown
 ::: success
-Este es un mensaje de algo correctamente
+Este es un consejo de que va correctamente
 :::
 
 ::: info
-Este es un mensaje informativo. Obviemos los otros dos tipos.
+Este es un consejo informativo. Obviemos los otros dos tipos.
 :::
 ```
 
 ::: success
-Este es un mensaje de algo correctamente
+Este es un consejo de que va correctamente
 :::
 
 ::: info
-Este es un mensaje informativo. Obviemos los otros dos tipos.
+Este es un consejo informativo. Obviemos los otros dos tipos.
 :::
 
 ## Etiquetas de estilo
@@ -100,23 +100,23 @@ Esta línea usa [estilo CSS personalizado]{style="display: inline-block; padding
 Aplicable en el editor de correos
 
 ```markdown
-|            | Encabezado multicolumna            ||
-| Encabezados        | Separados     | Tambíen    |
-| ---------- | :------: | -------- |
-| Celda multifila   | Celda multicolumna         ||
-| ^^         | N/A      | N/A      |
-| Elementos multifilas   | - Elemento 1 | - Elemento 1 | \
-|            | - Elemento 2 | - Elemento 2 |
+|                     | Encabezado multicolumna     ||
+| Encabezados         | Separados    | Tambíen      |
+| ------------------- | :----------: | ------------ |
+| Celda multifila     | Celda multicolumna          ||
+| ^^                  | N/A          | N/A          |
+| Elementos multifilas| - Elemento 1 | - Elemento 1 | \
+|                     | - Elemento 2 | - Elemento 2 |
 [Título de tabla]
 ```
 
-|            | Encabezado multicolumna            ||
-| Encabezados        | Separados     | Tambíen    |
-| ---------- | :------: | -------- |
-| Celda multifila   | Celda multicolumna         ||
-| ^^         | N/A      | N/A      |
-| Elementos multifilas   | - Elemento 1 | - Elemento 1 | \
-|            | - Elemento 2 | - Elemento 2 |
+|                     | Encabezado multicolumna     ||
+| Encabezados         | Separados    | Tambíen      |
+| ------------------- | :----------: | ------------ |
+| Celda multifila     | Celda multicolumna          ||
+| ^^                  | N/A          | N/A          |
+| Elementos multifilas| - Elemento 1 | - Elemento 1 | \
+|                     | - Elemento 2 | - Elemento 2 |
 [Título de tabla]
 
 Para más sintaxis consulte [Tabla de MultiMarkdown](https://github.com/redbug312/markdown-it-multimd-table/blob/master/README.md).

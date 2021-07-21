@@ -1317,7 +1317,7 @@ html::-webkit-scrollbar {
         "search": "Buscar...",
         "welcome": "Bienvenido!",
         "not_yet": "Parace ser que todavía no ha ajustado su UoM Assistant",
-        "press_to_settings": "Haga clic en \"Continuar\" para ajustar tu propio tablero",
+        "press_to_settings": "Haga clic en \"CONTINUAR\" para ajustar su propio tablero",
         "continue": "Continuar",
         "next": "Siguiente",
         "import": "Importar",
