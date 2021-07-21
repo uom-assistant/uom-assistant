@@ -918,7 +918,7 @@ export default {
         "quick_zoom": "Acceder a Zoom",
         "quick_teams": "Acceder a Teams",
         "copy_passcode": "Copiar contraseña",
-        "self_study": " (Aprendizaje independiente) "
+        "self_study": " (Autoestudio) "
     }
 }
 </i18n>
