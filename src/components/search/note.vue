@@ -185,6 +185,12 @@ export default {
         "untitled": "无标题",
         "download": "下载",
         "delete": "删除"
+    },
+    "es": {
+        "no_content": "Sin contenido",
+        "untitled": "Sin título",
+        "download": "Descargar",
+        "delete": "Eliminar"
     }
 }
 </i18n>

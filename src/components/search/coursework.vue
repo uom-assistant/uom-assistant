@@ -356,6 +356,15 @@ export default {
         "remain_min": "%d 分钟",
         "remain_min_plural": "%d 分钟",
         "expired": "已过期"
+    },
+    "es": {
+        "remain_day": "{0} día",
+        "remain_day_plural": "{0} días",
+        "remain_hour": "{0} hora",
+        "remain_hour_plural": "{0} horas",
+        "remain_min": "{0} minuto",
+        "remain_min_plural": "{0} minutos",
+        "expired": "Retraso"
     }
 }
 </i18n>

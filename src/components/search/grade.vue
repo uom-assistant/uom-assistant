@@ -367,6 +367,10 @@ export default {
     "zh": {
         "more_info": "查看科目",
         "formative": "不计入总分"
+    },
+    "es": {
+        "more_info": "Ver asignatura",
+        "formative": "Formativo"
     }
 }
 </i18n>
