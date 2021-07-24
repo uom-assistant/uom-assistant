@@ -256,7 +256,7 @@ export default {
         "not_allow_email": "Este servidor back-end no permite la sincronización del correo",
         "not_allow_sync": "Este servidor back-end no permite la sincronización de ajustes",
         "where_ica": "Dónde puedo obtener mi subscripción del calendario",
-        "where_ica_body": "Vaya a <a href=\"https://timetables.manchester.ac.uk/\" target=\"_blank\" rel=\"noreferrer noopener\">, esta página</a>, y tras iniciar sesión haga clic en el botón de \"Subscribe\" en la parte de arriba derecha，más tarde a \"More\", \"Copy\", respectivamente, y copie el URL obtenido.",
+        "where_ica_body": "Vaya a <a href=\"https://timetables.manchester.ac.uk/\" target=\"_blank\" rel=\"noreferrer noopener\">esta página</a>, y tras iniciar sesión haga clic en el botón de \"Subscribe\" en la parte de arriba derecha，más tarde a \"More\", \"Copy\", respectivamente, y copie el URL obtenido.",
         "privacy_policy": "Política de Privacidad",
         "privacy_policy_body": "Si la \"Configuración de sincronización \" no está activada, <strong> el servidor back-end no almacenará ni retendrá la información de su cuenta de UoM </strong>, incluidos el nombre de usuario, la contraseña, el correo electrónico, las notas y más. Sin embargo, para acceder a sus notas, correos electrónicos, asistencia, etc. desde los sistemas de UoM, la información de su cuenta de UoM se transferirá de forma segura al back-end (pero no se conservará). <br> <br> Cuando la \"Configuración de sincronización \" está activada, <strong> su nombre de usuario, contraseña y correo electrónico se almacenarán en el back-end </strong>, pero no se almacenará ninguna otra información.",
         "ok": "OK"
