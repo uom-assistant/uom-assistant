@@ -1771,7 +1771,7 @@ p {
         "Solomon Islands": "Islas Salomón",
         "Marshall Islands": "Islas Marshall",
         "New Zealand": "Nueva Zelanda",
-        "Wallis and Futuna": "Wallis y Futuna",
+        "Wallis and Futuna": "Wallis y Futuna"
     }
 }
 </i18n>
