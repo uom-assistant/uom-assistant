@@ -1735,7 +1735,7 @@ p {
         "French Southern Territories": "Territorios Australes Franceses",
         "Male": "Malé",
         "Maldives": "Maldivas",
-        "Yekaterinburg": "Ekaterimburgo​",
+        "Yekaterinburg": "Ekaterimburgo",
         "Kathmandu": "Katmandú",
         "Bangladesh": "Bangladés",
         "Thimphu": "Timbu",
