@@ -120,6 +120,11 @@ export default {
         "oops": "妈耶…",
         "not_found": "找不到页面",
         "dashboard": "仪表板"
+    },
+    "es": {
+        "oops": "Uhhhhh!",
+        "not_found": "Página No Encontrada",
+        "dashboard": "Tablero"
     }
 }
 </i18n>

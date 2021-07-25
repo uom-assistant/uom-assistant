@@ -557,6 +557,31 @@ export default {
         "timezone_changed_title": "检测到时区更改",
         "timezone_changed_body": "别担心，所有时间相关的内容仍会正确显示，需要被转换的时间会被自动转换。你仍然可以信任曼大助手显示的所有内容。",
         "ok": "好"
+    },
+    "es": {
+        "overview": "Información general",
+        "class_overview": "Tiene {0} clase hoy",
+        "class_overview_none": "No tiene clase hoy",
+        "class_overview_plural": "Tiene {0} clases hoy",
+        "class_remian": ", quedan {0}.",
+        "class_remian_none": ".",
+        "tomorrow_first": "La primera clase de mañana empezará en {0}. ",
+        "tomorrow_first_none": "No tiene clases mañana.",
+        "tomorrow_first_none_rest": "No tiene clases mañana, tómese un descanso!",
+        "next": "Siguiente",
+        "no_next": "No hay clases en un día",
+        "min_after_plural": "En {0} minutos",
+        "hour_after_plural": "En {0} horas",
+        "min_after": "En {0} minuto",
+        "hour_after": "En {0} hora",
+        "current_is": "La sesión actual es ",
+        "current": "Esta sesión terminará en {0} minuto",
+        "current_plural": "Esta sesión terminará en {0} minutos",
+        "no_current": "No hay clase ahora mismo",
+        "unknown": "Desconocido",
+        "timezone_changed_title": "Se detecta cambio de zona horaria",
+        "timezone_changed_body": "No se preocupe, todo el contenido relacionado con el tiempo se seguirá mostrando correctamente, las horas que deben convertirse también se convertirán automáticamente. Puede confiar en todo lo que hay en su tablero.",
+        "ok": "OK"
     }
 }
 </i18n>
