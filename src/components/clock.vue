@@ -89,7 +89,7 @@
                     <v-icon v-else>mdi-white-balance-sunny</v-icon>
                 </span><br>
                 <span class="hour" ref="hourRemote"></span>:<span ref="minRemote"></span>:<span ref="secRemote"></span><br>
-                <span class="label text-truncate d-inline-block">{{ `${$t(getCity)}${$t('uk_time')}` }}</span>
+                <span class="label text-truncate d-inline-block">{{ $t('uk_time', [$t(getCity)]) }}</span>
             </div>
         </div>
     </v-card>
@@ -457,7 +457,7 @@ p {
 {
     "en": {
         "local_time": "Local time",
-        "uk_time": " time",
+        "uk_time": "{0} time",
         "timezone": "Time Zone",
         "no_timezone": "Time zone not found",
         "timezone_setting": "Time Zone",
@@ -1020,7 +1020,7 @@ p {
     },
     "zh": {
         "local_time": "本地时间",
-        "uk_time": "时间",
+        "uk_time": "{0}时间",
         "timezone": "时区",
         "no_timezone": "找不到时区",
         "timezone_setting": "时区设置",
@@ -1583,7 +1583,7 @@ p {
     },
     "es": {
         "local_time": "Hora local",
-        "uk_time": "Hora",
+        "uk_time": "Hora {0}",
         "timezone": "Zona horaria",
         "no_timezone": "Zona horaria no encontrada",
         "timezone_setting": "Elegir zona horaria",

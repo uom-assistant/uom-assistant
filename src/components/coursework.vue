@@ -179,7 +179,6 @@
 
 <script>
 import { mapState } from 'vuex';
-import { vsprintf } from 'sprintf-js';
 import formatDateTime from '@/tools/formatDateTime';
 
 export default {
@@ -368,17 +367,17 @@ export default {
             // More than 1 day
             if (ddl - now >= 86400000) {
                 const day = Math.floor((ddl - now) / 86400000);
-                return vsprintf(day === 1 ? this.$t('remain_day') : this.$t('remain_day_plural'), [day]);
+                return this.$tc('remain_day', day, [day]);
             }
             // More than 1 hour
             if (ddl - now < 86400000 && ddl - now > 3600000) {
                 const hour = Math.round((ddl - now) / 3600000);
-                return vsprintf(hour === 1 ? this.$t('remain_hour') : this.$t('remain_hour_plural'), [hour]);
+                return this.$tc('remain_hour', hour, [hour]);
             }
             // Less than 1 hour
             if (ddl - now < 3600000 && ddl - now > 0) {
                 const mins = Math.round((ddl - now) / 60000);
-                return vsprintf(mins === 1 ? this.$t('remain_min') : this.$t('remain_min_plural'), [mins]);
+                return this.$tc('remain_min', mins, [mins]);
             }
             // Expired
             if (ddl - now < 0) {
@@ -769,12 +768,9 @@ export default {
         "ddl_time": "Time",
         "subject": "Course",
         "no_subject": "No course found",
-        "remain_day": "%d day",
-        "remain_day_plural": "%d days",
-        "remain_hour": "%d hour",
-        "remain_hour_plural": "%d hours",
-        "remain_min": "%d min",
-        "remain_min_plural": "%d mins",
+        "remain_day": "{0} day | {0} days",
+        "remain_hour": "{0} hour | {0} hours",
+        "remain_min": "{0} min | {0} mins",
         "expired": "Expired"
     },
     "zh": {
@@ -784,12 +780,9 @@ export default {
         "ddl_time": "到期时间",
         "subject": "科目",
         "no_subject": "找不到科目",
-        "remain_day": "%d 天",
-        "remain_day_plural": "%d 天",
-        "remain_hour": "%d 小时",
-        "remain_hour_plural": "%d 小时",
-        "remain_min": "%d 分钟",
-        "remain_min_plural": "%d 分钟",
+        "remain_day": "{0} 天 | {0} 天",
+        "remain_hour": "{0} 小时 | {0} 小时",
+        "remain_min": "{0} 分钟 | {0} 分钟",
         "expired": "已过期"
     },
     "es": {
@@ -799,12 +792,9 @@ export default {
         "ddl_time": "Hora límite",
         "subject": "Asignatura",
         "no_subject": "Asignatura no encontrada",
-        "remain_day": "{0} Día",
-        "remain_day_plural": "{0} Días",
-        "remain_hour": "{0} Hora",
-        "remain_hour_plural": "{0} Horas",
-        "remain_min": "{0} Minuto",
-        "remain_min_plural": "{0} Minutos",
+        "remain_day": "{0} día | {0} días",
+        "remain_hour": "{0} hora | {0} horas",
+        "remain_min": "{0} minuto | {0} minutos",
         "expired": "Retraso"
     }
 }

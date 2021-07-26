@@ -754,6 +754,7 @@ export default {
             padding-top: 5px;
             &:last-child {
                 border-right: none!important;
+                margin-right: 0.2px
             }
         }
     }

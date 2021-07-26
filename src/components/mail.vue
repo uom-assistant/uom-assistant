@@ -382,7 +382,7 @@
                     <div class="mail-from-line">
                         <span class="text-body-2 mt-2">
                             <v-icon class="mr-1">mdi-paperclip</v-icon>
-                            {{ formatString($t('attachment_num'), [viewer.attachments.length]) }}
+                            {{ $tc('attachment_num', viewer.attachments.length, [viewer.attachments.length]) }}
                         </span>
                         <v-btn icon @click.stop="viewAttachmentExpanded = !viewAttachmentExpanded" small class="float-right expand-btn" :title="$t('expand')">
                             <v-icon :class="{ 'detail-expanded': viewAttachmentExpanded }">mdi-chevron-down</v-icon>
@@ -444,7 +444,7 @@
                 <div class="mail-translation mx-5 pa-3 pr-2 mt-2" v-if="translateEnabled && viewer.translator && viewer.textContent !== '' && viewer.sourceLang !== 'und' && languageMap[viewer.sourceLang] && viewer.sourceLang !== preferredTranslateTo[0] && preferredTranslateTo[1][viewer.translator] !== false && !(!loadingBody && (!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML && viewer.bodyRawHTML !== '')">
                     <div class="translation-notice">
                         <v-icon class="mr-2">mdi-translate</v-icon>
-                        <span class="text-body-2">{{ formatString($t('in_language'), [Array.isArray(languageMap[viewer.sourceLang]) ? $t(`lang_${viewer.sourceLang}`) : $t(`lang_${languageMap[viewer.sourceLang].locale}`)]) }}</span>
+                        <span class="text-body-2">{{ $t('in_language', [Array.isArray(languageMap[viewer.sourceLang]) ? $t(`lang_${viewer.sourceLang}`) : $t(`lang_${languageMap[viewer.sourceLang].locale}`)]) }}</span>
                         <v-btn icon @click.stop="viewTranslationExpanded = !viewTranslationExpanded" small class="float-right expand-btn" :title="$t('more')">
                             <v-icon :class="{ 'detail-expanded': viewTranslationExpanded }">mdi-chevron-down</v-icon>
                         </v-btn>
@@ -488,8 +488,8 @@
                                 ></v-text-field>
                             </div>
                             <div class="d-flex justify-space-between align-center mt-2">
-                                <span class="text--disabled text-body-2 d-inline-block mt-1">
-                                    <v-icon small class="text--disabled service-icon" v-if="viewer.translator !== 'deepl'">{{ viewer.translator === 'azure' ? 'mdi-microsoft-azure' : 'mdi-google-translate' }}</v-icon><svg class="deepl-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 54 68" v-else><path class="deepl-bg" d="M.188 17.274v26.81c0 1.393.73 2.67 1.921 3.367l23.063 13.386a3.797 3.797 0 003.844 0L52.078 47.45A3.887 3.887 0 0054 44.085v-26.81c0-1.394-.73-2.67-1.922-3.367L29.016.522a3.797 3.797 0 00-3.844 0L2.109 13.947a3.871 3.871 0 00-1.921 3.327z"/><path class="deepl-bg" d="M36.703 67.53l-.038-5.803.038-5.339-13.453 3.327"/><path class="deepl-bg" d="M36.088 55.924l2.537-.658-.961.542c-.577.348-.961.967-.961 1.663v1.084l-.615-2.631z"/><path class="deepl-line" d="M17.79 18.474a3.95 3.95 0 015.535 0 4.016 4.016 0 010 5.804 3.95 3.95 0 01-5.535 0 4.016 4.016 0 010-5.804zM35.087 28.572a3.95 3.95 0 015.535 0 4.016 4.016 0 010 5.803 3.95 3.95 0 01-5.535 0 4.016 4.016 0 010-5.803zM17.79 39.25a3.95 3.95 0 015.535 0 4.016 4.016 0 010 5.803 3.95 3.95 0 01-5.535 0 4.016 4.016 0 010-5.803z"/><path class="deepl-line" d="M22.48 23.542l11.532 6.693 1.922-1.083-11.532-6.732-1.922 1.122zM34.78 35.148l-10.378 6.035-1.922-1.121 10.379-5.997 1.922 1.083z"/></svg>{{ formatString($t('powered_by'), [(viewer.translator === 'azure' ? 'Microsoft Azure' : (viewer.translator === 'google' ? 'Google' : 'DeepL'))]) }}
+                                <span class="text--disabled text-body-2 d-inline-block mt-1 text-truncate">
+                                    <v-icon small class="text--disabled service-icon" v-if="viewer.translator !== 'deepl'">{{ viewer.translator === 'azure' ? 'mdi-microsoft-azure' : 'mdi-google-translate' }}</v-icon><svg class="deepl-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 54 68" v-else><path class="deepl-bg" d="M.188 17.274v26.81c0 1.393.73 2.67 1.921 3.367l23.063 13.386a3.797 3.797 0 003.844 0L52.078 47.45A3.887 3.887 0 0054 44.085v-26.81c0-1.394-.73-2.67-1.922-3.367L29.016.522a3.797 3.797 0 00-3.844 0L2.109 13.947a3.871 3.871 0 00-1.921 3.327z"/><path class="deepl-bg" d="M36.703 67.53l-.038-5.803.038-5.339-13.453 3.327"/><path class="deepl-bg" d="M36.088 55.924l2.537-.658-.961.542c-.577.348-.961.967-.961 1.663v1.084l-.615-2.631z"/><path class="deepl-line" d="M17.79 18.474a3.95 3.95 0 015.535 0 4.016 4.016 0 010 5.804 3.95 3.95 0 01-5.535 0 4.016 4.016 0 010-5.804zM35.087 28.572a3.95 3.95 0 015.535 0 4.016 4.016 0 010 5.803 3.95 3.95 0 01-5.535 0 4.016 4.016 0 010-5.803zM17.79 39.25a3.95 3.95 0 015.535 0 4.016 4.016 0 010 5.803 3.95 3.95 0 01-5.535 0 4.016 4.016 0 010-5.803z"/><path class="deepl-line" d="M22.48 23.542l11.532 6.693 1.922-1.083-11.532-6.732-1.922 1.122zM34.78 35.148l-10.378 6.035-1.922-1.121 10.379-5.997 1.922 1.083z"/></svg>{{ $t('powered_by', [(viewer.translator === 'azure' ? 'Microsoft Azure' : (viewer.translator === 'google' ? 'Google' : 'DeepL'))]) }}
                                 </span>
                                 <v-btn
                                     text
@@ -864,7 +864,6 @@
 <script>
 import { mapState } from 'vuex';
 import { codemirror } from 'vue-codemirror';
-import { vsprintf } from 'sprintf-js';
 import { saveAs } from 'file-saver';
 import localForage from 'localforage';
 import markdown from 'markdown-it';
@@ -2810,15 +2809,6 @@ export default {
             return this.previewMap[fileName[fileName.length - 1].toLowerCase()] !== undefined && size <= 5242880;
         },
         /**
-         * Format strings like `printf()`
-         * @param {string} str string template
-         * @param {array} args arguments
-         * @returns {string} formated string
-         */
-        formatString(str, args) {
-            return vsprintf(str, args);
-        },
-        /**
          * Format bytes to file size unit
          * @param {number} bytes file byte length
          * @param {number?} decimals file size decimal number
@@ -3204,22 +3194,22 @@ export default {
             }
             // More than 1 week
             if (now - mail < 864000000 && now - mail >= 604800000) {
-                return vsprintf(this.$t('remain_week'), [1]);
+                return this.$t('remain_week', [1]);
             }
             // More than 1 day
             if (now - mail >= 86400000) {
                 const day = Math.floor((now - mail) / 86400000);
-                return vsprintf(day === 1 ? this.$t('remain_day') : this.$t('remain_day_plural'), [day]);
+                return this.$tc('remain_day', day, [day]);
             }
             // More than 1 hour
             if (now - mail < 86400000 && now - mail > 3600000) {
                 const hour = Math.round((now - mail) / 3600000);
-                return vsprintf(hour === 1 ? this.$t('remain_hour') : this.$t('remain_hour_plural'), [hour]);
+                return this.$tc('remain_hour', hour, [hour]);
             }
             // Less than 1 hour
             if (now - mail < 3600000 && now - mail > 120000) {
                 const mins = Math.round((now - mail) / 60000);
-                return vsprintf(mins === 1 ? this.$t('remain_min') : this.$t('remain_min_plural'), [mins]);
+                return this.$tc('remain_min', mins, [mins]);
             }
             // Less than 2 mins
             if (now - mail < 120000 && now - mail > 0) {
@@ -4366,13 +4356,10 @@ export default {
         "sound_notification": "New mail sound notification",
         "no_subject": "No Subject",
         "mail_view": "Mail",
-        "remain_week": "%d week ago",
-        "remain_day": "%d day ago",
-        "remain_day_plural": "%d days ago",
-        "remain_hour": "%d hour ago",
-        "remain_hour_plural": "%d hours ago",
-        "remain_min": "%d min ago",
-        "remain_min_plural": "%d mins ago",
+        "remain_week": "{0} week ago",
+        "remain_day": "{0} day ago | {0} days ago",
+        "remain_hour": "{0} hour ago | {0} hours ago",
+        "remain_min": "{0} min ago | {0} mins ago",
         "just_now": "Just now",
         "flagged": "Flagged",
         "flag": "Flag",
@@ -4395,7 +4382,7 @@ export default {
         "untrusted_content": "This email may not be credible",
         "this_is_safe": "This email is safe",
         "expand": "Expand",
-        "attachment_num": "%d attachments",
+        "attachment_num": "{0} attachment | {0} attachments",
         "subject_home": "Course Home Page",
         "quick_zoom": "Zoom meeting quick start",
         "quick_teams": "Teams meeting quick start",
@@ -4417,11 +4404,11 @@ export default {
         "language_tip": "The translation panel will only be displayed if the language of the mail differs from the target language. Mail language detection is done locally and automatically.",
         "cancel": "Cancel",
         "save": "Save",
-        "powered_by": "Powered by %s",
+        "powered_by": "Powered by {0}",
         "enable_translate": "Enable mail translation",
         "translate": "Translate",
         "source": "Source",
-        "in_language": "It seems like %s",
+        "in_language": "It seems like {0}",
         "translate_from": "Source",
         "translate_to": "Target",
         "translate_to_language": "Target language",
@@ -4499,14 +4486,10 @@ export default {
         "sound_notification": "新邮件通知音",
         "no_subject": "无主题",
         "mail_view": "邮件",
-        "remain_week": "%d 周前",
-        "remain_day_plural": "%d 天前",
-        "remain_day": "%d 天前",
-        "remain_day_plural": "%d 天前",
-        "remain_hour": "%d 小时前",
-        "remain_hour_plural": "%d 小时前",
-        "remain_min": "%d 分钟前",
-        "remain_min_plural": "%d 分钟前",
+        "remain_week": "{0} 周前",
+        "remain_day": "{0} 天前 | {0} 天前",
+        "remain_hour": "{0} 小时前 | {0} 小时前",
+        "remain_min": "{0} 分钟前 | {0} 分钟前",
         "just_now": "刚刚",
         "flagged": "已旗标",
         "flag": "旗标",
@@ -4529,7 +4512,7 @@ export default {
         "untrusted_content": "此邮件内容可能不可信",
         "this_is_safe": "此内容安全",
         "expand": "展开",
-        "attachment_num": "%d 个附件",
+        "attachment_num": "{0} 个附件 | {0} 个附件",
         "subject_home": "科目主页",
         "quick_zoom": "快速启动 Zoom 会议",
         "quick_teams": "快速启动 Teams 会议",
@@ -4551,11 +4534,11 @@ export default {
         "language_tip": "只有当邮件语言与目标语言不同时，翻译面板才会显示。检测邮件语言是在本地自动进行的。",
         "cancel": "取消",
         "save": "保存",
-        "powered_by": "由 %s 翻译",
+        "powered_by": "由 {0} 翻译",
         "enable_translate": "启用邮件翻译",
         "translate": "翻译",
         "source": "原文",
-        "in_language": "此邮件似乎使用了%s",
+        "in_language": "此邮件似乎使用了{0}",
         "translate_from": "源语言",
         "translate_to": "目标语言",
         "translate_to_language": "目标语言",
@@ -4615,7 +4598,7 @@ export default {
         "lang_bg": "保加利亚语",
         "lang_sv": "瑞典语"
     },
-        "en": {
+    "es": {
         "mail": "Bandeja de entrada",
         "nothing": "No correos",
         "cannot_fetch": "No ha sido posible obtener la lista de correos, posiblemente debido a la una configuración inapropiada del servidor back-end o por falta de permisión.",
@@ -4634,12 +4617,9 @@ export default {
         "no_subject": "No asignaturas",
         "mail_view": "Correos",
         "remain_week": "Hace {0} semanas",
-        "remain_day": "Hace {0} día",
-        "remain_day_plural": "Hace {0} días",
-        "remain_hour": "Hace {0} hora",
-        "remain_hour_plural": "Hace {0} horas",
-        "remain_min": "Hace {0} minuto",
-        "remain_min_plural": "Hace {0} minutos",
+        "remain_day": "Hace {0} día | Hace {0} días",
+        "remain_hour": "Hace {0} hora | Hace {0} horas",
+        "remain_min": "Hace {0} minuto | Hace {0} minutos",
         "just_now": "Ahora mismo",
         "flagged": "Marcado",
         "flag": "Marcar",
@@ -4662,7 +4642,7 @@ export default {
         "untrusted_content": "Puede que este correo no sea seguro",
         "this_is_safe": "Este correo es seguro",
         "expand": "Expandir",
-        "attachment_num": "{0} archivos adjuntados",
+        "attachment_num": "{0} archivo adjuntado | {0} archivos adjuntados",
         "subject_home": "Página principal de asignatura",
         "quick_zoom": "Acceso rápido a Zoom",
         "quick_teams": "Acceso rápido a Teams",

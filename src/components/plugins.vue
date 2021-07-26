@@ -303,9 +303,9 @@
                                                         {{ item.name === 'global' ? `mdi-${permissionIcons.global[item.group]}` : `mdi-${permissionIcons[item.name]}` }}
                                                     </v-icon>
                                                 </v-badge>
-                                                <span v-if="item.name === 'global'" v-html="formatString($t(`${item.name}/${item.group}`), [item.rw.size > 0 ? `<strong>${$t(item.rw.size === 2 ? 'read_and_write' : (item.rw.has('read') ? 'read' : 'write'))}</strong>` : ''])"></span>
+                                                <span v-if="item.name === 'global'" v-html="$t(`${item.name}/${item.group}`, [item.rw.size > 0 ? `<strong>${$t(item.rw.size === 2 ? 'read_and_write' : (item.rw.has('read') ? 'read' : 'write'))}</strong>` : ''])"></span>
                                                 <div v-else>
-                                                    <div v-for="(list, listIndex) in item.group" :key="`item-${item.name}-${list.name}-${listIndex}`" v-html="formatString($t(`${item.name}/${list.name}`), [list.rw.size > 0 ? `<strong>${$t(list.rw.size === 2 ? 'read_and_write' : (list.rw.has('read') ? 'read' : 'write'))}</strong>` : ''])"></div>
+                                                    <div v-for="(list, listIndex) in item.group" :key="`item-${item.name}-${list.name}-${listIndex}`" v-html="$t(`${item.name}/${list.name}`, [list.rw.size > 0 ? `<strong>${$t(list.rw.size === 2 ? 'read_and_write' : (list.rw.has('read') ? 'read' : 'write'))}</strong>` : ''])"></div>
                                                 </div>
                                             </div>
                                             <div v-for="(item, index) in tab.permissions.declare" :key="`declare-${index}`" class="permisson-item">
@@ -316,10 +316,10 @@
                                                 >
                                                     {{ item.name === 'global' ? `mdi-${permissionIcons.global[item.group]}` : `mdi-${permissionIcons[item.name]}` }}
                                                 </v-icon>
-                                                <span v-if="item.name === 'global' && item.group !== 'trackingId'" v-html="formatString($t(`${item.name}/${item.group}`), [item.rw.size > 0 ? `<strong>${$t(item.rw.size === 2 ? 'read_and_write' : (item.rw.has('read') ? 'read' : 'write'))}</strong>` : ''])"></span>
-                                                <span v-else-if="item.name === 'global' && item.group === 'trackingId'"><span v-html="formatString($t(`${item.name}/${item.group}`), [`<strong>${$t('read')}</strong>`])"></span><v-tooltip top max-width="400"><template v-slot:activator="{ on, attrs }"><v-icon small :color="'grey'" class="tracking-notice" v-bind="attrs" v-on="on">mdi-information-outline</v-icon></template><span>{{ $t('tracking_note') }}</span></v-tooltip>{{ $t('tracking_id') }}</span>
+                                                <span v-if="item.name === 'global' && item.group !== 'trackingId'" v-html="$t(`${item.name}/${item.group}`, [item.rw.size > 0 ? `<strong>${$t(item.rw.size === 2 ? 'read_and_write' : (item.rw.has('read') ? 'read' : 'write'))}</strong>` : ''])"></span>
+                                                <span v-else-if="item.name === 'global' && item.group === 'trackingId'"><span v-html="$t(`${item.name}/${item.group}`, [`<strong>${$t('read')}</strong>`])"></span><v-tooltip top max-width="400"><template v-slot:activator="{ on, attrs }"><v-icon small :color="'grey'" class="tracking-notice" v-bind="attrs" v-on="on">mdi-information-outline</v-icon></template><span>{{ $t('tracking_note') }}</span></v-tooltip>{{ $t('tracking_id') }}</span>
                                                 <div v-else>
-                                                    <div v-for="(list, listIndex) in item.group" :key="`item-${item.name}-${list.name}-${listIndex}`" v-html="formatString($t(`${item.name}/${list.name}`), [list.rw.size > 0 ? `<strong>${$t(list.rw.size === 2 ? 'read_and_write' : (list.rw.has('read') ? 'read' : 'write'))}</strong>` : ''])"></div>
+                                                    <div v-for="(list, listIndex) in item.group" :key="`item-${item.name}-${list.name}-${listIndex}`" v-html="$t(`${item.name}/${list.name}`, [list.rw.size > 0 ? `<strong>${$t(list.rw.size === 2 ? 'read_and_write' : (list.rw.has('read') ? 'read' : 'write'))}</strong>` : ''])"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -398,7 +398,6 @@
 
 <script>
 import { mapState } from 'vuex';
-import { vsprintf } from 'sprintf-js';
 
 import scroll from '@/mixins/scroll';
 
@@ -920,15 +919,6 @@ export default {
             });
         },
         /**
-         * Format strings like `printf()`
-         * @param {string} str string template
-         * @param {array} args arguments
-         * @returns {string} formated string
-         */
-        formatString(str, args) {
-            return vsprintf(str, args);
-        },
-        /**
          * Count grouped permission number
          * @param {Object} permission parsed permission object
          * @returns {number} permission count
@@ -1397,27 +1387,27 @@ export default {
         "allow_notice_cloud": "You haven't allowed this plugin to run. Plug-ins on cloud cannot read your data and doesn't require any permission.",
         "declared_permission": "Declared Permissions",
         "permission_notice": "The permissions declared <strong>CANNOT</strong> limit the scope of data accessible for the plugin, the list is for reference only. Please ensure that you trust the plugin before running it.",
-        "global/account": "%s your UoM account info",
-        "global/backend": "%s your backend login info",
+        "global/account": "{0} your UoM account info",
+        "global/backend": "{0} your backend login info",
         "global/notification": "Send notifications",
         "global/background": "Running in background",
-        "global/trackingId": "%s your",
-        "clock/timezone": "%s clock widget timezone",
-        "todo/list": "%s your TO-DO list",
-        "quickLink/custom": "%s your custom links",
-        "course/list": "%s your course list",
-        "attendance/absentList": "%s your absent record",
-        "calendar/events": "%s your course events",
-        "calendar/view": "%s the view of the calendar",
-        "coursework/list": "%s your coursework list",
-        "quickNote/list": "%s your quick note list",
-        "quickNote/noteContent": "%sthe content of a quick note",
-        "quickNote/view": "%s the UI of quick note widget",
-        "inbox/list": "%s your inbox mail list",
-        "inbox/mailContent": "%s the content of a mail",
-        "inbox/view": "%s the UI of inbox widget",
-        "inbox/gradeSummary/list": "%s your grades",
-        "plugin/runningPlugins": "%s the list of running plugins",
+        "global/trackingId": "{0} your",
+        "clock/timezone": "{0} clock widget timezone",
+        "todo/list": "{0} your TO-DO list",
+        "quickLink/custom": "{0} your custom links",
+        "course/list": "{0} your course list",
+        "attendance/absentList": "{0} your absent record",
+        "calendar/events": "{0} your course events",
+        "calendar/view": "{0} the view of the calendar",
+        "coursework/list": "{0} your coursework list",
+        "quickNote/list": "{0} your quick note list",
+        "quickNote/noteContent": "{0}the content of a quick note",
+        "quickNote/view": "{0} the UI of quick note widget",
+        "inbox/list": "{0} your inbox mail list",
+        "inbox/mailContent": "{0} the content of a mail",
+        "inbox/view": "{0} the UI of inbox widget",
+        "inbox/gradeSummary/list": "{0} your grades",
+        "plugin/runningPlugins": "{0} the list of running plugins",
         "tracking_id": "tracking ID",
         "read": "Read",
         "write": "Modify",
@@ -1452,27 +1442,27 @@ export default {
         "allow_notice_cloud": "你尚未允许此插件运行。云端插件无法读取你的数据，因此不需要任何权限。",
         "declared_permission": "声明的权限",
         "permission_notice": "插件声明的权限<strong>不能</strong>限制插件读取数据的范围，权限列表仅供参考。在运行插件之前，请确保你信任此插件。",
-        "global/account": "%s你的曼大账户信息",
-        "global/backend": "%s你的后端信息",
+        "global/account": "{0}你的曼大账户信息",
+        "global/backend": "{0}你的后端信息",
         "global/notification": "向你发送通知",
         "global/background": "在后台运行",
-        "global/trackingId": "%s你的",
-        "clock/timezone": "%s时钟组件的时区",
-        "todo/list": "%s你的 TO-DO 列表",
-        "quickLink/custom": "%s你的自定义链接",
-        "course/list": "%s你的课程列表",
-        "attendance/absentList": "%s你的缺勤记录",
-        "calendar/events": "%s你的课程事件",
-        "calendar/view": "%s日历组件的视图",
-        "coursework/list": "%s你的作业列表",
-        "quickNote/list": "%s你的快速笔记列表",
-        "quickNote/noteContent": "%s某一篇快速笔记的内容",
-        "quickNote/view": "%s快速笔记组件的界面",
-        "inbox/list": "%s你的邮件列表",
-        "inbox/mailContent": "%s某一封邮件的内容",
-        "inbox/view": "%s收件箱组件的界面",
-        "inbox/gradeSummary/list": "%s你的成绩信息",
-        "plugin/runningPlugins": "%s正在运行的插件列表",
+        "global/trackingId": "{0}你的",
+        "clock/timezone": "{0}时钟组件的时区",
+        "todo/list": "{0}你的 TO-DO 列表",
+        "quickLink/custom": "{0}你的自定义链接",
+        "course/list": "{0}你的课程列表",
+        "attendance/absentList": "{0}你的缺勤记录",
+        "calendar/events": "{0}你的课程事件",
+        "calendar/view": "{0}日历组件的视图",
+        "coursework/list": "{0}你的作业列表",
+        "quickNote/list": "{0}你的快速笔记列表",
+        "quickNote/noteContent": "{0}某一篇快速笔记的内容",
+        "quickNote/view": "{0}快速笔记组件的界面",
+        "inbox/list": "{0}你的邮件列表",
+        "inbox/mailContent": "{0}某一封邮件的内容",
+        "inbox/view": "{0}收件箱组件的界面",
+        "inbox/gradeSummary/list": "{0}你的成绩信息",
+        "plugin/runningPlugins": "{0}正在运行的插件列表",
         "tracking_id": "身份追踪标识",
         "read": "读取",
         "write": "修改",

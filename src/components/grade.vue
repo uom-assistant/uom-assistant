@@ -238,7 +238,7 @@
                                 <v-list-item-title>{{ sortListByDate(item)[0].name }} {{ $t('etc') }}</v-list-item-title>
                                 <v-list-item-subtitle>
                                     <span>
-                                        {{ formatString($t('total'), [item.length]) }}
+                                        {{ $t('total', [item.length]) }}
                                     </span>
                                 </v-list-item-subtitle>
                             </v-list-item-content>
@@ -301,7 +301,6 @@
 
 <script>
 import { mapState } from 'vuex';
-import { vsprintf } from 'sprintf-js';
 
 import chart from '@/components/chart.vue';
 
@@ -515,15 +514,6 @@ export default {
          */
         getDate(dateObj) {
             return formatDate(dateObj, this.locale, false);
-        },
-        /**
-         * Format strings like `printf()`
-         * @param {string} str string template
-         * @param {array} args arguments
-         * @returns {string} formated string
-         */
-        formatString(str, args) {
-            return vsprintf(str, args);
         },
         /**
          * Update layout after animation
@@ -886,7 +876,7 @@ export default {
         padding: 20px 20px 12px 20px;
         min-height: 126px;
         max-height: 466px;
-        background-color: #FFFFFF;
+        background-color: #F5F5F5;
         .loading-bg {
             border-radius: 6px;
             & > div > .v-skeleton-loader__bone:not(.v-skeleton-loader__divider) {
@@ -896,6 +886,9 @@ export default {
                 border-radius: 0;
                 height: 1px;
             }
+        }
+        &.not-inited-yet {
+            background-color: #FFFFFF;
         }
     }
     .tab-items {
@@ -1195,7 +1188,7 @@ export default {
         "empty_subject": "Courses with empty grade data",
         "more_info": "More",
         "etc": "etc.",
-        "total": "%d total",
+        "total": "{0} total",
         "formative": "Formative"
     },
     "zh": {
@@ -1207,7 +1200,7 @@ export default {
         "empty_subject": "暂无成绩信息的课程",
         "more_info": "更多",
         "etc": "等",
-        "total": "共 %d 项",
+        "total": "共 {0} 项",
         "formative": "不计入总分"
     },
     "es": {

@@ -109,7 +109,6 @@
 
 <script>
 import { mapState } from 'vuex';
-import { vsprintf } from 'sprintf-js';
 
 import formatDate from '@/tools/formatDate';
 
@@ -176,15 +175,6 @@ export default {
          */
         getDate(dateObj) {
             return formatDate(dateObj, this.locale, false);
-        },
-        /**
-         * Format strings like `printf()`
-         * @param {string} str string template
-         * @param {array} args arguments
-         * @returns {string} formated string
-         */
-        formatString(str, args) {
-            return vsprintf(str, args);
         },
         /**
          * Get latest 2 grade items from a grade list

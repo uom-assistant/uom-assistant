@@ -9,10 +9,10 @@
                 <span class="d-block text-truncate"><span class="text--secondary" v-show="nextEvent !== null">{{ $t('next') }}</span> <span :class="subjectColor(nextEvent.subjectId)" class="subject-color-samll" v-show="subjectColor(nextEvent.subjectId) !== ''" v-if="nextEvent !== null"></span> <strong v-show="nextEvent !== null">{{ nextName }}</strong></span>
                 <span class="text--secondary d-block" v-if="nextEvent === null">{{ $t('no_next') }}</span>
                 <span class="text-h5 primary--text pt-1 d-inline-block">
-                    <span v-show="nextEvent !== null">{{ (minAfter > 60 ? (hourAfter === 1 ? formatString($t('hour_after'), [hourAfter]) : formatString($t('hour_after_plural'), [hourAfter])) : (minAfter === 1 ? formatString($t('min_after'), [minAfter]) : formatString($t('min_after_plural'), [minAfter]))) }}</span>
+                    <span v-show="nextEvent !== null">{{ (minAfter > 60 ? $tc('hour_after', hourAfter, [hourAfter]) : $tc('min_after', minAfter, [minAfter])) }}</span>
                     <v-icon color="primary" large v-show="nextEvent === null">mdi-check-all</v-icon>
                 </span><br>
-                <span class="text--disabled pt-1 d-inline-block smaller-font">{{ current === null ? $t('no_current') : currentEnd > 20 ? `${$t('current_is')}${currentName}` : ((currentEnd > 1 ? formatString($t('current_plural'), [currentEnd]) : formatString($t('current'), [currentEnd]))) }}</span>
+                <span class="text--disabled pt-1 d-inline-block smaller-font">{{ current === null ? $t('no_current') : currentEnd > 20 ? `${$t('current_is')}${currentName}` : $tc('current', currentEnd, [currentEnd]) }}</span>
             </div>
             <v-list-item three-line>
                 <v-list-item-content>
@@ -23,8 +23,8 @@
                         {{ nowDate }}
                     </v-list-item-title>
                     <v-list-item-subtitle class="mb-2">
-                        <span v-if="classNum !== 0 && classRemain === 0">{{ tomorrowFirst !== '' ? formatString($t('tomorrow_first'), [tomorrowFirst]) : $t('tomorrow_first_none_rest') }}</span>
-                        <span v-else>{{ formatString(`${$t(classNum === 0 ? 'class_overview_none' : (classNum > 1 ? 'class_overview_plural' : 'class_overview'))}${$t(classNum > 0 ? 'class_remian' : 'class_remian_none')}`, classNum > 0 ? [classNum, classRemain] : []) }}</span>
+                        <span v-if="classNum !== 0 && classRemain === 0">{{ tomorrowFirst !== '' ? $t('tomorrow_first', [tomorrowFirst]) : $t('tomorrow_first_none_rest') }}</span>
+                        <span v-else>{{ $tc('class_overview', classNum, [classNum]) }}{{ $t(classNum > 0 ? 'class_remian' : 'class_remian_none', [classRemain]) }}</span>
                     </v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>
@@ -32,9 +32,9 @@
                 <span class="d-block text-truncate"><span class="text--secondary" v-show="nextEvent !== null">{{ $t('next') }}</span> <span :class="subjectColor(nextEvent.subjectId)" class="subject-color-samll" v-show="subjectColor(nextEvent.subjectId) !== ''" v-if="nextEvent !== null"></span> <strong v-show="nextEvent !== null">{{ nextName }}</strong></span>
                 <span class="text--secondary d-block" v-if="nextEvent === null">{{ $t('no_next') }}</span>
                 <span class="text-h5 primary--text pt-1 d-inline-block">
-                    <span v-show="nextEvent !== null">{{ (minAfter > 60 ? (hourAfter === 1 ? formatString($t('hour_after'), [hourAfter]) : formatString($t('hour_after_plural'), [hourAfter])) : (minAfter === 1 ? formatString($t('min_after'), [minAfter]) : formatString($t('min_after_plural'), [minAfter]))) }}</span>
+                    <span v-show="nextEvent !== null">{{ (minAfter > 60 ? $tc('hour_after', hourAfter, [hourAfter]) : $tc('min_after', minAfter, [minAfter])) }}</span>
                     <v-icon color="primary" large v-show="nextEvent === null">mdi-check-all</v-icon></span><br>
-                <span class="text--disabled pt-1 d-inline-block smaller-font">{{ current === null ? $t('no_current') : currentEnd > 20 ? `${$t('current_is')}${currentName}` : ((currentEnd > 1 ? formatString($t('current_plural'), [currentEnd]) : formatString($t('current'), [currentEnd]))) }}</span>
+                <span class="text--disabled pt-1 d-inline-block smaller-font">{{ current === null ? $t('no_current') : currentEnd > 20 ? `${$t('current_is')}${currentName}` : $tc('current', currentEnd, [currentEnd]) }}</span>
             </div>
         </v-card>
         <div id="blocks">
@@ -97,7 +97,6 @@ import plugins from '@/components/plugins.vue';
 import { mapState } from 'vuex';
 import Packery from 'packery';
 import Draggabilly from 'draggabilly';
-import { vsprintf } from 'sprintf-js';
 
 import formatDate from '@/tools/formatDate';
 
@@ -174,15 +173,6 @@ export default {
          */
         getDate() {
             this.nowDate = formatDate(new Date(), this.locale);
-        },
-        /**
-         * Format strings like `printf()`
-         * @param {string} str string template
-         * @param {array} args arguments
-         * @returns {string} formated string
-         */
-        formatString(str, args) {
-            return vsprintf(str, args);
         },
         /**
          * Update upcoming events
@@ -510,23 +500,18 @@ export default {
 {
     "en": {
         "overview": "OVERVIEW",
-        "class_overview": "You have %d session today",
-        "class_overview_none": "You have no session today",
-        "class_overview_plural": "You have %d sessions today",
-        "class_remian": ", %d remaining.",
+        "class_overview": "You have no session today | You have {0} session today | You have {0} sessions today",
+        "class_remian": ", {0} remaining.",
         "class_remian_none": ".",
-        "tomorrow_first": " Tomorrow's first session will start at %s.",
+        "tomorrow_first": " Tomorrow's first session will start at {0}.",
         "tomorrow_first_none": "You have no session tomorrow.",
         "tomorrow_first_none_rest": "You have no session tomorrow, have a rest!",
         "next": "Coming up",
         "no_next": "No class in a day",
-        "min_after_plural": "In %d mins",
-        "hour_after_plural": "In %d hours",
-        "min_after": "In %d min",
-        "hour_after": "In %d hour",
+        "min_after": "In {0} min | In {0} mins",
+        "hour_after": "In {0} hour | In {0} hours",
         "current_is": "Current session is ",
-        "current": "Current session will end in %d min",
-        "current_plural": "Current session will end in %d mins",
+        "current": "Current session will end in {0} min | Current session will end in {0} mins",
         "no_current": "There is no session currently",
         "unknown": "Unknown",
         "timezone_changed_title": "Time zone change detected",
@@ -535,23 +520,18 @@ export default {
     },
     "zh": {
         "overview": "总览",
-        "class_overview": "你今天有 %d 节课",
-        "class_overview_none": "你今天没有课",
-        "class_overview_plural": "你今天有 %d 节课",
-        "class_remian": "，还剩 %d 节。",
+        "class_overview": "你今天没有课 | 你今天有 {0} 节课 | 你今天有 {0} 节课",
+        "class_remian": "，还剩 {0} 节。",
         "class_remian_none": "。",
-        "tomorrow_first": "明天的第一节课将于 %s 开始。",
+        "tomorrow_first": "明天的第一节课将于 {0} 开始。",
         "tomorrow_first_none": "你明天没有课。",
         "tomorrow_first_none_rest": "你明天没有课，休息一下吧。",
         "next": "下一节",
         "no_next": "一天之内没有课程",
-        "min_after_plural": "%d 分钟后",
-        "hour_after_plural": "%d 小时后",
-        "min_after": "%d 分钟后",
-        "hour_after": "%d 小时后",
+        "min_after": "{0} 分钟后 | {0} 分钟后",
+        "hour_after": "{0} 小时后 | {0} 小时后",
         "current_is": "正在上 ",
-        "current": "当前课程会在 %d 分钟后结束",
-        "current_plural": "当前课程会在 %d 分钟后结束",
+        "current": "当前课程会在 {0} 分钟后结束 | 当前课程会在 {0} 分钟后结束",
         "no_current": "现在没有课程",
         "unknown": "未知",
         "timezone_changed_title": "检测到时区更改",
@@ -560,9 +540,7 @@ export default {
     },
     "es": {
         "overview": "Información general",
-        "class_overview": "Tiene {0} clase hoy",
-        "class_overview_none": "No tiene clase hoy",
-        "class_overview_plural": "Tiene {0} clases hoy",
+        "class_overview": "No tiene clase hoy | Tiene {0} clase hoy | Tiene {0} clases hoy",
         "class_remian": ", quedan {0}.",
         "class_remian_none": ".",
         "tomorrow_first": "La primera clase de mañana empezará en {0}. ",
@@ -570,13 +548,10 @@ export default {
         "tomorrow_first_none_rest": "No tiene clases mañana, tómese un descanso!",
         "next": "Siguiente",
         "no_next": "No hay clases en un día",
-        "min_after_plural": "En {0} minutos",
-        "hour_after_plural": "En {0} horas",
-        "min_after": "En {0} minuto",
-        "hour_after": "En {0} hora",
+        "min_after": "En {0} minuto | En {0} minutos",
+        "hour_after": "En {0} hora | En {0} horas",
         "current_is": "La sesión actual es ",
-        "current": "Esta sesión terminará en {0} minuto",
-        "current_plural": "Esta sesión terminará en {0} minutos",
+        "current": "Esta sesión terminará en {0} minuto | Esta sesión terminará en {0} minutos",
         "no_current": "No hay clase ahora mismo",
         "unknown": "Desconocido",
         "timezone_changed_title": "Se detecta cambio de zona horaria",

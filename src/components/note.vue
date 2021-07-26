@@ -26,9 +26,9 @@
                     </v-btn>
                 </h2>
                 <h2 class="handle" v-show="multi">
-                    {{ formatString($t('num_selected'), [ifNotes.length]) }}
+                    {{ $t('num_selected', [ifNotes.length]) }}
                     <v-btn icon small class="float-right mr-4" :title="allSelected ? $t('select_none') : $t('select_all')" @click.stop="selectAll">
-                        <v-icon>{{ allSelected ? 'mdi-playlist-remove' : 'mdi-playlist-check' }}</v-icon>
+                        <v-icon>{{ allSelected ? 'mdi-select-off' : 'mdi-select-all' }}</v-icon>
                     </v-btn>
                     <v-btn icon small class="float-right mr-2" :title="$t('cancel_select')" @click.stop="multi = false">
                         <v-icon>mdi-close</v-icon>
@@ -125,7 +125,7 @@
                     {{ $t('confirm') }}
                 </v-card-title>
                 <v-card-text>
-                    {{ allSelected ? $t('remove_all') : (ifNotes.length > 1 ? formatString($t('want_remove_plural'), [ifNotes.length]) : formatString($t('want_remove'), [ifNotes.length])) }}
+                    {{ allSelected ? $t('remove_all') : $tc('want_remove', ifNotes.length, [ifNotes.length]) }}
                 </v-card-text>
                 <v-card-actions>
                 <v-spacer></v-spacer>
@@ -156,7 +156,7 @@
                     {{ $t('confirm') }}
                 </v-card-title>
                 <v-card-text>
-                    {{ formatString($t('want_remove_single'), [notes[toRemove].title || $t('untitled')]) }}
+                    {{ $t('want_remove_single', [notes[toRemove].title || $t('untitled')]) }}
                 </v-card-text>
                 <v-card-actions>
                 <v-spacer></v-spacer>
@@ -206,7 +206,6 @@
 <script>
 import { mapState } from 'vuex';
 import { codemirror } from 'vue-codemirror';
-import { vsprintf } from 'sprintf-js';
 import { saveAs } from 'file-saver';
 import { zipSync, strToU8 } from 'fflate';
 import localForage from 'localforage';
@@ -668,15 +667,6 @@ export default {
                 tempDOM.innerHTML = this.md.render(this.notes[index].content);
                 this.previews[index] = tempDOM.textContent;
             }
-        },
-        /**
-         * Format strings like `printf()`
-         * @param {string} str string template
-         * @param {array} args arguments
-         * @returns {string} formated string
-         */
-        formatString(str, args) {
-            return vsprintf(str, args);
         },
         /**
          * Format a date object to a string based on locale
@@ -1293,7 +1283,7 @@ export default {
         "delete": "Delete",
         "select": "Multiple selection",
         "untitled": "Untitled",
-        "num_selected": "%d selected",
+        "num_selected": "{0} selected",
         "select_all": "Select all",
         "select_none": "Select none",
         "cancel_select": "Exit multiple selection",
@@ -1302,9 +1292,8 @@ export default {
         "confirm": "Confirm",
         "cancel": "Cancel",
         "ok": "OK",
-        "want_remove": "Are you sure to delete %d note that is selected?",
-        "want_remove_single": "Are you sure to delete note \"%s\"?",
-        "want_remove_plural": "Are you sure to delete %d notes that are selected?",
+        "want_remove": "Are you sure to delete {0} note that is selected? | Are you sure to delete {0} notes that are selected?",
+        "want_remove_single": "Are you sure to delete note \"{0}\"?",
         "remove_all": "Are you sure to delete all notes?",
         "too_many_title": "Maybe too many notes",
         "too_many_body": "This is not an error. You are creating more than 50 notes, which is not a good idea. Please consider moving them to a better place like a note management app. You can continue using quick notes anyway.",
@@ -1324,7 +1313,7 @@ export default {
         "delete": "删除",
         "select": "多选",
         "untitled": "无标题",
-        "num_selected": "已选择 %d 项",
+        "num_selected": "已选择 {0} 项",
         "select_all": "全选",
         "select_none": "取消全选",
         "cancel_select": "退出多选",
@@ -1333,9 +1322,8 @@ export default {
         "confirm": "确认",
         "cancel": "取消",
         "ok": "好",
-        "want_remove": "你确定要删除选中的 %d 个笔记吗？",
-        "want_remove_single": "你确定要删除笔记“%s”吗？",
-        "want_remove_plural": "你确定要删除选中的 %d 个笔记吗？",
+        "want_remove": "你确定要删除选中的 {0} 个笔记吗？ | 你确定要删除选中的 {0} 个笔记吗？",
+        "want_remove_single": "你确定要删除笔记“{0}”吗？",
         "remove_all": "你确定要删除所有笔记吗？",
         "too_many_title": "太多笔记了",
         "too_many_body": "这不是一个错误。你正在创建超过 50 个笔记，这不是一个好主意。请考虑将它们移动到笔记管理应用等更合适的地方。无论如何，你仍然可以继续使用快速笔记。",
@@ -1364,9 +1352,8 @@ export default {
         "confirm": "Confirmar",
         "cancel": "Cancelar",
         "ok": "OK",
-        "want_remove": "Está seguro de eliminar {0} apunte seleccionado?",
+        "want_remove": "Está seguro de eliminar {0} apunte seleccionado? | Está seguro de eliminar los {0} apuntes elegido?",
         "want_remove_single": "Está seguro de eliminar {0}?",
-        "want_remove_plural": "Está seguro de eliminar los {0} apuntes elegido",
         "remove_all": "Está seguro de eliminar todos los apuntes?",
         "too_many_title": "Demasiados apuntes quizás",
         "too_many_body": "Esto no es un error. Está creando más de 50 apuntes, que no es una buena idea. Por favor considere usar una aplicación para organizar apuntes en lugar de apuntes rápidos. Puedes continuar a usar apuntes rápidos de todas formas.",
