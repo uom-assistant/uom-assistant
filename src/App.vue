@@ -2,7 +2,7 @@
     <v-app>
         <v-app-bar class="elevation-0" color="lighten-4">
             <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
-            <v-toolbar-title class="not-selectable" @click="$route.path === '/' ? null : $router.push('/')" :class="{ pointer: $route.path !== '/' }">{{ $t('title') }}</v-toolbar-title>
+            <v-toolbar-title class="not-selectable app-title" @click="$route.path === '/' ? null : $router.push('/')" :class="{ pointer: $route.path !== '/' }">{{ $t($route.name === 'Home' ? 'title' : ($route.name || '').toLowerCase()) }}</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-menu
                 offset-y
@@ -129,7 +129,10 @@
             temporary
         >
             <v-list-item>
-                <v-list-item-content class="not-selectable">
+                <v-list-item-avatar tile size="37">
+                    <img :src="$vuetify.theme.dark ? '/img/logo-dark.svg' : '/img/logo.svg'">
+                </v-list-item-avatar>
+                <v-list-item-content class="not-selectable ml-1">
                     <v-list-item-title class="title">
                         {{ $t('title') }}
                     </v-list-item-title>
@@ -149,24 +152,24 @@
                     v-model="group"
                     active-class="primary--text"
                 >
-                <v-list-item to="/">
-                    <v-list-item-icon>
-                    <v-icon>mdi-view-dashboard</v-icon>
-                    </v-list-item-icon>
-                    <v-list-item-title>{{ $t('dashboard') }}</v-list-item-title>
-                </v-list-item>
-                <v-list-item to="/settings">
-                    <v-list-item-icon>
-                    <v-icon>mdi-cog-outline</v-icon>
-                    </v-list-item-icon>
-                    <v-list-item-title>{{ $t('settings') }}</v-list-item-title>
-                </v-list-item>
-                <v-list-item to="/about">
-                    <v-list-item-icon>
-                    <v-icon>mdi-information-outline</v-icon>
-                    </v-list-item-icon>
-                    <v-list-item-title>{{ $t('about') }}</v-list-item-title>
-                </v-list-item>
+                    <v-list-item to="/">
+                        <v-list-item-icon>
+                            <v-icon>mdi-view-dashboard</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title>{{ $t('dashboard') }}</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item to="/settings">
+                        <v-list-item-icon>
+                            <v-icon>mdi-cog-outline</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title>{{ $t('settings') }}</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item to="/about">
+                        <v-list-item-icon>
+                            <v-icon>mdi-information-outline</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title>{{ $t('about') }}</v-list-item-title>
+                    </v-list-item>
                 </v-list-item-group>
             </v-list>
         </v-navigation-drawer>

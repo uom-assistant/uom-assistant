@@ -30,8 +30,8 @@ Frontend:
 - [ ] Search
 - [ ] Set up guide
 - [ ] Settings page
-- [ ] About page
-- [ ] Logo
+- [x] About page
+- [x] Logo
 
 Backend:
 

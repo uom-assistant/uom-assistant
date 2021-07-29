@@ -3,6 +3,7 @@ import Vuetify from 'vuetify/lib';
 
 import en from 'vuetify/es5/locale/en';
 import zhHans from 'vuetify/es5/locale/zh-Hans';
+import es from 'vuetify/es5/locale/es';
 
 Vue.use(Vuetify);
 
@@ -28,7 +29,7 @@ export default new Vuetify({
         },
     },
     lang: {
-        locales: { en, zhHans },
+        locales: { en, zhHans, es },
         current: 'en',
     },
 });

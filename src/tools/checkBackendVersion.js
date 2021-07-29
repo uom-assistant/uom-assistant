@@ -7,7 +7,7 @@ import * as currentVersion from '../../public/version.json';
  * @returns {boolean} true if supported
  */
 const checkBackendVersion = (version) => {
-    if (semVerCmp(version, currentVersion.supportedBackendMaxVersion) > 0 || semVerCmp(version, currentVersion.supportedBackendMinVersion) < 0) {
+    if (semVerCmp(version, currentVersion.supportedBackendMinVersion) < 0) {
         return false;
     }
     return true;
