@@ -19,7 +19,7 @@ if (!UOMA_CONFIG['allow_unauthenticated']) {
     }
 }
 
-// Get cahced data (if exists)
+// Get cached data (if exists)
 $data = get_post_data();
 if (isset($data['subid'])) {
     $cached_response = get_cache('calendar', $data['subid'], $conn);

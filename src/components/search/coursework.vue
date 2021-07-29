@@ -342,7 +342,7 @@ export default {
         "remain_day": "{0} day | {0} days",
         "remain_hour": "{0} hour | {0} hours",
         "remain_min": "{0} min | {0} mins",
-        "expired": "Expired"
+        "expired": "Overdue"
     },
     "zh": {
         "remain_day": "{0} 天 | {0} 天",
