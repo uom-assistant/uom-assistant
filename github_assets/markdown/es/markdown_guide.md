@@ -1,6 +1,6 @@
 # Apuntes Rápidos Markdown: Guía de sintaxis extendida
 
-Además de la sintaxis común de Markdown, para facilitar el apunte en diversas formas, apuntes rápidos también admite las siguientes sintaxis de Markdown: 
+Además de la sintaxis común de Markdown, para facilitar el apunte en diversas formas, apuntes rápidos también admite las siguientes sintaxis de Markdown:
 
 ## Subrayar
 
@@ -15,10 +15,10 @@ Aquel ==biógrafo== se zampó un extraño ==sándwich de vodka y ajo==.
 Aplicable en el editor de correos
 
 ```markdown
-Acorde a la Teoría de Procrastinación^[1]^, cuando más tarde empiezes~（un~ ~trabajo）~, mayor es tu eficiencia.
+Acorde a la Teoría de Procrastinación^[1]^, cuando más tarde empiezes~(un~ ~trabajo)~, mayor es tu eficiencia.
 ```
 
-Acorde a la Teoría de Procrastinación^[1]^, cuando más tarde empiezes~（un~ ~trabajo）~, mayor es tu eficiencia.
+Acorde a la Teoría de Procrastinación^[1]^, cuando más tarde empiezes~(un~ ~trabajo)~, mayor es tu eficiencia.
 
 ## Lista de comprobación
 
