@@ -110,7 +110,7 @@
 
         <div class="about-footer d-flex align-center">
             <v-divider class="mr-5"></v-divider>
-            Made with ❤ by <a href="https://axton.im">Axton Yao</a>
+            Made with ❤ by&nbsp;<a href="https://axton.im">Axton Yao</a>
             <v-divider class="ml-5"></v-divider>
         </div>
     </div>
