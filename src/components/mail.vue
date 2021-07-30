@@ -4399,7 +4399,7 @@ export default {
         "drop_file": "Drop your files here",
         "preview": "Preview",
         "translation_settings": "Translation settings",
-        "translation_tip": "When enabled, the translation panel will be displayed when the email can be translated. The content of the mail will be sent to a third-party translation service. By using the translation service you are agreeing to their Terms of Service. The translation service provider can be found at the bottom left of the translation panel.",
+        "translation_tip": "When enabled, the translation panel will be displayed if the email can be translated. The content of the email will be sent to a third-party translation service. By using the translation service you are agreeing to their Terms of Service. The translation service provider can be found at the bottom left of the translation panel.",
         "language_unsupported_tip": "This language may not be supported by the translation service provided by the backend. The translation panel will not be displayed if the language is not supported.",
         "language_tip": "The translation panel will only be displayed if the language of the email differs from the target language. Language detection of the email is done locally and automatically.",
         "cancel": "Cancel",
