@@ -356,11 +356,11 @@ export default {
         "quick_links": "Quick Links",
         "add_link": "Add a link",
         "link_format": "URL[ name]",
-        "nothing": "No link here",
-        "no_class": "No course yet",
-        "subjects": "Courses",
+        "nothing": "No links here",
+        "no_class": "No course units yet",
+        "subjects": "Course Units",
         "portals": "Portals",
-        "custom": "Customize"
+        "custom": "Customise"
     },
     "zh": {
         "quick_links": "快速链接",

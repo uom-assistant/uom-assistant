@@ -315,8 +315,8 @@ export default {
         "attendance": "Attendance",
         "annual": "Annual",
         "last_month": "Last month",
-        "nothing": "No absent record",
-        "cannot_fetch": "Unable to get attendance data, probably you are not properly configured backend information or the backend does not allow this.",
+        "nothing": "No absence record",
+        "cannot_fetch": "Unable to obtain attendance data, the backend information might not be properly configured or the backend does not allow this.",
         "learn_more": "Learn more",
         "absent": "Absent"
     },

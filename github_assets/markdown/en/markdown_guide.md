@@ -1,122 +1,122 @@
-# 快速笔记 Markdown 扩展语法指北
+# Quick Notes Extended Markdown Syntax Guide
 
-除了常见的 Markdown 语法之外，为了方便以更丰富的形式记录笔记，快速笔记还支持以下的 Markdown 扩展语法：
+For the convenience of taking notes in a richer form, Quick Notes also support the following extended Markdown syntax in addition to the common ones:
 
-## 高亮
-
-```markdown
-敏捷的==棕色狐狸==跨过==懒狗==。
-```
-
-敏捷的==棕色狐狸==跨过==懒狗==。
-
-## 上下标
-
-上下标也可被用于邮件编辑器中。
+## Highlight
 
 ```markdown
-根据摸森堡测不准原理 ^[1]^，摸鱼动作和~（摸鱼）~主体无法被同时观测到。
+The quick ==brown fox== jumps over the ==lazy dog==.
 ```
 
-根据摸森堡测不准原理 ^[1]^，摸鱼动作和~（摸鱼）~主体无法被同时观测到。
+The quick ==brown fox== jumps over the ==lazy dog==.
+
+## Subscript and Superscript
+
+Subscript and superscript can also be used in the email editor.
+
+```markdown
+This is a line of text used to demonstrate ~subscript~ and ^superscript^.
+```
+
+This is a line of text used to demonstrate ~subscript~ and ^superscript^.
 
 ## Checklist
 
 ```markdown
-- [ ] 这件事未完成
-- [ ] 这件事也未完成
-- [x] 这件事完成了
+- [ ] This task is incomplete
+- [ ] This task is also incomplete
+- [x] This task has been completed
 ```
 
-- [ ] 这件事未完成
-- [ ] 这件事也未完成
-- [x] 这件事完成了
+- [ ] This task is incomplete
+- [ ] This task is also incomplete
+- [x] This task has been completed
 
-## 提示
+## Notification
 
-提示也可被用于邮件编辑器中。
+Notification can also be used in the email editor.
 
-共有四种提示 `success`、`info`、`warning` 和 `error`。
+There are four notifications: `success`, `info`, `warning` and `error`.
 
 ```markdown
 ::: success
-这是个成功的提示。
+This is a success message.
 :::
 
 ::: info
-这是个信息提示。剩下两个都一样咱就不整了。
+This is an info message. Likewise for the last two.
 :::
 ```
 
 ::: success
-这是个成功的提示。
+This is a success message.
 :::
 
 ::: info
-这是个信息提示。剩下两个都一样咱就不整了。
+This is an info message. Likewise for the last two.
 :::
 
-## 样式标记
+## Style Tags
 
-除 `黑幕` 与 `模糊` 外，其他样式标记均可被用于邮件编辑器中。
+Style tags can be used in the email editor, with the exception of `mask` and `blur`.
 
 ```markdown
-[任意内容]{样式名称}
+[content]{style}
 ```
 
-| 可选样式 |  预览 |
+| Available Style |  Preview |
 | :-----| :---- |
-| `这是[红色]{red}` | 这是[红色]{red} |
-| `这是[橙色]{orange}` | 这是[橙色]{orange} |
-| `这是[黄色]{yellow}` | 这是[黄色]{yellow} |
-| `这是[绿色]{green}` | 这是[绿色]{green} |
-| `这是[青色]{teal}` | 这是[青色]{teal} |
-| `这是[蓝色]{blue}` | 这是[蓝色]{blue} |
-| `这是[紫色]{purple}` | 这是[紫色]{purple} |
-| `这是[灰色]{grey}` | 这是[灰色]{grey} |
-| `[红色]{bg-red}背景` | [红色]{bg-red}背景 |
-| `[橙色]{bg-orange}背景` | [橙色]{bg-orange}背景 |
-| `[黄色]{bg-yellow}背景` | [黄色]{bg-yellow}背景 |
-| `[绿色]{bg-green}背景` | [绿色]{bg-green}背景 |
-| `[青色]{bg-teal}背景` | [青色]{bg-teal}背景 |
-| `[蓝色]{bg-blue}背景` | [蓝色]{bg-blue}背景 |
-| `[紫色]{bg-purple}背景` | [紫色]{bg-purple}背景 |
-| `[灰色]{bg-grey}背景` | [灰色]{bg-grey}背景 |
-| `这个字[比较大]{big}` | 这个字[比较大]{big} |
-| `这个字[比较小]{small}` | 这个字[比较小]{small} |
-| `这里有[黑幕]{mask}` | 这里有[黑幕]{mask} |
-| `[模糊]{blur}的内容` | [模糊]{blur}的内容 |
+| `This is [red]{red}` | This is [red]{red} |
+| `This is [orange]{orange}` | This is [orange]{orange} |
+| `This is [yellow]{yellow}` | This is [yellow]{yellow} |
+| `This is [green]{green}` | This is [green]{green} |
+| `This is [teal]{teal}` | This is [teal]{teal} |
+| `This is [blue]{blue}` | This is [blue]{blue} |
+| `This is [purple]{purple}` | This is [purple]{purple} |
+| `This is [grey]{grey}` | This is [grey]{grey} |
+| `[red]{bg-red} background` | [red]{bg-red} background |
+| `[orange]{bg-orange} background` | [orange]{bg-orange} background |
+| `[yellow]{bg-yellow} background` | [yellow]{bg-yellow} background |
+| `[green]{bg-green} background` | [green]{bg-green} background |
+| `[teal]{bg-teal} background` | [teal]{bg-teal} background |
+| `[blue]{bg-blue} background` | [blue]{bg-blue} background |
+| `[purple]{bg-purple} background` | [purple]{bg-purple} background |
+| `[grey]{bg-grey} background` | [grey]{bg-grey} background |
+| `This word is quite [big]{big}` | This word is quite [big]{big} |
+| `This word is quite [small]{small}` | This word is quite [small]{small} |
+| `Here is a [mask]{mask}` | Here is a [mask]{mask} |
+| `[Blurred]{blur} content` | [Blurred]{blur} content |
 
-此外，你还可以通过开放的 `style` 属性写一些内联 CSS 样式：
-
-```markdown
-这段文本使用了[自定义 CSS 样式]{style="display: inline-block; padding: 2px 5px; margin: 0 2px; border-radius: 3px; background: grey; color: white"}。
-```
-
-这段文本使用了[自定义 CSS 样式]{style="display: inline-block; padding: 2px 5px; margin: 0 2px; border-radius: 3px; background: grey; color: white"}。
-
-## 增强的表格
-
-增强的表格也可被用于邮件编辑器中。
+Additionally, you can also write some inline CSS styles through the open `style` attribute:
 
 ```markdown
-|            | 跨列表头            ||
-| 多行        | 表头     | 也可以    |
-| ---------- | :------: | -------- |
-| 跨行单元格   | 跨列单元格          ||
-| ^^         | N/A      | N/A      |
-| 多行也可以   | - Item 1 | - Item 1 | \
-|            | - Item 2 | - Item 2 |
-[表格标题]
+This text uses [custom CSS style]{style="display: inline-block; padding: 2px 5px; margin: 0 2px; border-radius: 3px; background: grey; color: white"}.
 ```
 
-|            | 跨列表头            ||
-| 多行        | 表头     | 也可以    |
-| ---------- | :------: | -------- |
-| 跨行单元格   | 跨列单元格          ||
-| ^^         | N/A      | N/A      |
-| 多行也可以   | - Item 1 | - Item 1 | \
-|            | - Item 2 | - Item 2 |
-[表格标题]
+This text uses [custom CSS style]{style="display: inline-block; padding: 2px 5px; margin: 0 2px; border-radius: 3px; background: grey; color: white"}.
 
-更多语法规则请参考 [MultiMarkdown 表格](https://github.com/redbug312/markdown-it-multimd-table/blob/master/README.md)。
+## Enhanced Table
+
+Enhanced table can also be used in the email editor.
+
+```markdown
+|                  | Multi-column header ||
+| Multiple rows of | header is | also possible |
+| ---------------- | :-------: | -------- |
+| Vertically merged cell | Horizontally merged cell ||
+| ^^               | N/A       | N/A      |
+| Multiline        | - Item 1  | - Item 1 | \
+|                  | - Item 2  | - Item 2 |
+[Table Title]
+```
+
+|                  | Multi-column header ||
+| Multiple rows of | header is | also possible |
+| ---------------- | :-------: | -------- |
+| Vertically merged cell | Horizontally merged cell ||
+| ^^               | N/A       | N/A      |
+| Multiline        | - Item 1  | - Item 1 | \
+|                  | - Item 2  | - Item 2 |
+[Table Title]
+
+For more syntax rules, please refer to [MultiMarkdown table](https://github.com/redbug312/markdown-it-multimd-table/blob/master/README.md).

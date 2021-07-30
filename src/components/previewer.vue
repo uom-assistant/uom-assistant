@@ -845,8 +845,9 @@ export default {
         "download": "Download",
         "audio_unsupported": "Your browser doesn't support playing audio.",
         "video_unsupported": "Your browser doesn't support playing video.",
-        "breakline": "Break line",
+        "breakline": "Word wrap",
         "raw_view": "Raw view",
+        "preview": "Preview",
         "head_row": "Use first row as header: Enabled",
         "no_head_row": "Use first row as header: Disabled"
     },

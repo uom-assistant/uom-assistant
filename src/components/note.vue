@@ -1272,7 +1272,7 @@ export default {
 {
     "en": {
         "note": "Quick Notes",
-        "nothing": "No note yet",
+        "nothing": "No notes yet",
         "new_note": "New Note",
         "title_placeholder": "Note Title",
         "md_support": "Markdown supported",
@@ -1292,11 +1292,11 @@ export default {
         "confirm": "Confirm",
         "cancel": "Cancel",
         "ok": "OK",
-        "want_remove": "Are you sure to delete {0} note that is selected? | Are you sure to delete {0} notes that are selected?",
-        "want_remove_single": "Are you sure to delete note \"{0}\"?",
-        "remove_all": "Are you sure to delete all notes?",
+        "want_remove": "Are you sure you want to delete {0} note that is selected? | Are you sure you want to delete {0} notes that are selected?",
+        "want_remove_single": "Are you sure you want to delete note \"{0}\"?",
+        "remove_all": "Are you sure you want to delete all notes?",
         "too_many_title": "Maybe too many notes",
-        "too_many_body": "This is not an error. You are creating more than 50 notes, which is not a good idea. Please consider moving them to a better place like a note management app. You can continue using quick notes anyway.",
+        "too_many_body": "This is not an error. You are creating more than 50 notes, which is not a good idea. Please consider moving them to a better place such as a note management app. In any case, you can continue using quick notes.",
         "hl_error": "Error when highlighting code",
         "at": "at"
     },

@@ -764,14 +764,14 @@ export default {
     "en": {
         "coursework": "Coursework",
         "add_coursework": "Add a coursework",
-        "ddl_date": "Date",
+        "ddl_date": "Due Date",
         "ddl_time": "Time",
-        "subject": "Course",
+        "subject": "Course Unit",
         "no_subject": "No course found",
         "remain_day": "{0} day | {0} days",
         "remain_hour": "{0} hour | {0} hours",
         "remain_min": "{0} min | {0} mins",
-        "expired": "Expired"
+        "expired": "Overdue"
     },
     "zh": {
         "coursework": "作业",

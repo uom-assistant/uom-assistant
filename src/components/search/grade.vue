@@ -351,7 +351,7 @@ export default {
 <i18n>
 {
     "en": {
-        "more_info": "View course",
+        "more_info": "View course unit",
         "formative": "Formative"
     },
     "zh": {

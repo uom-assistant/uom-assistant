@@ -219,14 +219,14 @@ export default {
         "uom_email": "UoM Email",
         "uom_password": "UoM Account Password",
         "allow_save": "Use this backend to sync settings",
-        "will_store_on": "Turn on means your UoM account will be stored on this backend",
+        "will_store_on": "Enabling this option means your UoM account information will be stored on this backend",
         "not_allow_account": "This backend doesn't allow you to store UoM account",
         "not_allow_email": "This backend doesn't allow you to sync email",
         "not_allow_sync": "This backend doesn't allow you to sync settings",
         "where_ica": "Where can I get my calendar subscription?",
         "where_ica_body": "Go to <a href=\"https://timetables.manchester.ac.uk/\" target=\"_blank\" rel=\"noreferrer noopener\">this page</a> and click the \"Subscribe\" button in the top right corner of the page after logging in, then click \"More\" and \"Copy\" and paste the URL here.",
         "privacy_policy": "Privacy Policy",
-        "privacy_policy_body": "If \"Sync Settings\" is not turned on, <strong>the backend will not store or retain any of your UoM account information</strong>, including username, password, email, grades and more. However, in order to access your grades, emails, attendance etc. from the UoM systems, your UoM account information will be securely transferred to the backend (but will not retained). <br><br>When \"Sync Settings\" is turned on, <strong>your username, password and email will be stored on the backend</strong>, but no other information will be stored.",
+        "privacy_policy_body": "If \"Sync Settings\" is not turned on, <strong>the backend will not store or retain any of your UoM account information</strong>, including username, password, email, grades and more. However, in order to access your grades, emails, attendance etc. from the UoM systems, your UoM account information will be securely transferred to the backend (but will not be retained). <br><br>When \"Sync Settings\" is turned on, <strong>your username, password and email will be stored on the backend</strong>, but no other information will be stored.",
         "ok": "OK"
     },
     "zh": {

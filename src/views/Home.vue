@@ -500,12 +500,12 @@ export default {
 {
     "en": {
         "overview": "OVERVIEW",
-        "class_overview": "You have no session today | You have {0} session today | You have {0} sessions today",
+        "class_overview": "You have no sessions today | You have {0} session today | You have {0} sessions today",
         "class_remian": ", {0} remaining.",
         "class_remian_none": ".",
         "tomorrow_first": " Tomorrow's first session will start at {0}.",
-        "tomorrow_first_none": "You have no session tomorrow.",
-        "tomorrow_first_none_rest": "You have no session tomorrow, have a rest!",
+        "tomorrow_first_none": "You have no sessions tomorrow.",
+        "tomorrow_first_none_rest": "You have no sessions tomorrow, have a rest!",
         "next": "Coming up",
         "no_next": "No class in a day",
         "min_after": "In {0} min | In {0} mins",
