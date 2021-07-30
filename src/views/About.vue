@@ -143,7 +143,7 @@ export default {
          * Load contributors from GitHub
          */
         async loadContributors() {
-            this.contributors = (await betterFetch('https://api.github.com/repositories/340121100/contributors').catch(() => [])).filter((item) => item.type !== 'Bot').sort((a, b) => ((a.contributions > b.contributions) ? -1 : 1));
+            this.contributors = (await betterFetch('https://api.github.com/repositories/340121100/contributors?per_page=100').catch(() => [])).filter((item) => item.type !== 'Bot').sort((a, b) => ((a.contributions > b.contributions) ? -1 : 1));
         },
         /**
          * Load latest frontend version online
@@ -287,7 +287,7 @@ export default {
         "learn_more": "Learn More",
         "about_1": "曼大助手是一个能在你于曼彻斯特大学的学习生活中助你一臂之力的 Web 应用程序。你所需要的一切信息，皆在视线所及的范围之内。",
         "about_2": "曼大助手是开源的，因此你可以自由使用曼大助手、向我们提出建议、尝试自托管曼大助手，甚至按你的心意随意修改曼大助手或是帮助我们开发曼大助手。",
-        "about_3": "曼大助手项目由 Axton Yao 发起并由 Axton Yao 与其他贡献者共同开发。你可以在我们的 GitHub 项目中了解更多。",
+        "about_3": "曼大助手项目由 Axton Yao 发起并由 Axton Yao 与其他贡献者共同开发。你可以查看我们的 GitHub 项目或是访问我们的网站来了解更多。",
         "author": "Author",
         "contributors": "Contributors",
         "contribute": "{0} contribution | {0} contributions",
@@ -305,7 +305,7 @@ export default {
         "learn_more": "了解更多",
         "about_1": "曼大助手是一个能在你于曼彻斯特大学的学习生活中助你一臂之力的 Web 应用程序。你所需要的一切信息，皆在视线所及的范围之内。",
         "about_2": "曼大助手是开源的，因此你可以自由使用曼大助手、向我们提出建议、尝试自托管曼大助手，甚至按你的心意随意修改曼大助手或是帮助我们开发曼大助手。",
-        "about_3": "曼大助手项目由 Axton Yao 发起并由 Axton Yao 与其他贡献者共同开发。你可以在我们的 GitHub 项目中了解更多。",
+        "about_3": "曼大助手项目由 Axton Yao 发起并由 Axton Yao 与其他贡献者共同开发。你可以查看我们的 GitHub 项目或是访问我们的网站来了解更多。",
         "author": "作者",
         "contributors": "贡献者",
         "contribute": "{0} 次贡献 | {0} 次贡献",
@@ -323,7 +323,7 @@ export default {
         "learn_more": "Saber más",
         "about_1": "曼大助手是一个能在你于曼彻斯特大学的学习生活中助你一臂之力的 Web 应用程序。你所需要的一切信息，皆在视线所及的范围之内。",
         "about_2": "曼大助手是开源的，因此你可以自由使用曼大助手、向我们提出建议、尝试自托管曼大助手，甚至按你的心意随意修改曼大助手或是帮助我们开发曼大助手。",
-        "about_3": "曼大助手项目由 Axton Yao 发起并由 Axton Yao 与其他贡献者共同开发。你可以在我们的 GitHub 项目中了解更多。",
+        "about_3": "曼大助手项目由 Axton Yao 发起并由 Axton Yao 与其他贡献者共同开发。你可以查看我们的 GitHub 项目或是访问我们的网站来了解更多。",
         "author": "Author",
         "contributors": "Contributors",
         "contribute": "{0} contribution | {0} contributions",
