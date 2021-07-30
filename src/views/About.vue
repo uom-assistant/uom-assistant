@@ -285,9 +285,9 @@ export default {
     "en": {
         "title": "UoM Assistant",
         "learn_more": "Learn More",
-        "about_1": "曼大助手是一个能在你于曼彻斯特大学的学习生活中助你一臂之力的 Web 应用程序。你所需要的一切信息，皆在视线所及的范围之内。",
-        "about_2": "曼大助手是开源的，因此你可以自由使用曼大助手、向我们提出建议、尝试自托管曼大助手，甚至按你的心意随意修改曼大助手或是帮助我们开发曼大助手。",
-        "about_3": "曼大助手项目由 Axton Yao 发起并由 Axton Yao 与其他贡献者共同开发。你可以查看我们的 GitHub 项目或是访问我们的网站来了解更多。",
+        "about_1": "The UoM Assistant is a web application that can help you throughout your student life at the University of Manchester. All the information you will need is at your fingertips.",
+        "about_2": "The UoM Assistant is open-source; therefore, you can freely use UoM Assistant, make suggestions to us, try self-hosting and even modify it as you wish or help us develop it.",
+        "about_3": "The UoM Assistant project was initiated by Axton Yao and developed by Axton Yao and other contributors. You can check out our project on GitHub or visit our website to find out more.",
         "author": "Author",
         "contributors": "Contributors",
         "contribute": "{0} contribution | {0} contributions",
