@@ -321,20 +321,20 @@ export default {
     "es": {
         "title": "UoM Assistant",
         "learn_more": "Saber más",
-        "about_1": "曼大助手是一个能在你于曼彻斯特大学的学习生活中助你一臂之力的 Web 应用程序。你所需要的一切信息，皆在视线所及的范围之内。",
-        "about_2": "曼大助手是开源的，因此你可以自由使用曼大助手、向我们提出建议、尝试自托管曼大助手，甚至按你的心意随意修改曼大助手或是帮助我们开发曼大助手。",
-        "about_3": "曼大助手项目由 Axton Yao 发起并由 Axton Yao 与其他贡献者共同开发。你可以查看我们的 GitHub 项目或是访问我们的网站来了解更多。",
-        "author": "Author",
-        "contributors": "Contributors",
-        "contribute": "{0} contribution | {0} contributions",
-        "loading": "Loading…",
-        "version": "Version",
-        "frontend": "Frontend",
-        "backend": "Backend",
-        "latest": "Up-to-date",
+        "about_1": "UoM Assistant es una aplicación web que te echará una mano en tu vida universitaria en la Universidad de Manchester. Todo lo que necesites, a su alcance.",
+        "about_2": "UoM Assistant es de código abierto; por lo tanto, puedes usar UoM Assistant libremente, hacernos sugerencias, probar el autohospedaje e incluso modificarlo como desees o ayudarnos a desarrollarlo.",
+        "about_3": "El proyecto UoM Assistant fue iniciado por Axton Yao y desarrollado por Axton Yao y otros colaboradores. Puede consultar nuestro proyecto en GitHub o visitar nuestro sitio web para obtener más información.",
+        "author": "Autor",
+        "contributors": "Colaboradores",
+        "contribute": "{0} contribución | {0} contribuciones",
+        "loading": "Cargando...",
+        "version": "Versión",
+        "frontend": "Front-end",
+        "backend": "Back-end",
+        "latest": "Actualizado",
         "null": "N/A",
-        "unknown": "Unknown",
-        "latest_version": "Latest {0}"
+        "unknown": "Desconocido",
+        "latest_version": "Última {0}"
     }
 }
 </i18n>
