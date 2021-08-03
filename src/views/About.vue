@@ -327,7 +327,7 @@ export default {
         "author": "Autor",
         "contributors": "Colaboradores",
         "contribute": "{0} contribución | {0} contribuciones",
-        "loading": "Cargando...",
+        "loading": "Cargando…",
         "version": "Versión",
         "frontend": "Front-end",
         "backend": "Back-end",
