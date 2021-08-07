@@ -337,15 +337,6 @@ export default {
         "cannot_fetch": "No ha sido posible obtener los datos de asistencia, puede ser debido al inopropiado configurado servidor back-end o falta de permisión.",
         "learn_more": "Saber más",
         "absent": "Ausente"
-    },
-    "ja": {
-        "attendance": "出勤統計",
-        "annual": "当年度",
-        "last_month": "先月",
-        "nothing": "欠勤記録がいないです",
-        "cannot_fetch": "出勤データが取得できません。バックエンドの情報が正しく設定されていないか、バックエンドが許可していない可能性があります。",
-        "learn_more": "もっと知りたい",
-        "absent": "欠勤"
     }
 }
 </i18n>
