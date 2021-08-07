@@ -344,7 +344,7 @@ export default {
         "last_month": "先月",
         "nothing": "欠勤記録がありません",
         "cannot_fetch": "出勤データが取得できません。バックエンドの情報が正しく設定されていないか、バックエンドが許可していない可能性があります。",
-        "learn_more": "もっと知りたい",
+        "learn_more": "もっと詳しく",
         "absent": "欠勤"
     }
 }
