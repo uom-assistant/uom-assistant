@@ -920,6 +920,23 @@ export default {
         "quick_teams": "Acceder a Teams",
         "copy_passcode": "Copiar contraseña",
         "self_study": " (Autoestudio)"
+    },
+    "ja": {
+        "today": "今日",
+        "day": "日",
+        "week": "周",
+        "month": "月",
+        "from": "から：",
+        "to": "まで：",
+        "course_ddl": "課題の締め切り",
+        "coursework": "課題",
+        "subject_home": "科目ホームページ",
+        "ical_error": "icalファイル解析不能",
+        "network_error_body": "カレンダーサブスクライブのURLから最新イベントの情報を取得できません。",
+        "quick_zoom": "Zoomミーティングを起動する",
+        "quick_teams": "Teamsミーティングを起動する",
+        "copy_passcode": "パスワードをコピーする",
+        "self_study": "（独学）"
     }
 }
 </i18n>

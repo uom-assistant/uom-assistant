@@ -28,5 +28,15 @@
         "backend_maintenance": "Back-end en mantenimiento",
         "backend_maintenance_body": "Back-end en mantenimiento. El mismo error no se mostrará otra vez hasta conectarse correctamente",
         "at": "en"
+    },
+    "ja": {
+        "network_error": "ネットワークエラー",
+        "backend_error": "サーバーエラー",
+        "backend_error_body": "バックエンドから解析不能なデータが送られてきました。次に接続成功まで同じエラーが二度と表示しません。",
+        "version_error": "サポートされないバックエンドバージョン。フロントエンドをアップデートしてみて、管理者に連絡してください。次に接続成功まで同じエラーが二度と表示しません。",
+        "request_error": "リクエストエラー",
+        "backend_maintenance": "バックエンドメンテナンス",
+        "backend_maintenance_body": "バックエンドはいまメンテナンスしています。次に接続成功まで同じエラーが二度と表示しません。",
+        "at": "で"
     }
 }
