@@ -1,5 +1,8 @@
 <template>
-    <v-card class="mx-auto rounded-lg gray-container pl-0 pr-0" outlined>
+    <v-card
+        class="mx-auto rounded-lg gray-container pl-0 pr-0"
+        outlined
+    >
         <v-progress-circular
             indeterminate
             color="grey"
@@ -49,7 +52,7 @@
                     maxHeight: 304,
                     offsetY: true,
                     offsetOverflow: true,
-                    transition: 'slide-y-transition',
+                    transition: 'slide-y-transition'
                 }"
             >
                 <template v-slot:item="data">
@@ -72,53 +75,39 @@
             @end="base = 0"
         ></v-slider>
         <div class="clock-outer handle">
-            <div
-                class="time-label label-left"
-                :class="$vuetify.breakpoint.xs ? 'small-screen' : ''"
-            >
+            <div class="time-label label-left" :class="$vuetify.breakpoint.xs ? 'small-screen' : ''">
                 <span class="daylight-label">
                     <v-icon v-if="localNight">mdi-weather-night</v-icon>
-                    <v-icon v-else>mdi-white-balance-sunny</v-icon> </span
-                ><br />
-                <span class="hour" ref="hourLocal"></span>:<span ref="minLocal"></span>:<span
-                    ref="secLocal"
-                ></span
-                ><br />
-                <span class="label text-truncate d-inline-block">{{ $t("local_time") }}</span>
+                    <v-icon v-else>mdi-white-balance-sunny</v-icon>
+                </span><br>
+                <span class="hour" ref="hourLocal"></span>:<span ref="minLocal"></span>:<span ref="secLocal"></span><br>
+                <span class="label text-truncate d-inline-block">{{ $t('local_time') }}</span>
             </div>
-            <div
-                class="time-label label-right"
-                :class="$vuetify.breakpoint.xs ? 'small-screen' : ''"
-            >
+            <div class="time-label label-right" :class="$vuetify.breakpoint.xs ? 'small-screen' : ''">
                 <span class="daylight-label">
                     <v-icon v-if="remoteNight">mdi-weather-night</v-icon>
-                    <v-icon v-else>mdi-white-balance-sunny</v-icon> </span
-                ><br />
-                <span class="hour" ref="hourRemote"></span>:<span ref="minRemote"></span>:<span
-                    ref="secRemote"
-                ></span
-                ><br />
-                <span class="label text-truncate d-inline-block">{{
-                    $t("uk_time", [$t(getCity)])
-                }}</span>
+                    <v-icon v-else>mdi-white-balance-sunny</v-icon>
+                </span><br>
+                <span class="hour" ref="hourRemote"></span>:<span ref="minRemote"></span>:<span ref="secRemote"></span><br>
+                <span class="label text-truncate d-inline-block">{{ $t('uk_time', [$t(getCity)]) }}</span>
             </div>
         </div>
     </v-card>
 </template>
 
 <script>
-import { mapState } from "vuex";
-import * as tzList from "@/tools/tzList.json";
+import { mapState } from 'vuex';
+import * as tzList from '@/tools/tzList.json';
 
-let hourLocal = "";
-let minLocal = "";
-let hourRemote = "";
-let minRemote = "";
+let hourLocal = '';
+let minLocal = '';
+let hourRemote = '';
+let minRemote = '';
 
-let sec = "";
+let sec = '';
 
 export default {
-    name: "clock",
+    name: 'clock',
     props: {
         searchid: Number,
     },
@@ -126,7 +115,7 @@ export default {
         return {
             loading: false,
             settings: false,
-            timeZone: "Europe/London",
+            timeZone: 'Europe/London',
             timeZoneList: [],
             base: 0,
             adjust: false,
@@ -144,31 +133,25 @@ export default {
             const searchIndex = [];
             for (const item of tzList.default) {
                 timezoneList.push({
-                    name:
-                        this.locale === "en"
-                            ? `${this.$t(item.mainCity)}, ${this.$t(item.countryName)}`
-                            : `${this.$t(item.countryName)} ${this.$t(item.mainCity)}`,
+                    name: this.locale === 'en' ? `${this.$t(item.mainCity)}, ${this.$t(item.countryName)}` : `${this.$t(item.countryName)} ${this.$t(item.mainCity)}`,
                     code: item.name,
                     display: item.mainCity,
                 });
                 searchIndex.push({
                     code: item.name,
                     display: this.$t(item.mainCity),
-                    mainCity:
-                        item.mainCity === this.$t(item.mainCity)
-                            ? item.mainCity
-                            : [item.mainCity, this.$t(item.mainCity)],
+                    mainCity: item.mainCity === this.$t(item.mainCity) ? item.mainCity : [item.mainCity, this.$t(item.mainCity)],
                 });
             }
             this.timeZoneList = timezoneList;
 
             // Commit search index
-            this.$store.commit("setSearchIndex", {
+            this.$store.commit('setSearchIndex', {
                 id: this.searchid,
                 payload: {
-                    name: "clock",
-                    key: "code",
-                    indexes: ["mainCity", "code"],
+                    name: 'clock',
+                    key: 'code',
+                    indexes: ['mainCity', 'code'],
                     data: searchIndex,
                 },
             });
@@ -186,11 +169,11 @@ export default {
             const hourLocalOld = hourLocal;
             const hourRemoteOld = hourRemote;
 
-            sec = `${now.getSeconds()}`.padStart(2, "0");
-            minLocal = `${now.getMinutes()}`.padStart(2, "0");
-            hourLocal = `${now.getHours()}`.padStart(2, "0");
-            minRemote = `${remoteNow.getMinutes()}`.padStart(2, "0");
-            hourRemote = `${remoteNow.getHours()}`.padStart(2, "0");
+            sec = `${now.getSeconds()}`.padStart(2, '0');
+            minLocal = `${now.getMinutes()}`.padStart(2, '0');
+            hourLocal = `${now.getHours()}`.padStart(2, '0');
+            minRemote = `${remoteNow.getMinutes()}`.padStart(2, '0');
+            hourRemote = `${remoteNow.getHours()}`.padStart(2, '0');
 
             if (secOld !== sec || init) {
                 this.$refs.secLocal.textContent = sec;
@@ -200,9 +183,9 @@ export default {
                 this.$refs.minLocal.textContent = minLocal;
                 this.$refs.minRemote.textContent = minRemote;
                 if (!init) {
-                    this.$store.commit("setTimerMin", minLocal);
-                    if (minLocal === "00") {
-                        this.$store.commit("setTimerHour", `${hourLocal}${new Date().valueOf()}`);
+                    this.$store.commit('setTimerMin', minLocal);
+                    if (minLocal === '00') {
+                        this.$store.commit('setTimerHour', `${hourLocal}${new Date().valueOf()}`);
                     }
                 }
             }
@@ -227,7 +210,7 @@ export default {
          * Store timezone settings
          */
         store() {
-            localStorage.setItem("timezone", this.timeZone);
+            localStorage.setItem('timezone', this.timeZone);
         },
         /**
          * Convert a Date object to a specified time zone
@@ -236,11 +219,7 @@ export default {
          * @returns {Date} a new Date object that has converted to the specified time zone
          */
         convertTimeZone(date, tzString) {
-            return new Date(
-                (typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", {
-                    timeZone: tzString,
-                })
-            );
+            return new Date((typeof date === 'string' ? new Date(date) : date).toLocaleString('en-US', { timeZone: tzString }));
         },
     },
     watch: {
@@ -260,8 +239,8 @@ export default {
             const hourLocalOld = hourLocal;
             const hourRemoteOld = hourRemote;
 
-            hourLocal = `${now.getHours()}`.padStart(2, "0");
-            hourRemote = `${remoteNow.getHours()}`.padStart(2, "0");
+            hourLocal = `${now.getHours()}`.padStart(2, '0');
+            hourRemote = `${remoteNow.getHours()}`.padStart(2, '0');
 
             if (hourLocalOld !== hourLocal) {
                 this.$refs.hourLocal.textContent = hourLocal;
@@ -295,23 +274,20 @@ export default {
                     return item.display;
                 }
             }
-            return "London";
+            return 'London';
         },
     },
     mounted() {
-        this.$i18n.locale = localStorage.getItem("language") || "en";
+        this.$i18n.locale = localStorage.getItem('language') || 'en';
 
         // Restore timezone
-        this.timeZone = localStorage.getItem("timezone") || "Europe/London";
-        localStorage.setItem("timezone", this.timeZone);
+        this.timeZone = localStorage.getItem('timezone') || 'Europe/London';
+        localStorage.setItem('timezone', this.timeZone);
 
         // Bulid timezone list
         for (const item of tzList.default) {
             this.timeZoneList.push({
-                name:
-                    this.locale === "en"
-                        ? `${this.$t(item.mainCity)}, ${this.$t(item.countryName)}`
-                        : `${this.$t(item.countryName)} ${this.$t(item.mainCity)}`,
+                name: this.locale === 'en' ? `${this.$t(item.mainCity)}, ${this.$t(item.countryName)}` : `${this.$t(item.countryName)} ${this.$t(item.mainCity)}`,
                 code: item.name,
                 display: item.mainCity,
             });
@@ -330,9 +306,9 @@ export default {
 
 <style lang="less" scoped>
 p {
-    color: #000000;
-    font-size: 0.8em;
-    opacity: 0.75;
+  color: #000000;
+  font-size: 0.8em;
+  opacity: 0.75;
 }
 .clock-outer {
     width: 350px;
@@ -349,14 +325,13 @@ p {
         left: 10px;
         z-index: 10;
     }
-    .settings-icon,
-    .adjust-icon {
+    .settings-icon, .adjust-icon {
         position: absolute;
         right: 10px;
         opacity: 0;
-        transition: opacity 0.2s;
+        transition: opacity .2s;
         &.shown {
-            opacity: 0.5;
+            opacity: .5;
         }
     }
     .settings-icon {
@@ -378,10 +353,10 @@ p {
         background-color: #fafafa;
         transform-origin: center center;
         transform: scale(0);
-        transition: transform 0.4s 0.1s;
+        transition: transform .4s .1s;
         &.opened {
             transform: scale(1);
-            transition: transform 0.4s;
+            transition: transform .4s;
         }
     }
     .settings-flex {
@@ -394,7 +369,7 @@ p {
         height: 0;
         width: 0;
         overflow: hidden;
-        transition: opacity 0.2s, height 0s 0.2s, width 0s 0.2s;
+        transition: opacity .2s, height 0s .2s, width 0s .2s;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -403,7 +378,7 @@ p {
             pointer-events: auto;
             width: 100%;
             height: 100%;
-            transition: opacity 0.2s 0.3s;
+            transition: opacity .2s .3s;
         }
         .timezone-input {
             max-width: 270px;
@@ -411,11 +386,9 @@ p {
             margin-bottom: -20px;
         }
     }
-    &:hover,
-    &:focus {
-        .settings-icon,
-        .adjust-icon {
-            opacity: 0.5;
+    &:hover, &:focus {
+        .settings-icon, .adjust-icon {
+            opacity: .5;
         }
     }
     .slider {
@@ -424,8 +397,8 @@ p {
         left: 10px;
         z-index: 1;
         width: calc(100% - 50px);
-        transition: bottom 0.2s;
-        opacity: 0.8;
+        transition: bottom .2s;
+        opacity: .8;
         &.opened {
             bottom: 2px;
         }
@@ -442,13 +415,13 @@ p {
         color: #660099;
     }
     .label {
-        opacity: 0.5;
+        opacity: .5;
         font-size: 15px;
         width: 165px;
         text-align: center;
     }
     .daylight-label {
-        opacity: 0.5;
+        opacity: .5;
         font-size: 15px;
         margin-bottom: 12px;
         display: inline-block;
@@ -468,14 +441,14 @@ p {
     }
 }
 #app.theme--dark .gray-container {
-    background-color: #1e1e1e;
+    background-color: #1E1E1E;
     .settings-bg {
         background-color: #272727;
     }
 }
 #app.theme--dark .time-label {
     .hour {
-        color: #d099e0;
+        color: #D099E0;
     }
 }
 </style>
