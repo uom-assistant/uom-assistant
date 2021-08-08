@@ -1,8 +1,5 @@
 <template>
-    <v-card
-        class="mx-auto rounded-lg gray-container pl-0 pr-0"
-        outlined
-    >
+    <v-card class="mx-auto rounded-lg gray-container pl-0 pr-0" outlined>
         <v-progress-circular
             indeterminate
             color="grey"
@@ -52,7 +49,7 @@
                     maxHeight: 304,
                     offsetY: true,
                     offsetOverflow: true,
-                    transition: 'slide-y-transition'
+                    transition: 'slide-y-transition',
                 }"
             >
                 <template v-slot:item="data">
@@ -75,39 +72,53 @@
             @end="base = 0"
         ></v-slider>
         <div class="clock-outer handle">
-            <div class="time-label label-left" :class="$vuetify.breakpoint.xs ? 'small-screen' : ''">
+            <div
+                class="time-label label-left"
+                :class="$vuetify.breakpoint.xs ? 'small-screen' : ''"
+            >
                 <span class="daylight-label">
                     <v-icon v-if="localNight">mdi-weather-night</v-icon>
-                    <v-icon v-else>mdi-white-balance-sunny</v-icon>
-                </span><br>
-                <span class="hour" ref="hourLocal"></span>:<span ref="minLocal"></span>:<span ref="secLocal"></span><br>
-                <span class="label text-truncate d-inline-block">{{ $t('local_time') }}</span>
+                    <v-icon v-else>mdi-white-balance-sunny</v-icon> </span
+                ><br />
+                <span class="hour" ref="hourLocal"></span>:<span ref="minLocal"></span>:<span
+                    ref="secLocal"
+                ></span
+                ><br />
+                <span class="label text-truncate d-inline-block">{{ $t("local_time") }}</span>
             </div>
-            <div class="time-label label-right" :class="$vuetify.breakpoint.xs ? 'small-screen' : ''">
+            <div
+                class="time-label label-right"
+                :class="$vuetify.breakpoint.xs ? 'small-screen' : ''"
+            >
                 <span class="daylight-label">
                     <v-icon v-if="remoteNight">mdi-weather-night</v-icon>
-                    <v-icon v-else>mdi-white-balance-sunny</v-icon>
-                </span><br>
-                <span class="hour" ref="hourRemote"></span>:<span ref="minRemote"></span>:<span ref="secRemote"></span><br>
-                <span class="label text-truncate d-inline-block">{{ $t('uk_time', [$t(getCity)]) }}</span>
+                    <v-icon v-else>mdi-white-balance-sunny</v-icon> </span
+                ><br />
+                <span class="hour" ref="hourRemote"></span>:<span ref="minRemote"></span>:<span
+                    ref="secRemote"
+                ></span
+                ><br />
+                <span class="label text-truncate d-inline-block">{{
+                    $t("uk_time", [$t(getCity)])
+                }}</span>
             </div>
         </div>
     </v-card>
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import * as tzList from '@/tools/tzList.json';
+import { mapState } from "vuex";
+import * as tzList from "@/tools/tzList.json";
 
-let hourLocal = '';
-let minLocal = '';
-let hourRemote = '';
-let minRemote = '';
+let hourLocal = "";
+let minLocal = "";
+let hourRemote = "";
+let minRemote = "";
 
-let sec = '';
+let sec = "";
 
 export default {
-    name: 'clock',
+    name: "clock",
     props: {
         searchid: Number,
     },
@@ -115,7 +126,7 @@ export default {
         return {
             loading: false,
             settings: false,
-            timeZone: 'Europe/London',
+            timeZone: "Europe/London",
             timeZoneList: [],
             base: 0,
             adjust: false,
@@ -133,25 +144,31 @@ export default {
             const searchIndex = [];
             for (const item of tzList.default) {
                 timezoneList.push({
-                    name: this.locale === 'en' ? `${this.$t(item.mainCity)}, ${this.$t(item.countryName)}` : `${this.$t(item.countryName)} ${this.$t(item.mainCity)}`,
+                    name:
+                        this.locale === "en"
+                            ? `${this.$t(item.mainCity)}, ${this.$t(item.countryName)}`
+                            : `${this.$t(item.countryName)} ${this.$t(item.mainCity)}`,
                     code: item.name,
                     display: item.mainCity,
                 });
                 searchIndex.push({
                     code: item.name,
                     display: this.$t(item.mainCity),
-                    mainCity: item.mainCity === this.$t(item.mainCity) ? item.mainCity : [item.mainCity, this.$t(item.mainCity)],
+                    mainCity:
+                        item.mainCity === this.$t(item.mainCity)
+                            ? item.mainCity
+                            : [item.mainCity, this.$t(item.mainCity)],
                 });
             }
             this.timeZoneList = timezoneList;
 
             // Commit search index
-            this.$store.commit('setSearchIndex', {
+            this.$store.commit("setSearchIndex", {
                 id: this.searchid,
                 payload: {
-                    name: 'clock',
-                    key: 'code',
-                    indexes: ['mainCity', 'code'],
+                    name: "clock",
+                    key: "code",
+                    indexes: ["mainCity", "code"],
                     data: searchIndex,
                 },
             });
@@ -169,11 +186,11 @@ export default {
             const hourLocalOld = hourLocal;
             const hourRemoteOld = hourRemote;
 
-            sec = `${now.getSeconds()}`.padStart(2, '0');
-            minLocal = `${now.getMinutes()}`.padStart(2, '0');
-            hourLocal = `${now.getHours()}`.padStart(2, '0');
-            minRemote = `${remoteNow.getMinutes()}`.padStart(2, '0');
-            hourRemote = `${remoteNow.getHours()}`.padStart(2, '0');
+            sec = `${now.getSeconds()}`.padStart(2, "0");
+            minLocal = `${now.getMinutes()}`.padStart(2, "0");
+            hourLocal = `${now.getHours()}`.padStart(2, "0");
+            minRemote = `${remoteNow.getMinutes()}`.padStart(2, "0");
+            hourRemote = `${remoteNow.getHours()}`.padStart(2, "0");
 
             if (secOld !== sec || init) {
                 this.$refs.secLocal.textContent = sec;
@@ -183,9 +200,9 @@ export default {
                 this.$refs.minLocal.textContent = minLocal;
                 this.$refs.minRemote.textContent = minRemote;
                 if (!init) {
-                    this.$store.commit('setTimerMin', minLocal);
-                    if (minLocal === '00') {
-                        this.$store.commit('setTimerHour', `${hourLocal}${new Date().valueOf()}`);
+                    this.$store.commit("setTimerMin", minLocal);
+                    if (minLocal === "00") {
+                        this.$store.commit("setTimerHour", `${hourLocal}${new Date().valueOf()}`);
                     }
                 }
             }
@@ -210,7 +227,7 @@ export default {
          * Store timezone settings
          */
         store() {
-            localStorage.setItem('timezone', this.timeZone);
+            localStorage.setItem("timezone", this.timeZone);
         },
         /**
          * Convert a Date object to a specified time zone
@@ -219,7 +236,11 @@ export default {
          * @returns {Date} a new Date object that has converted to the specified time zone
          */
         convertTimeZone(date, tzString) {
-            return new Date((typeof date === 'string' ? new Date(date) : date).toLocaleString('en-US', { timeZone: tzString }));
+            return new Date(
+                (typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", {
+                    timeZone: tzString,
+                })
+            );
         },
     },
     watch: {
@@ -239,8 +260,8 @@ export default {
             const hourLocalOld = hourLocal;
             const hourRemoteOld = hourRemote;
 
-            hourLocal = `${now.getHours()}`.padStart(2, '0');
-            hourRemote = `${remoteNow.getHours()}`.padStart(2, '0');
+            hourLocal = `${now.getHours()}`.padStart(2, "0");
+            hourRemote = `${remoteNow.getHours()}`.padStart(2, "0");
 
             if (hourLocalOld !== hourLocal) {
                 this.$refs.hourLocal.textContent = hourLocal;
@@ -274,20 +295,23 @@ export default {
                     return item.display;
                 }
             }
-            return 'London';
+            return "London";
         },
     },
     mounted() {
-        this.$i18n.locale = localStorage.getItem('language') || 'en';
+        this.$i18n.locale = localStorage.getItem("language") || "en";
 
         // Restore timezone
-        this.timeZone = localStorage.getItem('timezone') || 'Europe/London';
-        localStorage.setItem('timezone', this.timeZone);
+        this.timeZone = localStorage.getItem("timezone") || "Europe/London";
+        localStorage.setItem("timezone", this.timeZone);
 
         // Bulid timezone list
         for (const item of tzList.default) {
             this.timeZoneList.push({
-                name: this.locale === 'en' ? `${this.$t(item.mainCity)}, ${this.$t(item.countryName)}` : `${this.$t(item.countryName)} ${this.$t(item.mainCity)}`,
+                name:
+                    this.locale === "en"
+                        ? `${this.$t(item.mainCity)}, ${this.$t(item.countryName)}`
+                        : `${this.$t(item.countryName)} ${this.$t(item.mainCity)}`,
                 code: item.name,
                 display: item.mainCity,
             });
@@ -306,9 +330,9 @@ export default {
 
 <style lang="less" scoped>
 p {
-  color: #000000;
-  font-size: 0.8em;
-  opacity: 0.75;
+    color: #000000;
+    font-size: 0.8em;
+    opacity: 0.75;
 }
 .clock-outer {
     width: 350px;
@@ -325,13 +349,14 @@ p {
         left: 10px;
         z-index: 10;
     }
-    .settings-icon, .adjust-icon {
+    .settings-icon,
+    .adjust-icon {
         position: absolute;
         right: 10px;
         opacity: 0;
-        transition: opacity .2s;
+        transition: opacity 0.2s;
         &.shown {
-            opacity: .5;
+            opacity: 0.5;
         }
     }
     .settings-icon {
@@ -353,10 +378,10 @@ p {
         background-color: #fafafa;
         transform-origin: center center;
         transform: scale(0);
-        transition: transform .4s .1s;
+        transition: transform 0.4s 0.1s;
         &.opened {
             transform: scale(1);
-            transition: transform .4s;
+            transition: transform 0.4s;
         }
     }
     .settings-flex {
@@ -369,7 +394,7 @@ p {
         height: 0;
         width: 0;
         overflow: hidden;
-        transition: opacity .2s, height 0s .2s, width 0s .2s;
+        transition: opacity 0.2s, height 0s 0.2s, width 0s 0.2s;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -378,7 +403,7 @@ p {
             pointer-events: auto;
             width: 100%;
             height: 100%;
-            transition: opacity .2s .3s;
+            transition: opacity 0.2s 0.3s;
         }
         .timezone-input {
             max-width: 270px;
@@ -386,9 +411,11 @@ p {
             margin-bottom: -20px;
         }
     }
-    &:hover, &:focus {
-        .settings-icon, .adjust-icon {
-            opacity: .5;
+    &:hover,
+    &:focus {
+        .settings-icon,
+        .adjust-icon {
+            opacity: 0.5;
         }
     }
     .slider {
@@ -397,8 +424,8 @@ p {
         left: 10px;
         z-index: 1;
         width: calc(100% - 50px);
-        transition: bottom .2s;
-        opacity: .8;
+        transition: bottom 0.2s;
+        opacity: 0.8;
         &.opened {
             bottom: 2px;
         }
@@ -415,13 +442,13 @@ p {
         color: #660099;
     }
     .label {
-        opacity: .5;
+        opacity: 0.5;
         font-size: 15px;
         width: 165px;
         text-align: center;
     }
     .daylight-label {
-        opacity: .5;
+        opacity: 0.5;
         font-size: 15px;
         margin-bottom: 12px;
         display: inline-block;
@@ -441,14 +468,14 @@ p {
     }
 }
 #app.theme--dark .gray-container {
-    background-color: #1E1E1E;
+    background-color: #1e1e1e;
     .settings-bg {
         background-color: #272727;
     }
 }
 #app.theme--dark .time-label {
     .hour {
-        color: #D099E0;
+        color: #d099e0;
     }
 }
 </style>
@@ -1772,6 +1799,559 @@ p {
         "Marshall Islands": "Islas Marshall",
         "New Zealand": "Nueva Zelanda",
         "Wallis and Futuna": "Wallis y Futuna"
+    },
+    "ja": {
+        "Alofi": "アロフィ",
+        "Niue": "ニウエ",
+        "Midway": "ミッドウェイ",
+        "United States Minor Outlying Islands": "米国のマイナーな離島",
+        "Pago Pago": "パゴパゴ",
+        "American Samoa": "アメリカ領サモア",
+        "Avarua": "アバルア",
+        "Cook Islands": "クック諸島",
+        "Adak": "アダック",
+        "United States": "米国",
+        "Honolulu": "ホノルル",
+        "Faaa": "ファー",
+        "French Polynesia": "フランス領ポリネシア",
+        "Marquesas": "マルケサス",
+        "Anchorage": "アンカレッジ",
+        "Gambier": "ガンビア",
+        "Los Angeles": "ロサンゼルス",
+        "Tijuana": "ティファナ",
+        "Mexico": "メキシコ",
+        "Vancouver": "バンクーバー",
+        "Canada": "カナダ",
+        "Adamstown": "アダムスタウン",
+        "Pitcairn": "ピトケアン",
+        "Hermosillo": "エルモシヨ",
+        "Calgary": "カルガリー",
+        "Ciudad Juárez": "シウダードフアレス",
+        "Denver": "デンバー",
+        "Phoenix": "フェニックス",
+        "Whitehorse": "ホワイトホース",
+        "Belize City": "ベリーズ・シティ",
+        "Belize": "ベリーズ",
+        "Chicago": "シカゴ",
+        "Guatemala City": "グアテマラシティ",
+        "Guatemala": "グアテマラ",
+        "Managua": "マナグア",
+        "Nicaragua": "ニカラグア",
+        "Mexico City": "メキシコシティ",
+        "San José": "サンホセ",
+        "Costa Rica": "コスタリカ",
+        "San Salvador": "サンサルバドル",
+        "El Salvador": "エルサルバドル",
+        "Saskatoon": "サスカトゥーン",
+        "Tegucigalpa": "テグシガルパ",
+        "Honduras": "ホンジュラス",
+        "Winnipeg": "ウィニペグ",
+        "Easter": "イースター",
+        "Chile": "チリ",
+        "Galapagos": "ガラパゴス",
+        "Ecuador": "エクアドル",
+        "Rio Branco": "リオ・ブランコ",
+        "Brazil": "ブラジル",
+        "Bogotá": "ボゴタ",
+        "Colombia": "コロンビア",
+        "Havana": "ハバナ",
+        "Cuba": "キューバ",
+        "Atikokan": "アティコカン",
+        "Cancún": "カンクン",
+        "Cockburn Town": "コックバーンタウン",
+        "Turks and Caicos Islands": "タークス・カイコス諸島",
+        "George Town": "ジョージタウン",
+        "Cayman Islands": "ケイマン諸島",
+        "Kingston": "キングストン",
+        "Jamaica": "ジャマイカ",
+        "Nassau": "ナッソー",
+        "Bahamas": "バハマ",
+        "New York City": "ニューヨーク・シティ",
+        "Panamá": "パナマ",
+        "Panama": "パナマ",
+        "Port-au-Prince": "ポルトープランス",
+        "Haiti": "ハイチ",
+        "Toronto": "トロント",
+        "Guayaquil": "グアヤキル",
+        "Lima": "リマ",
+        "Peru": "ペルー",
+        "Manaus": "マナウス",
+        "Basseterre": "バセテラ",
+        "Saint Kitts and Nevis": "セントクリストファー・ネイビス",
+        "Brades": "ブレイズ",
+        "Montserrat": "モンセラット",
+        "Bridgetown": "ブリッジタウン",
+        "Barbados": "バルバドス",
+        "Castries": "カストリーズ",
+        "Saint Lucia": "セントルシア",
+        "Chaguanas": "チャグアナス",
+        "Trinidad and Tobago": "トリニダード・トバゴ",
+        "Fort-de-France": "フォール・ド・フランス",
+        "Martinique": "マルティニーク",
+        "Gustavia": "グスタヴィア",
+        "Saint Barthelemy": "サン・バルテルミー",
+        "Halifax": "ハリファックス",
+        "Hamilton": "ハミルトン",
+        "Bermuda": "バミューダ",
+        "Kingstown": "キングスタウン",
+        "Saint Vincent and the Grenadines": "セントビンセントおよびグレナディーン諸島",
+        "Kralendijk": "クラレンダイク",
+        "Bonaire, Saint Eustatius and Saba ": "ボネール、セント・ユースタティウス、サバ",
+        "Les Abymes": "レ・アビム",
+        "Guadeloupe": "グアドループ",
+        "Lévis": "レビス",
+        "Marigot": "マリゴ",
+        "Saint Martin": "セント・マーチン",
+        "Oranjestad": "オラニエスタッド",
+        "Aruba": "アルバ",
+        "Philipsburg": "フィリップスバーグ",
+        "Sint Maarten": "シント・マールテン",
+        "Road Town": "ロードタウン",
+        "British Virgin Islands": "英領バージン諸島",
+        "Roseau": "ロゾー",
+        "Dominica": "ドミニカ共和国",
+        "Saint Croix": "セントクロイ",
+        "U.S. Virgin Islands": "米国領ヴァージン諸島",
+        "Saint George's": "セント・ジョージズ",
+        "Grenada": "グレナダ",
+        "Saint John’s": "セント・ジョンズ",
+        "Antigua and Barbuda": "Antigua and Barbuda",
+        "San Juan": "サンファン",
+        "Puerto Rico": "プエルトリコ",
+        "Santo Domingo": "サント・ドミンゴ",
+        "Dominican Republic": "ドミニカ共和国",
+        "The Valley": "ザ・バレー",
+        "Anguilla": "アングィラ",
+        "Thule": "トゥール",
+        "Greenland": "グリーンランド",
+        "Willemstad": "ウィレムスタッド",
+        "Curacao": "キュラソー",
+        "Santa Cruz de la Sierra": "サンタ・クルス・デ・ラ・シエラ",
+        "Bolivia": "ボリビア",
+        "Santiago": "サンティアゴ",
+        "Georgetown": "ジョージタウン",
+        "Guyana": "ガイアナ",
+        "Asunción": "アスンシオン",
+        "Paraguay": "パラグアイ",
+        "Caracas": "カラカス",
+        "Venezuela": "ベネズエラ",
+        "St. John's": "St.John's",
+        "Buenos Aires": "ブエノスアイレス",
+        "Argentina": "アルゼンチン",
+        "São Paulo": "サンパウロ",
+        "Palmer": "パーマー",
+        "Antarctica": "南極大陸",
+        "Punta Arenas": "プンタ・アレナス",
+        "Stanley": "スタンレー",
+        "Falkland Islands": "フォークランド諸島",
+        "Cayenne": "カイエン",
+        "French Guiana": "フランス領ギアナ",
+        "Saint-Pierre": "サンピエール",
+        "Saint Pierre and Miquelon": "サンピエール島とミクロン島",
+        "Paramaribo": "パラマリボ",
+        "Suriname": "スリナム",
+        "Montevideo": "モンテビデオ",
+        "Uruguay": "ウルグアイ",
+        "Nuuk": "ヌーク",
+        "Noronha": "ノローニャ",
+        "Grytviken": "グリトビケン",
+        "South Georgia and the South Sandwich Islands": "サウスジョージア島と南サンドイッチ諸島",
+        "Ponta Delgada": "ポンタ・デルガダ",
+        "Portugal": "ポルトガル",
+        "Praia": "プライア",
+        "Cabo Verde": "カーボベルデ",
+        "Scoresbysund": "スコアビズンド",
+        "Abidjan": "アビジャン",
+        "Ivory Coast": "コートジボワール",
+        "Accra": "アクラ",
+        "Ghana": "ガーナ",
+        "Bamako": "バマコ",
+        "Mali": "マリ",
+        "Bissau": "ビッサウ",
+        "Guinea-Bissau": "ギニアビサウ",
+        "Camayenne": "カマイアン",
+        "Guinea": "ギニア",
+        "Dakar": "ダカール",
+        "Senegal": "セネガル",
+        "Danmarkshavn": "ダンマークスハヴン",
+        "Douglas": "ダグラス",
+        "Isle of Man": "マン島",
+        "Dublin": "ダブリン",
+        "Ireland": "アイルランド",
+        "Freetown": "フリータウン",
+        "Sierra Leone": "シエラレオネ",
+        "Jamestown": "ジェームスタウン",
+        "Saint Helena": "セントヘレナ",
+        "Lomé": "ロメ",
+        "Togo": "トーゴ",
+        "London": "ロンドン",
+        "United Kingdom": "イギリス",
+        "Monrovia": "モンロビア",
+        "Liberia": "リベリア",
+        "Nouakchott": "ヌアクショット",
+        "Mauritania": "モーリタニア",
+        "Ouagadougou": "ワガドゥグー",
+        "Burkina Faso": "ブルキナファソ",
+        "Reykjavík": "レイキャビク",
+        "Iceland": "アイスランド",
+        "Saint Helier": "セントヘリア",
+        "Jersey": "ジャージー",
+        "Saint Peter Port": "セント・ピーター・ポート",
+        "Guernsey": "ガーンジー",
+        "Serekunda": "セレクンダ",
+        "Gambia": "ガンビア",
+        "São Tomé": "サントメ",
+        "Sao Tome and Principe": "サントメ・プリンシペ",
+        "Troll": "トロール",
+        "Casablanca": "カサブランカ",
+        "Morocco": "モロッコ",
+        "Laayoune": "ラユーン",
+        "Western Sahara": "西サハラ",
+        "Las Palmas de Gran Canaria": "ラス・パルマス・デ・グラン・カナリア",
+        "Spain": "スペイン",
+        "Lisbon": "リスボン",
+        "Tórshavn": "トールシャヴン",
+        "Faroe Islands": "フェロー諸島",
+        "Windhoek": "ウィントフック",
+        "Namibia": "ナミビア",
+        "Algiers": "アルジェ",
+        "Algeria": "アルジェリア",
+        "Amsterdam": "アムステルダム",
+        "Netherlands": "オランダ",
+        "Andorra la Vella": "アンドラ・ラ・ベリャ",
+        "Andorra": "アンドラ",
+        "Belgrade": "ベオグラード",
+        "Serbia": "セルビア",
+        "Berlin": "ベルリン",
+        "Germany": "ドイツ",
+        "Birkirkara": "ビルキルカラ",
+        "Malta": "マルタ",
+        "Bratislava": "ブラチスラバ",
+        "Slovakia": "スロバキア",
+        "Brussels": "ブリュッセル",
+        "Belgium": "ベルギー",
+        "Budapest": "ブダペスト",
+        "Hungary": "ハンガリー",
+        "Copenhagen": "コペンハーゲン",
+        "Denmark": "デンマーク",
+        "Gibraltar": "ジブラルタル",
+        "Ljubljana": "リュブリャナ",
+        "Slovenia": "スロベニア",
+        "Longyearbyen": "ロングイヤービーン",
+        "Svalbard and Jan Mayen": "スバールバル諸島とヤンマイエン",
+        "Luxembourg": "ルクセンブルク",
+        "Madrid": "マドリッド",
+        "Monaco": "モナコ",
+        "Oslo": "オスロ",
+        "Norway": "ノルウェー",
+        "Paris": "パリ",
+        "France": "フランス",
+        "Podgorica": "ポドゴリツァ",
+        "Montenegro": "モンテネグロ",
+        "Prague": "プラハ",
+        "Czechia": "チェコ",
+        "Rome": "ローマ",
+        "Italy": "イタリア",
+        "San Marino": "サンマリノ",
+        "Sarajevo": "サラエボ",
+        "Bosnia and Herzegovina": "ボスニア・ヘルツェゴビナ",
+        "Skopje": "スコピエ",
+        "North Macedonia": "北マケドニア",
+        "Stockholm": "ストックホルム",
+        "Sweden": "スウェーデン",
+        "Tirana": "ティラナ",
+        "Albania": "アルバニア",
+        "Tunis": "チュニス",
+        "Tunisia": "チュニジア",
+        "Vaduz": "ヴァドゥーツ",
+        "Liechtenstein": "リヒテンシュタイン",
+        "Vatican City": "バチカン市国",
+        "Vatican": "バチカン",
+        "Vienna": "ウィーン",
+        "Austria": "オーストリア",
+        "Warsaw": "ワルシャワ",
+        "Poland": "ポーランド",
+        "Zagreb": "ザグレブ",
+        "Croatia": "クロアチア",
+        "Zürich": "チューリッヒ",
+        "Switzerland": "スイス",
+        "Bangui": "バンギ",
+        "Central African Republic": "中央アフリカ共和国",
+        "Bata": "バタ",
+        "Equatorial Guinea": "赤道ギニア",
+        "Brazzaville": "ブラザビル",
+        "Republic of the Congo": "コンゴ共和国",
+        "Cotonou": "コトヌー",
+        "Benin": "ベナン",
+        "Douala": "ドゥアラ",
+        "Cameroon": "カメルーン",
+        "Kinshasa": "キンシャサ",
+        "Democratic Republic of the Congo": "コンゴ民主共和国",
+        "Lagos": "ラゴス",
+        "Nigeria": "ナイジェリア",
+        "Libreville": "リーブルヴィル",
+        "Gabon": "ガボン",
+        "Luanda": "ルアンダ",
+        "Angola": "アンゴラ",
+        "N'Djamena": "ンジャメナ",
+        "Chad": "チャド",
+        "Niamey": "ニアメ",
+        "Niger": "ニジェール",
+        "Bujumbura": "ブジュンブラ",
+        "Burundi": "ブルンジ",
+        "Gaborone": "ハボローネ",
+        "Botswana": "ボツワナ",
+        "Harare": "ハラレ",
+        "Zimbabwe": "ジンバブエ",
+        "Khartoum": "カルトゥーム",
+        "Sudan": "スーダン",
+        "Kigali": "キガリ",
+        "Rwanda": "ルワンダ",
+        "Lilongwe": "リロングウェ",
+        "Malawi": "マラウイ",
+        "Lubumbashi": "ルブンバシ",
+        "Lusaka": "ルサカ",
+        "Zambia": "ザンビア",
+        "Maputo": "マプト",
+        "Mozambique": "モザンビーク",
+        "Aleppo": "アレッポ",
+        "Syria": "シリア",
+        "Amman": "アンマン",
+        "Jordan": "ジョーダン",
+        "Athens": "アテネ",
+        "Greece": "ギリシャ",
+        "Beirut": "ベイルート",
+        "Lebanon": "レバノン",
+        "Bucharest": "ブカレスト",
+        "Romania": "ルーマニア",
+        "Cairo": "カイロ",
+        "Egypt": "エジプト",
+        "Chisinau": "キシナウ",
+        "Moldova": "モルドバ",
+        "East Jerusalem": "東エルサレム",
+        "Palestinian Territory": "パレスチナ自治区",
+        "Helsinki": "ヘルシンキ",
+        "Finland": "フィンランド",
+        "Kaliningrad": "カリーニングラード",
+        "Russia": "ロシア",
+        "Kyiv": "キエフ",
+        "Ukraine": "ウクライナ",
+        "Mariehamn": "マリーハムン",
+        "Aland Islands": "アランド諸島",
+        "Nicosia": "ニコシア",
+        "Cyprus": "キプロス",
+        "Riga": "リガ",
+        "Latvia": "ラトビア",
+        "Sofia": "ソフィア",
+        "Bulgaria": "ブルガリア",
+        "Tallinn": "タリン",
+        "Estonia": "エストニア",
+        "Tripoli": "トリポリ",
+        "Libya": "リビア",
+        "Vilnius": "ビリニュス",
+        "Lithuania": "リトアニア",
+        "Jerusalem": "エルサレム",
+        "Israel": "イスラエル",
+        "Cape Town": "ケープタウン",
+        "South Africa": "南アフリカ",
+        "Manzini": "マンジーニ",
+        "Eswatini": "エスワティニ",
+        "Maseru": "マセル",
+        "Lesotho": "レソト",
+        "Al Aḩmadī": "アル・アリフトマディ",
+        "Kuwait": "クウェート",
+        "Baghdad": "バグダッド",
+        "Iraq": "イラク",
+        "Doha": "ドーハ",
+        "Qatar": "カタール",
+        "Manama": "マナマ",
+        "Bahrain": "バーレーン",
+        "Riyadh": "リヤド",
+        "Saudi Arabia": "サウジアラビア",
+        "Sanaa": "サナ",
+        "Yemen": "イエメン",
+        "Addis Ababa": "アディスアベバ",
+        "Ethiopia": "エチオピア",
+        "Antananarivo": "アンタナナリボ",
+        "Madagascar": "マダガスカル",
+        "Asmara": "アスマラ",
+        "Eritrea": "エリトリア",
+        "Dar es Salaam": "ダルエスサラーム",
+        "Tanzania": "タンザニア",
+        "Djibouti": "ジブチ",
+        "Juba": "ジュバ",
+        "South Sudan": "南スーダン",
+        "Kampala": "カンパラ",
+        "Uganda": "ウガンダ",
+        "Mamoudzou": "マムードゥーゾ",
+        "Mayotte": "メイヨット",
+        "Mogadishu": "モガディシュ",
+        "Somalia": "ソマリア",
+        "Moroni": "モロニー",
+        "Comoros": "コモロ",
+        "Nairobi": "ナイロビ",
+        "Kenya": "ケニア",
+        "Minsk": "ミンスク",
+        "Belarus": "ベラルーシ",
+        "Moscow": "モスクワ",
+        "Syowa": "ショーワ",
+        "Istanbul": "イスタンブール",
+        "Turkey": "トルコ",
+        "Tehran": "テヘラン",
+        "Iran": "イラン",
+        "Yerevan": "イェレバン",
+        "Armenia": "アルメニア",
+        "Baku": "バク",
+        "Azerbaijan": "アゼルバイジャン",
+        "Tbilisi": "トビリシ",
+        "Georgia": "ジョージア",
+        "Dubai": "ドバイ",
+        "United Arab Emirates": "アラブ首長国連邦",
+        "Muscat": "マスカット",
+        "Oman": "オマーン",
+        "Port Louis": "ポートルイス",
+        "Mauritius": "モーリシャス",
+        "Saint-Denis": "サン・ドニ",
+        "Reunion": "リユニオン",
+        "Samara": "サマラ",
+        "Victoria": "ビクトリア",
+        "Seychelles": "セーシェル",
+        "Kabul": "カブール",
+        "Afghanistan": "アフガニスタン",
+        "Port-aux-Français": "ポルトゥ・フランセーズ",
+        "French Southern Territories": "フランス領南方領土",
+        "Male": "マール",
+        "Maldives": "モルディブ",
+        "Mawson": "モーソン",
+        "Karachi": "カラチ",
+        "Pakistan": "パキスタン",
+        "Dushanbe": "ドゥシャンベ",
+        "Tajikistan": "タジキスタン",
+        "Ashgabat": "アシュガバット",
+        "Turkmenistan": "トルクメニスタン",
+        "Tashkent": "タシケント",
+        "Uzbekistan": "ウズベキスタン",
+        "Kyzylorda": "キジローダ",
+        "Kazakhstan": "カザフスタン",
+        "Yekaterinburg": "エカテリンブルグ",
+        "Colombo": "コロンボ",
+        "Sri Lanka": "スリランカ",
+        "Mumbai": "ムンバイ",
+        "India": "インド",
+        "Kathmandu": "カトマンズ",
+        "Nepal": "ネパール",
+        "Dhaka": "ダッカ",
+        "Bangladesh": "バングラデシュ",
+        "Thimphu": "テヒプ",
+        "Bhutan": "ブータン",
+        "Zhongshan": "中山",
+        "China": "中国",
+        "Almaty": "アルマティ",
+        "Chagos": "チャゴス",
+        "British Indian Ocean Territory": "イギリス領インド洋地域",
+        "Bishkek": "ビシュケク",
+        "Kyrgyzstan": "キルギスタン",
+        "Omsk": "オムスク",
+        "Vostok": "ボストーク",
+        "West Island": "ウエストアイランド",
+        "Cocos Islands": "ココス諸島",
+        "Yangon": "ヤンゴン",
+        "Myanmar": "ミャンマー",
+        "Flying Fish Cove": "フライング・フィッシュ・コーブ",
+        "Christmas Island": "クリスマス島",
+        "Davis": "デービス",
+        "Khovd": "コブド",
+        "Mongolia": "モンゴル",
+        "Bangkok": "バンコク",
+        "Thailand": "タイ",
+        "Ho Chi Minh City": "ホーチミン市",
+        "Vietnam": "ベトナム",
+        "Phnom Penh": "プノンペン",
+        "Cambodia": "カンボジア",
+        "Vientiane": "ビエンチャン",
+        "Laos": "ラオス",
+        "Novosibirsk": "ノボシビルスク",
+        "Jakarta": "ジャカルタ",
+        "Indonesia": "インドネシア",
+        "Perth": "パース",
+        "Australia": "オーストラリア",
+        "Bandar Seri Begawan": "バンダルスリブガワン",
+        "Brunei": "ブルネイ",
+        "Makassar": "マカッサル",
+        "Macau": "マカオ",
+        "Macao": "マカオ",
+        "Shanghai": "上海",
+        "Hong Kong": "香港",
+        "Irkutsk": "イルクーツク",
+        "Kota Bharu": "コタバル",
+        "Malaysia": "マレーシア",
+        "Quezon City": "ケソン市",
+        "Philippines": "フィリピン",
+        "Singapore": "シンガポール",
+        "Taipei": "台北",
+        "Taiwan": "台湾",
+        "Ulan Bator": "ウランバートル",
+        "Eucla": "ユークラ",
+        "Dili": "ディリ",
+        "Timor Leste": "東ティモール",
+        "Ambon": "アンボン",
+        "Tokyo": "東京",
+        "Japan": "日本",
+        "Pyongyang": "ピョンヤン",
+        "North Korea": "北朝鮮",
+        "Seoul": "ソウル",
+        "South Korea": "韓国",
+        "Ngerulmud": "ンゲルムド",
+        "Palau": "パラオ",
+        "Chita": "知多",
+        "Adelaide": "アデレード",
+        "Darwin": "ダーウィン",
+        "Brisbane": "ブリスベン",
+        "Sydney": "シドニー",
+        "Dededo Village": "デデド村",
+        "Guam": "グアム",
+        "Saipan": "サイパン",
+        "Northern Mariana Islands": "北マリアナ諸島",
+        "Chuuk": "チューク",
+        "Micronesia": "ミクロネシア",
+        "DumontDUrville": "デュモンデュルビル",
+        "Port Moresby": "ポートモレスビー",
+        "Papua New Guinea": "パプアニューギニア",
+        "Vladivostok": "ウラジオストク",
+        "Lord Howe": "ロード・ハウ",
+        "Arawa": "浦和",
+        "Casey": "ケイシー",
+        "Kosrae": "コスラエ",
+        "Nouméa": "ヌメア",
+        "New Caledonia": "ニューカレドニア",
+        "Norfolk Island": "ノーフォーク島",
+        "Yuzhno-Sakhalinsk": "ユジノサハリンスク",
+        "Honiara": "ホニアラ",
+        "Solomon Islands": "ソロモン諸島",
+        "Port-Vila": "ポートビラ",
+        "Vanuatu": "バヌアツ",
+        "Suva": "スバ",
+        "Fiji": "フィジー",
+        "Tarawa": "タラワ",
+        "Kiribati": "キリバス",
+        "Majuro": "マジュロ",
+        "Marshall Islands": "マーシャル諸島",
+        "Yaren": "ヤレン",
+        "Nauru": "ナウル",
+        "Auckland": "オークランド",
+        "New Zealand": "ニュージーランド",
+        "McMurdo": "マクマード",
+        "Petropavlovsk-Kamchatsky": "ペトロパブロフスク・カムチャツキー",
+        "Funafuti": "フナフチ",
+        "Tuvalu": "ツバル",
+        "Wake": "ウェイク",
+        "Mata-Utu": "マタウチュ",
+        "Wallis and Futuna": "ウォリス・フツナ",
+        "Chatham": "チャタム",
+        "Apia": "アピア",
+        "Samoa": "サモア",
+        "Enderbury": "エンダーベリー"
     }
+
 }
 </i18n>
