@@ -36,7 +36,7 @@
                             </v-list-item-group>
                         </v-list>
                         <div class="empty empty-long" v-if="shownSubjects.length === 0">
-                            {{ $t('nothing') }}
+                            {{ $t('no_class') }}
                         </div>
                     </v-container>
                 </v-tab-item>
