@@ -1365,7 +1365,7 @@ html::-webkit-scrollbar {
         "backend_reconnect_body": "バックエンドへの接続に成功しました",
         "search": "検索…",
         "welcome": "ようこそ！",
-        "not_yet": "まだUoMアシスタントを設定されないのようにので..",
+        "not_yet": "まだUoMアシスタントを設定されないそうです..",
         "press_to_settings": "『セットアップ』をクリックして、あなたのダッシュボードを設定してください。",
         "continue": "セットアップ",
         "next": "次のステップ",

@@ -560,7 +560,7 @@ export default {
     },
     "ja":
     {
-        "overview": "概要",
+        "overview": "今日の概要",
         "class_overview": "今日は授業がありません | 今日は {0} つの授業があります | 今日は {0} つの授業があります",
         "class_remian": "，まだ {0} つ残ってる",
         "class_remian_none": "。",

@@ -1359,6 +1359,36 @@ export default {
         "too_many_body": "Esto no es un error. Está creando más de 50 apuntes, que no es una buena idea. Por favor considere usar una aplicación para organizar apuntes en lugar de apuntes rápidos. Puedes continuar a usar apuntes rápidos de todas formas.",
         "hl_error": "Error cuando intenta subrayar al código",
         "at": "en"
+    },
+    "ja": {
+        "note": "クイックノート",
+        "nothing": "まだノートがありません",
+        "new_note": "新規ノート",
+        "title_placeholder": "タイトル",
+        "md_support": "Markdownに対応しています",
+        "view": "表示",
+        "edit": "編集",
+        "new": "作成",
+        "download": "ダウンロード",
+        "delete": "削除",
+        "select": "選択",
+        "untitled": "タイトルなし",
+        "num_selected": "{0}件を選択された",
+        "select_all": "全て選択",
+        "select_none": "全て選択解除",
+        "cancel_select": "選択モードの終了",
+        "delete_selected": "選択された方を削除",
+        "download_selected": "選択された方をダウンロード",
+        "confirm": "確認",
+        "cancel": "キャンセル",
+        "ok": "はい",
+        "want_remove": "本当に選択された{0}件のノートを削除するのですか？ | 本当に選択された{0}件のノートを削除するのですか？",
+        "want_remove_single": "本当にノート「{0}」を削除するのですか？",
+        "remove_all": "本当にすべてのノートを削除するのですか？",
+        "too_many_title": "ノートが多すぎる",
+        "too_many_body": "これはエラーじゃないですけど、あなたは50件以上のノートを作成しています、これは良いアイデアではない。ここより適切な所に、例えば何かノート管理アプなどに移動ことを考えてください。とにかく、このクイックノートを続ける利用してもいいです。",
+        "hl_error": "コードハイライトを表示する時にエラーが発生しまた。",
+        "at": "で"
     }
 }
 </i18n>
