@@ -81,6 +81,10 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+import Packery from 'packery';
+import Draggabilly from 'draggabilly';
+
 import clock from '@/components/clock.vue';
 import todo from '@/components/todo.vue';
 import bblinks from '@/components/bblinks.vue';
@@ -93,10 +97,6 @@ import note from '@/components/note.vue';
 import mail from '@/components/mail.vue';
 import grade from '@/components/grade.vue';
 import plugins from '@/components/plugins.vue';
-
-import { mapState } from 'vuex';
-import Packery from 'packery';
-import Draggabilly from 'draggabilly';
 
 import formatDate from '@/tools/formatDate';
 

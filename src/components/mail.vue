@@ -1022,6 +1022,8 @@ export default {
                 js: 'language-javascript',
                 mjs: 'language-javascript',
                 ts: 'language-typescript',
+                jsx: 'react',
+                tsx: 'react',
                 json: 'code-json',
                 c: 'language-c',
                 h: 'language-c',
