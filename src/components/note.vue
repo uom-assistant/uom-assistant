@@ -1372,7 +1372,7 @@ export default {
         "download": "ダウンロード",
         "delete": "削除",
         "select": "選択",
-        "untitled": "タイトルなし",
+        "untitled": "タイトル無し",
         "num_selected": "{0}件を選択された",
         "select_all": "全て選択",
         "select_none": "全て選択解除",
