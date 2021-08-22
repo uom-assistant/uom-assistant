@@ -1368,7 +1368,7 @@ export default {
         "md_support": "Markdownに対応しています",
         "view": "表示",
         "edit": "編集",
-        "new": "作成",
+        "new": "新規ノート",
         "download": "ダウンロード",
         "delete": "削除",
         "select": "選択",

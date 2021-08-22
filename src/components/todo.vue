@@ -332,6 +332,9 @@ export default {
     },
     "es": {
         "add_todo": "Añadir un PARA-HACER"
+    },
+    "ja": {
+        "add_todo": "TO-DOを追加"
     }
 }
 </i18n>

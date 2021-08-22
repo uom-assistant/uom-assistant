@@ -355,6 +355,12 @@ export default {
         "remain_hour": "{0} hora | {0} horas",
         "remain_min": "{0} minuto | {0} minutos",
         "expired": "Retraso"
+    },
+    "ja": {
+        "remain_day": "{0} 日 | {0} 日",
+        "remain_hour": "{0} 時間 | {0} 時間",
+        "remain_min": "{0} 分 | {0} 分",
+        "expired": "期限切れた"
     }
 }
 </i18n>
