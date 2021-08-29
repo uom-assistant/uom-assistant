@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import Vuetify from 'vuetify/lib';
+import Vuetify from 'vuetify/lib/framework';
 
 import en from 'vuetify/es5/locale/en';
 import zhHans from 'vuetify/es5/locale/zh-Hans';

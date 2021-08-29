@@ -82,7 +82,9 @@
             <v-btn
                 icon
                 v-show="$route.path === '/'"
+                v-shortkey="['ctrl', 'k']"
                 @click="openSearch"
+                @shortkey="toggleSearch"
             >
                 <v-icon>mdi-magnify</v-icon>
             </v-btn>
@@ -651,6 +653,16 @@ export default {
             this.$refs.searchInput.blur();
         },
         /**
+         * Toggle search bar
+         */
+        toggleSearch() {
+            if (this.searchOpened) {
+                this.closeSearch();
+            } else {
+                this.openSearch();
+            }
+        },
+        /**
          * Rebuild searchers from search indexes when search indexes changed
          */
         rebuildSearchIndex() {
@@ -956,6 +968,11 @@ html::-webkit-scrollbar {
 .handle {
     user-select: none;
 }
+.katex .katex-mathml {
+    top: -1000px;
+    left: -1000px;
+    opacity: 0;
+}
 .welcome-dialog.welcome-overflow {
     overflow: hidden;
 }
@@ -1221,6 +1238,7 @@ html::-webkit-scrollbar {
         "dashboard": "Dashboard",
         "settings": "Settings",
         "about": "About",
+        "not found": "UoM Assistant",
         "unknown": "Unknown",
         "at": "at",
         "backend_reconnect": "Backend is up",
@@ -1267,6 +1285,7 @@ html::-webkit-scrollbar {
         "dashboard": "仪表板",
         "settings": "设置",
         "about": "关于",
+        "not found": "曼大助手",
         "unknown": "未知",
         "at": "于",
         "backend_reconnect": "后端已恢复",
@@ -1313,6 +1332,7 @@ html::-webkit-scrollbar {
         "dashboard": "Tablero",
         "settings": "Ajustes",
         "about": "Sobre",
+        "not found": "UoM Assistant",
         "unknown": "Desconocido",
         "at": "en",
         "backend_reconnect": "Back-end reconectado",

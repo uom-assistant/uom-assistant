@@ -24,7 +24,7 @@
                 type="list-item-avatar-three-line@3"
                 v-if="!init && loading"
             ></v-skeleton-loader>
-            <div class="scroll" v-if="plugins.length > 0" @scroll.passive="scrollHandler">
+            <div class="scroll" v-if="plugins.length > 0" @scroll.passive="scrollHandler" ref="scrollTarget">
                 <v-list flat class="list" three-line>
                     <v-list-item v-for="(item, index) in plugins" :key="item.id" @click="openPlugin(index)">
                         <v-badge
@@ -575,6 +575,11 @@ export default {
             this.loading = false;
             this.init = true;
             this.plugins = response.plugins.sort((a, b) => (a.name < b.name ? -1 : 1));
+            this.$nextTick(() => {
+                if (this.$refs.scrollTarget) {
+                    this.scrollHandler({ target: this.$refs.scrollTarget });
+                }
+            });
         },
         /**
          * Load plugin info

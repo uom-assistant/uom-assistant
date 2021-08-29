@@ -23,7 +23,7 @@
                     nudge-bottom="5"
                 >
                     <template v-slot:activator="{ on, attrs }">
-                        <v-btn icon small class="float-right mr-3" :title="$t('more')" v-on="on" v-bind="attrs">
+                        <v-btn icon small class="float-right mr-4" :title="$t('more')" v-on="on" v-bind="attrs">
                             <v-icon>mdi-dots-vertical</v-icon>
                         </v-btn>
                     </template>
@@ -84,7 +84,7 @@
                 type="list-item-avatar-three-line@4"
                 v-if="!init && loading"
             ></v-skeleton-loader>
-            <div class="scroll" v-if="mails.length > 0" @scroll.passive="scrollHandler">
+            <div class="scroll" v-if="mails.length > 0" @scroll.passive="scrollHandler" ref="scrollTarget">
                 <v-list flat class="list">
                     <v-list-item v-for="(mail, index) in mails" :key="mail.id" @click.stop="openMail(mail.id)" :class="{ flaged: mail.flagged, unseen: mail.unseen }" @contextmenu.prevent="(e) => showListMenu(e, mail.id)">
                         <v-list-item-avatar :color="(mail.flagged || mail.unseen) ? 'uomthemelight' : ($vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2')" v-if="getSubjectId(mail.subject, mail.from) === false" :class="{ 'black--text': ((mail.flagged || mail.unseen) && $vuetify.theme.dark) }">
@@ -166,7 +166,7 @@
                     nudge-bottom="5"
                 >
                     <template v-slot:activator="{ on, attrs }">
-                        <v-btn icon @click.stop="2" small class="float-right mr-1" :title="$t('more')" v-on="on" v-bind="attrs" v-show="!loadingBody">
+                        <v-btn icon small class="float-right mr-1" :title="$t('more')" v-on="on" v-bind="attrs" v-show="!loadingBody">
                             <v-icon>mdi-dots-vertical</v-icon>
                         </v-btn>
                     </template>
@@ -1762,6 +1762,11 @@ export default {
                 // Is not updating, skip checking new mails
                 this.init = true;
                 this.mails = response.data.sort((a, b) => (b.date - a.date));
+                this.$nextTick(() => {
+                    if (this.$refs.scrollTarget) {
+                        this.scrollHandler({ target: this.$refs.scrollTarget });
+                    }
+                });
             } else {
                 // Check if there is any new mail
                 let newMail = false;
@@ -1779,6 +1784,11 @@ export default {
                 // Update list
                 this.mails = response.data.sort((a, b) => (b.date - a.date));
                 this.refreshLoding = false;
+                this.$nextTick(() => {
+                    if (this.$refs.scrollTarget) {
+                        this.scrollHandler({ target: this.$refs.scrollTarget });
+                    }
+                });
             }
             if (this.viewerOpened) {
                 // If viewer layer is opened, update viewer
@@ -2292,6 +2302,11 @@ export default {
             }
             this.mails.splice(mail, 1);
             this.doAction(id, 'junk');
+            this.$nextTick(() => {
+                if (this.$refs.scrollTarget) {
+                    this.scrollHandler({ target: this.$refs.scrollTarget });
+                }
+            });
         },
         /**
          * Delete a mail by mail ID
@@ -2305,6 +2320,11 @@ export default {
             }
             this.mails.splice(mail, 1);
             this.doAction(id, 'delete');
+            this.$nextTick(() => {
+                if (this.$refs.scrollTarget) {
+                    this.scrollHandler({ target: this.$refs.scrollTarget });
+                }
+            });
         },
         /**
          * Translate current mail

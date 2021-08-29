@@ -245,6 +245,11 @@
         "mainCity": "Basseterre"
     },
     {
+        "name": "America/Blanc-Sablon",
+        "countryName": "Canada",
+        "mainCity": "Blanc-Sablon"
+    },
+    {
         "name": "America/Montserrat",
         "countryName": "Montserrat",
         "mainCity": "Brades"
@@ -298,11 +303,6 @@
         "name": "America/Guadeloupe",
         "countryName": "Guadeloupe",
         "mainCity": "Les Abymes"
-    },
-    {
-        "name": "America/Blanc-Sablon",
-        "countryName": "Canada",
-        "mainCity": "Lévis"
     },
     {
         "name": "America/Marigot",
@@ -466,7 +466,7 @@
     },
     {
         "name": "Atlantic/Cape_Verde",
-        "countryName": "Cabo Verde",
+        "countryName": "Cape Verde",
         "mainCity": "Praia"
     },
     {
@@ -610,11 +610,6 @@
         "mainCity": "Tórshavn"
     },
     {
-        "name": "Africa/Windhoek",
-        "countryName": "Namibia",
-        "mainCity": "Windhoek"
-    },
-    {
         "name": "Africa/Algiers",
         "countryName": "Algeria",
         "mainCity": "Algiers"
@@ -711,7 +706,7 @@
     },
     {
         "name": "Europe/Prague",
-        "countryName": "Czechia",
+        "countryName": "Czech Republic",
         "mainCity": "Prague"
     },
     {
@@ -731,7 +726,7 @@
     },
     {
         "name": "Europe/Skopje",
-        "countryName": "North Macedonia",
+        "countryName": "Macedonia",
         "mainCity": "Skopje"
     },
     {
@@ -880,6 +875,11 @@
         "mainCity": "Maputo"
     },
     {
+        "name": "Africa/Windhoek",
+        "countryName": "Namibia",
+        "mainCity": "Windhoek"
+    },
+    {
         "name": "Africa/Juba",
         "countryName": "South Sudan",
         "mainCity": "Juba"
@@ -986,7 +986,7 @@
     },
     {
         "name": "Africa/Mbabane",
-        "countryName": "Eswatini",
+        "countryName": "Swaziland",
         "mainCity": "Manzini"
     },
     {
@@ -1222,7 +1222,7 @@
     {
         "name": "Asia/Urumqi",
         "countryName": "China",
-        "mainCity": "Zhongshan"
+        "mainCity": "Ürümqi"
     },
     {
         "name": "Asia/Almaty",
@@ -1371,7 +1371,7 @@
     },
     {
         "name": "Asia/Dili",
-        "countryName": "Timor Leste",
+        "countryName": "East Timor",
         "mainCity": "Dili"
     },
     {
