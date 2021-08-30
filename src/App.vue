@@ -108,9 +108,9 @@
                 </div>
                 <noteSearch :notes="searchIndexFiltered[8]" v-if="searchIndexFiltered[8] && searchIndexFiltered[8].length > 0"></noteSearch>
                 <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0">
-                    {{ $t('coursework') }}
+                    {{ $t('events') }}
                 </div>
-                <courseworkSearch :courseworks="searchIndexFiltered[7]" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0"></courseworkSearch>
+                <eventSearch :events="searchIndexFiltered[7]" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0"></eventSearch>
                 <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[1] && searchIndexFiltered[1].length > 0">
                     {{ $t('todo') }}
                 </div>
@@ -429,7 +429,7 @@ import * as JsSearch from 'js-search';
 
 import settings from '@/components/settings.vue';
 import noteSearch from '@/components/search/note.vue';
-import courseworkSearch from '@/components/search/coursework.vue';
+import eventSearch from '@/components/search/event.vue';
 import todoSearch from '@/components/search/todo.vue';
 import gradeSearch from '@/components/search/grade.vue';
 import clockSearch from '@/components/search/clock.vue';
@@ -448,7 +448,7 @@ export default {
     components: {
         settings,
         noteSearch,
-        courseworkSearch,
+        eventSearch,
         todoSearch,
         gradeSearch,
         clockSearch,
@@ -488,7 +488,7 @@ export default {
             'subjects',
             'attendance',
             'calendar',
-            'coursework',
+            'event',
             'note',
             'mail',
             'grade',
@@ -1268,7 +1268,7 @@ html::-webkit-scrollbar {
         "subjects": "Manage Course Units",
         "attendance": "Attendance",
         "calendar": "Calendar",
-        "coursework": "Coursework",
+        "event": "Event",
         "note": "Quick Notes",
         "mail": "Inbox",
         "grade": "Grade Summary",
@@ -1315,7 +1315,7 @@ html::-webkit-scrollbar {
         "subjects": "科目管理",
         "attendance": "出勤统计",
         "calendar": "日历",
-        "coursework": "作业",
+        "event": "事件",
         "note": "快速笔记",
         "mail": "收件箱",
         "grade": "成绩概览",
@@ -1362,7 +1362,7 @@ html::-webkit-scrollbar {
         "subjects": "Asignaturas",
         "attendance": "Asistencia",
         "calendar": "Calendario",
-        "coursework": "Trabajo de curso",
+        "event": "",
         "note": "Apuntes rápidos",
         "mail": "Correos",
         "grade": "Resumen de notas ",

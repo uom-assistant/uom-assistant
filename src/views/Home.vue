@@ -48,7 +48,7 @@
             <livelinks id="index-5" class="block size1x" v-show="widgets.includes(3)" :searchid="3"></livelinks>
             <subjects id="index-6" class="block size1x" v-show="widgets.includes(4)" :searchid="4"></subjects>
             <attendance id="index-7" class="block size1x" v-show="widgets.includes(5)" :searchid="5"></attendance>
-            <coursework id="index-8" class="block size1x" v-show="widgets.includes(7)" :searchid="7"></coursework>
+            <event id="index-8" class="block size1x" v-show="widgets.includes(7)" :searchid="7"></event>
             <note id="index-9" class="block size1x" v-show="widgets.includes(8)" :searchid="8"></note>
             <mail id="index-10" class="block size1x" v-show="widgets.includes(9)" :searchid="9"></mail>
             <grade id="index-11" class="block size1x" v-show="widgets.includes(10)" :searchid="10"></grade>
@@ -92,7 +92,7 @@ import livelinks from '@/components/livelinks.vue';
 import subjects from '@/components/subjects.vue';
 import attendance from '@/components/attendance.vue';
 import calendar from '@/components/calendar.vue';
-import coursework from '@/components/coursework.vue';
+import event from '@/components/event.vue';
 import note from '@/components/note.vue';
 import mail from '@/components/mail.vue';
 import grade from '@/components/grade.vue';
@@ -110,7 +110,7 @@ export default {
         subjects,
         attendance,
         calendar,
-        coursework,
+        event,
         note,
         mail,
         grade,
@@ -185,14 +185,14 @@ export default {
             let current = null;
             let nextEvent = null;
             if (this.todayEvents.length > 0) {
-                for (const event of this.todayEvents) {
+                for (const eventItem of this.todayEvents) {
                     // Check the number of today's events and get the current event
-                    if (event.start.valueOf() > now) {
-                        nextEvent = (nextEvent === null || nextEvent.start.valueOf() > event.start.valueOf()) ? event : nextEvent;
+                    if (eventItem.start.valueOf() > now) {
+                        nextEvent = (nextEvent === null || nextEvent.start.valueOf() > eventItem.start.valueOf()) ? eventItem : nextEvent;
                         remain += 1;
-                    } else if (event.start.valueOf() <= now && event.end.valueOf() > now) {
+                    } else if (eventItem.start.valueOf() <= now && eventItem.end.valueOf() > now) {
                         remain += 1;
-                        current = event;
+                        current = eventItem;
                     }
                 }
             }

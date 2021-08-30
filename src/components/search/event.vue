@@ -1,41 +1,41 @@
 <template>
     <v-card
-        class="mx-auto coursework-search-container mb-2"
+        class="mx-auto event-search-container mb-2"
         outlined
     >
         <v-list flat class="list" :key="updateListKey">
             <v-list-item-group
-                v-model="ifCourseworks"
+                v-model="ifEvents"
                 multiple
                 active-class="done"
             >
-                <v-list-item v-for="(coursework, index) in courseworks" :key="index">
+                <v-list-item v-for="(event, index) in events" :key="index">
                     <template v-slot:default="{ active }">
                         <v-list-item-action>
                             <v-checkbox :input-value="active"></v-checkbox>
                         </v-list-item-action>
 
                         <v-list-item-content>
-                            <v-list-item-title><span v-if="coursework.deadline !== false && displayRemain(coursework.deadline, index) !== ''" class="d-inline-block time-remain" :class="checkExpired(coursework.deadline, index)"><v-icon :class="checkUrgent(coursework.deadline, index)" class="mr-1 urgent-icon" dense>mdi-clock-alert-outline</v-icon>{{ displayRemain(coursework.deadline, index) }}</span>{{ coursework.title }}</v-list-item-title>
-                            <v-list-item-subtitle v-if="coursework.deadline !== false || coursework.subject !== false">
-                                <span v-if="coursework.deadline !== false" class="mr-2">
+                            <v-list-item-title><span v-if="event.deadline !== false && displayRemain(event.deadline, index) !== ''" class="d-inline-block time-remain" :class="checkExpired(event.deadline, index)"><v-icon :class="checkUrgent(event.deadline, index)" class="mr-1 urgent-icon" dense>mdi-clock-alert-outline</v-icon>{{ displayRemain(event.deadline, index) }}</span>{{ event.title }}</v-list-item-title>
+                            <v-list-item-subtitle v-if="event.deadline !== false || event.subject !== false">
+                                <span v-if="event.deadline !== false" class="mr-2">
                                     <v-icon
-                                        v-if="coursework.deadline !== false"
+                                        v-if="event.deadline !== false"
                                         small
                                     >
                                         mdi-clock-outline
                                     </v-icon>
-                                    {{ getDate(new Date(coursework.deadline)) }}
+                                    {{ getDate(new Date(event.deadline)) }}
                                 </span>
-                                <span v-if="coursework.subject !== false">
-                                    <span :class="subjectColor(coursework.subject)" class="subject-color-samll" v-if="coursework.subject !== false"></span>
-                                    {{ subjectNameMap(coursework.subject) }}
+                                <span v-if="event.subject !== false">
+                                    <span :class="subjectColor(event.subject)" class="subject-color-samll" v-if="event.subject !== false"></span>
+                                    {{ subjectNameMap(event.subject) }}
                                 </span>
                             </v-list-item-subtitle>
                         </v-list-item-content>
 
                         <v-list-item-action class="delete">
-                            <v-btn icon @click.stop="removeCoursework(coursework.rawIndex)">
+                            <v-btn icon @click.stop="removeEvent(event.rawIndex)">
                                 <v-icon color="grey">mdi-delete-outline</v-icon>
                             </v-btn>
                         </v-list-item-action>
@@ -51,25 +51,25 @@ import { mapState } from 'vuex';
 import formatDateTime from '@/tools/formatDateTime';
 
 export default {
-    name: 'courseworkSearch',
+    name: 'eventSearch',
     props: {
-        courseworks: Array,
+        events: Array,
     },
     data() {
         return {
-            ifCourseworks: [],
+            ifEvents: [],
             updateListKey: '',
             skipSyncBack: false,
         };
     },
     methods: {
         /**
-         * Remove a coursework from the list by index in widget
-         * @param {number} index coursework index
+         * Remove a event from the list by index in widget
+         * @param {number} index event index
          */
-        removeCoursework(index) {
+        removeEvent(index) {
             this.$store.commit('setSearchNotification', {
-                target: 'coursework',
+                target: 'event',
                 payload: { action: 'delete', index },
             });
         },
@@ -108,13 +108,13 @@ export default {
             return subject;
         },
         /**
-         * Calculate the remaining time of a coursework and format it as a string
+         * Calculate the remaining time of a event and format it as a string
          * @param {number} deadline deadline
-         * @param {number} index coursework index of the list
+         * @param {number} index event index of the list
          * @returns {string} formatted string or ''
          */
         displayRemain(deadline, index) {
-            if (this.ifCourseworks.includes(index)) {
+            if (this.ifEvents.includes(index)) {
                 return '';
             }
 
@@ -143,13 +143,13 @@ export default {
             return '';
         },
         /**
-         * Check if the coursework is urgent and return color classes
+         * Check if the event is urgent and return color classes
          * @param {number} deadline deadline
-         * @param {number} index coursework index of the list
+         * @param {number} index event index of the list
          * @returns {string} color classes or ''
          */
         checkUrgent(deadline, index) {
-            if (this.ifCourseworks.includes(index)) {
+            if (this.ifEvents.includes(index)) {
                 return 'd-none';
             }
 
@@ -168,17 +168,17 @@ export default {
             if (ddl - now < 3600000) {
                 return 'red--text text-darken-3';
             }
-            // Coursework done
+            // Event done
             return 'd-none';
         },
         /**
-         * Check if the coursework is expired and return the classes for text
+         * Check if the event is expired and return the classes for text
          * @param {number} deadline deadline
-         * @param {number} index coursework index of the list
+         * @param {number} index event index of the list
          * @returns {string} color classes or ''
          */
         checkExpired(deadline, index) {
-            if (this.ifCourseworks.includes(index)) {
+            if (this.ifEvents.includes(index)) {
                 return 'text--secondary';
             }
 
@@ -201,11 +201,11 @@ export default {
          */
         updateDone() {
             this.skipSyncBack = true;
-            this.ifCourseworks = [];
-            if (this.courseworks) {
-                for (let i = 0; i < this.courseworks.length; i += 1) {
-                    if (this.courseworks[i].done) {
-                        this.ifCourseworks.push(i);
+            this.ifEvents = [];
+            if (this.events) {
+                for (let i = 0; i < this.events.length; i += 1) {
+                    if (this.events[i].done) {
+                        this.ifEvents.push(i);
                     }
                 }
             }
@@ -218,22 +218,22 @@ export default {
         locale() {
             this.$i18n.locale = this.locale;
         },
-        courseworks() {
+        events() {
             this.updateDone();
         },
-        ifCourseworks() {
+        ifEvents() {
             // Sync states back to widget
             if (!this.skipSyncBack) {
-                if (this.courseworks) {
+                if (this.events) {
                     const payload = [];
-                    for (let i = 0; i < this.courseworks.length; i += 1) {
+                    for (let i = 0; i < this.events.length; i += 1) {
                         payload.push({
-                            rawIndex: this.courseworks[i].rawIndex,
-                            done: this.ifCourseworks.includes(i),
+                            rawIndex: this.events[i].rawIndex,
+                            done: this.ifEvents.includes(i),
                         });
                     }
                     this.$store.commit('setSearchNotification', {
-                        target: 'coursework',
+                        target: 'event',
                         payload: { action: 'syncDone', payload },
                     });
                 }
@@ -265,7 +265,7 @@ export default {
 </script>
 
 <style lang="less">
-.coursework-search-container {
+.event-search-container {
     position: relative;
     padding-left: 0;
     padding-right: 0;
@@ -323,7 +323,7 @@ export default {
         }
     }
 }
-#app.theme--dark .coursework-search-container {
+#app.theme--dark .event-search-container {
     background-color: #272727;
     .v-list-item {
         &:hover, &:focus {

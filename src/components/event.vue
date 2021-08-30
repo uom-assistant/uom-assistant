@@ -1,6 +1,6 @@
 <template>
     <v-card
-        class="mx-auto rounded-lg coursework-container"
+        class="mx-auto rounded-lg event-container"
         outlined
     >
         <v-progress-circular
@@ -11,16 +11,16 @@
             class="loading"
             v-show="loading"
         ></v-progress-circular>
-        <div class="coursework-outer">
+        <div class="event-outer">
             <h2 class="handle">
-                {{ $t('coursework') }}
-                <span class="num-badge" v-show="(courseworks.length - ifCourseworks.length) > 0">{{ courseworks.length - ifCourseworks.length }}</span>
+                {{ $t('event') }}
+                <span class="num-badge" v-show="(events.length - ifEvents.length) > 0">{{ events.length - ifEvents.length }}</span>
             </h2>
             <v-text-field
-                :label="$t('add_coursework')"
+                :label="$t('add_event')"
                 outlined
                 class="input"
-                prepend-inner-icon="mdi-book-open-page-variant-outline"
+                prepend-inner-icon="mdi-calendar-plus"
                 clearable
                 v-model.trim="addText"
             ></v-text-field>
@@ -132,37 +132,37 @@
             </div>
             <v-list flat class="list" :key="updateListKey">
                 <v-list-item-group
-                    v-model="ifCourseworks"
+                    v-model="ifEvents"
                     multiple
                     active-class="done"
                 >
-                    <v-list-item v-for="(coursework, index) in courseworks" :key="index">
+                    <v-list-item v-for="(event, index) in events" :key="index">
                         <template v-slot:default="{ active }">
                             <v-list-item-action>
                                 <v-checkbox :input-value="active"></v-checkbox>
                             </v-list-item-action>
 
                             <v-list-item-content>
-                                <v-list-item-title><span v-if="coursework.deadline !== false && displayRemain(coursework.deadline, index) !== ''" class="d-inline-block time-remain" :class="checkExpired(coursework.deadline, index)"><v-icon :class="checkUrgent(coursework.deadline, index)" class="mr-1 urgent-icon" dense>mdi-clock-alert-outline</v-icon>{{ displayRemain(coursework.deadline, index) }}</span>{{ coursework.title }}</v-list-item-title>
-                                <v-list-item-subtitle v-if="coursework.deadline !== false || coursework.subject !== false">
-                                    <span v-if="coursework.deadline !== false" class="mr-2">
+                                <v-list-item-title><span v-if="event.deadline !== false && displayRemain(event.deadline, index) !== ''" class="d-inline-block time-remain" :class="checkExpired(event.deadline, index)"><v-icon :class="checkUrgent(event.deadline, index)" class="mr-1 urgent-icon" dense>mdi-clock-alert-outline</v-icon>{{ displayRemain(event.deadline, index) }}</span>{{ event.title }}</v-list-item-title>
+                                <v-list-item-subtitle v-if="event.deadline !== false || event.subject !== false">
+                                    <span v-if="event.deadline !== false" class="mr-2">
                                         <v-icon
-                                            v-if="coursework.deadline !== false"
+                                            v-if="event.deadline !== false"
                                             small
                                         >
                                             mdi-clock-outline
                                         </v-icon>
-                                        {{ getDate(new Date(coursework.deadline)) }}
+                                        {{ getDate(new Date(event.deadline)) }}
                                     </span>
-                                    <span v-if="coursework.subject !== false">
-                                        <span :class="subjectColor(coursework.subject)" class="subject-color-samll" v-if="coursework.subject !== false"></span>
-                                        {{ subjectNameMap(coursework.subject) }}
+                                    <span v-if="event.subject !== false">
+                                        <span :class="subjectColor(event.subject)" class="subject-color-samll" v-if="event.subject !== false"></span>
+                                        {{ subjectNameMap(event.subject) }}
                                     </span>
                                 </v-list-item-subtitle>
                             </v-list-item-content>
 
                             <v-list-item-action class="delete">
-                                <v-btn icon @click.stop="removeCoursework(index)">
+                                <v-btn icon @click.stop="removeEvent(index)">
                                     <v-icon color="grey">mdi-delete-outline</v-icon>
                                 </v-btn>
                             </v-list-item-action>
@@ -170,7 +170,7 @@
                     </v-list-item>
                 </v-list-item-group>
             </v-list>
-            <div class="empty" v-if="courseworks.length === 0">
+            <div class="empty" v-if="events.length === 0">
                 <v-icon color="grey" x-large>mdi-check-all</v-icon>
             </div>
         </div>
@@ -182,15 +182,15 @@ import { mapState } from 'vuex';
 import formatDateTime from '@/tools/formatDateTime';
 
 export default {
-    name: 'coursework',
+    name: 'event',
     props: {
         searchid: Number,
     },
     data() {
         return {
             loading: false,
-            courseworks: [],
-            ifCourseworks: [],
+            events: [],
+            ifEvents: [],
             addText: '',
             timeMenu: false,
             time: '',
@@ -204,7 +204,7 @@ export default {
     },
     methods: {
         /**
-         * Add a coursework to the list
+         * Add a event to the list
          */
         addOne() {
             if (this.addText !== '') {
@@ -234,7 +234,7 @@ export default {
                     }
                     deadline = new Date(`${nowDate} ${this.time}`).valueOf();
                 }
-                this.courseworks.push({
+                this.events.push({
                     title: this.addText,
                     deadline,
                     subject: this.addingSubject === null || this.addingSubject.length === 0 ? false : this.addingSubject,
@@ -251,30 +251,30 @@ export default {
             }
         },
         /**
-         * Remove a coursework from the list by index
-         * @param {number} index coursework index
+         * Remove a event from the list by index
+         * @param {number} index event index
          */
-        removeCoursework(index) {
+        removeEvent(index) {
             // Create a copy to protect the original array
-            const ifCourseworksCopy = [];
-            for (let i = 0; i < this.ifCourseworks.length; i += 1) {
-                ifCourseworksCopy.push(this.ifCourseworks[i]);
+            const ifEventsCopy = [];
+            for (let i = 0; i < this.ifEvents.length; i += 1) {
+                ifEventsCopy.push(this.ifEvents[i]);
             }
 
             // Remove the index and update the remaining
-            for (let i = 0; i < ifCourseworksCopy.length; i += 1) {
-                if (ifCourseworksCopy[i] === index) {
-                    ifCourseworksCopy.splice(i, 1);
+            for (let i = 0; i < ifEventsCopy.length; i += 1) {
+                if (ifEventsCopy[i] === index) {
+                    ifEventsCopy.splice(i, 1);
                 } else {
-                    if (ifCourseworksCopy[i] > index) {
-                        ifCourseworksCopy[i] -= 1;
+                    if (ifEventsCopy[i] > index) {
+                        ifEventsCopy[i] -= 1;
                     }
                 }
             }
-            this.ifCourseworks = ifCourseworksCopy;
+            this.ifEvents = ifEventsCopy;
 
-            // Update coursework list
-            this.courseworks.splice(index, 1);
+            // Update event list
+            this.events.splice(index, 1);
 
             // Update layout
             this.$nextTick(() => {
@@ -285,9 +285,9 @@ export default {
          * Store changes to localstorage
          */
         store() {
-            localStorage.setItem('courseworks', JSON.stringify({
-                courseworks: this.courseworks,
-                ifCourseworks: this.ifCourseworks,
+            localStorage.setItem('events', JSON.stringify({
+                events: this.events,
+                ifEvents: this.ifEvents,
             }));
             this.sync();
         },
@@ -351,13 +351,13 @@ export default {
             return subject;
         },
         /**
-         * Calculate the remaining time of a coursework and format it as a string
+         * Calculate the remaining time of a event and format it as a string
          * @param {number} deadline deadline
-         * @param {number} index coursework index of the list
+         * @param {number} index event index of the list
          * @returns {string} formatted string or ''
          */
         displayRemain(deadline, index) {
-            if (this.ifCourseworks.includes(index)) {
+            if (this.ifEvents.includes(index)) {
                 return '';
             }
 
@@ -386,13 +386,13 @@ export default {
             return '';
         },
         /**
-         * Check if the coursework is urgent and return color classes
+         * Check if the event is urgent and return color classes
          * @param {number} deadline deadline
-         * @param {number} index coursework index of the list
+         * @param {number} index event index of the list
          * @returns {string} color classes or ''
          */
         checkUrgent(deadline, index) {
-            if (this.ifCourseworks.includes(index)) {
+            if (this.ifEvents.includes(index)) {
                 return 'd-none';
             }
 
@@ -411,17 +411,17 @@ export default {
             if (ddl - now < 3600000) {
                 return 'red--text text-darken-3';
             }
-            // Coursework done
+            // Event done
             return 'd-none';
         },
         /**
-         * Check if the coursework is expired and return the classes for text
+         * Check if the event is expired and return the classes for text
          * @param {number} deadline deadline
-         * @param {number} index coursework index of the list
+         * @param {number} index event index of the list
          * @returns {string} color classes or ''
          */
         checkExpired(deadline, index) {
-            if (this.ifCourseworks.includes(index)) {
+            if (this.ifEvents.includes(index)) {
                 return 'text--secondary';
             }
 
@@ -432,12 +432,12 @@ export default {
             return 'text--secondary';
         },
         /**
-         * Generate and broadcast coursework deadline events
+         * Generate and broadcast event deadline events
          */
         storeEvents() {
             const eventList = [];
-            for (const item of this.courseworks) {
-                if (!this.ifCourseworks.includes(this.courseworks.indexOf(item)) && item.deadline !== false) {
+            for (const item of this.events) {
+                if (!this.ifEvents.includes(this.events.indexOf(item)) && item.deadline !== false) {
                     const rawDdl = new Date(item.deadline);
                     const ddl = `${rawDdl.getFullYear()}-${`${rawDdl.getMonth() + 1}`.padStart(2, '0')}-${`${rawDdl.getDate()}`.padStart(2, '0')}T${`${rawDdl.getHours()}`.padStart(2, '0')}:${`${rawDdl.getMinutes()}`.padStart(2, '0')}:00`;
                     eventList.push({
@@ -454,7 +454,7 @@ export default {
                     });
                 }
             }
-            this.$store.commit('setCourseworks', eventList);
+            this.$store.commit('setEvents', eventList);
         },
         /**
          * Format a date object to a string based on locale
@@ -469,21 +469,21 @@ export default {
          */
         buildSearchIndex() {
             const index = [];
-            for (let i = 0; i < this.courseworks.length; i += 1) {
+            for (let i = 0; i < this.events.length; i += 1) {
                 index.push({
-                    title: this.courseworks[i].title,
-                    deadline: this.courseworks[i].deadline,
-                    subject: this.courseworks[i].subject,
-                    subjectName: this.courseworks[i].subject === false ? [] : [this.subjectNameMap(this.courseworks[i].subject), this.subjectLongNameMap(this.courseworks[i].subject)],
-                    id: `coursework-${i}`,
+                    title: this.events[i].title,
+                    deadline: this.events[i].deadline,
+                    subject: this.events[i].subject,
+                    subjectName: this.events[i].subject === false ? [] : [this.subjectNameMap(this.events[i].subject), this.subjectLongNameMap(this.events[i].subject)],
+                    id: `event-${i}`,
                     rawIndex: i,
-                    done: this.ifCourseworks.includes(i),
+                    done: this.ifEvents.includes(i),
                 });
             }
             this.$store.commit('setSearchIndex', {
                 id: this.searchid,
                 payload: {
-                    name: 'coursework',
+                    name: 'event',
                     key: 'id',
                     indexes: ['title', 'subject', 'subjectName'],
                     data: index,
@@ -495,14 +495,14 @@ export default {
         locale() {
             this.$i18n.locale = this.locale;
         },
-        courseworks() {
-            // Store data when coursework changed
+        events() {
+            // Store data when event changed
             this.store();
             this.storeEvents();
             this.buildSearchIndex();
         },
-        ifCourseworks() {
-            // Store data when coursework state changed
+        ifEvents() {
+            // Store data when event state changed
             this.store();
             this.storeEvents();
             this.buildSearchIndex();
@@ -515,23 +515,23 @@ export default {
         },
         searchNotification() {
             // Handle search actions
-            if (this.searchNotification.target === 'coursework') {
+            if (this.searchNotification.target === 'event') {
                 if (this.searchNotification.payload.action === 'syncDone') {
                     // Sync states
                     for (const item of this.searchNotification.payload.payload) {
                         if (item.done) {
-                            if (!this.ifCourseworks.includes(item.rawIndex)) {
-                                this.ifCourseworks.push(item.rawIndex);
+                            if (!this.ifEvents.includes(item.rawIndex)) {
+                                this.ifEvents.push(item.rawIndex);
                             }
                         } else {
-                            if (this.ifCourseworks.includes(item.rawIndex)) {
-                                this.ifCourseworks.splice(this.ifCourseworks.indexOf(item.rawIndex), 1);
+                            if (this.ifEvents.includes(item.rawIndex)) {
+                                this.ifEvents.splice(this.ifEvents.indexOf(item.rawIndex), 1);
                             }
                         }
                     }
                 } else if (this.searchNotification.payload.action === 'delete') {
                     // Delete one
-                    this.removeCoursework(this.searchNotification.payload.index);
+                    this.removeEvent(this.searchNotification.payload.index);
                 }
             }
         },
@@ -559,12 +559,12 @@ export default {
     mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
 
-        // Get courseworks from localstorage
-        const storaged = localStorage.getItem('courseworks');
+        // Get events from localstorage
+        const storaged = localStorage.getItem('events');
         if (storaged) {
-            const storagedCourseworks = JSON.parse(storaged);
-            this.courseworks = storagedCourseworks.courseworks;
-            this.ifCourseworks = storagedCourseworks.ifCourseworks;
+            const storagedEvents = JSON.parse(storaged);
+            this.events = storagedEvents.events;
+            this.ifEvents = storagedEvents.ifEvents;
         }
 
         // Sync data every 30 minutes
@@ -581,7 +581,7 @@ export default {
 </script>
 
 <style lang="less">
-.coursework-container {
+.event-container {
     position: relative;
     padding-left: 0;
     padding-right: 0;
@@ -731,12 +731,12 @@ export default {
             text-decoration: line-through;
         }
     }
-    .coursework-outer {
+    .event-outer {
         width: 100%;
         min-height: 260px;
     }
 }
-#app.theme--dark .coursework-container {
+#app.theme--dark .event-container {
     h2 {
         .num-badge {
             background-color: #3E3E3E;
@@ -762,8 +762,8 @@ export default {
 <i18n>
 {
     "en": {
-        "coursework": "Coursework",
-        "add_coursework": "Add a coursework",
+        "event": "Event",
+        "add_event": "Add an event",
         "ddl_date": "Due Date",
         "ddl_time": "Time",
         "subject": "Course Unit",
@@ -774,8 +774,8 @@ export default {
         "expired": "Overdue"
     },
     "zh": {
-        "coursework": "作业",
-        "add_coursework": "添加一项作业",
+        "event": "事件",
+        "add_event": "添加一个事件",
         "ddl_date": "到期日期",
         "ddl_time": "到期时间",
         "subject": "科目",
@@ -786,8 +786,8 @@ export default {
         "expired": "已过期"
     },
     "es": {
-        "coursework": "Trabajo de curso",
-        "add_coursework": "Añadir un trabajo de curso",
+        "event": "",
+        "add_event": "",
         "ddl_date": "Fecha límite",
         "ddl_time": "Hora límite",
         "subject": "Asignatura",

@@ -675,7 +675,7 @@ export default {
             subjects: (state) => state.subjects,
             timerMin: (state) => state.timerMin,
             timerHour: (state) => state.timerHour,
-            courseworks: (state) => state.courseworks,
+            courseworks: (state) => state.events,
             backend: (state) => state.backend,
             backendStatus: (state) => state.backendStatus,
             account: (state) => state.account,

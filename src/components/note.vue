@@ -99,10 +99,11 @@
                     mdi-file-document-edit-outline
                 </v-icon>
                 <input type="text" v-model.trim="editingTitle" class="title-input" v-if="notes[editing]" :placeholder="$t('title_placeholder')">
-                <v-btn icon @click="layerOpened = false" small class="float-right mr-4">
+                <v-btn icon @click="layerOpened = false; tocOpened = false" small class="float-right mr-4">
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
                 <v-menu
+                    v-model="tocOpened"
                     offset-y
                     bottom
                     left
@@ -412,6 +413,7 @@ export default {
             toRemove: -1,
             tocHTML: '',
             titleOffest: {},
+            tocOpened: false,
             cmOption: {
                 tabSize: 4,
                 indentUnit: 4,
@@ -820,27 +822,37 @@ export default {
             const container = document.getElementsByClassName('note-toc-container')[0];
             // If we have the TOC element
             if (container) {
+                let foundFlag = false;
                 for (let i = 0; i < entries.length; i += 1) {
                     // Find the title
                     if (entries[i][1] <= e.target.scrollTop + 70 && (i === entries.length - 1 || entries[i + 1][1] > e.target.scrollTop + 70)) {
                         const title = container.querySelector(`a[href="#${entries[i][0]}"]`);
-                        if (title && !title.classList.contains('active')) {
-                            for (const ele of container.querySelectorAll('a[href^="#uoma-note-"]')) {
-                                ele.classList.remove('active');
-                            }
-                            title.classList.add('active');
+                        if (title) {
+                            foundFlag = true;
+                            if (!title.classList.contains('active')) {
+                                for (const ele of container.querySelectorAll('a[href^="#uoma-note-"]')) {
+                                    ele.classList.remove('active');
+                                }
+                                title.classList.add('active');
 
-                            // Scroll the title into the view if necessary
-                            const containerScrollTop = container.scrollTop;
-                            const titleOffsetTop = title.offsetTop - 37;
-                            const containerHeight = container.clientHeight;
-                            const titleHeight = title.clientHeight;
-                            if (titleOffsetTop < containerScrollTop) {
-                                this.smoothScrollTo(container, titleOffsetTop);
-                            } else if (titleOffsetTop + titleHeight > containerScrollTop + containerHeight) {
-                                this.smoothScrollTo(container, titleOffsetTop + titleHeight - containerHeight);
+                                // Scroll the title into the view if necessary
+                                const containerScrollTop = container.scrollTop;
+                                const titleOffsetTop = title.offsetTop - 37;
+                                const containerHeight = container.clientHeight;
+                                const titleHeight = title.clientHeight;
+                                if (titleOffsetTop < containerScrollTop) {
+                                    this.smoothScrollTo(container, titleOffsetTop);
+                                } else if (titleOffsetTop + titleHeight > containerScrollTop + containerHeight) {
+                                    this.smoothScrollTo(container, titleOffsetTop + titleHeight - containerHeight);
+                                }
                             }
                         }
+                    }
+                }
+
+                if (!foundFlag) {
+                    for (const ele of container.querySelectorAll('a[href^="#uoma-note-"]')) {
+                        ele.classList.remove('active');
                     }
                 }
             }

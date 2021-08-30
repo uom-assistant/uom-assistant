@@ -14,7 +14,7 @@ export default new Vuex.Store({
         timerHour: '00',
         todayEvents: [],
         nextDayFirstEvent: {},
-        courseworks: {},
+        events: {},
         errorList: [],
         backend: {},
         backendStatus: true,
@@ -57,8 +57,8 @@ export default new Vuex.Store({
         setNextDayFirstEvent(state, nextDayFirstEvent) {
             state.nextDayFirstEvent = nextDayFirstEvent;
         },
-        setCourseworks(state, courseworks) {
-            state.courseworks = courseworks;
+        setEvents(state, events) {
+            state.events = events;
         },
         addError(state, error) {
             const errorItem = error;
