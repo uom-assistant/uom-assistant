@@ -820,14 +820,14 @@ export default {
             const container = document.getElementsByClassName('note-toc-container')[0];
             // If we have the TOC element
             if (container) {
-                for (const ele of container.querySelectorAll('a[href^="#uoma-note-"]')) {
-                    ele.classList.remove('active');
-                }
                 for (let i = 0; i < entries.length; i += 1) {
                     // Find the title
                     if (entries[i][1] <= e.target.scrollTop + 70 && (i === entries.length - 1 || entries[i + 1][1] > e.target.scrollTop + 70)) {
                         const title = container.querySelector(`a[href="#${entries[i][0]}"]`);
-                        if (title) {
+                        if (title && !title.classList.contains('active')) {
+                            for (const ele of container.querySelectorAll('a[href^="#uoma-note-"]')) {
+                                ele.classList.remove('active');
+                            }
                             title.classList.add('active');
 
                             // Scroll the title into the view if necessary
