@@ -456,8 +456,8 @@ export default {
                 if (item[0] === 'vevent') {
                     const startTime = new Date(new Date(item[1][3][3]).toUTCString());
                     const timeDiff = (startTime.valueOf() - nowDate) / 1000;
-                    // Events range: -1 month to +2 months
-                    if (timeDiff < 5184000 && timeDiff > -2592000) {
+                    // Events range: -1 month to +3 months
+                    if (timeDiff < 7776000 && timeDiff > -2592000) {
                         // Get event title, adapted to events with locations
                         const title = typeof item[1][6][3] === 'number' ? item[1][7][3] : item[1][6][3];
 

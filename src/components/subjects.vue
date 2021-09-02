@@ -17,11 +17,11 @@
                 <v-btn icon @click.stop="addSubject" small class="float-right header-icon">
                     <v-icon>mdi-plus</v-icon>
                 </v-btn>
-                <v-btn icon @click.stop="filter = !filter" small class="float-right header-icon mr-1" v-if="hiddenSubjects.length > 0">
+                <v-btn icon @click.stop="filter = !filter" small class="float-right header-icon mr-1" v-if="shownSubjects.length < subjects.length">
                     <v-icon>{{ filter ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
                 </v-btn>
             </h2>
-            <v-simple-table v-if="subjects.length > 0" class="subject-table rounded-0">
+            <v-simple-table v-if="shownSubjects.length > 0 || hiddenSubjects.length > 0" class="subject-table rounded-0">
                 <template v-slot:default>
                     <thead>
                         <tr>
