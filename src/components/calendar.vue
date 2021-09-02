@@ -571,10 +571,13 @@ export default {
         showMap(details) {
             const lines = details.split('\n');
             for (const line of lines) {
-                const linePart = line.split(': ');
-                if (linePart[0] === 'Map Link') {
+                const linePart = line.split(': ').map((item) => item.trim());
+                if (linePart[0] === 'Map Link' && linePart[1]) {
                     // Parse URL
-                    const urlQuery = new URLSearchParams(new URL(linePart[1]).search);
+                    let urlQuery;
+                    try {
+                        urlQuery = new URLSearchParams(new URL(linePart[1]).search);
+                    } catch (e) { return ''; }
                     if (urlQuery.get('query_place_id') !== null) {
                         return `<iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAn46nX_pMvKfKcp5_Nqc4C3GCKj8CHJ7M&amp;q=place_id:${urlQuery.get('query_place_id')}" width="100%" height="300" frameborder="0" style="border:0;" allowfullscreen></iframe>`;
                     }
@@ -739,10 +742,6 @@ export default {
         padding-bottom: 11px;
     }
     .v-calendar-weekly__week {
-        .v-calendar-weekly__day:last-child {
-            border-right: none!important;
-            padding-right: 1.25px;
-        }
         button.v-btn.v-size--small {
             width: 35px;
             height: 35px;
@@ -752,10 +751,6 @@ export default {
     .v-calendar-weekly__head {
         .v-calendar-weekly__head-weekday {
             padding-top: 5px;
-            &:last-child {
-                border-right: none!important;
-                margin-right: 0.2px
-            }
         }
     }
     .theme--light.v-calendar-events .v-event-more {

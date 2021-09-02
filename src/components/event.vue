@@ -20,7 +20,7 @@
                 :label="$t('add_event')"
                 outlined
                 class="input"
-                prepend-inner-icon="mdi-calendar-plus"
+                prepend-inner-icon="mdi-plus"
                 clearable
                 v-model.trim="addText"
             ></v-text-field>
