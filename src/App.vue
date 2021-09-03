@@ -103,22 +103,18 @@
         </v-app-bar>
         <div id="search-result" class="elevation-3" :class="{ open: searchOpened }" v-show="searching !== '' && searching !== null && searchIndexFiltered.filter((item) => item).flat().length > 0">
             <div>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[8] && searchIndexFiltered[8].length > 0">
+                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0">
                     {{ $t('note') }}
                 </div>
-                <noteSearch :notes="searchIndexFiltered[8]" v-if="searchIndexFiltered[8] && searchIndexFiltered[8].length > 0"></noteSearch>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0">
-                    {{ $t('events') }}
+                <noteSearch :notes="searchIndexFiltered[7]" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0"></noteSearch>
+                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[5] && searchIndexFiltered[5].length > 0">
+                    {{ $t('task') }}
                 </div>
-                <eventSearch :events="searchIndexFiltered[7]" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0"></eventSearch>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[1] && searchIndexFiltered[1].length > 0">
-                    {{ $t('todo') }}
-                </div>
-                <todoSearch :todos="searchIndexFiltered[1]" v-if="searchIndexFiltered[1] && searchIndexFiltered[1].length > 0"></todoSearch>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[10] && searchIndexFiltered[10].length > 0">
+                <taskSearch :tasks="searchIndexFiltered[5]" v-if="searchIndexFiltered[5] && searchIndexFiltered[5].length > 0"></taskSearch>
+                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[9] && searchIndexFiltered[9].length > 0">
                     {{ $t('grade') }}
                 </div>
-                <gradeSearch :grades="searchIndexFiltered[10]" v-if="searchIndexFiltered[10] && searchIndexFiltered[10].length > 0"></gradeSearch>
+                <gradeSearch :grades="searchIndexFiltered[9]" v-if="searchIndexFiltered[9] && searchIndexFiltered[9].length > 0"></gradeSearch>
                 <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[0] && searchIndexFiltered[0].length > 0">
                     {{ $t('clock') }}
                 </div>
@@ -429,8 +425,7 @@ import * as JsSearch from 'js-search';
 
 import settings from '@/components/settings.vue';
 import noteSearch from '@/components/search/note.vue';
-import eventSearch from '@/components/search/event.vue';
-import todoSearch from '@/components/search/todo.vue';
+import taskSearch from '@/components/search/task.vue';
 import gradeSearch from '@/components/search/grade.vue';
 import clockSearch from '@/components/search/clock.vue';
 
@@ -448,8 +443,7 @@ export default {
     components: {
         settings,
         noteSearch,
-        eventSearch,
-        todoSearch,
+        taskSearch,
         gradeSearch,
         clockSearch,
     },
@@ -479,24 +473,23 @@ export default {
             (value) => /^[\w-]+(\.[\w-]+)+([\w.,@^=%:/~+-]*)?$/i.test(value) || '',
         ],
         languageList: localeList,
-        ifWidgets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+        ifWidgets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         widgets: [
             'clock',
-            'todo',
             'bblinks',
             'livelinks',
             'subjects',
             'attendance',
             'calendar',
-            'event',
+            'task',
             'note',
             'mail',
             'grade',
             'plugins',
         ],
         searching: '',
-        searchIndexFiltered: [null, null, null, null, null, null, null, null, null, null, null, null],
-        searchers: [null, null, null, null, null, null, null, null, null, null, null, null],
+        searchIndexFiltered: [null, null, null, null, null, null, null, null, null, null, null],
+        searchers: [null, null, null, null, null, null, null, null, null, null, null],
         timer: null,
         updateReady: false,
         updateReadyVersion: '',
@@ -838,9 +831,9 @@ export default {
 
         // Initialize widget status
         try {
-            this.ifWidgets = JSON.parse(localStorage.getItem('if_widgets')) || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+            this.ifWidgets = JSON.parse(localStorage.getItem('if_widgets')) || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         } catch {
-            this.ifWidgets = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+            this.ifWidgets = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         }
         localStorage.setItem('if_widgets', JSON.stringify(this.ifWidgets));
         this.$store.commit('setWidgets', this.ifWidgets);
@@ -1262,13 +1255,12 @@ html::-webkit-scrollbar {
         "ok": "OK",
         "account_settings": "Account Settings",
         "clock": "Clock",
-        "todo": "TO-DO",
         "bblinks": "Quick Links",
         "livelinks": "Online Session Links",
         "subjects": "Manage Course Units",
         "attendance": "Attendance",
         "calendar": "Calendar",
-        "event": "Event",
+        "task": "Task",
         "note": "Quick Notes",
         "mail": "Inbox",
         "grade": "Grade Summary",
@@ -1309,13 +1301,12 @@ html::-webkit-scrollbar {
         "ok": "好",
         "account_settings": "账户设置",
         "clock": "时钟",
-        "todo": "TO-DO",
         "bblinks": "快速链接",
         "livelinks": "在线课程链接",
         "subjects": "科目管理",
         "attendance": "出勤统计",
         "calendar": "日历",
-        "event": "事件",
+        "task": "任务",
         "note": "快速笔记",
         "mail": "收件箱",
         "grade": "成绩概览",
@@ -1356,13 +1347,12 @@ html::-webkit-scrollbar {
         "ok": "OK",
         "account_settings": "Ajustes de la cuenta",
         "clock": "Reloj",
-        "todo": "PARA-HACER",
         "bblinks": "Enlaces rápidos",
         "livelinks": "Enlaces de sesiones online",
         "subjects": "Asignaturas",
         "attendance": "Asistencia",
         "calendar": "Calendario",
-        "event": "",
+        "task": "",
         "note": "Apuntes rápidos",
         "mail": "Correos",
         "grade": "Resumen de notas ",

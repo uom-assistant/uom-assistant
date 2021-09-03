@@ -133,6 +133,10 @@ export default {
                     link: 'https://my.manchester.ac.uk/uPortal/f/home/normal/render.uP',
                 },
                 {
+                    title: 'Student System',
+                    link: 'https://studentadmin.manchester.ac.uk/psp/CSPROD/EMPLOYEE/SA/c/SA_LEARNER_SERVICES.SSS_STUDENT_CENTER.GBL',
+                },
+                {
                     title: 'Spot',
                     link: 'https://studentnet.cs.manchester.ac.uk/me/spot/',
                 },

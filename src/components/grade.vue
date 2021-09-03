@@ -33,7 +33,7 @@
                 <div class="not-inited mx-auto mb-2" v-if="!init && !loading">
                     <span class="text-center pl-6 pr-6">{{ $t('cannot_fetch') }} <a href="https://github.com/uom-assistant/uom-assistant/wiki" target="_blank" rel="noreferrer noopener">{{ $t('learn_more') }}</a></span>
                 </div>
-                <div class="not-inited mx-auto mb-2" v-if="init && !loading && gradeListFlat.length === 0">
+                <div class="not-inited mx-auto mb-2" v-if="init && gradeListFlat.length === 0">
                     <span>{{ $t('nothing') }}</span>
                 </div>
             </div>
@@ -45,7 +45,7 @@
                 <v-tab-item v-for="(semester, i) in gradeListFiltered" :key="`tab-item-${i}`">
                     <v-container fluid class="tab-container">
                         <div class="subject-list" :class="{ 'detail-expended': showMainChart }" :ref="`list${i}`" v-if="init && gradeListFlat.length > 0" @scroll.passive="scrollHandler">
-                            <div class="not-inited mx-auto mb-2" v-if="init && !loading && gradeListFiltered[i].length === 0 && gradeListFlat.length > 0">
+                            <div class="not-inited mx-auto mb-2" v-if="init && gradeListFiltered[i].length === 0 && gradeListFlat.length > 0">
                                 <span>{{ $t('nothing') }}</span>
                             </div>
                             <v-card

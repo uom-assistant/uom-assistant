@@ -1,6 +1,6 @@
 <template>
     <v-card
-        class="mx-auto rounded-lg event-container"
+        class="mx-auto rounded-lg task-container"
         outlined
     >
         <v-progress-circular
@@ -11,16 +11,16 @@
             class="loading"
             v-show="loading"
         ></v-progress-circular>
-        <div class="event-outer">
+        <div class="task-outer">
             <h2 class="handle">
-                {{ $t('event') }}
-                <span class="num-badge" v-show="(events.length - ifEvents.length) > 0">{{ events.length - ifEvents.length }}</span>
+                {{ $t('task') }}
+                <span class="num-badge" v-show="(tasks.length - ifTasks.length) > 0">{{ tasks.length - ifTasks.length }}</span>
             </h2>
             <v-text-field
-                :label="$t('add_event')"
+                :label="$t('add_task')"
                 outlined
                 class="input"
-                prepend-inner-icon="mdi-plus"
+                prepend-inner-icon="mdi-format-list-checks"
                 clearable
                 v-model.trim="addText"
             ></v-text-field>
@@ -132,37 +132,37 @@
             </div>
             <v-list flat class="list" :key="updateListKey">
                 <v-list-item-group
-                    v-model="ifEvents"
+                    v-model="ifTasks"
                     multiple
                     active-class="done"
                 >
-                    <v-list-item v-for="(event, index) in events" :key="index">
+                    <v-list-item v-for="(task, index) in tasks" :key="index">
                         <template v-slot:default="{ active }">
                             <v-list-item-action>
                                 <v-checkbox :input-value="active"></v-checkbox>
                             </v-list-item-action>
 
                             <v-list-item-content>
-                                <v-list-item-title><span v-if="event.deadline !== false && displayRemain(event.deadline, index) !== ''" class="d-inline-block time-remain" :class="checkExpired(event.deadline, index)"><v-icon :class="checkUrgent(event.deadline, index)" class="mr-1 urgent-icon" dense>mdi-clock-alert-outline</v-icon>{{ displayRemain(event.deadline, index) }}</span>{{ event.title }}</v-list-item-title>
-                                <v-list-item-subtitle v-if="event.deadline !== false || event.subject !== false">
-                                    <span v-if="event.deadline !== false" class="mr-2">
+                                <v-list-item-title><span v-if="task.deadline !== false && displayRemain(task.deadline, index) !== ''" class="d-inline-block time-remain" :class="checkExpired(task.deadline, index)"><v-icon :class="checkUrgent(task.deadline, index)" class="mr-1 urgent-icon" dense>mdi-clock-alert-outline</v-icon>{{ displayRemain(task.deadline, index) }}</span>{{ task.title }}</v-list-item-title>
+                                <v-list-item-subtitle v-if="task.deadline !== false || task.subject !== false">
+                                    <span v-if="task.deadline !== false" class="mr-2">
                                         <v-icon
-                                            v-if="event.deadline !== false"
+                                            v-if="task.deadline !== false"
                                             small
                                         >
                                             mdi-clock-outline
                                         </v-icon>
-                                        {{ getDate(new Date(event.deadline)) }}
+                                        {{ getDate(new Date(task.deadline)) }}
                                     </span>
-                                    <span v-if="event.subject !== false">
-                                        <span :class="subjectColor(event.subject)" class="subject-color-samll" v-if="event.subject !== false"></span>
-                                        {{ subjectNameMap(event.subject) }}
+                                    <span v-if="task.subject !== false">
+                                        <span :class="subjectColor(task.subject)" class="subject-color-samll" v-if="task.subject !== false"></span>
+                                        {{ subjectNameMap(task.subject) }}
                                     </span>
                                 </v-list-item-subtitle>
                             </v-list-item-content>
 
                             <v-list-item-action class="delete">
-                                <v-btn icon @click.stop="removeEvent(index)">
+                                <v-btn icon @click.stop="removeTask(index)">
                                     <v-icon color="grey">mdi-delete-outline</v-icon>
                                 </v-btn>
                             </v-list-item-action>
@@ -170,7 +170,7 @@
                     </v-list-item>
                 </v-list-item-group>
             </v-list>
-            <div class="empty" v-if="events.length === 0">
+            <div class="empty" v-if="tasks.length === 0">
                 <v-icon color="grey" x-large>mdi-check-all</v-icon>
             </div>
         </div>
@@ -182,15 +182,15 @@ import { mapState } from 'vuex';
 import formatDateTime from '@/tools/formatDateTime';
 
 export default {
-    name: 'event',
+    name: 'task',
     props: {
         searchid: Number,
     },
     data() {
         return {
             loading: false,
-            events: [],
-            ifEvents: [],
+            tasks: [],
+            ifTasks: [],
             addText: '',
             timeMenu: false,
             time: '',
@@ -204,7 +204,7 @@ export default {
     },
     methods: {
         /**
-         * Add a event to the list
+         * Add a task to the list
          */
         addOne() {
             if (this.addText !== '') {
@@ -234,7 +234,7 @@ export default {
                     }
                     deadline = new Date(`${nowDate} ${this.time}`).valueOf();
                 }
-                this.events.push({
+                this.tasks.push({
                     title: this.addText,
                     deadline,
                     subject: this.addingSubject === null || this.addingSubject.length === 0 ? false : this.addingSubject,
@@ -251,30 +251,30 @@ export default {
             }
         },
         /**
-         * Remove a event from the list by index
-         * @param {number} index event index
+         * Remove a task from the list by index
+         * @param {number} index task index
          */
-        removeEvent(index) {
+        removeTask(index) {
             // Create a copy to protect the original array
-            const ifEventsCopy = [];
-            for (let i = 0; i < this.ifEvents.length; i += 1) {
-                ifEventsCopy.push(this.ifEvents[i]);
+            const ifTasksCopy = [];
+            for (let i = 0; i < this.ifTasks.length; i += 1) {
+                ifTasksCopy.push(this.ifTasks[i]);
             }
 
             // Remove the index and update the remaining
-            for (let i = 0; i < ifEventsCopy.length; i += 1) {
-                if (ifEventsCopy[i] === index) {
-                    ifEventsCopy.splice(i, 1);
+            for (let i = 0; i < ifTasksCopy.length; i += 1) {
+                if (ifTasksCopy[i] === index) {
+                    ifTasksCopy.splice(i, 1);
                 } else {
-                    if (ifEventsCopy[i] > index) {
-                        ifEventsCopy[i] -= 1;
+                    if (ifTasksCopy[i] > index) {
+                        ifTasksCopy[i] -= 1;
                     }
                 }
             }
-            this.ifEvents = ifEventsCopy;
+            this.ifTasks = ifTasksCopy;
 
-            // Update event list
-            this.events.splice(index, 1);
+            // Update task list
+            this.tasks.splice(index, 1);
 
             // Update layout
             this.$nextTick(() => {
@@ -285,9 +285,9 @@ export default {
          * Store changes to localstorage
          */
         store() {
-            localStorage.setItem('events', JSON.stringify({
-                events: this.events,
-                ifEvents: this.ifEvents,
+            localStorage.setItem('tasks', JSON.stringify({
+                tasks: this.tasks,
+                ifTasks: this.ifTasks,
             }));
             this.sync();
         },
@@ -351,13 +351,13 @@ export default {
             return subject;
         },
         /**
-         * Calculate the remaining time of a event and format it as a string
+         * Calculate the remaining time of a task and format it as a string
          * @param {number} deadline deadline
-         * @param {number} index event index of the list
+         * @param {number} index task index of the list
          * @returns {string} formatted string or ''
          */
         displayRemain(deadline, index) {
-            if (this.ifEvents.includes(index)) {
+            if (this.ifTasks.includes(index)) {
                 return '';
             }
 
@@ -386,13 +386,13 @@ export default {
             return '';
         },
         /**
-         * Check if the event is urgent and return color classes
+         * Check if the task is urgent and return color classes
          * @param {number} deadline deadline
-         * @param {number} index event index of the list
+         * @param {number} index task index of the list
          * @returns {string} color classes or ''
          */
         checkUrgent(deadline, index) {
-            if (this.ifEvents.includes(index)) {
+            if (this.ifTasks.includes(index)) {
                 return 'd-none';
             }
 
@@ -411,17 +411,17 @@ export default {
             if (ddl - now < 3600000) {
                 return 'red--text text-darken-3';
             }
-            // Event done
+            // Task done
             return 'd-none';
         },
         /**
-         * Check if the event is expired and return the classes for text
+         * Check if the task is expired and return the classes for text
          * @param {number} deadline deadline
-         * @param {number} index event index of the list
+         * @param {number} index task index of the list
          * @returns {string} color classes or ''
          */
         checkExpired(deadline, index) {
-            if (this.ifEvents.includes(index)) {
+            if (this.ifTasks.includes(index)) {
                 return 'text--secondary';
             }
 
@@ -432,15 +432,15 @@ export default {
             return 'text--secondary';
         },
         /**
-         * Generate and broadcast event deadline events
+         * Generate and broadcast task deadline tasks
          */
-        storeEvents() {
-            const eventList = [];
-            for (const item of this.events) {
-                if (!this.ifEvents.includes(this.events.indexOf(item)) && item.deadline !== false) {
+        storeTasks() {
+            const taskList = [];
+            for (const item of this.tasks) {
+                if (!this.ifTasks.includes(this.tasks.indexOf(item)) && item.deadline !== false) {
                     const rawDdl = new Date(item.deadline);
                     const ddl = `${rawDdl.getFullYear()}-${`${rawDdl.getMonth() + 1}`.padStart(2, '0')}-${`${rawDdl.getDate()}`.padStart(2, '0')}T${`${rawDdl.getHours()}`.padStart(2, '0')}:${`${rawDdl.getMinutes()}`.padStart(2, '0')}:00`;
-                    eventList.push({
+                    taskList.push({
                         name: item.title,
                         details: 'Coursework Deadline',
                         start: new Date(ddl),
@@ -454,7 +454,7 @@ export default {
                     });
                 }
             }
-            this.$store.commit('setEvents', eventList);
+            this.$store.commit('setTasks', taskList);
         },
         /**
          * Format a date object to a string based on locale
@@ -469,21 +469,21 @@ export default {
          */
         buildSearchIndex() {
             const index = [];
-            for (let i = 0; i < this.events.length; i += 1) {
+            for (let i = 0; i < this.tasks.length; i += 1) {
                 index.push({
-                    title: this.events[i].title,
-                    deadline: this.events[i].deadline,
-                    subject: this.events[i].subject,
-                    subjectName: this.events[i].subject === false ? [] : [this.subjectNameMap(this.events[i].subject), this.subjectLongNameMap(this.events[i].subject)],
-                    id: `event-${i}`,
+                    title: this.tasks[i].title,
+                    deadline: this.tasks[i].deadline,
+                    subject: this.tasks[i].subject,
+                    subjectName: this.tasks[i].subject === false ? [] : [this.subjectNameMap(this.tasks[i].subject), this.subjectLongNameMap(this.tasks[i].subject)],
+                    id: `task-${i}`,
                     rawIndex: i,
-                    done: this.ifEvents.includes(i),
+                    done: this.ifTasks.includes(i),
                 });
             }
             this.$store.commit('setSearchIndex', {
                 id: this.searchid,
                 payload: {
-                    name: 'event',
+                    name: 'task',
                     key: 'id',
                     indexes: ['title', 'subject', 'subjectName'],
                     data: index,
@@ -495,16 +495,16 @@ export default {
         locale() {
             this.$i18n.locale = this.locale;
         },
-        events() {
-            // Store data when event changed
+        tasks() {
+            // Store data when task changed
             this.store();
-            this.storeEvents();
+            this.storeTasks();
             this.buildSearchIndex();
         },
-        ifEvents() {
-            // Store data when event state changed
+        ifTasks() {
+            // Store data when task state changed
             this.store();
-            this.storeEvents();
+            this.storeTasks();
             this.buildSearchIndex();
         },
         timerMin() {
@@ -515,23 +515,23 @@ export default {
         },
         searchNotification() {
             // Handle search actions
-            if (this.searchNotification.target === 'event') {
+            if (this.searchNotification.target === 'task') {
                 if (this.searchNotification.payload.action === 'syncDone') {
                     // Sync states
                     for (const item of this.searchNotification.payload.payload) {
                         if (item.done) {
-                            if (!this.ifEvents.includes(item.rawIndex)) {
-                                this.ifEvents.push(item.rawIndex);
+                            if (!this.ifTasks.includes(item.rawIndex)) {
+                                this.ifTasks.push(item.rawIndex);
                             }
                         } else {
-                            if (this.ifEvents.includes(item.rawIndex)) {
-                                this.ifEvents.splice(this.ifEvents.indexOf(item.rawIndex), 1);
+                            if (this.ifTasks.includes(item.rawIndex)) {
+                                this.ifTasks.splice(this.ifTasks.indexOf(item.rawIndex), 1);
                             }
                         }
                     }
                 } else if (this.searchNotification.payload.action === 'delete') {
                     // Delete one
-                    this.removeEvent(this.searchNotification.payload.index);
+                    this.removeTask(this.searchNotification.payload.index);
                 }
             }
         },
@@ -559,12 +559,12 @@ export default {
     mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
 
-        // Get events from localstorage
-        const storaged = localStorage.getItem('events');
+        // Get tasks from localstorage
+        const storaged = localStorage.getItem('tasks');
         if (storaged) {
-            const storagedEvents = JSON.parse(storaged);
-            this.events = storagedEvents.events;
-            this.ifEvents = storagedEvents.ifEvents;
+            const storagedTasks = JSON.parse(storaged);
+            this.tasks = storagedTasks.tasks;
+            this.ifTasks = storagedTasks.ifTasks;
         }
 
         // Sync data every 30 minutes
@@ -581,7 +581,7 @@ export default {
 </script>
 
 <style lang="less">
-.event-container {
+.task-container {
     position: relative;
     padding-left: 0;
     padding-right: 0;
@@ -731,12 +731,12 @@ export default {
             text-decoration: line-through;
         }
     }
-    .event-outer {
+    .task-outer {
         width: 100%;
         min-height: 260px;
     }
 }
-#app.theme--dark .event-container {
+#app.theme--dark .task-container {
     h2 {
         .num-badge {
             background-color: #3E3E3E;
@@ -762,8 +762,8 @@ export default {
 <i18n>
 {
     "en": {
-        "event": "Event",
-        "add_event": "Add an event",
+        "task": "Task",
+        "add_task": "Add a task",
         "ddl_date": "Due Date",
         "ddl_time": "Time",
         "subject": "Course Unit",
@@ -774,8 +774,8 @@ export default {
         "expired": "Overdue"
     },
     "zh": {
-        "event": "事件",
-        "add_event": "添加一个事件",
+        "task": "任务",
+        "add_task": "添加一个任务",
         "ddl_date": "到期日期",
         "ddl_time": "到期时间",
         "subject": "科目",
@@ -786,8 +786,8 @@ export default {
         "expired": "已过期"
     },
     "es": {
-        "event": "",
-        "add_event": "",
+        "task": "",
+        "add_task": "",
         "ddl_date": "Fecha límite",
         "ddl_time": "Hora límite",
         "subject": "Asignatura",

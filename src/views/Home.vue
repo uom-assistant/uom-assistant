@@ -42,16 +42,15 @@
             <!-- Main widgets -->
             <clock id="index-1" class="block size1x" v-show="widgets.includes(0)" :searchid="0"></clock>
             <calendar id="index-2" class="block size2x" v-show="widgets.includes(6)" :searchid="6"></calendar>
-            <plugins id="index-12" class="block" :class="pluginExpanded ? 'size2x' : 'size1x'" v-show="widgets.includes(11)" :searchid="11" @toggle-expanded="toggleExpanded"></plugins>
-            <todo id="index-3" class="block size1x" v-show="widgets.includes(1)" :searchid="1"></todo>
-            <bblinks id="index-4" class="block size1x" v-show="widgets.includes(2)" :searchid="2"></bblinks>
-            <livelinks id="index-5" class="block size1x" v-show="widgets.includes(3)" :searchid="3"></livelinks>
-            <subjects id="index-6" class="block size1x" v-show="widgets.includes(4)" :searchid="4"></subjects>
-            <attendance id="index-7" class="block size1x" v-show="widgets.includes(5)" :searchid="5"></attendance>
-            <event id="index-8" class="block size1x" v-show="widgets.includes(7)" :searchid="7"></event>
-            <note id="index-9" class="block size1x" v-show="widgets.includes(8)" :searchid="8"></note>
-            <mail id="index-10" class="block size1x" v-show="widgets.includes(9)" :searchid="9"></mail>
-            <grade id="index-11" class="block size1x" v-show="widgets.includes(10)" :searchid="10"></grade>
+            <plugins id="index-11" class="block" :class="pluginExpanded ? 'size2x' : 'size1x'" v-show="widgets.includes(10)" :searchid="10" @toggle-expanded="toggleExpanded"></plugins>
+            <bblinks id="index-3" class="block size1x" v-show="widgets.includes(1)" :searchid="1"></bblinks>
+            <livelinks id="index-4" class="block size1x" v-show="widgets.includes(2)" :searchid="2"></livelinks>
+            <subjects id="index-5" class="block size1x" v-show="widgets.includes(3)" :searchid="3"></subjects>
+            <attendance id="index-6" class="block size1x" v-show="widgets.includes(4)" :searchid="4"></attendance>
+            <task id="index-7" class="block size1x" v-show="widgets.includes(5)" :searchid="5"></task>
+            <note id="index-8" class="block size1x" v-show="widgets.includes(7)" :searchid="7"></note>
+            <mail id="index-9" class="block size1x" v-show="widgets.includes(8)" :searchid="8"></mail>
+            <grade id="index-10" class="block size1x" v-show="widgets.includes(9)" :searchid="9"></grade>
         </div>
         <v-dialog
             v-model="timezoneChanged"
@@ -86,13 +85,12 @@ import Packery from 'packery';
 import Draggabilly from 'draggabilly';
 
 import clock from '@/components/clock.vue';
-import todo from '@/components/todo.vue';
 import bblinks from '@/components/bblinks.vue';
 import livelinks from '@/components/livelinks.vue';
 import subjects from '@/components/subjects.vue';
 import attendance from '@/components/attendance.vue';
 import calendar from '@/components/calendar.vue';
-import event from '@/components/event.vue';
+import task from '@/components/task.vue';
 import note from '@/components/note.vue';
 import mail from '@/components/mail.vue';
 import grade from '@/components/grade.vue';
@@ -104,13 +102,12 @@ export default {
     name: 'Home',
     components: {
         clock,
-        todo,
         bblinks,
         livelinks,
         subjects,
         attendance,
         calendar,
-        event,
+        task,
         note,
         mail,
         grade,
@@ -309,7 +306,7 @@ export default {
         }
 
         // Restore widgets' order
-        let indexes = localStorage.getItem('layout') || '[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]';
+        let indexes = localStorage.getItem('layout') || '[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]';
         indexes = JSON.parse(indexes);
         document.getElementById(`index-${indexes.shift()}`).classList.add('layouted');
         const packery = new Packery(document.getElementById('blocks'), {
