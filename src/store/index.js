@@ -14,7 +14,7 @@ export default new Vuex.Store({
         timerHour: '00',
         todayEvents: [],
         nextDayFirstEvent: {},
-        events: {},
+        tasks: {},
         errorList: [],
         backend: {},
         backendStatus: true,

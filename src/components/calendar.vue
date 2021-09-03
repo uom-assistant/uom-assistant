@@ -157,11 +157,10 @@
                             </v-toolbar>
                             <v-card-text>
                                 <span v-if="selectedEvent.details !== 'Coursework Deadline'">
-                                    {{ $t('from') }}{{ selectedEvent.start ? getDate(selectedEvent.start) : '' }}<br>
-                                    {{ $t('to') }}{{ selectedEvent.end ? getDate(selectedEvent.end) : '' }}<br>
+                                    {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(selectedEvent.end, false) : '' }}<br>
                                 </span>
                                 <span v-else>
-                                    {{ selectedEvent.start ? getDate(selectedEvent.start) : '' }}
+                                    {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}
                                 </span>
                                 <br>
                                 <v-list flat class="list" v-if="selectedEvent.details !== 'Coursework Deadline' && selectedEvent.subjectId !== '' && subjectLinks(selectedEvent.subjectId).sessionLinks.length > 0">
@@ -512,10 +511,11 @@ export default {
         /**
          * Format a date object to a string based on locale
          * @param {Date} dateObj Date object
+         * @param {boolean} seconds whether to show seconds
          * @returns {string} formatted a date string
          */
-        getDate(dateObj) {
-            return formatDateTime(dateObj, this.locale);
+        getDate(dateObj, seconds = true) {
+            return formatDateTime(dateObj, this.locale, seconds);
         },
         /**
          * Convert a Date object to a specified time zone
@@ -678,7 +678,7 @@ export default {
             subjects: (state) => state.subjects,
             timerMin: (state) => state.timerMin,
             timerHour: (state) => state.timerHour,
-            courseworks: (state) => state.events,
+            courseworks: (state) => state.tasks,
             backend: (state) => state.backend,
             backendStatus: (state) => state.backendStatus,
             account: (state) => state.account,
@@ -870,8 +870,6 @@ export default {
         "day": "Day",
         "week": "Week",
         "month": "Month",
-        "from": "From: ",
-        "to": "To: ",
         "course_ddl": "Coursework Deadline",
         "coursework": "Coursework",
         "subject_home": "Course Unit Home Page",
@@ -887,8 +885,6 @@ export default {
         "day": "日视图",
         "week": "周视图",
         "month": "月视图",
-        "from": "从：",
-        "to": "到：",
         "course_ddl": "作业到期",
         "coursework": "作业",
         "subject_home": "科目主页",
@@ -904,8 +900,6 @@ export default {
         "day": "Día",
         "week": "Semana",
         "month": "Mes",
-        "from": "Desde: ",
-        "to": "Hasta: ",
         "course_ddl": "Fecha límite para trabajo de curso",
         "coursework": "Trabajo de curso",
         "subject_home": "Página principal de asignatura",

@@ -170,6 +170,7 @@ export default {
             const secOld = sec;
             const minLocalOld = minLocal;
             const hourLocalOld = hourLocal;
+            const minRemoteOld = minRemote;
             const hourRemoteOld = hourRemote;
 
             sec = `${now.getSeconds()}`.padStart(2, '0');
@@ -184,13 +185,15 @@ export default {
             }
             if (minLocalOld !== minLocal || init) {
                 this.$refs.minLocal.textContent = minLocal;
-                this.$refs.minRemote.textContent = minRemote;
                 if (!init) {
                     this.$store.commit('setTimerMin', minLocal);
                     if (minLocal === '00') {
                         this.$store.commit('setTimerHour', `${hourLocal}${new Date().valueOf()}`);
                     }
                 }
+            }
+            if (minRemoteOld !== minRemote || init) {
+                this.$refs.minRemote.textContent = minRemote;
             }
             if (hourLocalOld !== hourLocal || init) {
                 this.$refs.hourLocal.textContent = hourLocal;

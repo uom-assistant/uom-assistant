@@ -14,10 +14,10 @@
         <div class="subjects-outer">
             <h2 class="mr-5 handle">
                 {{ $t('subjects') }}
-                <v-btn icon @click.stop="addSubject" small class="float-right header-icon">
+                <v-btn icon @click.stop="addSubject" small class="float-right header-icon" :title="$t('add_subject')">
                     <v-icon>mdi-plus</v-icon>
                 </v-btn>
-                <v-btn icon @click.stop="filter = !filter" small class="float-right header-icon mr-1" v-if="shownSubjects.length < subjects.length">
+                <v-btn icon @click.stop="filter = !filter" small class="float-right header-icon mr-1" v-if="shownSubjects.length < subjects.length" :title="$t('filter_course')">
                     <v-icon>{{ filter ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
                 </v-btn>
             </h2>
@@ -649,6 +649,7 @@ export default {
         "delete_subject": "Delete course unit",
         "delete_subject_text": "Do you want to delete the course unit ",
         "delete_subject_mark": "?",
+        "filter_course": "Filter out hidden courses",
         "error": "Cannot Save",
         "same_id": "This code is already linked to another course unit. Changes not saved.",
         "ok": "OK",
@@ -680,6 +681,7 @@ export default {
         "delete_subject": "删除科目",
         "delete_subject_text": "你确定要删除科目 ",
         "delete_subject_mark": " 吗？",
+        "filter_course": "过滤隐藏的科目",
         "error": "无法保存",
         "same_id": "这个科目编号已经关联到其他科目。更改没有保存。",
         "ok": "好",
@@ -709,8 +711,9 @@ export default {
         "add_link": "Añadir enlace de una sesión online",
         "link_format": "URL[ nombre][ contraseña]",
         "delete_subject": "Eliminar asignatura",
-        "delete_subject_text": "Está seguro de eliminar la asignatura",
+        "delete_subject_text": "Está seguro de eliminar la asignatura ",
         "delete_subject_mark": "?",
+        "filter_course": "",
         "error": "No se ha podido guardar",
         "same_id": "Este número de asignatura ya está conectada a otra asignatura. Cambios no se ha guardado.",
         "ok": "OK",
