@@ -1544,7 +1544,7 @@ export default {
         "plugin_load_error_body": "プラグインが読み込むできません、管理者を連絡してください。",
         "expand": "展開",
         "collapse": "縮小",
-        "return": "戻す",
+        "return": "戻る",
         "close": "閉じる",
         "allow_run": "常に実行を許可する",
         "run_once": "今回だけ",
@@ -1585,7 +1585,7 @@ export default {
         "privacy_policy": "プラグインのプライバシーポリシー",
         "plugin_broken": "設定ファイルが壊れたから、プラグインが実行できません。",
         "tracking_note": "大学アカウントに関してるけど、何も機密権限が含まれません。",
-        "scope_notice": "プラグインはこのリスト以外のサイトがアクセスできません",
+        "scope_notice": "プラグインはこのリスト以外のサイトをアクセスできません",
         "plugin_info": "プラグイン概要",
         "nothing_opened": "開いたプラグインがありません"
     }

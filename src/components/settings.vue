@@ -272,7 +272,7 @@ export default {
         "not_allow_email": "このバックエンドはメールアドレスの使用が対応されない。",
         "not_allow_sync": "このバックエンドは同期設定が対応されない。",
         "where_ica": "どこに私のカレンダーの登録を見つかる？",
-        "where_ica_body": "このページ<a href=\"https://timetables.manchester.ac.uk/\" target=\"_blank\" rel=\"noreferrer noopener\">をアクセスして</a>，ログインしてたら右上の「Subscribe」ボタンをクリックして、そして「More」,「Copy」の順にクリックして、ここに先で取得したのURLをペーストしてください。",
+        "where_ica_body": "このページ<a href=\"https://timetables.manchester.ac.uk/\" target=\"_blank\" rel=\"noreferrer noopener\">をアクセスして</a>，ログインしてたら右上の「Subscribe」ボタンをクリックして、そして「More」,「Copy」の順にクリックして、ここに先で取得したURLをペーストしてください。",
         "privacy_policy": "プライバシーポリシー",
         "privacy_policy_body": "「同期設定」を有効にされないたら、<strong>バックエンドはあなたの大学アカウント情報を保存したり保持したりしません</strong>、それにユーザー名、パスワード、メールアドレス、得点が含まれる。でもマンチェスター大学のシステムから得点、メール、出勤等々の情報を取得のために、あなたの大学アカウント情報は安全にバックエンドに送信されます（保存されません）。<br><br>「同期設定」有効にすると、<strong>バックエンドはあなたのユーザー名、パスワード、メールアドレスを保存します</strong>，その他の情報は保存されません。",
         "ok": "はい"

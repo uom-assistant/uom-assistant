@@ -1361,7 +1361,7 @@ html::-webkit-scrollbar {
         "about": "概要",
         "unknown": "不明",
         "at": "で",
-        "backend_reconnect": "バックエンドは今正常に戻しました",
+        "backend_reconnect": "バックエンドは今正常に戻りました",
         "backend_reconnect_body": "バックエンドへの接続に成功しました",
         "search": "検索…",
         "welcome": "ようこそ！",
