@@ -260,6 +260,22 @@ export default {
         "privacy_policy": "Política de Privacidad",
         "privacy_policy_body": "Si la \"Configuración de sincronización \" no está activada, <strong> el servidor back-end no almacenará ni retendrá la información de su cuenta de UoM </strong>, incluidos el nombre de usuario, la contraseña, el correo electrónico, las notas y más. Sin embargo, para acceder a sus notas, correos electrónicos, asistencia, etc. desde los sistemas de UoM, la información de su cuenta de UoM se transferirá de forma segura al back-end (pero no se conservará). <br> <br> Cuando la \"Configuración de sincronización \" está activada, <strong> su nombre de usuario, contraseña y correo electrónico se almacenarán en el back-end </strong>, pero no se almacenará ninguna otra información.",
         "ok": "OK"
+    },
+    "ja": {
+        "calendar_subscription": "カレンダーの登録",
+        "uom_username": "大学のユーザー名",
+        "uom_email": "大学のメールアドレス",
+        "uom_password": "大学のパスワード",
+        "allow_save": "このバックエンドの同期設定を使う",
+        "will_store_on": "このオプションを有効にすると、バックエンドはあなたの大学アカウント情報を保存することをご注意してください。",
+        "not_allow_account": "このバックエンドはマンチェスター大学アカウントの使用が対応されない。",
+        "not_allow_email": "このバックエンドはメールアドレスの使用が対応されない。",
+        "not_allow_sync": "このバックエンドは同期設定が対応されない。",
+        "where_ica": "どこに私のカレンダーの登録を見つかる？",
+        "where_ica_body": "このページ<a href=\"https://timetables.manchester.ac.uk/\" target=\"_blank\" rel=\"noreferrer noopener\">をアクセスして</a>，ログインしてたら右上の「Subscribe」ボタンをクリックして、そして「More」,「Copy」の順にクリックして、ここに先で取得したのURLをペーストしてください。",
+        "privacy_policy": "プライバシーポリシー",
+        "privacy_policy_body": "「同期設定」を有効にされないたら、<strong>バックエンドはあなたの大学アカウント情報を保存したり保持したりしません</strong>、それにユーザー名、パスワード、メールアドレス、得点が含まれる。でもマンチェスター大学のシステムから得点、メール、出勤等々の情報を取得のために、あなたの大学アカウント情報は安全にバックエンドに送信されます（保存されません）。<br><br>「同期設定」有効にすると、<strong>バックエンドはあなたのユーザー名、パスワード、メールアドレスを保存します</strong>，その他の情報は保存されません。",
+        "ok": "はい"
     }
 }
 </i18n>

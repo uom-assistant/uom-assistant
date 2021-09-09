@@ -872,6 +872,17 @@ export default {
         "preview": "Vista prevía",
         "head_row": "Usar la primera línea como encabezado: habilitado",
         "no_head_row": "Usar la primera línea como encabezado: deshabilitado"
+    },
+    "ja": {
+        "close": "閉じる",
+        "download": "ダウンロード",
+        "audio_unsupported": "このブラウザーはオーディオ再生が対応されない。",
+        "video_unsupported": "このブラウザーは動画再生が対応されない。",
+        "breakline": "改行",
+        "raw_view": "テキストビュー",
+        "preview": "プレビュー",
+        "head_row": "先頭行を先頭とする：有効",
+        "no_head_row": "先頭行を先頭とする：無効"
     }
 }
 </i18n>
