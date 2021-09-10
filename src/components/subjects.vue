@@ -17,8 +17,11 @@
                 <v-btn icon @click.stop="addSubject" small class="float-right header-icon">
                     <v-icon>mdi-plus</v-icon>
                 </v-btn>
+                <v-btn icon @click.stop="filter = !filter" small class="float-right header-icon mr-1" v-if="shownSubjects.length < subjects.length">
+                    <v-icon>{{ filter ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
+                </v-btn>
             </h2>
-            <v-simple-table v-if="subjects.length > 0" class="subject-table rounded-0">
+            <v-simple-table v-if="shownSubjects.length > 0 || hiddenSubjects.length > 0" class="subject-table rounded-0">
                 <template v-slot:default>
                     <thead>
                         <tr>
@@ -260,6 +263,7 @@ export default {
             subjects: [],
             loading: false,
             dialog: false,
+            filter: false,
             editingMode: 'update',
             editingIndex: -1,
             editingName: '',
@@ -443,6 +447,9 @@ export default {
             this.$store.commit('setSubjects', this.subjects);
             this.store();
         },
+        filter() {
+            this.$nextTick(() => this.packery.shiftLayout());
+        },
     },
     computed: {
         ...mapState({
@@ -455,7 +462,7 @@ export default {
         },
         hiddenSubjects() {
             // Filter out shown subjects
-            return this.subjects.filter((subject) => subject.hide);
+            return this.filter ? [] : this.subjects.filter((subject) => subject.hide);
         },
     },
     mounted() {

@@ -456,8 +456,8 @@ export default {
                 if (item[0] === 'vevent') {
                     const startTime = new Date(new Date(item[1][3][3]).toUTCString());
                     const timeDiff = (startTime.valueOf() - nowDate) / 1000;
-                    // Events range: -1 month to +2 months
-                    if (timeDiff < 5184000 && timeDiff > -2592000) {
+                    // Events range: -1 month to +3 months
+                    if (timeDiff < 7776000 && timeDiff > -2592000) {
                         // Get event title, adapted to events with locations
                         const title = typeof item[1][6][3] === 'number' ? item[1][7][3] : item[1][6][3];
 
@@ -571,10 +571,13 @@ export default {
         showMap(details) {
             const lines = details.split('\n');
             for (const line of lines) {
-                const linePart = line.split(': ');
-                if (linePart[0] === 'Map Link') {
+                const linePart = line.split(': ').map((item) => item.trim());
+                if (linePart[0] === 'Map Link' && linePart[1]) {
                     // Parse URL
-                    const urlQuery = new URLSearchParams(new URL(linePart[1]).search);
+                    let urlQuery;
+                    try {
+                        urlQuery = new URLSearchParams(new URL(linePart[1]).search);
+                    } catch (e) { return ''; }
                     if (urlQuery.get('query_place_id') !== null) {
                         return `<iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAn46nX_pMvKfKcp5_Nqc4C3GCKj8CHJ7M&amp;q=place_id:${urlQuery.get('query_place_id')}" width="100%" height="300" frameborder="0" style="border:0;" allowfullscreen></iframe>`;
                     }
@@ -675,7 +678,7 @@ export default {
             subjects: (state) => state.subjects,
             timerMin: (state) => state.timerMin,
             timerHour: (state) => state.timerHour,
-            courseworks: (state) => state.courseworks,
+            courseworks: (state) => state.events,
             backend: (state) => state.backend,
             backendStatus: (state) => state.backendStatus,
             account: (state) => state.account,
@@ -739,10 +742,6 @@ export default {
         padding-bottom: 11px;
     }
     .v-calendar-weekly__week {
-        .v-calendar-weekly__day:last-child {
-            border-right: none!important;
-            padding-right: 1.25px;
-        }
         button.v-btn.v-size--small {
             width: 35px;
             height: 35px;
@@ -752,10 +751,6 @@ export default {
     .v-calendar-weekly__head {
         .v-calendar-weekly__head-weekday {
             padding-top: 5px;
-            &:last-child {
-                border-right: none!important;
-                margin-right: 0.2px
-            }
         }
     }
     .theme--light.v-calendar-events .v-event-more {
@@ -920,23 +915,6 @@ export default {
         "quick_teams": "Acceder a Teams",
         "copy_passcode": "Copiar contraseña",
         "self_study": " (Autoestudio)"
-    },
-    "ja": {
-        "today": "今日",
-        "day": "日",
-        "week": "周",
-        "month": "月",
-        "from": "から：",
-        "to": "まで：",
-        "course_ddl": "課題の締め切り",
-        "coursework": "課題",
-        "subject_home": "科目ホームページ",
-        "ical_error": "icalファイル解析不能",
-        "network_error_body": "カレンダーサブスクライブのURLから最新イベントの情報を取得できません。",
-        "quick_zoom": "Zoomミーティングを起動する",
-        "quick_teams": "Teamsミーティングを起動する",
-        "copy_passcode": "パスワードをコピーする",
-        "self_study": "（独学）"
     }
 }
 </i18n>

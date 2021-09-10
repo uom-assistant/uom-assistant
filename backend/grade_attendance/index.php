@@ -197,11 +197,26 @@ if ($cached_response !== false) {
         'https://studentnet.cs.manchester.ac.uk/ugt/attendance/'
     );
 
-    if (strpos($crawler->html(), 'additionalattendancetableid') === false) {
+    if (strpos($crawler->html(), 'class="cas-logout"') === false) {
         rest_response(array(
             'grade' => $grade_list_all,
             'attendance' => false,
         ));
+        $conn->close();
+        die();
+    }
+
+    if (strpos($crawler->html(), 'additionalattendancetableid') === false) {
+        rest_response(array(
+            'grade' => $grade_list_all,
+            'attendance' => array(
+                'lastMonth' => '-1',
+                'annual' => '-1',
+                'absentRecord' => [],
+            ),
+        ));
+        $conn->close();
+        die();
     }
 
     // Check absent

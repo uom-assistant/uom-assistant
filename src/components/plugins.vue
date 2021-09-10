@@ -24,7 +24,7 @@
                 type="list-item-avatar-three-line@3"
                 v-if="!init && loading"
             ></v-skeleton-loader>
-            <div class="scroll" v-if="plugins.length > 0" @scroll.passive="scrollHandler">
+            <div class="scroll" v-if="plugins.length > 0" @scroll.passive="scrollHandler" ref="scrollTarget">
                 <v-list flat class="list" three-line>
                     <v-list-item v-for="(item, index) in plugins" :key="item.id" @click="openPlugin(index)">
                         <v-badge
@@ -454,10 +454,6 @@ export default {
                         'timezone:read',
                         'timezone:write',
                     ],
-                    todo: [
-                        'list:read',
-                        'list:write',
-                    ],
                     quickLink: [
                         'custom:read',
                         'custom:write',
@@ -472,7 +468,7 @@ export default {
                         'view:read',
                         'view:write',
                     ],
-                    coursework: [
+                    task: [
                         'list:read',
                         'list:write',
                     ],
@@ -507,7 +503,7 @@ export default {
                 course: 'book-multiple-outline',
                 attendance: 'order-bool-ascending-variant',
                 calendar: 'calendar-month-outline',
-                coursework: 'book-open-page-variant-outline',
+                task: 'format-list-checks',
                 quickNote: 'file-document-edit-outline',
                 inbox: 'email-multiple-outline',
                 gradeSummary: 'clipboard-list-outline',
@@ -575,6 +571,11 @@ export default {
             this.loading = false;
             this.init = true;
             this.plugins = response.plugins.sort((a, b) => (a.name < b.name ? -1 : 1));
+            this.$nextTick(() => {
+                if (this.$refs.scrollTarget) {
+                    this.scrollHandler({ target: this.$refs.scrollTarget });
+                }
+            });
         },
         /**
          * Load plugin info
@@ -1393,20 +1394,19 @@ export default {
         "global/background": "Running in background",
         "global/trackingId": "{0} your",
         "clock/timezone": "{0} clock widget timezone",
-        "todo/list": "{0} your TO-DO list",
         "quickLink/custom": "{0} your custom links",
         "course/list": "{0} your course unit list",
         "attendance/absentList": "{0} your absence record",
         "calendar/events": "{0} your course events",
         "calendar/view": "{0} the view of the calendar",
-        "coursework/list": "{0} your coursework list",
+        "task/list": "{0} your task list",
         "quickNote/list": "{0} your quick note list",
         "quickNote/noteContent": "{0}the content of a quick note",
         "quickNote/view": "{0} the UI of quick note widget",
         "inbox/list": "{0} your inbox mail list",
         "inbox/mailContent": "{0} the content of an email",
         "inbox/view": "{0} the UI of inbox widget",
-        "inbox/gradeSummary/list": "{0} your grades",
+        "gradeSummary/list": "{0} your grades",
         "plugin/runningPlugins": "{0} the list of running plugins",
         "tracking_id": "tracking ID",
         "read": "Read",
@@ -1448,20 +1448,19 @@ export default {
         "global/background": "在后台运行",
         "global/trackingId": "{0}你的",
         "clock/timezone": "{0}时钟组件的时区",
-        "todo/list": "{0}你的 TO-DO 列表",
         "quickLink/custom": "{0}你的自定义链接",
         "course/list": "{0}你的课程列表",
         "attendance/absentList": "{0}你的缺勤记录",
         "calendar/events": "{0}你的课程事件",
         "calendar/view": "{0}日历组件的视图",
-        "coursework/list": "{0}你的作业列表",
+        "task/list": "{0}你的任务列表",
         "quickNote/list": "{0}你的快速笔记列表",
         "quickNote/noteContent": "{0}某一篇快速笔记的内容",
         "quickNote/view": "{0}快速笔记组件的界面",
         "inbox/list": "{0}你的邮件列表",
         "inbox/mailContent": "{0}某一封邮件的内容",
         "inbox/view": "{0}收件箱组件的界面",
-        "inbox/gradeSummary/list": "{0}你的成绩信息",
+        "gradeSummary/list": "{0}你的成绩信息",
         "plugin/runningPlugins": "{0}正在运行的插件列表",
         "tracking_id": "身份追踪标识",
         "read": "读取",
@@ -1505,18 +1504,17 @@ export default {
         "clock/timezone": "{0} zona horaria del widget en el reloj",
         "todo/list": "{0} su lista PARA-HACER",
         "quickLink/custom": "{0} sus enlaces personalizadas",
-        "course/list": "{0} su lista de asignaturas",
         "attendance/absentList": "{0} su lista de ausencias",
         "calendar/events": "{0} sus eventos de asignatura",
         "calendar/view": "{0} vista del calendario",
-        "coursework/list": "{0} su lista de trabajos de curso",
+        "task/list": "",
         "quickNote/list": "{0} su lista de apuntes rápidos",
         "quickNote/noteContent": "{0} contenido de un apunte rápido",
         "quickNote/view": "{0} interfaz del usuario del widget apuntes rápidos",
         "inbox/list": "{0} su bandeja de entradas",
         "inbox/mailContent": "{0} contenido de un correo",
         "inbox/view": "{0} interfaz del usuario de la bandeja de entradas",
-        "inbox/gradeSummary/list": "{0} sus notas",
+        "gradeSummary/list": "{0} sus notas",
         "plugin/runningPlugins": "{0} complementos en ejecución",
         "tracking_id": "Rastreando id",
         "read": "Leer",
