@@ -1370,7 +1370,7 @@ html::-webkit-scrollbar {
         "settings": "設定",
         "about": "バージョン情報",
         "unknown": "不明",
-        "at": "に", //format request: {0}に
+        "at": "に",
         "backend_reconnect": "バックエンドは今正常に戻りました",
         "backend_reconnect_body": "バックエンドへの接続に成功しました",
         "search": "検索…",
