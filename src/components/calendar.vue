@@ -921,8 +921,8 @@ export default {
         "day": "日",
         "week": "周",
         "month": "月",
-        "from": "から：",
-        "to": "まで：",
+        "from": "から：",   //format request: {0}から
+        "to": "まで：",     //format request: {0}まで
         "course_ddl": "課題の締め切り",
         "coursework": "課題",
         "subject_home": "科目ホームページ",

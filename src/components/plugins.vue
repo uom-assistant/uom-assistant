@@ -1554,7 +1554,7 @@ export default {
         "global/backend": "バックエンド情報を{0}",
         "global/notification": "あなたに通知を送信する",
         "global/background": "バックグラウンドでの動作",
-        "global/trackingId": "あなたのトラッキングIDを{0}",
+        "global/trackingId": "あなたのトラッキングIDを{0}",   //format request: あなたの{1}を{0}
         "clock/timezone": "タイムゾーンを{0}",
         "todo/list": "TO-DOリストを{0}",
         "quickLink/custom": "カストマイズリストを{0}",
