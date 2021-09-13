@@ -738,7 +738,7 @@ export default {
         "subject_color": "科目の色",
         "hide_subject": "この科目を隠す",
         "add_link": "オンライン授業リンクを追加する",
-        "link_format": "URL [名前] [パスワード]",
+        "link_format": "URL [名] [パスワード]",
         "delete_subject": "科目を削除する",
         "delete_subject_text": "本当にこの科目 ",
         "delete_subject_mark": " を削除しますか？",
