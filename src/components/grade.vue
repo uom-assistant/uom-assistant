@@ -17,6 +17,14 @@
                 <v-btn icon small class="grade-goto" href="https://studentnet.cs.manchester.ac.uk/me/spot/" target="_blank" rel="noopener nofollow">
                     <v-icon>mdi-chevron-right</v-icon>
                 </v-btn>
+                <v-select
+                    class="year-selector"
+                    height="28"
+                    :items="yearList"
+                    dense
+                    hide-details
+                    outlined
+                ></v-select>
             </h2>
             <v-skeleton-loader
                 v-if="!init && loading"
@@ -326,6 +334,7 @@ export default {
             timer: null,
             gradeList: [],
             moreShown: [],
+            yearList: [],
             gradeExpended: -1,
             openedTab: -1,
             tabs: 0,
@@ -852,8 +861,8 @@ export default {
     border-color: #E0E0E0!important;
     .loading {
         position: absolute;
-        top: 10px;
-        right: 10px;
+        top: 22px;
+        right: 110px;
         z-index: 10;
     }
     h2 {
@@ -868,6 +877,24 @@ export default {
         .clickable {
             cursor: pointer;
             transition: all .2s;
+        }
+        .year-selector {
+            float: right;
+            width: 75px;
+            margin-top: -2px;
+            opacity: .9;
+            .v-input__slot {
+                min-height: 28px!important;
+                padding: 0 4px 0 8px!important;
+                .v-input__append-inner {
+                    margin-top: 2px!important;
+                    pointer-events: none;
+                    padding: 0;
+                }
+                .v-select__selections {
+                    font-size: 14px;
+                }
+            }
         }
     }
     .loading-tab{

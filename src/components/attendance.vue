@@ -44,7 +44,7 @@
             </v-slide-x-reverse-transition>
             <div class="pt-3 pr-5 place-holder"></div>
             <div class="empty" v-if="init && absentRecord.length === 0 || (!init && loading)">
-                {{ $t('nothing') }}
+                {{ $t(annual === '-1' && lastMonth === '-1' ? 'no_data' : 'nothing') }}
             </div>
             <div class="empty higher" v-if="!init && !loading">
                 <span class="text-center pl-6 pr-6">{{ $t('cannot_fetch') }} <a href="https://github.com/uom-assistant/uom-assistant/wiki" target="_blank" rel="noreferrer noopener">{{ $t('learn_more') }}</a></span>
@@ -318,7 +318,8 @@ export default {
         "nothing": "No absence record",
         "cannot_fetch": "Unable to obtain attendance data, the backend information might not be properly configured or the backend does not allow this.",
         "learn_more": "Learn more",
-        "absent": "Absent"
+        "absent": "Absent",
+        "no_data": "No attendance data"
     },
     "zh": {
         "attendance": "出勤统计",
@@ -327,7 +328,8 @@ export default {
         "nothing": "没有缺勤记录",
         "cannot_fetch": "无法获取出勤信息，可能是没有正确配置后端信息或后端不允许。",
         "learn_more": "了解更多",
-        "absent": "缺勤"
+        "absent": "缺勤",
+        "no_data": "没有出勤信息"
     },
     "es": {
         "attendance": "Asistencia",
@@ -336,7 +338,8 @@ export default {
         "nothing": "No registro de ausencia",
         "cannot_fetch": "No ha sido posible obtener los datos de asistencia, puede ser debido al inopropiado configurado servidor back-end o falta de permisión.",
         "learn_more": "Saber más",
-        "absent": "Ausente"
+        "absent": "Ausente",
+        "no_data": ""
     }
 }
 </i18n>

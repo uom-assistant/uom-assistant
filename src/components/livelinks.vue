@@ -175,7 +175,7 @@ export default {
         padding-top: 0;
         background-color: transparent;
         &.non-empty {
-            min-height: 130px;
+            min-height: 158px;
         }
         .v-list-item {
             cursor: default;
@@ -206,7 +206,7 @@ export default {
     }
     .empty {
         width: 100%;
-        height: 120px;
+        height: 150px;
         display: flex;
         justify-content: center;
         align-items: center;

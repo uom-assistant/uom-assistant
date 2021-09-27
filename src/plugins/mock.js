@@ -7,24 +7,12 @@ if (process.env.NODE_ENV === 'development') {
     fetchMock.config.fallbackToNetwork = true;
 
     for (const item of config.default) {
-        if (item.method === 'get') {
-            fetchMock.get(item.url, {
-                body: JSON.stringify(item.response),
+        if (item.method === 'get' || item.method === 'post') {
+            fetchMock[item.method](item.url, {
+                body: typeof item.response === 'string' ? item.response : JSON.stringify(item.response),
                 status: item.status,
                 headers: {
-                    'Content-Type': 'application/json',
-                },
-            }, {
-                delay: item.after,
-                headers: item.headers,
-                overwriteRoutes: false,
-            });
-        } else if (item.method === 'post') {
-            fetchMock.post(item.url, {
-                body: JSON.stringify(item.response),
-                status: item.status,
-                headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': typeof item.response === 'string' ? 'text/html; charset=utf-8' : 'application/json',
                 },
             }, {
                 delay: item.after,

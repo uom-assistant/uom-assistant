@@ -961,7 +961,7 @@ export default {
             editingTranslateEnabled: true,
             editingPreferredTranslateTo: null,
             fileIconMap: {
-                pdf: 'file-pdf-outline',
+                pdf: 'file-pdf-box',
                 zip: 'zip-box-outline',
                 rar: 'zip-box-outline',
                 '7z': 'zip-box-outline',
@@ -1522,6 +1522,9 @@ export default {
                 'cs.manchester.ac.uk',
                 'emarketing.manchester.ac.uk',
                 'blackboard.com',
+                'man.ac.uk',
+                'mcc.ac.uk',
+                'tranquility.mcc.ac.uk',
             ],
             normalHosts: [
                 'github.com',

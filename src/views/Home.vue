@@ -1,9 +1,11 @@
 <template>
     <div class="home">
         <v-card
-            class="mx-auto rounded-lg"
+            class="mx-auto rounded-lg header-card"
+            :class="{ higher: higherHeader }"
             outlined
         >
+            <div class="header-bg rounded-lg" :style="{ backgroundImage: `url(${headerImage.image})`, backgroundPosition: `50% ${headerImage.position}%` }" :class="{ bw: headerBw }"></div>
             <!-- Overview -->
             <div class="next-class float" v-if="!$vuetify.breakpoint.xs && !(nextEvent === null && current === null)">
                 <span class="d-block text-truncate"><span class="text--secondary" v-show="nextEvent !== null">{{ $t('next') }}</span> <span :class="subjectColor(nextEvent.subjectId)" class="subject-color-samll" v-show="subjectColor(nextEvent.subjectId) !== ''" v-if="nextEvent !== null"></span> <strong v-show="nextEvent !== null">{{ nextName }}</strong></span>
@@ -14,10 +16,13 @@
                 </span><br>
                 <span class="text--disabled pt-1 d-inline-block smaller-font">{{ current === null ? $t('no_current') : currentEnd > 20 ? `${$t('current_is')}${currentName}` : $tc('current', currentEnd, [currentEnd]) }}</span>
             </div>
-            <v-list-item three-line>
+            <v-list-item three-line class="global-header">
                 <v-list-item-content>
                     <div class="overline mb-2">
                         {{ $t('overview') }}
+                        <v-btn icon x-small class="style-btn" :title="$t('personalise')" @click="togglePersonalise">
+                            <v-icon x-small>mdi-palette</v-icon>
+                        </v-btn>
                     </div>
                     <v-list-item-title class="headline mb-1 now-date">
                         {{ nowDate }}
@@ -36,6 +41,9 @@
                     <v-icon color="primary" large v-show="nextEvent === null">mdi-check-all</v-icon></span><br>
                 <span class="text--disabled pt-1 d-inline-block smaller-font">{{ current === null ? $t('no_current') : currentEnd > 20 ? `${$t('current_is')}${currentName}` : $tc('current', currentEnd, [currentEnd]) }}</span>
             </div>
+            <v-expand-transition>
+                <personalise class="personalise-panel" v-show="showPersonalise" @change="(img) => headerImage = img" @bw="(val) => headerBw = val" ref="personalise"></personalise>
+            </v-expand-transition>
         </v-card>
         <div id="blocks">
             <div id="sizer" class="block size1x layouted"></div>
@@ -45,7 +53,7 @@
             <plugins id="index-11" class="block" :class="pluginExpanded ? 'size2x' : 'size1x'" v-show="widgets.includes(10)" :searchid="10" @toggle-expanded="toggleExpanded"></plugins>
             <bblinks id="index-3" class="block size1x" v-show="widgets.includes(1)" :searchid="1"></bblinks>
             <livelinks id="index-4" class="block size1x" v-show="widgets.includes(2)" :searchid="2"></livelinks>
-            <subjects id="index-5" class="block size1x" v-show="widgets.includes(3)" :searchid="3"></subjects>
+            <courses id="index-5" class="block size1x" v-show="widgets.includes(3)" :searchid="3"></courses>
             <attendance id="index-6" class="block size1x" v-show="widgets.includes(4)" :searchid="4"></attendance>
             <task id="index-7" class="block size1x" v-show="widgets.includes(5)" :searchid="5"></task>
             <note id="index-8" class="block size1x" v-show="widgets.includes(7)" :searchid="7"></note>
@@ -76,6 +84,7 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        <v-overlay :z-index="6" :value="showPersonalise" @click="showPersonalise = false"></v-overlay>
     </div>
 </template>
 
@@ -87,7 +96,7 @@ import Draggabilly from 'draggabilly';
 import clock from '@/components/clock.vue';
 import bblinks from '@/components/bblinks.vue';
 import livelinks from '@/components/livelinks.vue';
-import subjects from '@/components/subjects.vue';
+import courses from '@/components/courses.vue';
 import attendance from '@/components/attendance.vue';
 import calendar from '@/components/calendar.vue';
 import task from '@/components/task.vue';
@@ -96,7 +105,11 @@ import mail from '@/components/mail.vue';
 import grade from '@/components/grade.vue';
 import plugins from '@/components/plugins.vue';
 
+import personalise from '@/components/personalise.vue';
+
 import formatDate from '@/tools/formatDate';
+
+let personaliseTimer = null;
 
 export default {
     name: 'Home',
@@ -104,7 +117,7 @@ export default {
         clock,
         bblinks,
         livelinks,
-        subjects,
+        courses,
         attendance,
         calendar,
         task,
@@ -112,6 +125,7 @@ export default {
         mail,
         grade,
         plugins,
+        personalise,
     },
     data() {
         return {
@@ -128,6 +142,13 @@ export default {
             timezoneChanged: false,
             tomorrowFirst: '',
             pluginExpanded: false,
+            showPersonalise: false,
+            higherHeader: false,
+            headerImage: {
+                image: '',
+                position: 50,
+            },
+            headerBw: false,
         };
     },
     watch: {
@@ -139,7 +160,7 @@ export default {
         widgets() {
             // Update layout
             this.$nextTick(() => {
-                this.packery.shiftLayout();
+                this.packery.layout();
             });
         },
         timerMin() {
@@ -279,8 +300,28 @@ export default {
             this.pluginExpanded = expand.expanded;
             if (!expand.isResize) {
                 this.$nextTick(() => {
-                    this.packery.fit(document.getElementById('index-12'));
+                    this.packery.fit(document.getElementById('index-11'));
                 });
+            }
+        },
+        /**
+         * Toggle personalise panel
+         */
+        togglePersonalise() {
+            this.showPersonalise = !this.showPersonalise;
+
+            if (this.showPersonalise) {
+                this.higherHeader = true;
+                this.$refs.personalise.loadImages();
+
+                if (personaliseTimer !== null) {
+                    clearInterval(personaliseTimer);
+                }
+            } else {
+                personaliseTimer = setTimeout(() => {
+                    this.higherHeader = false;
+                    personaliseTimer = null;
+                }, 300);
             }
         },
     },
@@ -370,6 +411,48 @@ export default {
 .home {
     min-height: calc(100vh - 64px);
     background-color: #F5F5F5;
+    .header-card {
+        .global-header {
+            .style-btn {
+                margin-top: -1px;
+                opacity: 0;
+            }
+            &:hover {
+                .style-btn {
+                    opacity: 0.7;
+                }
+            }
+        }
+        .personalise-panel {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            width: 100%;
+            z-index: 8;
+            max-width: 100%;
+        }
+        .header-bg {
+            background-size: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: .15;
+            &.bw {
+                filter: grayscale(1);
+            }
+        }
+        &.higher {
+            z-index: 8;
+            .global-header {
+                .style-btn {
+                    opacity: 1;
+                }
+            }
+        }
+    }
 }
 .theme--dark .home {
     background-color: #272727;
@@ -400,6 +483,8 @@ export default {
 }
 .next-class {
     overflow: hidden;
+    position: relative;
+    z-index: 1;
     .smaller-font {
         font-size: 0.875rem;
     }
@@ -419,7 +504,7 @@ export default {
         width: 100%;
     }
     &.float {
-        padding: 17px 20px;
+        padding: 19px 20px;
         text-align: right;
         width: 290px;
         float: right;
@@ -510,6 +595,7 @@ export default {
         "current_is": "Current session is ",
         "current": "Current session will end in {0} min | Current session will end in {0} mins",
         "no_current": "There is no session currently",
+        "personalise": "Personalise",
         "unknown": "Unknown",
         "timezone_changed_title": "Time zone change detected",
         "timezone_changed_body": "Don't worry, all time-related content will still be displayed correctly, times that need to be converted will be converted automatically as well. You can still trust everything on your dashboard.",
@@ -530,6 +616,7 @@ export default {
         "current_is": "正在上 ",
         "current": "当前课程会在 {0} 分钟后结束 | 当前课程会在 {0} 分钟后结束",
         "no_current": "现在没有课程",
+        "personalise": "个性化",
         "unknown": "未知",
         "timezone_changed_title": "检测到时区更改",
         "timezone_changed_body": "别担心，所有时间相关的内容仍会正确显示，需要被转换的时间会被自动转换。你仍然可以信任曼大助手显示的所有内容。",
@@ -550,6 +637,7 @@ export default {
         "current_is": "La sesión actual es ",
         "current": "Esta sesión terminará en {0} minuto | Esta sesión terminará en {0} minutos",
         "no_current": "No hay clase ahora mismo",
+        "personalise": "个性化",
         "unknown": "Desconocido",
         "timezone_changed_title": "Se detecta cambio de zona horaria",
         "timezone_changed_body": "No se preocupe, todo el contenido relacionado con el tiempo se seguirá mostrando correctamente, las horas que deben convertirse también se convertirán automáticamente. Puede confiar en todo lo que hay en su tablero.",

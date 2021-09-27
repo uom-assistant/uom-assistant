@@ -189,7 +189,7 @@
                 <v-stepper
                     :value="stage"
                     class="mb-10 stepper elevation-0"
-                    :class="{ shown: stage !== 0 }"
+                    :class="{ shown: stage > 0 }"
                 >
                     <v-stepper-header>
                         <v-stepper-step
@@ -229,7 +229,7 @@
                         x-large
                         color="primary"
                         class="mb-3 main-btn"
-                        @click="goToSettings"
+                        @click="stage = -1"
                     >
                         {{ $t('continue') }}
                     </v-btn>
@@ -251,6 +251,45 @@
                             {{ $t('skip') }}
                         </v-btn>
                     </div>
+                </v-card-text>
+                <v-card-text class="same-height" :class="{ 'show-1': stage === -1 }">
+                    <div class="intro">
+                        <v-card class="rounded-lg mx-auto mb-5 intro-card" outlined>
+                            <v-card-text>
+                                <v-icon color="primary">mdi-fingerprint</v-icon>
+                                <div>
+                                    <h1 class="text-h4 primary--text">
+                                        {{ $t('value_privacy') }}
+                                    </h1>
+                                    <p>{{ $t('privacy_policy') }}</p>
+                                    <i18n path="read_privacy_policy" tag="p">
+                                        <a @click="skip">{{ $t('privacy_policy_link') }}</a>
+                                    </i18n>
+                                </div>
+                            </v-card-text>
+                        </v-card>
+                        <v-card class="rounded-lg mx-auto mb-5 intro-card" outlined>
+                            <v-card-text>
+                                <v-icon color="primary">mdi-information-outline</v-icon>
+                                <div>
+                                    <h1 class="text-h4 primary--text">
+                                        {{ $t('student_lead') }}
+                                    </h1>
+                                    <p><strong>{{ $t('not_offical') }}</strong>{{ $t('lead_by') }}</p>
+                                    <p></p>
+                                </div>
+                            </v-card-text>
+                        </v-card>
+                    </div>
+                    <v-btn
+                        depressed
+                        large
+                        color="primary"
+                        class="mb-3 main-btn"
+                        @click="goToSettings"
+                    >
+                        {{ $t('got_it') }}
+                    </v-btn>
                 </v-card-text>
                 <v-card-text class="same-height backend" :class="{ 'show-1': stage === 1 }">
                     <div class="mt-12 settings">
@@ -929,11 +968,14 @@ html::-webkit-scrollbar {
     padding-top: 0;
     padding-bottom: 0;
     .v-calendar-events .v-event-timed {
-        border-color: transparent!important;
+        border-color: white!important;
     }
 }
 #app.theme--dark .v-window-item > .container, #app.theme--dark .v-main__wrap > .container {
     background-color: #272727;
+    .v-calendar-events .v-event-timed {
+        border-color: #303030!important;
+    }
 }
 .v-menu__content.large-radius {
     border-radius: 8px!important;
@@ -990,6 +1032,49 @@ html::-webkit-scrollbar {
             height: auto;
             opacity: 1;
             pointer-events: auto;
+        }
+    }
+    .intro {
+        margin-top: 20px;
+        width: 100%;
+        height: calc(100% - 130px);
+        margin-bottom: 40px;
+        .intro-card {
+            width: 100%;
+            height: calc(50% - 10px);
+            padding: 15px;
+            overflow: auto;
+            .v-card__text {
+                height: 100%;
+                display: flex;
+                i {
+                    font-size: 60px;
+                    margin-bottom: 15px;
+                }
+                h1 {
+                    font-size: 30px!important;
+                    margin-bottom: 15px;
+                }
+                p {
+                    font-size: 16px;
+                    margin-bottom: 12px;
+                    max-width: 600px;
+                }
+                @media (max-width: 430px) {
+                    i {
+                        font-size: 45px;
+                        margin-bottom: 5px;
+                    }
+                    h1 {
+                        font-size: 23px!important;
+                        margin-bottom: 5px;
+                    }
+                    p {
+                        font-size: 14px;
+                        margin-bottom: 10px;
+                    }
+                }
+            }
         }
     }
     .v-card__text {
@@ -1244,6 +1329,14 @@ html::-webkit-scrollbar {
         "next": "Next",
         "import": "Import",
         "skip": "Skip",
+        "value_privacy": "We value your privacy",
+        "privacy_policy": "We understand how important your UoM account is to you. All your private data will be stored locally in your browser and will not be shared with third parties until you authorise it.",
+        "read_privacy_policy": "Check out our {0}.",
+        "privacy_policy_link": "privacy policy",
+        "student_lead": "A student-led project",
+        "not_offical": "UoM Assistant is not a product developed or published by the University of Manchester.",
+        "lead_by": "This project was designed and developed by a team of UoM students and is not an official representation of UoM.",
+        "got_it": "Got it",
         "connect_to": "Connection",
         "backend_url": "Backend URL",
         "backend_maintenance": "The backend is under maintenance or backend version not supported",
@@ -1290,6 +1383,14 @@ html::-webkit-scrollbar {
         "next": "下一步",
         "import": "导入",
         "skip": "跳过",
+        "value_privacy": "我们尊重你的隐私",
+        "privacy_policy": "我们深知你的曼大账号对你的重要性。你的所有私密数据均会被保存于浏览器本地，且在你授权之前曼大助手不会将你的私密数据分享给第三方。",
+        "read_privacy_policy": "阅读我们的{0}。",
+        "privacy_policy_link": "隐私声明",
+        "student_lead": "由学生主导的项目",
+        "not_offical": "曼大助手不是一个由曼彻斯特大学开发、发布的产品。",
+        "lead_by": "此项目由一个曼大学生组成的团队设计、开发，不代表曼彻斯特大学官方。",
+        "got_it": "明白了",
         "connect_to": "连接信息",
         "backend_url": "后端 URL",
         "backend_maintenance": "不支持的后端版本或后端正在维护，暂时无法连接",
@@ -1336,6 +1437,13 @@ html::-webkit-scrollbar {
         "next": "Siguiente",
         "import": "Importar",
         "skip": "Saltar",
+        "value_privacy": "",
+        "privacy_policy": "",
+        "read_privacy_policy": "",
+        "student_lead": "",
+        "not_offical": "",
+        "lead_by": "",
+        "got_it": "",
         "connect_to": "Conexión",
         "backend_url": "Back-end URL",
         "backend_maintenance": "Versión de back-end no compatible o back-end en mantenimiento",
