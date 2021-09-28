@@ -1015,6 +1015,7 @@ html::-webkit-scrollbar {
     border-radius: 0;
 }
 .welcome-dialog .welcome-dialog-card {
+    overflow: hidden;
     .stepper {
         position: absolute;
         top: 30px;
@@ -1315,7 +1316,7 @@ code, kbd, pre, samp {
         "front_end_update_ready": "New version of the frontend is now available",
         "front_end_update": "Update",
         "front_end_ignore": "Ignore",
-        "updating": "Updating...",
+        "updating": "Updating…",
         "dashboard": "Dashboard",
         "settings": "Settings",
         "about": "About",
@@ -1324,7 +1325,7 @@ code, kbd, pre, samp {
         "at": "at",
         "backend_reconnect": "Backend is up",
         "backend_reconnect_body": "We have just reconnected to the backend",
-        "search": "Search...",
+        "search": "Search…",
         "welcome": "Hi there!",
         "not_yet": "Seems like you haven't set up your UoM Assistant yet",
         "press_to_settings": "Press \"Continue\" to set up your own dashboard",
@@ -1423,7 +1424,7 @@ code, kbd, pre, samp {
         "front_end_update_ready": "Nuava versión de front-end disponible",
         "front_end_update": "Actualizar",
         "front_end_ignore": "Ignorar",
-        "updating": "Actualizando...",
+        "updating": "Actualizando…",
         "dashboard": "Tablero",
         "settings": "Ajustes",
         "about": "Sobre",
@@ -1432,7 +1433,7 @@ code, kbd, pre, samp {
         "at": "en",
         "backend_reconnect": "Back-end reconectado",
         "backend_reconnect_body": "Conectada a back-end correctamente",
-        "search": "Buscar...",
+        "search": "Buscar…",
         "welcome": "Bienvenido!",
         "not_yet": "Parace ser que todavía no ha ajustado su UoM Assistant",
         "press_to_settings": "Haga clic en \"CONTINUAR\" para ajustar su propio tablero",
