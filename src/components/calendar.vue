@@ -13,7 +13,7 @@
                             outlined
                             class="mr-2"
                             :color="$vuetify.theme.dark ? 'grey lighten-1' : 'grey darken-2'"
-                            @click="setToday"
+                            @click="focus = ''"
                         >
                             {{ $t('today') }}
                         </v-btn>
@@ -106,11 +106,40 @@
                             :style="{ top: nowY }"
                             ></div>
                         </template>
+                        <template v-slot:day-label="{ date, day, present }">
+                            <v-btn
+                                fab
+                                small
+                                depressed
+                                :color="present ? 'primary' : 'transparent'"
+                                @click="viewDay({ date })"
+                            >
+                                {{ localeDetail ? (new Intl.DateTimeFormat(localeDetail.iso, day === 1 ? { day: 'numeric', month: 'short' } : { day: 'numeric' }).format(new Date(date))) : day }}
+                            </v-btn>
+                        </template>
+                        <template v-slot:day-label-header="{ date, day, present }">
+                            <v-btn
+                                fab
+                                depressed
+                                :color="present ? 'primary' : 'transparent'"
+                                @click="viewDay({ date })"
+                            >
+                                {{ localeDetail ? (new Intl.DateTimeFormat(localeDetail.iso, day === 1 && type !== 'day' ? { day: 'numeric', month: 'short' } : { day: 'numeric' }).format(new Date(date))) : day }}
+                            </v-btn>
+                        </template>
                         <template v-slot:event="{ eventSummary, event }">
                             <div
-                                class="pl-1"
+                                class="pl-1 event-block"
                                 :class="{ 'text--disabled': event.selfStudy }"
                                 v-html="eventSummary()"
+                            >
+                            </div>
+                            <div
+                                class="event-block-overlay"
+                                :style="{
+                                    width: type === 'day' || type === 'week' ? '100%' : getEevntPercentage(event.start, event.end),
+                                    height: type === 'month' ? '100%' : getEevntPercentage(event.start, event.end),
+                                }"
                             ></div>
                         </template>
                     </v-calendar>
@@ -157,11 +186,10 @@
                             </v-toolbar>
                             <v-card-text>
                                 <span v-if="selectedEvent.details !== 'Coursework Deadline'">
-                                    {{ $t('from') }}{{ selectedEvent.start ? getDate(selectedEvent.start) : '' }}<br>
-                                    {{ $t('to') }}{{ selectedEvent.end ? getDate(selectedEvent.end) : '' }}<br>
+                                    {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(selectedEvent.end, false) : '' }}<br>
                                 </span>
                                 <span v-else>
-                                    {{ selectedEvent.start ? getDate(selectedEvent.start) : '' }}
+                                    {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}
                                 </span>
                                 <br>
                                 <v-list flat class="list" v-if="selectedEvent.details !== 'Coursework Deadline' && selectedEvent.subjectId !== '' && subjectLinks(selectedEvent.subjectId).sessionLinks.length > 0">
@@ -207,7 +235,7 @@
                                         </v-list-item>
                                     </v-list-item-group>
                                 </v-list>
-                                <pre v-html="selectedEvent.details === 'Coursework Deadline' ? $t('course_ddl') : selectedEvent.details"></pre>
+                                <pre v-html="selectedEvent.details === 'Coursework Deadline' ? $t('course_ddl') : linkify(selectedEvent.details)"></pre>
                                 <div v-html="selectedEvent.details ? showMap(selectedEvent.details) : ''" v-if="selectedEvent.details && selectedEvent.details !== 'Coursework Deadline'"></div>
                             </v-card-text>
                         </v-card>
@@ -222,6 +250,7 @@
 import { mapState } from 'vuex';
 import { parse } from 'ical.js';
 import localForage from 'localforage';
+import linkifyStr from 'linkify-string';
 
 import checkResponse from '@/mixins/checkResponse';
 import liveLinks from '@/mixins/liveLinks';
@@ -249,6 +278,9 @@ export default {
             selectedOpen: false,
             events: [],
             today: '',
+            currentDate: '',
+            currentWeekStart: '',
+            currentTimeStamp: 0,
             refreshId: `${new Date().getDate()}`,
             classEvents: [],
             courseworkEvents: [],
@@ -273,12 +305,6 @@ export default {
          */
         getEventColor(event) {
             return event.color;
-        },
-        /**
-         * Set the focus to today
-         */
-        setToday() {
-            this.focus = '';
         },
         /**
          * Move the calendar a page back
@@ -324,15 +350,11 @@ export default {
         updateRange(data) {
             this.today = data.start.date;
             this.$nextTick(() => {
-                if (this.type === 'day') {
+                if (this.type === 'day' || this.type === 'week') {
                     this.updateTime();
                     if (this.$refs.calendar) {
                         const todayObj = new Date();
-                        const dd = String(todayObj.getDate()).padStart(2, '0');
-                        const mm = String(todayObj.getMonth() + 1).padStart(2, '0');
-                        const yyyy = todayObj.getFullYear();
-
-                        if (this.today === `${yyyy}-${mm}-${dd}`) {
+                        if ((this.type === 'day' && this.today === this.currentDate) || (this.type === 'week' && this.today === this.currentWeekStart)) {
                             let hour = todayObj.getHours();
                             let minute = todayObj.getMinutes();
                             if (hour < 6) {
@@ -356,14 +378,18 @@ export default {
          * Update timing bar position in day view
          */
         updateTime() {
+            if (this.$refs.calendar) {
+                this.currentTimeStamp = new Date().valueOf();
+                this.$refs.calendar.updateTimes();
+            }
             if (this.type === 'day') {
-                const todayObj = new Date();
-                const dd = String(todayObj.getDate()).padStart(2, '0');
-                const mm = String(todayObj.getMonth() + 1).padStart(2, '0');
-                const yyyy = todayObj.getFullYear();
-
-                if (this.today === `${yyyy}-${mm}-${dd}` && this.$refs.calendar) {
-                    this.$refs.calendar.updateTimes();
+                if (this.today === this.currentDate && this.$refs.calendar) {
+                    this.nowY = `${this.$refs.calendar.timeToY(this.$refs.calendar.times.now)}px`;
+                } else {
+                    this.nowY = '-10px';
+                }
+            } else if (this.type === 'week') {
+                if (this.today === this.currentWeekStart && this.$refs.calendar) {
                     this.nowY = `${this.$refs.calendar.timeToY(this.$refs.calendar.times.now)}px`;
                 } else {
                     this.nowY = '-10px';
@@ -371,6 +397,55 @@ export default {
             } else {
                 this.nowY = '-10px';
             }
+        },
+        /**
+         * Update current date
+         */
+        updateCurrentDate() {
+            const todayObj = new Date();
+            const thisWeekStartFromObj = new Date(todayObj.valueOf() - (todayObj.getDay() * 24 * 3600 * 1000));
+
+            const dd = String(todayObj.getDate()).padStart(2, '0');
+            const mm = String(todayObj.getMonth() + 1).padStart(2, '0');
+            const yyyy = todayObj.getFullYear();
+            const ddWeek = String(thisWeekStartFromObj.getDate()).padStart(2, '0');
+            const mmWeek = String(thisWeekStartFromObj.getMonth() + 1).padStart(2, '0');
+            const yyyyWeek = thisWeekStartFromObj.getFullYear();
+
+            this.currentDate = `${yyyy}-${mm}-${dd}`;
+            this.currentWeekStart = `${yyyyWeek}-${mmWeek}-${ddWeek}`;
+        },
+        /**
+         * Get event percentage passed
+         * @param {number} start event start time
+         * @param {number} end event end time
+         * @returns {string} percentage as a atring
+         */
+        getEevntPercentage(start, end) {
+            if (end <= this.currentTimeStamp) {
+                return '100%';
+            }
+            if (start >= this.currentTimeStamp) {
+                return '0%';
+            }
+            return `${((this.currentTimeStamp - start) / (end - start)) * 100}%`;
+        },
+        /**
+         * Linkify event details
+         * @param {string} text event details text
+         * @returns {string} event details with links
+         */
+        linkify(text) {
+            return typeof text === 'string' ? linkifyStr(text, {
+                rel: 'noopener nofollow',
+                target: '_blank',
+                format: (value, type) => {
+                    if (type === 'url' && value.length > 100) {
+                        return `${value.slice(0, 100)}…`;
+                    }
+                    return value;
+                },
+            }) : text;
         },
         /**
          * Update events from backend
@@ -456,8 +531,8 @@ export default {
                 if (item[0] === 'vevent') {
                     const startTime = new Date(new Date(item[1][3][3]).toUTCString());
                     const timeDiff = (startTime.valueOf() - nowDate) / 1000;
-                    // Events range: -1 month to +2 months
-                    if (timeDiff < 5184000 && timeDiff > -2592000) {
+                    // Events range: -1 month to +3 months
+                    if (timeDiff < 7776000 && timeDiff > -2592000) {
                         // Get event title, adapted to events with locations
                         const title = typeof item[1][6][3] === 'number' ? item[1][7][3] : item[1][6][3];
 
@@ -512,10 +587,11 @@ export default {
         /**
          * Format a date object to a string based on locale
          * @param {Date} dateObj Date object
+         * @param {boolean} seconds whether to show seconds
          * @returns {string} formatted a date string
          */
-        getDate(dateObj) {
-            return formatDateTime(dateObj, this.locale);
+        getDate(dateObj, seconds = true) {
+            return formatDateTime(dateObj, this.locale, seconds);
         },
         /**
          * Convert a Date object to a specified time zone
@@ -571,10 +647,13 @@ export default {
         showMap(details) {
             const lines = details.split('\n');
             for (const line of lines) {
-                const linePart = line.split(': ');
-                if (linePart[0] === 'Map Link') {
+                const linePart = line.split(': ').map((item) => item.trim());
+                if (linePart[0] === 'Map Link' && linePart[1]) {
                     // Parse URL
-                    const urlQuery = new URLSearchParams(new URL(linePart[1]).search);
+                    let urlQuery;
+                    try {
+                        urlQuery = new URLSearchParams(new URL(linePart[1]).search);
+                    } catch (e) { return ''; }
                     if (urlQuery.get('query_place_id') !== null) {
                         return `<iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAn46nX_pMvKfKcp5_Nqc4C3GCKj8CHJ7M&amp;q=place_id:${urlQuery.get('query_place_id')}" width="100%" height="300" frameborder="0" style="border:0;" allowfullscreen></iframe>`;
                     }
@@ -658,6 +737,8 @@ export default {
 
             if (this.timerHour.substr(0, 2) === '00') {
                 this.refreshId = `${new Date().valueOf()}`;
+                this.updateCurrentDate();
+                this.updateTime();
             }
         },
         courseworks() {
@@ -675,7 +756,7 @@ export default {
             subjects: (state) => state.subjects,
             timerMin: (state) => state.timerMin,
             timerHour: (state) => state.timerHour,
-            courseworks: (state) => state.courseworks,
+            courseworks: (state) => state.tasks,
             backend: (state) => state.backend,
             backendStatus: (state) => state.backendStatus,
             account: (state) => state.account,
@@ -705,6 +786,8 @@ export default {
         this.updateTimer = setInterval(() => {
             this.checkUpdate();
         }, 21600000);
+
+        this.updateCurrentDate();
 
         // Update timing pointer in day view every 20 seconds
         this.updatePointertimer = setInterval(() => {
@@ -738,11 +821,20 @@ export default {
         padding-right: 11px;
         padding-bottom: 11px;
     }
+    .event-block {
+        pointer-events: none;
+    }
+    .event-block-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.6;
+        background-color: white;
+        pointer-events: none;
+    }
     .v-calendar-weekly__week {
-        .v-calendar-weekly__day:last-child {
-            border-right: none!important;
-            padding-right: 1.25px;
-        }
         button.v-btn.v-size--small {
             width: 35px;
             height: 35px;
@@ -752,17 +844,13 @@ export default {
     .v-calendar-weekly__head {
         .v-calendar-weekly__head-weekday {
             padding-top: 5px;
-            &:last-child {
-                border-right: none!important;
-                margin-right: 0.2px
-            }
         }
     }
     .theme--light.v-calendar-events .v-event-more {
-        background-color: transparent;
+        margin-left: 1px;
     }
     .v-calendar .v-event-timed-container {
-        margin-right: 1px;
+        margin: 0;
     }
     .v-event.v-event-start.v-event-end {
         margin-left: 2.5%;
@@ -836,7 +924,7 @@ export default {
             margin: 0;
             margin-left: 8px!important;
             .v-btn {
-                font-family: monospace;
+                font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
                 width: 90px;
                 margin-right: -4px;
                 .v-icon--left {
@@ -858,9 +946,12 @@ export default {
     }
 }
 #app.theme--dark .v-calendar-events .v-event-more {
-    background-color: transparent;
+    margin-left: 1px;
 }
 #app.theme--dark .calendar-container {
+    .event-block-overlay {
+        background-color: #303030;
+    }
     .theme--dark.v-toolbar.v-sheet {
         background-color: #1E1E1E;
     }
@@ -875,8 +966,6 @@ export default {
         "day": "Day",
         "week": "Week",
         "month": "Month",
-        "from": "From: ",
-        "to": "To: ",
         "course_ddl": "Coursework Deadline",
         "coursework": "Coursework",
         "subject_home": "Course Unit Home Page",
@@ -892,8 +981,6 @@ export default {
         "day": "日视图",
         "week": "周视图",
         "month": "月视图",
-        "from": "从：",
-        "to": "到：",
         "course_ddl": "作业到期",
         "coursework": "作业",
         "subject_home": "科目主页",
@@ -909,8 +996,6 @@ export default {
         "day": "Día",
         "week": "Semana",
         "month": "Mes",
-        "from": "Desde: ",
-        "to": "Hasta: ",
         "course_ddl": "Fecha límite para trabajo de curso",
         "coursework": "Trabajo de curso",
         "subject_home": "Página principal de asignatura",
@@ -920,23 +1005,6 @@ export default {
         "quick_teams": "Acceder a Teams",
         "copy_passcode": "Copiar contraseña",
         "self_study": " (Autoestudio)"
-    },
-    "ja": {
-        "today": "今日",
-        "day": "日",
-        "week": "周",
-        "month": "月",
-        "from": "から：",
-        "to": "まで：",
-        "course_ddl": "課題の締め切り",
-        "coursework": "課題",
-        "subject_home": "科目ホームページ",
-        "ical_error": "icalファイル解析不能",
-        "network_error_body": "カレンダーサブスクライブのURLから最新イベントの情報を取得できません。",
-        "quick_zoom": "Zoomミーティングを起動する",
-        "quick_teams": "Teamsミーティングを起動する",
-        "copy_passcode": "パスワードをコピーする",
-        "self_study": "（独学）"
     }
 }
 </i18n>

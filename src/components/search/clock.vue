@@ -7,10 +7,10 @@
             <div class="label text-truncate">{{ city }}{{ $t('time') }}</div>
             <div class="time-number">
                 <span class="daylight-label mr-3">
-                    <v-icon v-if="otherHour <= 5 || otherHour >= 19">mdi-weather-night</v-icon>
+                    <v-icon v-if="remoteNight">mdi-weather-night</v-icon>
                     <v-icon v-else>mdi-white-balance-sunny</v-icon>
                 </span>
-                <span class="hour">{{ otherHour }}</span>:{{ otherMin }}:{{ sec }}
+                <span class="hour" ref="hourRemote"></span>:<span ref="minRemote"></span>:<span ref="secRemote"></span>
             </div>
         </div>
     </v-card>
@@ -18,6 +18,10 @@
 
 <script>
 import { mapState } from 'vuex';
+
+let hourRemote = '';
+let minRemote = '';
+let sec = '';
 
 export default {
     name: 'clockSearch',
@@ -27,10 +31,8 @@ export default {
     },
     data() {
         return {
-            min: '00',
-            sec: '00',
-            otherObj: this.convertTimeZone(new Date(), this.timezone ? this.timezone : 'Europe/London'),
             timer: null,
+            remoteNight: false,
         };
     },
     methods: {
@@ -46,11 +48,32 @@ export default {
         /**
          * Update time
          */
-        updateTime() {
+        updateTime(init = false) {
             const now = new Date(new Date().valueOf());
-            this.otherObj = this.convertTimeZone(now, this.timezone);
-            this.sec = `${now.getSeconds()}`.padStart(2, '0');
-            this.min = `${now.getMinutes()}`.padStart(2, '0');
+            const remoteNow = this.convertTimeZone(now, this.timezone);
+
+            const secOld = sec;
+            const minRemoteOld = minRemote;
+            const hourRemoteOld = hourRemote;
+
+            sec = `${now.getSeconds()}`.padStart(2, '0');
+            minRemote = `${remoteNow.getMinutes()}`.padStart(2, '0');
+            hourRemote = `${remoteNow.getHours()}`.padStart(2, '0');
+
+            if (secOld !== sec || init) {
+                this.$refs.secRemote.textContent = sec;
+            }
+            if (minRemoteOld !== minRemote || init) {
+                this.$refs.minRemote.textContent = minRemote;
+            }
+            if (hourRemoteOld !== hourRemote || init) {
+                this.$refs.hourRemote.textContent = hourRemote;
+                if (hourRemote <= 5 || hourRemote >= 19) {
+                    this.remoteNight = true;
+                } else {
+                    this.remoteNight = false;
+                }
+            }
         },
     },
     watch: {
@@ -76,11 +99,9 @@ export default {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
 
         // Update time every 1 second
-        this.timer = setInterval(() => {
-            this.updateTime();
-        }, 1000);
+        this.timer = setInterval(this.updateTime, 1000);
 
-        this.updateTime();
+        this.updateTime(true);
     },
     beforeDestroy() {
         clearInterval(this.timer);

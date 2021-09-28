@@ -1,6 +1,6 @@
 <template>
     <v-card
-        class="mx-auto rounded-lg subjects-container"
+        class="mx-auto rounded-lg courses-container"
         outlined
     >
         <v-progress-circular
@@ -13,12 +13,15 @@
         ></v-progress-circular>
         <div class="subjects-outer">
             <h2 class="mr-5 handle">
-                {{ $t('subjects') }}
-                <v-btn icon @click.stop="addSubject" small class="float-right header-icon">
+                {{ $t('courses') }}
+                <v-btn icon @click.stop="addSubject" small class="float-right header-icon" :title="$t('add_subject')">
                     <v-icon>mdi-plus</v-icon>
                 </v-btn>
+                <v-btn icon @click.stop="toggleFilter" small class="float-right header-icon mr-1" v-if="shownSubjects.length < subjects.length" :title="$t('filter_course')">
+                    <v-icon>{{ filter ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
+                </v-btn>
             </h2>
-            <v-simple-table v-if="subjects.length > 0" class="subject-table rounded-0">
+            <v-simple-table v-if="shownSubjects.length > 0 || hiddenSubjects.length > 0" class="subject-table rounded-0">
                 <template v-slot:default>
                     <thead>
                         <tr>
@@ -86,7 +89,7 @@
                             outlined
                             :label="$t('subject_name')"
                             :hint="$t('subject_name_hint')"
-                            prepend-inner-icon="mdi-text-subject"
+                            prepend-inner-icon="mdi-text-long"
                         ></v-text-field>
                         <v-text-field
                             v-model.trim="editingShortName"
@@ -253,13 +256,14 @@ import { mapState } from 'vuex';
 import liveLinks from '@/mixins/liveLinks';
 
 export default {
-    name: 'subjects',
+    name: 'courses',
     mixins: [liveLinks],
     data() {
         return {
             subjects: [],
             loading: false,
             dialog: false,
+            filter: false,
             editingMode: 'update',
             editingIndex: -1,
             editingName: '',
@@ -418,20 +422,17 @@ export default {
             });
         },
         /**
+         * Toggle filter
+         */
+        toggleFilter() {
+            this.filter = !this.filter;
+            localStorage.setItem('course_filter', this.filter);
+        },
+        /**
          * Store subjects data into localstorage
          */
         store() {
             localStorage.setItem('subjects', JSON.stringify(this.subjects));
-            this.sync();
-        },
-        /**
-         * Sync data with backend
-         */
-        sync() {
-            this.loading = true;
-            setTimeout(() => {
-                this.loading = false;
-            }, 1000);
         },
     },
     watch: {
@@ -442,6 +443,9 @@ export default {
             // Store when subjects changed
             this.$store.commit('setSubjects', this.subjects);
             this.store();
+        },
+        filter() {
+            this.$nextTick(() => this.packery.shiftLayout());
         },
     },
     computed: {
@@ -455,7 +459,7 @@ export default {
         },
         hiddenSubjects() {
             // Filter out shown subjects
-            return this.subjects.filter((subject) => subject.hide);
+            return this.filter ? [] : this.subjects.filter((subject) => subject.hide);
         },
     },
     mounted() {
@@ -465,6 +469,8 @@ export default {
         this.subjects = JSON.parse(localStorage.getItem('subjects')) || [];
         localStorage.setItem('subjects', JSON.stringify(this.subjects));
         this.$store.commit('setSubjects', this.subjects);
+
+        this.filter = (localStorage.getItem('course_filter') || 'false') === 'true';
 
         // Sync with backend every 3 hours
         this.timer = setInterval(() => {
@@ -478,7 +484,7 @@ export default {
 </script>
 
 <style lang="less">
-.subjects-container {
+.courses-container {
     position: relative;
     padding-left: 0;
     padding-right: 0;
@@ -618,7 +624,7 @@ export default {
 <i18n>
 {
     "en": {
-        "subjects": "Manage Course Units",
+        "courses": "Manage Course Units",
         "nothing": "No course units yet",
         "name": "Name",
         "actions": "Actions",
@@ -635,13 +641,14 @@ export default {
         "subject_number": "Course Unit Code *",
         "subject_number_hint": "E.g. COMP11120",
         "subject_home": "Course Unit Home Page *",
-        "subject_color": "Course Unit Colour",
+        "subject_color": "Course Unit Coleeeour",
         "hide_subject": "Hide this course unit",
         "add_link": "Add a live session link",
         "link_format": "URL[ name][ passcode]",
         "delete_subject": "Delete course unit",
         "delete_subject_text": "Do you want to delete the course unit ",
         "delete_subject_mark": "?",
+        "filter_course": "Filter out hidden courses",
         "error": "Cannot Save",
         "same_id": "This code is already linked to another course unit. Changes not saved.",
         "ok": "OK",
@@ -649,7 +656,7 @@ export default {
         "quick_teams": "Teams meeting quick start"
     },
     "zh": {
-        "subjects": "科目管理",
+        "courses": "科目管理",
         "nothing": "还没有科目",
         "name": "名称",
         "actions": "操作",
@@ -673,6 +680,7 @@ export default {
         "delete_subject": "删除科目",
         "delete_subject_text": "你确定要删除科目 ",
         "delete_subject_mark": " 吗？",
+        "filter_course": "过滤隐藏的科目",
         "error": "无法保存",
         "same_id": "这个科目编号已经关联到其他科目。更改没有保存。",
         "ok": "好",
@@ -680,7 +688,7 @@ export default {
         "quick_teams": "快速启动 Teams 会议"
     },
     "es": {
-        "subjects": "Administrar asignaturas",
+        "courses": "Administrar asignaturas",
         "nothing": "No asignaturas todavía",
         "name": "Nombre",
         "actions": "Acción",
@@ -702,8 +710,9 @@ export default {
         "add_link": "Añadir enlace de una sesión online",
         "link_format": "URL[ nombre][ contraseña]",
         "delete_subject": "Eliminar asignatura",
-        "delete_subject_text": "Está seguro de eliminar la asignatura",
+        "delete_subject_text": "Está seguro de eliminar la asignatura ",
         "delete_subject_mark": "?",
+        "filter_course": "",
         "error": "No se ha podido guardar",
         "same_id": "Este número de asignatura ya está conectada a otra asignatura. Cambios no se ha guardado.",
         "ok": "OK",

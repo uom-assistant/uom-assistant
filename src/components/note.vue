@@ -15,13 +15,11 @@
             <div :class="{ shadow: headerShadow }" class="titles">
                 <h2 class="handle" v-show="!multi">
                     {{ $t('note') }}
-                    <v-icon class="ml-1 md-icon" :title="$t('md_support')">
-                        mdi-language-markdown
-                    </v-icon>
-                    <v-btn icon small class="float-right mr-4" :title="$t('new')" @click.stop="addOne(false)">
+                    <v-icon class="ml-1 md-icon" :title="$t('md_support')">mdi-language-markdown</v-icon>
+                    <v-btn icon small class="float-right mr-4" :title="$t('new')" @click="addOne(false)">
                         <v-icon>mdi-plus</v-icon>
                     </v-btn>
-                    <v-btn icon small class="float-right mr-2" :title="$t('select')" @click.stop="multi = true" v-show="notes.length > 0">
+                    <v-btn icon small class="float-right mr-2" :title="$t('select')" @click="multi = true" v-show="notes.length > 0">
                         <v-icon>mdi-checkbox-multiple-blank-outline</v-icon>
                     </v-btn>
                 </h2>
@@ -30,19 +28,19 @@
                     <v-btn icon small class="float-right mr-4" :title="allSelected ? $t('select_none') : $t('select_all')" @click.stop="selectAll">
                         <v-icon>{{ allSelected ? 'mdi-select-off' : 'mdi-select-all' }}</v-icon>
                     </v-btn>
-                    <v-btn icon small class="float-right mr-2" :title="$t('cancel_select')" @click.stop="multi = false">
+                    <v-btn icon small class="float-right mr-2" :title="$t('cancel_select')" @click="multi = false">
                         <v-icon>mdi-close</v-icon>
                     </v-btn>
                     <span class="float-right mr-2 ml-0" :class="$vuetify.theme.dark ? 'grey--text text--darken-2' : 'grey--text text--lighten-2'" v-show="ifNotes.length > 0">|</span>
-                    <v-btn icon small class="float-right mr-2" :title="$t('delete_selected')" @click.stop="removeSelectedConfirm" v-show="ifNotes.length > 0">
+                    <v-btn icon small class="float-right mr-2" :title="$t('delete_selected')" @click="removeSelectedConfirm" v-show="ifNotes.length > 0">
                         <v-icon>mdi-delete-outline</v-icon>
                     </v-btn>
-                    <v-btn icon small class="float-right mr-2" :title="$t('download_selected')" @click.stop="downloadSelected" v-show="ifNotes.length > 0">
+                    <v-btn icon small class="float-right mr-2" :title="$t('download_selected')" @click="downloadSelected" v-show="ifNotes.length > 0">
                         <v-icon>mdi-arrow-collapse-down</v-icon>
                     </v-btn>
                 </h2>
             </div>
-            <div class="scroll" v-if="notes.length !== 0" @scroll.passive="scrollHandler">
+            <div class="scroll" v-if="notes.length !== 0" @scroll.passive="scrollHandler" ref="scrollTarget">
                 <v-list flat class="list">
                     <v-list-item-group
                         v-model="ifNotes"
@@ -101,19 +99,78 @@
                     mdi-file-document-edit-outline
                 </v-icon>
                 <input type="text" v-model.trim="editingTitle" class="title-input" v-if="notes[editing]" :placeholder="$t('title_placeholder')">
-                <v-btn icon @click.stop="layerOpened = false" small class="float-right mr-4">
+                <v-btn icon @click="layerOpened = false; tocOpened = false" small class="float-right mr-4">
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
-                <v-btn icon @click.stop="mode = 'view'" v-show="mode === 'edit'" small class="float-right mr-2" :title="$t('view')">
+                <v-menu
+                    v-model="tocOpened"
+                    offset-y
+                    bottom
+                    left
+                    eager
+                    transition="slide-y-transition"
+                    nudge-bottom="5"
+                    :close-on-content-click="false"
+                    :close-on-click="true"
+                >
+                    <template v-slot:activator="{ on, attrs }">
+                        <v-btn icon small class="float-right note-toc-btn" v-on="on" v-bind="attrs" @click="updateTOCScrollTimeOut">
+                            <v-icon>mdi-table-of-contents</v-icon>
+                        </v-btn>
+                    </template>
+                    <v-card class="note-toc-card" tile elevation="0">
+                        <v-card-text v-show="tocHTML !== '' && mode === 'view'">{{ $t('toc') }}</v-card-text>
+                        <nav class="note-toc-container" v-html="tocHTML" v-show="tocHTML !== '' && mode === 'view'" @click.prevent="navigateTo"></nav>
+                        <div class="justify-center align-center flex-column toc-empty-state" v-show="tocHTML === '' && mode === 'view'">
+                            <v-icon x-large>mdi-vanish</v-icon>
+                            <span class="text--secondary mt-4">{{ $t('empty_toc') }}</span>
+                            <v-btn outlined color="primary" small class="mt-4" @click="mode = 'edit'">{{ $t('switch_to_edit') }}</v-btn>
+                        </div>
+                        <div class="justify-center align-center flex-column toc-empty-state" v-show="mode === 'edit'">
+                            <v-icon x-large>mdi-playlist-edit</v-icon>
+                            <span class="text--secondary mt-4">{{ $t('editing_toc') }}</span>
+                            <v-btn outlined color="primary" small class="mt-4" @click="mode = 'view'">{{ $t('switch_to_view') }}</v-btn>
+                        </div>
+                        <v-divider></v-divider>
+                        <div
+                            class="note-id"
+                            :class="{ 'copy-success': copySuccess }"
+                            v-ripple
+                            v-clipboard:copy="noteId"
+                            v-clipboard:success="onCopy"
+                            :title="$t('copy_note_id')"
+                        >
+                            <span>
+                                <v-tooltip top max-width="400">
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-icon
+                                            v-bind="attrs"
+                                            v-on="on"
+                                            small
+                                            class="help-icon"
+                                        >
+                                            mdi-help-circle-outline
+                                        </v-icon>
+                                    </template>
+                                    <span v-html="$t('note_id_help', [noteId.replace(/</g, '&lt;').replace(/>/g, '&gt;')])"></span>
+                                </v-tooltip>
+                                {{ $t('note_id') }}
+                                <code>{{ noteId }}</code>
+                            </span>
+                            <v-icon small :color="copySuccess ? 'success' : ''" class="copy-icon" :class="{ 'copy-success-icon': copySuccess }">mdi-{{ copySuccess ? 'check' : 'content-copy' }}</v-icon>
+                        </div>
+                    </v-card>
+                </v-menu>
+                <v-btn icon @click="mode = 'view'" v-show="mode === 'edit'" small class="float-right mr-1" :title="$t('view')">
                     <v-icon>mdi-eye</v-icon>
                 </v-btn>
-                <v-btn icon @click.stop="mode = 'edit'" v-show="mode === 'view'" small class="float-right mr-2" :title="$t('edit')">
+                <v-btn icon @click="mode = 'edit'" v-show="mode === 'view'" small class="float-right mr-1" :title="$t('edit')">
                     <v-icon>mdi-pencil-outline</v-icon>
                 </v-btn>
             </h2>
             <v-divider></v-divider>
             <codemirror v-model="code" :options="cmOption" class="md-editor" v-show="mode === 'edit'" :key="cmRefresh" ref="codemirror" @scroll.passive="onScroll"></codemirror>
-            <div class="render-result" v-show="mode === 'view'" @scroll.passive="onScrollView" ref="renderScroll"><div ref="render"></div></div>
+            <div class="render-result" v-show="mode === 'view'" @scroll.passive="onScrollView" ref="renderScroll"><div ref="render" @click="checkNoteLink" @keypress.enter="checkNoteLink" id="note-render"></div></div>
         </div>
         <v-dialog
             v-model="removeConfirm"
@@ -213,6 +270,7 @@ import markdown from 'markdown-it';
 import renderMathInElement from 'katex/contrib/auto-render/auto-render';
 import 'katex/contrib/copy-tex/copy-tex';
 import hljs from 'highlight.js/lib/core';
+import { customAlphabet } from 'nanoid';
 
 import mdTaskLists from 'markdown-it-task-lists';
 import mdLinkAttr from 'markdown-it-link-attributes';
@@ -223,6 +281,8 @@ import mdSpan from 'markdown-it-bracketed-spans';
 import mdAttrs from 'markdown-it-attrs';
 import mdTable from 'markdown-it-multimd-table';
 import mdContainer from 'markdown-it-container';
+import mdAnchor from 'markdown-it-anchor';
+import mdToc from 'markdown-it-toc-done-right';
 
 import javascript from 'highlight.js/lib/languages/javascript';
 import python from 'highlight.js/lib/languages/python';
@@ -264,10 +324,12 @@ import 'codemirror/addon/edit/closebrackets';
 import 'codemirror/addon/edit/matchbrackets';
 
 import scroll from '@/mixins/scroll';
+import clipboard from '@/mixins/clipboard';
 
 import formatDateTime from '@/tools/formatDateTime';
 import debounce from '@/tools/debounce';
 import csv from '@/tools/csvHighlight';
+import SmoothScrollTo from '@/tools/smoothScrollTo';
 
 import 'codemirror/theme/xq-light.css';
 import 'codemirror/lib/codemirror.css';
@@ -276,6 +338,7 @@ import 'katex/contrib/copy-tex/copy-tex.css';
 
 hljs.registerLanguage('javascript', javascript);
 hljs.registerLanguage('js', javascript);
+hljs.registerLanguage('jsx', javascript);
 hljs.registerLanguage('python', python);
 hljs.registerLanguage('php', php);
 hljs.registerLanguage('arm', armasm);
@@ -302,6 +365,7 @@ hljs.registerLanguage('rust', rust);
 hljs.registerLanguage('shell', shell);
 hljs.registerLanguage('typescript', typescript);
 hljs.registerLanguage('ts', typescript);
+hljs.registerLanguage('tsx', typescript);
 hljs.registerLanguage('verilog', verilog);
 hljs.registerLanguage('rb', ruby);
 hljs.registerLanguage('ruby', ruby);
@@ -314,6 +378,8 @@ hljs.registerLanguage('docker', docker);
 hljs.registerLanguage('dockerfile', docker);
 hljs.registerLanguage('csv', csv);
 
+const idAlphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-!@=+~&';
+
 export default {
     name: 'note',
     components: {
@@ -322,7 +388,7 @@ export default {
     props: {
         searchid: Number,
     },
-    mixins: [scroll],
+    mixins: [scroll, clipboard],
     data() {
         return {
             disableNew: false,
@@ -336,6 +402,7 @@ export default {
             cmRefresh: `${new Date().valueOf()}`,
             editing: 0,
             code: '',
+            noteId: '',
             scrollPercentage: 0,
             multi: false,
             removeConfirm: false,
@@ -344,6 +411,9 @@ export default {
             previews: [],
             removeNoteConfirm: false,
             toRemove: -1,
+            tocHTML: '',
+            titleOffest: {},
+            tocOpened: false,
             cmOption: {
                 tabSize: 4,
                 indentUnit: 4,
@@ -374,9 +444,17 @@ export default {
                     },
                 },
             },
-            debouncedSave: debounce.debounce(function () {
+            debouncedSave: debounce.debounce(() => {
                 this.store();
             }, 500),
+            debouncedOnScrollView: debounce.debounce((e) => {
+                this.scrollPercentage = e.target.scrollTop / (this.$refs.render.clientHeight - 480);
+            }, 25),
+            debouncedOnResize: debounce.debounce(() => {
+                if (this.layerOpened && this.mode === 'view') {
+                    this.updateTitleOffset();
+                }
+            }, 50),
         };
     },
     methods: {
@@ -401,6 +479,7 @@ export default {
             }
 
             this.notes.unshift({
+                id: this.generateUniqueId(),
                 title: this.$t('new_note'),
                 content: '',
                 update: new Date().valueOf(),
@@ -410,6 +489,7 @@ export default {
             this.editing = 0;
             this.editingTitle = this.notes[this.editing].title;
             this.mode = 'edit';
+            this.noteId = this.notes[this.editing].id;
             this.scrollPercentage = 0;
             this.disableNew = true;
 
@@ -425,6 +505,9 @@ export default {
                     this.$refs.codemirror.codemirror.scrollTo(null, 0);
                     this.$refs.codemirror.codemirror.focus();
                 }, 500);
+                if (this.$refs.scrollTarget) {
+                    this.scrollHandler({ target: this.$refs.scrollTarget });
+                }
             });
         },
         /**
@@ -433,8 +516,13 @@ export default {
          */
         openNote(index) {
             this.editing = index;
-            this.editingTitle = this.notes[this.editing].title;
+            this.editingTitle = this.notes[index].title;
             this.code = this.notes[index].content;
+            if (!this.notes[index].id) {
+                this.notes[index].id = this.generateUniqueId();
+                this.debouncedSave();
+            }
+            this.noteId = this.notes[index].id;
             if (this.code !== '') {
                 // If the note is not empty, switch to view mode
                 this.mode = 'view';
@@ -445,7 +533,7 @@ export default {
                     // Render Markdown
                     if (this.$refs.render) {
                         // Make links open in new tab
-                        this.$refs.render.innerHTML = this.md.render(this.code);
+                        this.$refs.render.innerHTML = this.md.render(`[uoma-toc]\n${this.code.replace(/\[uoma-toc\]/g, '\\[uoma-toc\\]')}`);
                         // Render LaTeX
                         renderMathInElement(this.$refs.render, {
                             delimiters: [
@@ -455,6 +543,21 @@ export default {
                                 { left: '\\[', right: '\\]', display: true },
                             ],
                         });
+
+                        const toc = this.$refs.render.getElementsByClassName('table-of-contents');
+                        if (toc && toc[0]) {
+                            if (toc[0].textContent.trim() !== '') {
+                                this.tocHTML = toc[0].innerHTML;
+                            } else {
+                                this.tocHTML = '';
+                            }
+                            toc[0].parentNode.removeChild(toc[0]);
+                        }
+
+                        this.$nextTick(() => {
+                            this.updateTitleOffset();
+                        });
+
                         this.$refs.renderScroll.scrollTo(null, 0);
                     }
                 });
@@ -507,6 +610,12 @@ export default {
             if (this.notes.length === 0 && this.multi) {
                 this.multi = false;
             }
+
+            this.$nextTick(() => {
+                if (this.$refs.scrollTarget) {
+                    this.scrollHandler({ target: this.$refs.scrollTarget });
+                }
+            });
         },
         /**
          * Download a note
@@ -596,8 +705,25 @@ export default {
                 if (this.notes.length === 0 && this.multi) {
                     this.multi = false;
                 }
+
+                this.$nextTick(() => {
+                    if (this.$refs.scrollTarget) {
+                        this.scrollHandler({ target: this.$refs.scrollTarget });
+                    }
+                });
             }
             this.ifNotes = [];
+        },
+        /**
+         * Generate an Unique ID for every note
+         * @returns {string} note ID
+         */
+        generateUniqueId() {
+            let id = customAlphabet(idAlphabet, 6)();
+            while (this.notes.find((item) => item.id === id) !== undefined) {
+                id = customAlphabet(idAlphabet, 6)();
+            }
+            return id;
         },
         /**
          * Store notes to localstorage
@@ -659,13 +785,13 @@ export default {
                 const tempDOM = document.createElement('div');
                 for (const note of this.notes) {
                     tempDOM.innerHTML = this.md.render(note.content);
-                    previews.push(tempDOM.textContent);
+                    previews.push(tempDOM.textContent.slice(0, 200));
                 }
                 this.previews = previews;
             } else {
                 const tempDOM = document.createElement('div');
                 tempDOM.innerHTML = this.md.render(this.notes[index].content);
-                this.previews[index] = tempDOM.textContent;
+                this.previews[index] = tempDOM.textContent.slice(0, 200);
             }
         },
         /**
@@ -689,7 +815,130 @@ export default {
          * @param {Event} e scroll event
          */
         onScrollView(e) {
-            this.scrollPercentage = e.target.scrollTop / (this.$refs.render.clientHeight - 480);
+            this.debouncedOnScrollView(e);
+
+            // Update TOC
+            const entries = Object.entries(this.titleOffest);
+            const container = document.getElementsByClassName('note-toc-container')[0];
+            // If we have the TOC element
+            if (container) {
+                let foundFlag = false;
+                for (let i = 0; i < entries.length; i += 1) {
+                    // Find the title
+                    if (entries[i][1] <= e.target.scrollTop + 70 && (i === entries.length - 1 || entries[i + 1][1] > e.target.scrollTop + 70)) {
+                        const title = container.querySelector(`a[href="#${entries[i][0]}"]`);
+                        if (title) {
+                            foundFlag = true;
+                            if (!title.classList.contains('active')) {
+                                for (const ele of container.querySelectorAll('a[href^="#uoma-note-"]')) {
+                                    ele.classList.remove('active');
+                                }
+                                title.classList.add('active');
+
+                                // Scroll the title into the view if necessary
+                                const containerScrollTop = container.scrollTop;
+                                const titleOffsetTop = title.offsetTop - 37;
+                                const containerHeight = container.clientHeight;
+                                const titleHeight = title.clientHeight;
+                                if (titleOffsetTop < containerScrollTop) {
+                                    this.smoothScrollTo(container, titleOffsetTop);
+                                } else if (titleOffsetTop + titleHeight > containerScrollTop + containerHeight) {
+                                    this.smoothScrollTo(container, titleOffsetTop + titleHeight - containerHeight);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (!foundFlag) {
+                    for (const ele of container.querySelectorAll('a[href^="#uoma-note-"]')) {
+                        ele.classList.remove('active');
+                    }
+                }
+            }
+        },
+        /**
+         * Update scroll position in TOC
+         */
+        updateTOCScroll() {
+            this.$nextTick(() => {
+                const container = document.getElementsByClassName('note-toc-container')[0];
+                // If we have the TOC element
+                if (container) {
+                    const title = container.getElementsByClassName('active');
+                    if (title.length > 0) {
+                        // Scroll the title into the view if necessary
+                        const containerScrollTop = container.scrollTop;
+                        const titleOffsetTop = title[0].offsetTop - 37;
+                        const containerHeight = container.clientHeight;
+                        const titleHeight = title[0].clientHeight;
+                        if (titleOffsetTop < containerScrollTop) {
+                            this.smoothScrollTo(container, titleOffsetTop);
+                        } else if (titleOffsetTop + titleHeight > containerScrollTop + containerHeight) {
+                            this.smoothScrollTo(container, titleOffsetTop + titleHeight - containerHeight);
+                        }
+                    }
+                }
+            });
+        },
+        /**
+         * Update scroll position in TOC when TOC is opened at the first time
+         */
+        updateTOCScrollTimeOut() {
+            setTimeout(this.updateTOCScroll, 150);
+        },
+        /**
+         * Handle hash navigation
+         * @param {Event} e scroll event
+         */
+        navigateTo(e) {
+            if (e.target.tagName.toUpperCase() === 'A' && e.target.getAttribute('href') !== null && e.target.getAttribute('href')[0] === '#') {
+                const target = document.getElementById(e.target.getAttribute('href').slice(1));
+                if (target) {
+                    this.smoothScrollTo(this.$refs.renderScroll, target.offsetTop - 70);
+                }
+            }
+        },
+        /**
+         * Smoothly scroll to a target
+         * @param {HTMLElement} ele element to be scrolled
+         * @param {number} to target position
+         */
+        smoothScrollTo(ele, to) {
+            if ('scrollBehavior' in document.documentElement.style) {
+                ele.scrollTo({
+                    top: to,
+                    behavior: 'smooth',
+                });
+            } else {
+                // For safari :-(
+                new SmoothScrollTo(ele).to(to);
+            }
+        },
+        /**
+         * Open a note when clicking a internal link
+         * @param {Event} e click event
+         */
+        checkNoteLink(e) {
+            const target = e.target.closest('#note-render a');
+            if (target !== null && target.getAttribute('href') !== null && target.getAttribute('href')[0] === ':' && target.getAttribute('href').length === 7) {
+                e.preventDefault();
+                const noetIndex = this.notes.findIndex((item) => item.id === target.getAttribute('href').slice(1));
+                if (noetIndex !== -1) {
+                    this.openNote(noetIndex);
+                }
+            }
+        },
+        /**
+         * Update titles offest top when content updated
+         */
+        updateTitleOffset() {
+            if (this.layerOpened && this.mode === 'view') {
+                this.titleOffest = {};
+                for (const ele of this.$refs.render.querySelectorAll('h1[id^="uoma-note-"], h2[id^="uoma-note-"], h3[id^="uoma-note-"], h4[id^="uoma-note-"], h5[id^="uoma-note-"], h6[id^="uoma-note-"]')) {
+                    this.titleOffest[ele.id] = ele.offsetTop;
+                }
+            }
         },
     },
     watch: {
@@ -728,16 +977,16 @@ export default {
                 this.$nextTick(() => {
                     // Sync scroll between to views
                     const savedPercentage = this.scrollPercentage;
-                    this.$refs.codemirror.codemirror.scrollTo(null, savedPercentage * (this.$refs.codemirror.codemirror.getScrollInfo().height - 500));
+                    this.$refs.codemirror.codemirror.scrollTo(null, savedPercentage * (this.$refs.codemirror.codemirror.getScrollInfo().height - 502.5));
                     // Since codemirror cannot get correct height at first, re-position after the first scrollTo
                     this.$nextTick(() => {
-                        this.$refs.codemirror.codemirror.scrollTo(null, savedPercentage * (this.$refs.codemirror.codemirror.getScrollInfo().height - 500));
+                        this.$refs.codemirror.codemirror.scrollTo(null, savedPercentage * (this.$refs.codemirror.codemirror.getScrollInfo().height - 502.5));
                     });
                 });
             } else {
                 if (this.$refs.render) {
                     // Render Markdown
-                    this.$refs.render.innerHTML = this.md.render(this.code);
+                    this.$refs.render.innerHTML = this.md.render(`[uoma-toc]\n${this.code.replace(/\[uoma-toc\]/g, '\\[uoma-toc\\]')}`);
                     // Render LaTeX
                     renderMathInElement(this.$refs.render, {
                         delimiters: [
@@ -747,12 +996,25 @@ export default {
                             { left: '\\[', right: '\\]', display: true },
                         ],
                     });
+
+                    const toc = this.$refs.render.getElementsByClassName('table-of-contents');
+                    if (toc && toc[0]) {
+                        if (toc[0].textContent.trim() !== '') {
+                            this.tocHTML = toc[0].innerHTML;
+                        } else {
+                            this.tocHTML = '';
+                        }
+                        toc[0].parentNode.removeChild(toc[0]);
+                    }
+
                     this.$nextTick(() => {
                         // Sync scroll between to views
-                        this.$refs.renderScroll.scrollTo(null, this.scrollPercentage * (this.$refs.render.clientHeight - 480));
+                        this.$refs.renderScroll.scrollTo(null, this.scrollPercentage * (this.$refs.render.clientHeight - 475));
+                        this.updateTitleOffset();
                     });
                 }
             }
+            this.updateTOCScroll();
         },
         multi() {
             this.ifNotes = [];
@@ -840,11 +1102,22 @@ export default {
         this.md.use(mdContainer, 'warning');
         this.md.use(mdContainer, 'error');
 
+        const slugify = (text) => encodeURIComponent(`uoma-note-${String(text).trim().toLowerCase().replace(/\s+/g, '-')}`);
+
+        this.md.use(mdAnchor, {
+            permalink: false,
+            slugify,
+        });
+        this.md.use(mdToc, { placeholder: '\\[uoma-toc\\]', slugify });
+
         this.buildPreviews();
         this.buildSearchIndex();
+
+        window.addEventListener('resize', this.debouncedOnResize);
     },
     beforeDestroy() {
         clearInterval(this.timer);
+        window.removeEventListener('resize', this.debouncedOnResize);
     },
 };
 </script>
@@ -924,8 +1197,14 @@ export default {
             padding-bottom: 0;
             .title-input {
                 -webkit-appearance: none;
-                width: calc(100% - 120px);
+                width: calc(100% - 150px);
                 outline: transparent;
+            }
+            .note-toc-btn {
+                margin-right: 3px;
+                i {
+                    font-size: 26px;
+                }
             }
         }
         &.opened {
@@ -936,7 +1215,7 @@ export default {
             height: 500px;
             overflow: auto;
             overscroll-behavior: contain;
-            padding: 10px 20px;
+            padding: 15px 20px 10px 20px;
             & > div {
                 overflow: hidden;
                 h1 {
@@ -1060,8 +1339,8 @@ export default {
             .CodeMirror {
                 height: 500px;
                 padding: 0;
-                font-family: Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
-                line-height: 20px;
+                font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
+                line-height: 22px;
                 overscroll-behavior: contain;
                 pre.CodeMirror-line, pre.CodeMirror-line-like {
                     padding: 0 10px;
@@ -1175,6 +1454,101 @@ export default {
         overflow: auto;
     }
 }
+.note-toc-card {
+    width: 250px;
+    .v-card__text {
+        padding-top: 12px;
+        padding-bottom: 2px;
+        opacity: 0.8;
+    }
+    .note-toc-container {
+        padding-bottom: 10px;
+        max-height: 400px;
+        overflow: auto;
+        overscroll-behavior-y: contain;
+        ol {
+            list-style: none;
+            padding-left: 16px;
+            font-size: 17px;
+            li {
+                margin: -7px 0;
+                a {
+                    color: currentColor;
+                    text-decoration: none;
+                    display: inline-block;
+                    width: calc(100% + 112px);
+                    position: relative;
+                    padding: 4px 8px 4px 112px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    margin-left: -112px;
+                    &:before {
+                        content: '';
+                        width: calc(100% + 112px);
+                        height: 100%;
+                        left: -112px;
+                        top: 0;
+                        background-color: currentColor;
+                        opacity: 0;
+                        pointer-events: none;
+                        position: absolute;
+                        transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+                    }
+                    &.active:before, &:hover:before {
+                        opacity: 0.08;
+                    }
+                    &:empty:after {
+                        content: 'N/A';
+                        opacity: 0.5;
+                    }
+                }
+            }
+        }
+        & > ol {
+            padding-top: 8px;
+        }
+    }
+    .toc-empty-state {
+        display: flex;
+        min-height: 220px;
+        padding: 20px;
+        span {
+            font-size: 14px;
+            text-align: center;
+        }
+    }
+    .note-id {
+        height: 35px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 15px;
+        background-color: #F5F5F5;
+        cursor: pointer;
+        user-select: none;
+        transition: padding-right .2s;
+        span {
+            font-size: 14px;
+            opacity: 0.8;
+            .help-icon {
+                margin: -2px 4px 0 -1px;
+            }
+            code {
+                margin-left: 6px;
+            }
+        }
+        .copy-icon {
+            transition: none;
+        }
+        .copy-success-icon {
+            margin-right: 3px;
+        }
+        &.copy-success {
+            padding-right: 12px;
+        }
+    }
+}
 #app.theme--dark .note-container {
     .editor-layer {
         background-color: #1E1E1E;
@@ -1266,6 +1640,11 @@ export default {
         }
     }
 }
+#app.theme--dark .note-toc-card {
+    .note-id {
+        background-color: #272727;
+    }
+}
 </style>
 
 <i18n>
@@ -1298,7 +1677,15 @@ export default {
         "too_many_title": "Maybe too many notes",
         "too_many_body": "This is not an error. You are creating more than 50 notes, which is not a good idea. Please consider moving them to a better place such as a note management app. In any case, you can continue using quick notes.",
         "hl_error": "Error when highlighting code",
-        "at": "at"
+        "at": "at",
+        "toc": "Table of contents",
+        "note_id": "Note ID",
+        "copy_note_id": "Copy note ID",
+        "note_id_help": "Use <code>[Link name](:&lt;Note ID&gt;)</code> in other notes to link to this note, i.e. <code>[Link name](:{0})</code>",
+        "empty_toc": "Table of contents is empty. Go write down some idea!",
+        "editing_toc": "Table of contents cannot be viewed in edit view",
+        "switch_to_view": "Go view",
+        "switch_to_edit": "Go edit"
     },
     "zh": {
         "note": "快速笔记",
@@ -1328,7 +1715,15 @@ export default {
         "too_many_title": "太多笔记了",
         "too_many_body": "这不是一个错误。你正在创建超过 50 个笔记，这不是一个好主意。请考虑将它们移动到笔记管理应用等更合适的地方。无论如何，你仍然可以继续使用快速笔记。",
         "hl_error": "在创建代码高亮时出错",
-        "at": "于"
+        "at": "于",
+        "toc": "目录",
+        "note_id": "笔记 ID",
+        "copy_note_id": "复制笔记 ID",
+        "note_id_help": "在其他笔记中使用 <code>[链接名称](:&lt;笔记 ID&gt;)</code> 来链接到此笔记，即 <code>[链接名称](:{0})</code>。",
+        "empty_toc": "还没有目录。开始撰写笔记吧",
+        "editing_toc": "编辑视图下无法查看目录",
+        "switch_to_view": "切换到查看视图",
+        "switch_to_edit": "切换到编辑视图"
     },
     "es": {
         "note": "Apuntes rápidos",
@@ -1358,7 +1753,15 @@ export default {
         "too_many_title": "Demasiados apuntes quizás",
         "too_many_body": "Esto no es un error. Está creando más de 50 apuntes, que no es una buena idea. Por favor considere usar una aplicación para organizar apuntes en lugar de apuntes rápidos. Puedes continuar a usar apuntes rápidos de todas formas.",
         "hl_error": "Error cuando intenta subrayar al código",
-        "at": "en"
+        "at": "en",
+        "toc": "",
+        "note_id": "",
+        "copy_note_id": "",
+        "note_id_help": "",
+        "empty_toc": "",
+        "editing_toc": "",
+        "switch_to_view": "",
+        "switch_to_edit": ""
     }
 }
 </i18n>

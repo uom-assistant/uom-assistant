@@ -17,35 +17,43 @@
                 <v-btn icon small class="grade-goto" href="https://studentnet.cs.manchester.ac.uk/me/spot/" target="_blank" rel="noopener nofollow">
                     <v-icon>mdi-chevron-right</v-icon>
                 </v-btn>
+                <v-select
+                    class="year-selector"
+                    height="28"
+                    :items="yearList"
+                    dense
+                    hide-details
+                    outlined
+                ></v-select>
             </h2>
             <v-skeleton-loader
                 v-if="!init && loading"
                 class="mx-auto loading-tab"
                 type="heading"
             ></v-skeleton-loader>
-            <div class="loading-view" v-if="(!init && loading) || (!init && !loading) || (init && !loading && gradeListFilteredFlat.length === 0)" :class="{ 'not-inited-yet': (!init && !loading) || (init && !loading && gradeListFilteredFlat.length === 0) }">
+            <div class="loading-view" v-if="(!init && loading) || (!init && !loading) || (init && !loading && gradeListFlat.length === 0)" :class="{ 'not-inited-yet': (!init && !loading) || (init && !loading && gradeListFlat.length === 0) }">
                 <v-card class="loading-bg mx-auto mb-2" v-if="!init && loading" outlined>
                     <v-skeleton-loader
-                        class="mx-auto "
+                        class="mx-auto"
                         type="list-item-two-line, divider, list-item-two-line, list-item"
                     ></v-skeleton-loader>
                 </v-card>
                 <div class="not-inited mx-auto mb-2" v-if="!init && !loading">
                     <span class="text-center pl-6 pr-6">{{ $t('cannot_fetch') }} <a href="https://github.com/uom-assistant/uom-assistant/wiki" target="_blank" rel="noreferrer noopener">{{ $t('learn_more') }}</a></span>
                 </div>
-                <div class="not-inited mx-auto mb-2" v-if="init && !loading && gradeListFilteredFlat.length === 0">
+                <div class="not-inited mx-auto mb-2" v-if="init && gradeListFlat.length === 0">
                     <span>{{ $t('nothing') }}</span>
                 </div>
             </div>
-            <v-tabs v-model="tabs" :class="{ shadow: headerShadow }" class="tab-items" @change="updateView" show-arrows v-show="init && gradeListFilteredFlat.length > 0">
+            <v-tabs v-model="tabs" :class="{ shadow: headerShadow }" class="tab-items" @change="updateView" show-arrows v-show="init && gradeListFlat.length > 0">
                 <v-tab v-for="(semester, i) in gradeListFiltered" :key="`tab-${i}`">{{ gradeList[i].name }}</v-tab>
             </v-tabs>
 
             <v-tabs-items v-model="tabs">
                 <v-tab-item v-for="(semester, i) in gradeListFiltered" :key="`tab-item-${i}`">
                     <v-container fluid class="tab-container">
-                        <div class="subject-list" :class="{ 'detail-expended': showMainChart }" :ref="`list${i}`" v-if="init" @scroll.passive="scrollHandler">
-                            <div class="not-inited mx-auto mb-2" v-if="init && !loading && gradeListFiltered[i].length === 0">
+                        <div class="subject-list" :class="{ 'detail-expended': showMainChart }" :ref="`list${i}`" v-if="init && gradeListFlat.length > 0" @scroll.passive="scrollHandler">
+                            <div class="not-inited mx-auto mb-2" v-if="init && gradeListFiltered[i].length === 0 && gradeListFlat.length > 0">
                                 <span>{{ $t('nothing') }}</span>
                             </div>
                             <v-card
@@ -326,6 +334,7 @@ export default {
             timer: null,
             gradeList: [],
             moreShown: [],
+            yearList: [],
             gradeExpended: -1,
             openedTab: -1,
             tabs: 0,
@@ -412,7 +421,7 @@ export default {
                 return;
             }
 
-            if (!response.data.attendance) {
+            if (response.data.attendance === false) {
                 // Cannnot login
                 this.$store.commit('addError', {
                     title: this.$t('request_error'),
@@ -762,9 +771,13 @@ export default {
             }
             return result;
         },
-        gradeListFilteredFlat() {
-            // Filter out empty subjects and flat the array
-            return this.gradeListFiltered.flat();
+        gradeListFlat() {
+            // Flat the array
+            const result = [];
+            for (const semester of this.gradeList) {
+                result.push(semester.data);
+            }
+            return result.flat();
         },
         gradeListEmpty() {
             // Filter out non-empty subjects
@@ -848,8 +861,8 @@ export default {
     border-color: #E0E0E0!important;
     .loading {
         position: absolute;
-        top: 10px;
-        right: 10px;
+        top: 22px;
+        right: 110px;
         z-index: 10;
     }
     h2 {
@@ -864,6 +877,24 @@ export default {
         .clickable {
             cursor: pointer;
             transition: all .2s;
+        }
+        .year-selector {
+            float: right;
+            width: 75px;
+            margin-top: -2px;
+            opacity: .9;
+            .v-input__slot {
+                min-height: 28px!important;
+                padding: 0 4px 0 8px!important;
+                .v-input__append-inner {
+                    margin-top: 2px!important;
+                    pointer-events: none;
+                    padding: 0;
+                }
+                .v-select__selections {
+                    font-size: 14px;
+                }
+            }
         }
     }
     .loading-tab{

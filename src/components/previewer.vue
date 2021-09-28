@@ -146,6 +146,7 @@ import 'katex/contrib/copy-tex/copy-tex.css';
 
 hljs.registerLanguage('js', javascript);
 hljs.registerLanguage('javascript', javascript);
+hljs.registerLanguage('jsx', javascript);
 hljs.registerLanguage('py', python);
 hljs.registerLanguage('python', python);
 hljs.registerLanguage('php', php);
@@ -178,6 +179,7 @@ hljs.registerLanguage('rs', rust);
 hljs.registerLanguage('rust', rust);
 hljs.registerLanguage('ts', typescript);
 hljs.registerLanguage('typescript', typescript);
+hljs.registerLanguage('tsx', typescript);
 hljs.registerLanguage('v', verilog);
 hljs.registerLanguage('verilog', verilog);
 hljs.registerLanguage('rb', ruby);

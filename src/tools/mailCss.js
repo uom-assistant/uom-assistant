@@ -70,8 +70,14 @@ tr#planyourdayheaderview table {
 tr#planyourdayheaderview table td.planyourdayheaderhello p, tr#planyourdayheaderview table td.planyourdayheadergreeting p {
     color: white!important;
 }
-tr#tasklistv2view td.planYourDayTaskSection, td.planYourDaySectionHeader, tr#feedbackview td.planyourdayfooterbackground, tr#feedbackview td.planyourdayfooterbackground table, tr#feedbackview td.planyourdayfooterbackground table td.planyourdayfooterbackground, tr#planyourdayfooterview td.planyourdayfooterbackground {
+td.planYourDayTaskSection, td.planYourDaySectionHeader, tr#feedbackview td.planyourdayfooterbackground, tr#feedbackview td.planyourdayfooterbackground table, tr#feedbackview td.planyourdayfooterbackground table td.planyourdayfooterbackground, tr#planyourdayfooterview td.planyourdayfooterbackground, table.tableFlushedV2 td.header, table.tableFlushedV2 td.header table.planYourDayIntroHeaderInnerTable, tr#email-task-slot > td.task-slot, tr#email-task-slot > td.task-slot table.combined-task-table-inner {
     background-color: #2b2b2b!important;
+}
+tr#email-task-slot > td.task-slot table.combined-task-table-inner p.descriptionText {
+    color: #a9a9a9!important;
+}
+table.tableFlushedV2 td.header table.planYourDayIntroHeaderInnerTable {
+    border-bottom: 1px solid #2b2b2b!important;
 }
 tr#taskslotv2view > td {
     background-color: #363636!important;

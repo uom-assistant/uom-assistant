@@ -1,41 +1,41 @@
 <template>
     <v-card
-        class="mx-auto coursework-search-container mb-2"
+        class="mx-auto task-search-container mb-2"
         outlined
     >
         <v-list flat class="list" :key="updateListKey">
             <v-list-item-group
-                v-model="ifCourseworks"
+                v-model="ifTasks"
                 multiple
                 active-class="done"
             >
-                <v-list-item v-for="(coursework, index) in courseworks" :key="index">
+                <v-list-item v-for="(task, index) in tasks" :key="index">
                     <template v-slot:default="{ active }">
                         <v-list-item-action>
                             <v-checkbox :input-value="active"></v-checkbox>
                         </v-list-item-action>
 
                         <v-list-item-content>
-                            <v-list-item-title><span v-if="coursework.deadline !== false && displayRemain(coursework.deadline, index) !== ''" class="d-inline-block time-remain" :class="checkExpired(coursework.deadline, index)"><v-icon :class="checkUrgent(coursework.deadline, index)" class="mr-1 urgent-icon" dense>mdi-clock-alert-outline</v-icon>{{ displayRemain(coursework.deadline, index) }}</span>{{ coursework.title }}</v-list-item-title>
-                            <v-list-item-subtitle v-if="coursework.deadline !== false || coursework.subject !== false">
-                                <span v-if="coursework.deadline !== false" class="mr-2">
+                            <v-list-item-title><span v-if="task.deadline !== false && displayRemain(task.deadline, index) !== ''" class="d-inline-block time-remain" :class="checkExpired(task.deadline, index)"><v-icon :class="checkUrgent(task.deadline, index)" class="mr-1 urgent-icon" dense>mdi-clock-alert-outline</v-icon>{{ displayRemain(task.deadline, index) }}</span>{{ task.title }}</v-list-item-title>
+                            <v-list-item-subtitle v-if="task.deadline !== false || task.subject !== false">
+                                <span v-if="task.deadline !== false" class="mr-2">
                                     <v-icon
-                                        v-if="coursework.deadline !== false"
+                                        v-if="task.deadline !== false"
                                         small
                                     >
                                         mdi-clock-outline
                                     </v-icon>
-                                    {{ getDate(new Date(coursework.deadline)) }}
+                                    {{ getDate(new Date(task.deadline)) }}
                                 </span>
-                                <span v-if="coursework.subject !== false">
-                                    <span :class="subjectColor(coursework.subject)" class="subject-color-samll" v-if="coursework.subject !== false"></span>
-                                    {{ subjectNameMap(coursework.subject) }}
+                                <span v-if="task.subject !== false">
+                                    <span :class="subjectColor(task.subject)" class="subject-color-samll" v-if="task.subject !== false"></span>
+                                    {{ subjectNameMap(task.subject) }}
                                 </span>
                             </v-list-item-subtitle>
                         </v-list-item-content>
 
                         <v-list-item-action class="delete">
-                            <v-btn icon @click.stop="removeCoursework(coursework.rawIndex)">
+                            <v-btn icon @click.stop="removeTask(task.rawIndex)">
                                 <v-icon color="grey">mdi-delete-outline</v-icon>
                             </v-btn>
                         </v-list-item-action>
@@ -51,25 +51,25 @@ import { mapState } from 'vuex';
 import formatDateTime from '@/tools/formatDateTime';
 
 export default {
-    name: 'courseworkSearch',
+    name: 'taskSearch',
     props: {
-        courseworks: Array,
+        tasks: Array,
     },
     data() {
         return {
-            ifCourseworks: [],
+            ifTasks: [],
             updateListKey: '',
             skipSyncBack: false,
         };
     },
     methods: {
         /**
-         * Remove a coursework from the list by index in widget
-         * @param {number} index coursework index
+         * Remove a task from the list by index in widget
+         * @param {number} index task index
          */
-        removeCoursework(index) {
+        removeTask(index) {
             this.$store.commit('setSearchNotification', {
-                target: 'coursework',
+                target: 'task',
                 payload: { action: 'delete', index },
             });
         },
@@ -108,13 +108,13 @@ export default {
             return subject;
         },
         /**
-         * Calculate the remaining time of a coursework and format it as a string
+         * Calculate the remaining time of a task and format it as a string
          * @param {number} deadline deadline
-         * @param {number} index coursework index of the list
+         * @param {number} index task index of the list
          * @returns {string} formatted string or ''
          */
         displayRemain(deadline, index) {
-            if (this.ifCourseworks.includes(index)) {
+            if (this.ifTasks.includes(index)) {
                 return '';
             }
 
@@ -143,13 +143,13 @@ export default {
             return '';
         },
         /**
-         * Check if the coursework is urgent and return color classes
+         * Check if the task is urgent and return color classes
          * @param {number} deadline deadline
-         * @param {number} index coursework index of the list
+         * @param {number} index task index of the list
          * @returns {string} color classes or ''
          */
         checkUrgent(deadline, index) {
-            if (this.ifCourseworks.includes(index)) {
+            if (this.ifTasks.includes(index)) {
                 return 'd-none';
             }
 
@@ -168,17 +168,17 @@ export default {
             if (ddl - now < 3600000) {
                 return 'red--text text-darken-3';
             }
-            // Coursework done
+            // Task done
             return 'd-none';
         },
         /**
-         * Check if the coursework is expired and return the classes for text
+         * Check if the task is expired and return the classes for text
          * @param {number} deadline deadline
-         * @param {number} index coursework index of the list
+         * @param {number} index task index of the list
          * @returns {string} color classes or ''
          */
         checkExpired(deadline, index) {
-            if (this.ifCourseworks.includes(index)) {
+            if (this.ifTasks.includes(index)) {
                 return 'text--secondary';
             }
 
@@ -201,11 +201,11 @@ export default {
          */
         updateDone() {
             this.skipSyncBack = true;
-            this.ifCourseworks = [];
-            if (this.courseworks) {
-                for (let i = 0; i < this.courseworks.length; i += 1) {
-                    if (this.courseworks[i].done) {
-                        this.ifCourseworks.push(i);
+            this.ifTasks = [];
+            if (this.tasks) {
+                for (let i = 0; i < this.tasks.length; i += 1) {
+                    if (this.tasks[i].done) {
+                        this.ifTasks.push(i);
                     }
                 }
             }
@@ -218,22 +218,22 @@ export default {
         locale() {
             this.$i18n.locale = this.locale;
         },
-        courseworks() {
+        tasks() {
             this.updateDone();
         },
-        ifCourseworks() {
+        ifTasks() {
             // Sync states back to widget
             if (!this.skipSyncBack) {
-                if (this.courseworks) {
+                if (this.tasks) {
                     const payload = [];
-                    for (let i = 0; i < this.courseworks.length; i += 1) {
+                    for (let i = 0; i < this.tasks.length; i += 1) {
                         payload.push({
-                            rawIndex: this.courseworks[i].rawIndex,
-                            done: this.ifCourseworks.includes(i),
+                            rawIndex: this.tasks[i].rawIndex,
+                            done: this.ifTasks.includes(i),
                         });
                     }
                     this.$store.commit('setSearchNotification', {
-                        target: 'coursework',
+                        target: 'task',
                         payload: { action: 'syncDone', payload },
                     });
                 }
@@ -265,7 +265,7 @@ export default {
 </script>
 
 <style lang="less">
-.coursework-search-container {
+.task-search-container {
     position: relative;
     padding-left: 0;
     padding-right: 0;
@@ -323,7 +323,7 @@ export default {
         }
     }
 }
-#app.theme--dark .coursework-search-container {
+#app.theme--dark .task-search-container {
     background-color: #272727;
     .v-list-item {
         &:hover, &:focus {

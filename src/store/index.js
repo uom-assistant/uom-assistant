@@ -14,12 +14,12 @@ export default new Vuex.Store({
         timerHour: '00',
         todayEvents: [],
         nextDayFirstEvent: {},
-        courseworks: {},
+        tasks: {},
         errorList: [],
         backend: {},
         backendStatus: true,
         account: {},
-        searchIndex: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
+        searchIndex: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
         searchNotification: {
             target: '',
             payload: null,
@@ -57,8 +57,8 @@ export default new Vuex.Store({
         setNextDayFirstEvent(state, nextDayFirstEvent) {
             state.nextDayFirstEvent = nextDayFirstEvent;
         },
-        setCourseworks(state, courseworks) {
-            state.courseworks = courseworks;
+        setTasks(state, tasks) {
+            state.tasks = tasks;
         },
         addError(state, error) {
             const errorItem = error;

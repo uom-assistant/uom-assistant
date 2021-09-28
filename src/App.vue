@@ -82,7 +82,9 @@
             <v-btn
                 icon
                 v-show="$route.path === '/'"
+                v-shortkey="['ctrl', 'k']"
                 @click="openSearch"
+                @shortkey="toggleSearch"
             >
                 <v-icon>mdi-magnify</v-icon>
             </v-btn>
@@ -101,22 +103,18 @@
         </v-app-bar>
         <div id="search-result" class="elevation-3" :class="{ open: searchOpened }" v-show="searching !== '' && searching !== null && searchIndexFiltered.filter((item) => item).flat().length > 0">
             <div>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[8] && searchIndexFiltered[8].length > 0">
+                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0">
                     {{ $t('note') }}
                 </div>
-                <noteSearch :notes="searchIndexFiltered[8]" v-if="searchIndexFiltered[8] && searchIndexFiltered[8].length > 0"></noteSearch>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0">
-                    {{ $t('coursework') }}
+                <noteSearch :notes="searchIndexFiltered[7]" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0"></noteSearch>
+                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[5] && searchIndexFiltered[5].length > 0">
+                    {{ $t('task') }}
                 </div>
-                <courseworkSearch :courseworks="searchIndexFiltered[7]" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0"></courseworkSearch>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[1] && searchIndexFiltered[1].length > 0">
-                    {{ $t('todo') }}
-                </div>
-                <todoSearch :todos="searchIndexFiltered[1]" v-if="searchIndexFiltered[1] && searchIndexFiltered[1].length > 0"></todoSearch>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[10] && searchIndexFiltered[10].length > 0">
+                <taskSearch :tasks="searchIndexFiltered[5]" v-if="searchIndexFiltered[5] && searchIndexFiltered[5].length > 0"></taskSearch>
+                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[9] && searchIndexFiltered[9].length > 0">
                     {{ $t('grade') }}
                 </div>
-                <gradeSearch :grades="searchIndexFiltered[10]" v-if="searchIndexFiltered[10] && searchIndexFiltered[10].length > 0"></gradeSearch>
+                <gradeSearch :grades="searchIndexFiltered[9]" v-if="searchIndexFiltered[9] && searchIndexFiltered[9].length > 0"></gradeSearch>
                 <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[0] && searchIndexFiltered[0].length > 0">
                     {{ $t('clock') }}
                 </div>
@@ -191,7 +189,7 @@
                 <v-stepper
                     :value="stage"
                     class="mb-10 stepper elevation-0"
-                    :class="{ shown: stage !== 0 }"
+                    :class="{ shown: stage > 0 }"
                 >
                     <v-stepper-header>
                         <v-stepper-step
@@ -231,7 +229,7 @@
                         x-large
                         color="primary"
                         class="mb-3 main-btn"
-                        @click="goToSettings"
+                        @click="stage = -1"
                     >
                         {{ $t('continue') }}
                     </v-btn>
@@ -253,6 +251,45 @@
                             {{ $t('skip') }}
                         </v-btn>
                     </div>
+                </v-card-text>
+                <v-card-text class="same-height" :class="{ 'show-1': stage === -1 }">
+                    <div class="intro">
+                        <v-card class="rounded-lg mx-auto mb-5 intro-card" outlined>
+                            <v-card-text>
+                                <v-icon color="primary">mdi-fingerprint</v-icon>
+                                <div>
+                                    <h1 class="text-h4 primary--text">
+                                        {{ $t('value_privacy') }}
+                                    </h1>
+                                    <p>{{ $t('privacy_policy') }}</p>
+                                    <i18n path="read_privacy_policy" tag="p">
+                                        <a @click="skip">{{ $t('privacy_policy_link') }}</a>
+                                    </i18n>
+                                </div>
+                            </v-card-text>
+                        </v-card>
+                        <v-card class="rounded-lg mx-auto mb-5 intro-card" outlined>
+                            <v-card-text>
+                                <v-icon color="primary">mdi-information-outline</v-icon>
+                                <div>
+                                    <h1 class="text-h4 primary--text">
+                                        {{ $t('student_lead') }}
+                                    </h1>
+                                    <p><strong>{{ $t('not_offical') }}</strong>{{ $t('lead_by') }}</p>
+                                    <p></p>
+                                </div>
+                            </v-card-text>
+                        </v-card>
+                    </div>
+                    <v-btn
+                        depressed
+                        large
+                        color="primary"
+                        class="mb-3 main-btn"
+                        @click="goToSettings"
+                    >
+                        {{ $t('got_it') }}
+                    </v-btn>
                 </v-card-text>
                 <v-card-text class="same-height backend" :class="{ 'show-1': stage === 1 }">
                     <div class="mt-12 settings">
@@ -427,8 +464,7 @@ import * as JsSearch from 'js-search';
 
 import settings from '@/components/settings.vue';
 import noteSearch from '@/components/search/note.vue';
-import courseworkSearch from '@/components/search/coursework.vue';
-import todoSearch from '@/components/search/todo.vue';
+import taskSearch from '@/components/search/task.vue';
 import gradeSearch from '@/components/search/grade.vue';
 import clockSearch from '@/components/search/clock.vue';
 
@@ -446,8 +482,7 @@ export default {
     components: {
         settings,
         noteSearch,
-        courseworkSearch,
-        todoSearch,
+        taskSearch,
         gradeSearch,
         clockSearch,
     },
@@ -477,24 +512,23 @@ export default {
             (value) => /^[\w-]+(\.[\w-]+)+([\w.,@^=%:/~+-]*)?$/i.test(value) || '',
         ],
         languageList: localeList,
-        ifWidgets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+        ifWidgets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         widgets: [
             'clock',
-            'todo',
             'bblinks',
             'livelinks',
             'subjects',
             'attendance',
             'calendar',
-            'coursework',
+            'task',
             'note',
             'mail',
             'grade',
             'plugins',
         ],
         searching: '',
-        searchIndexFiltered: [null, null, null, null, null, null, null, null, null, null, null, null],
-        searchers: [null, null, null, null, null, null, null, null, null, null, null, null],
+        searchIndexFiltered: [null, null, null, null, null, null, null, null, null, null, null],
+        searchers: [null, null, null, null, null, null, null, null, null, null, null],
         timer: null,
         updateReady: false,
         updateReadyVersion: '',
@@ -649,6 +683,16 @@ export default {
         closeSearch() {
             this.searchOpened = false;
             this.$refs.searchInput.blur();
+        },
+        /**
+         * Toggle search bar
+         */
+        toggleSearch() {
+            if (this.searchOpened) {
+                this.closeSearch();
+            } else {
+                this.openSearch();
+            }
         },
         /**
          * Rebuild searchers from search indexes when search indexes changed
@@ -826,9 +870,9 @@ export default {
 
         // Initialize widget status
         try {
-            this.ifWidgets = JSON.parse(localStorage.getItem('if_widgets')) || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+            this.ifWidgets = JSON.parse(localStorage.getItem('if_widgets')) || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         } catch {
-            this.ifWidgets = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+            this.ifWidgets = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         }
         localStorage.setItem('if_widgets', JSON.stringify(this.ifWidgets));
         this.$store.commit('setWidgets', this.ifWidgets);
@@ -924,11 +968,14 @@ html::-webkit-scrollbar {
     padding-top: 0;
     padding-bottom: 0;
     .v-calendar-events .v-event-timed {
-        border-color: transparent!important;
+        border-color: white!important;
     }
 }
 #app.theme--dark .v-window-item > .container, #app.theme--dark .v-main__wrap > .container {
     background-color: #272727;
+    .v-calendar-events .v-event-timed {
+        border-color: #303030!important;
+    }
 }
 .v-menu__content.large-radius {
     border-radius: 8px!important;
@@ -956,6 +1003,11 @@ html::-webkit-scrollbar {
 .handle {
     user-select: none;
 }
+.katex .katex-mathml {
+    top: -1000px;
+    left: -1000px;
+    opacity: 0;
+}
 .welcome-dialog.welcome-overflow {
     overflow: hidden;
 }
@@ -980,6 +1032,49 @@ html::-webkit-scrollbar {
             height: auto;
             opacity: 1;
             pointer-events: auto;
+        }
+    }
+    .intro {
+        margin-top: 20px;
+        width: 100%;
+        height: calc(100% - 130px);
+        margin-bottom: 40px;
+        .intro-card {
+            width: 100%;
+            height: calc(50% - 10px);
+            padding: 15px;
+            overflow: auto;
+            .v-card__text {
+                height: 100%;
+                display: flex;
+                i {
+                    font-size: 60px;
+                    margin-bottom: 15px;
+                }
+                h1 {
+                    font-size: 30px!important;
+                    margin-bottom: 15px;
+                }
+                p {
+                    font-size: 16px;
+                    margin-bottom: 12px;
+                    max-width: 600px;
+                }
+                @media (max-width: 430px) {
+                    i {
+                        font-size: 45px;
+                        margin-bottom: 5px;
+                    }
+                    h1 {
+                        font-size: 23px!important;
+                        margin-bottom: 5px;
+                    }
+                    p {
+                        font-size: 14px;
+                        margin-bottom: 10px;
+                    }
+                }
+            }
         }
     }
     .v-card__text {
@@ -1221,6 +1316,7 @@ html::-webkit-scrollbar {
         "dashboard": "Dashboard",
         "settings": "Settings",
         "about": "About",
+        "not found": "UoM Assistant",
         "unknown": "Unknown",
         "at": "at",
         "backend_reconnect": "Backend is up",
@@ -1233,6 +1329,14 @@ html::-webkit-scrollbar {
         "next": "Next",
         "import": "Import",
         "skip": "Skip",
+        "value_privacy": "We value your privacy",
+        "privacy_policy": "We understand how important your UoM account is to you. All your private data will be stored locally in your browser and will not be shared with third parties until you authorise it.",
+        "read_privacy_policy": "Check out our {0}.",
+        "privacy_policy_link": "privacy policy",
+        "student_lead": "A student-led project",
+        "not_offical": "UoM Assistant is not a product developed or published by the University of Manchester.",
+        "lead_by": "This project was designed and developed by a team of UoM students and is not an official representation of UoM.",
+        "got_it": "Got it",
         "connect_to": "Connection",
         "backend_url": "Backend URL",
         "backend_maintenance": "The backend is under maintenance or backend version not supported",
@@ -1244,13 +1348,12 @@ html::-webkit-scrollbar {
         "ok": "OK",
         "account_settings": "Account Settings",
         "clock": "Clock",
-        "todo": "TO-DO",
         "bblinks": "Quick Links",
         "livelinks": "Online Session Links",
         "subjects": "Manage Course Units",
         "attendance": "Attendance",
         "calendar": "Calendar",
-        "coursework": "Coursework",
+        "task": "Task",
         "note": "Quick Notes",
         "mail": "Inbox",
         "grade": "Grade Summary",
@@ -1267,6 +1370,7 @@ html::-webkit-scrollbar {
         "dashboard": "仪表板",
         "settings": "设置",
         "about": "关于",
+        "not found": "曼大助手",
         "unknown": "未知",
         "at": "于",
         "backend_reconnect": "后端已恢复",
@@ -1279,6 +1383,14 @@ html::-webkit-scrollbar {
         "next": "下一步",
         "import": "导入",
         "skip": "跳过",
+        "value_privacy": "我们尊重你的隐私",
+        "privacy_policy": "我们深知你的曼大账号对你的重要性。你的所有私密数据均会被保存于浏览器本地，且在你授权之前曼大助手不会将你的私密数据分享给第三方。",
+        "read_privacy_policy": "阅读我们的{0}。",
+        "privacy_policy_link": "隐私声明",
+        "student_lead": "由学生主导的项目",
+        "not_offical": "曼大助手不是一个由曼彻斯特大学开发、发布的产品。",
+        "lead_by": "此项目由一个曼大学生组成的团队设计、开发，不代表曼彻斯特大学官方。",
+        "got_it": "明白了",
         "connect_to": "连接信息",
         "backend_url": "后端 URL",
         "backend_maintenance": "不支持的后端版本或后端正在维护，暂时无法连接",
@@ -1290,13 +1402,12 @@ html::-webkit-scrollbar {
         "ok": "好",
         "account_settings": "账户设置",
         "clock": "时钟",
-        "todo": "TO-DO",
         "bblinks": "快速链接",
         "livelinks": "在线课程链接",
         "subjects": "科目管理",
         "attendance": "出勤统计",
         "calendar": "日历",
-        "coursework": "作业",
+        "task": "任务",
         "note": "快速笔记",
         "mail": "收件箱",
         "grade": "成绩概览",
@@ -1313,6 +1424,7 @@ html::-webkit-scrollbar {
         "dashboard": "Tablero",
         "settings": "Ajustes",
         "about": "Sobre",
+        "not found": "UoM Assistant",
         "unknown": "Desconocido",
         "at": "en",
         "backend_reconnect": "Back-end reconectado",
@@ -1325,6 +1437,13 @@ html::-webkit-scrollbar {
         "next": "Siguiente",
         "import": "Importar",
         "skip": "Saltar",
+        "value_privacy": "",
+        "privacy_policy": "",
+        "read_privacy_policy": "",
+        "student_lead": "",
+        "not_offical": "",
+        "lead_by": "",
+        "got_it": "",
         "connect_to": "Conexión",
         "backend_url": "Back-end URL",
         "backend_maintenance": "Versión de back-end no compatible o back-end en mantenimiento",
@@ -1336,13 +1455,12 @@ html::-webkit-scrollbar {
         "ok": "OK",
         "account_settings": "Ajustes de la cuenta",
         "clock": "Reloj",
-        "todo": "PARA-HACER",
         "bblinks": "Enlaces rápidos",
         "livelinks": "Enlaces de sesiones online",
         "subjects": "Asignaturas",
         "attendance": "Asistencia",
         "calendar": "Calendario",
-        "coursework": "Trabajo de curso",
+        "task": "",
         "note": "Apuntes rápidos",
         "mail": "Correos",
         "grade": "Resumen de notas ",

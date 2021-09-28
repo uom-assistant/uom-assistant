@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import shortKey from 'vue-shortkey';
 import App from './App.vue';
 import './registerServiceWorker';
 import router from './router';
@@ -8,6 +9,8 @@ import i18n from './i18n';
 import './plugins/mock';
 
 Vue.config.productionTip = false;
+
+Vue.use(shortKey);
 
 new Vue({
     router,

@@ -175,7 +175,7 @@ export default {
         padding-top: 0;
         background-color: transparent;
         &.non-empty {
-            min-height: 130px;
+            min-height: 158px;
         }
         .v-list-item {
             cursor: default;
@@ -195,7 +195,7 @@ export default {
             margin: 0;
             margin-left: 8px!important;
             .v-btn {
-                font-family: monospace;
+                font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
                 width: 90px;
                 margin-right: -4px;
                 .v-icon--left {
@@ -206,7 +206,7 @@ export default {
     }
     .empty {
         width: 100%;
-        height: 120px;
+        height: 150px;
         display: flex;
         justify-content: center;
         align-items: center;

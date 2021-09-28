@@ -40,10 +40,12 @@
                 outlined
                 item-value="code"
                 item-text="code"
+                ref="timeZoneInput"
+                @blur="checkInput"
                 :items="timeZoneList"
                 :label="$t('timezone')"
                 :no-data-text="$t('no_timezone')"
-                :key="locale"
+                :key="`${locale}-${inputRefreshKey}`"
                 :menu-props="{
                     closeOnClick: false,
                     closeOnContentClick: false,
@@ -122,6 +124,7 @@ export default {
             timer: null,
             localNight: false,
             remoteNight: false,
+            inputRefreshKey: 0,
         };
     },
     methods: {
@@ -133,7 +136,7 @@ export default {
             const searchIndex = [];
             for (const item of tzList.default) {
                 timezoneList.push({
-                    name: this.locale === 'en' ? `${this.$t(item.mainCity)}, ${this.$t(item.countryName)}` : `${this.$t(item.countryName)} ${this.$t(item.mainCity)}`,
+                    name: this.locale === 'en' || this.locale === 'es' ? `${this.$t(item.mainCity)}, ${this.$t(item.countryName)}` : `${this.$t(item.countryName)} ${this.$t(item.mainCity)}`,
                     code: item.name,
                     display: item.mainCity,
                 });
@@ -167,6 +170,7 @@ export default {
             const secOld = sec;
             const minLocalOld = minLocal;
             const hourLocalOld = hourLocal;
+            const minRemoteOld = minRemote;
             const hourRemoteOld = hourRemote;
 
             sec = `${now.getSeconds()}`.padStart(2, '0');
@@ -181,13 +185,15 @@ export default {
             }
             if (minLocalOld !== minLocal || init) {
                 this.$refs.minLocal.textContent = minLocal;
-                this.$refs.minRemote.textContent = minRemote;
                 if (!init) {
                     this.$store.commit('setTimerMin', minLocal);
                     if (minLocal === '00') {
                         this.$store.commit('setTimerHour', `${hourLocal}${new Date().valueOf()}`);
                     }
                 }
+            }
+            if (minRemoteOld !== minRemote || init) {
+                this.$refs.minRemote.textContent = minRemote;
             }
             if (hourLocalOld !== hourLocal || init) {
                 this.$refs.hourLocal.textContent = hourLocal;
@@ -204,6 +210,14 @@ export default {
                 } else {
                     this.remoteNight = false;
                 }
+            }
+        },
+        /**
+         * Check if the value is null when blur from the input
+         */
+        checkInput() {
+            if (this.$refs.timeZoneInput.lazyValue === null) {
+                this.inputRefreshKey = new Date().valueOf();
             }
         },
         /**
@@ -229,7 +243,11 @@ export default {
         },
         timeZone() {
             // Store timezone settings when timezone changed
-            this.store();
+            if (!this.timeZone) {
+                this.timeZone = localStorage.getItem('timezone') || 'Europe/London';
+            } else {
+                this.store();
+            }
         },
         base() {
             // Re-calculate date time when time travel base time changed
@@ -560,7 +578,7 @@ p {
         "Bonaire, Saint Eustatius and Saba ": "Bonaire, Saint Eustatius and Saba",
         "Les Abymes": "Les Abymes",
         "Guadeloupe": "Guadeloupe",
-        "Lévis": "Lévis",
+        "Blanc-Sablon": "Blanc-Sablon",
         "Marigot": "Marigot",
         "Saint Martin": "Saint Martin",
         "Oranjestad": "Oranjestad",
@@ -620,7 +638,7 @@ p {
         "Ponta Delgada": "Ponta Delgada",
         "Portugal": "Portugal",
         "Praia": "Praia",
-        "Cabo Verde": "Cabo Verde",
+        "Cape Verde": "Cape Verde",
         "Scoresbysund": "Scoresbysund",
         "Abidjan": "Abidjan",
         "Ivory Coast": "Ivory Coast",
@@ -710,14 +728,14 @@ p {
         "Podgorica": "Podgorica",
         "Montenegro": "Montenegro",
         "Prague": "Prague",
-        "Czechia": "Czechia",
+        "Czech Republic": "Czech Republic",
         "Rome": "Rome",
         "Italy": "Italy",
         "San Marino": "San Marino",
         "Sarajevo": "Sarajevo",
         "Bosnia and Herzegovina": "Bosnia and Herzegovina",
         "Skopje": "Skopje",
-        "North Macedonia": "North Macedonia",
+        "Macedonia": "North Macedonia",
         "Stockholm": "Stockholm",
         "Sweden": "Sweden",
         "Tirana": "Tirana",
@@ -816,7 +834,7 @@ p {
         "Cape Town": "Cape Town",
         "South Africa": "South Africa",
         "Manzini": "Manzini",
-        "Eswatini": "Eswatini",
+        "Swaziland": "Eswatini",
         "Maseru": "Maseru",
         "Lesotho": "Lesotho",
         "Al Aḩmadī": "Al Aḩmadī",
@@ -905,7 +923,7 @@ p {
         "Bangladesh": "Bangladesh",
         "Thimphu": "Thimphu",
         "Bhutan": "Bhutan",
-        "Zhongshan": "Ürümqi",
+        "Ürümqi": "Ürümqi",
         "China": "China",
         "Almaty": "Almaty",
         "Chagos": "Chagos",
@@ -954,7 +972,7 @@ p {
         "Ulan Bator": "Ulan Bator",
         "Eucla": "Eucla",
         "Dili": "Dili",
-        "Timor Leste": "Timor Leste",
+        "East Timor": "East Timor",
         "Ambon": "Ambon",
         "Tokyo": "Tokyo",
         "Japan": "Japan",
@@ -1123,7 +1141,7 @@ p {
         "Bonaire, Saint Eustatius and Saba ": "博奈尔-圣尤斯特歇斯-萨巴",
         "Les Abymes": "萨莱比梅",
         "Guadeloupe": "瓜德罗普",
-        "Lévis": "利维",
+        "Blanc-Sablon": "布朗萨布隆",
         "Marigot": "马里戈特",
         "Saint Martin": "圣马丁岛",
         "Oranjestad": "奥拉涅斯塔德",
@@ -1183,7 +1201,7 @@ p {
         "Ponta Delgada": "蓬塔德尔加达",
         "Portugal": "葡萄牙",
         "Praia": "普腊亚",
-        "Cabo Verde": "佛得角",
+        "Cape Verde": "佛得角",
         "Scoresbysund": "斯科斯比松",
         "Abidjan": "阿比让",
         "Ivory Coast": "科特迪瓦",
@@ -1273,14 +1291,14 @@ p {
         "Podgorica": "波德戈里察",
         "Montenegro": "黑山共和国",
         "Prague": "布拉格",
-        "Czechia": "捷克",
+        "Czech Republic": "捷克共和国",
         "Rome": "罗马",
         "Italy": "意大利",
         "San Marino": "圣马力诺",
         "Sarajevo": "萨拉热窝",
         "Bosnia and Herzegovina": "波斯尼亚和黑塞哥维那",
         "Skopje": "斯科普里",
-        "North Macedonia": "北马其顿",
+        "Macedonia": "北马其顿",
         "Stockholm": "斯德哥尔摩",
         "Sweden": "瑞典",
         "Tirana": "Tirana",
@@ -1379,7 +1397,7 @@ p {
         "Cape Town": "开普敦",
         "South Africa": "南非",
         "Manzini": "曼齐尼",
-        "Eswatini": "斯威士兰",
+        "Swaziland": "斯威士兰",
         "Maseru": "马塞卢",
         "Lesotho": "莱索托",
         "Al Aḩmadī": "艾哈迈迪",
@@ -1468,7 +1486,7 @@ p {
         "Bangladesh": "孟加拉国",
         "Thimphu": "廷布",
         "Bhutan": "不丹",
-        "Zhongshan": "乌鲁木齐",
+        "Ürümqi": "乌鲁木齐",
         "China": "中国",
         "Almaty": "阿拉木图",
         "Chagos": "查戈斯",
@@ -1517,7 +1535,7 @@ p {
         "Ulan Bator": "乌兰巴托",
         "Eucla": "尤克拉",
         "Dili": "帝力",
-        "Timor Leste": "东帝汶",
+        "East Timor": "东帝汶",
         "Ambon": "安汶",
         "Tokyo": "东京",
         "Japan": "日本",
@@ -1667,11 +1685,11 @@ p {
         "Paris": "París",
         "France": "Francia",
         "Prague": "Praga",
-        "Czechia": "Chequia",
+        "Czech Republic": "República Checa",
         "Rome": "Roma",
         "Italy": "Italia",
+        "Macedonia": "Macedonia del Norte",
         "Bosnia and Herzegovina": "Bosnia y Herzegovina",
-        "North Macedonia": "Macedonia del Norte",
         "Stockholm": "Estocolmo",
         "Sweden": "Swecia",
         "Tirana": "Tirana",
@@ -1716,7 +1734,7 @@ p {
         "Vilnius": "Vilna",
         "Lithuania": "Lituania",
         "South Africa": "Sur Africa",
-        "Eswatini": "Esuatini",
+        "Swaziland": "Esuatini",
         "Lesotho": "Lesoto",
         "Bahrain": "Baréin",
         "Riyadh": "Riad",
