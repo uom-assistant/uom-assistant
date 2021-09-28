@@ -645,9 +645,9 @@ export default {
     },
     "ja":
     {
-        "overview": "概要",
+        "overview": "今日の概要",
         "class_overview": "今日は授業がありません | 今日は {0} つの授業があります | 今日は {0} つの授業があります",
-        "class_remian": "，まだ {0} つ。",
+        "class_remian": "，まだ {0} つ残ってる",
         "class_remian_none": "。",
         "tomorrow_first": "明日の最初の授業は {0} で始まります。",
         "tomorrow_first_none": "明日は授業がありません。",
@@ -661,7 +661,7 @@ export default {
         "no_current": "今は授業がありません",
         "unknown": "不明",
         "timezone_changed_title": "タイムゾーン変更を検出しました",
-        "timezone_changed_body": "心配しないで、すべての時間を関する情報はまだ正しく表示されます、変換が必要な時間はすぐに変換されます。UoMアシスタントからの全部の情報をまだ信頼してもいいよ。",
+        "timezone_changed_body": "心配しないて、すべての時間を関する情報はまだ正しく表示されます、変換が必要な時間はすぐに変換されます。UoMアシスタントからの全部の情報をまだ信頼してもいいよ。",
         "ok": "はい"
     }
 }

@@ -248,6 +248,14 @@ export default {
         "quick_zoom": "Acceder a Zoom",
         "quick_teams": "Acceder a Teams",
         "copy_passcode": "Copiar contraseña"
+    },
+    "ja": {
+        "live_links": "オンライン授業リンク",
+        "nothing": "リンクがありません",
+        "no_class": "まだ科目がありません",
+        "quick_zoom": "Zoomミーテイングを起動する",
+        "quick_teams": "Teamsミーテイングを起動する",
+        "copy_passcode": "パスワードをコピーする"
     }
 }
 </i18n>

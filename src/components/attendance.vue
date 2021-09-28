@@ -343,7 +343,7 @@ export default {
     },
     "ja": {
         "attendance": "出勤統計",
-        "annual": "当年度",
+        "annual": "今年度",
         "last_month": "先月",
         "nothing": "欠勤記録がありません",
         "cannot_fetch": "出勤データが取得できません。バックエンドの情報が正しく設定されていないか、バックエンドが許可していない可能性があります。",

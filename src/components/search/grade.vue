@@ -361,6 +361,10 @@ export default {
     "es": {
         "more_info": "Ver asignatura",
         "formative": "Formativo"
+    },
+    "ja": {
+        "more_info": "この科目を表示",
+        "formative": "最終的な得点には含まれません"
     }
 }
 </i18n>

@@ -1245,6 +1245,19 @@ export default {
         "etc": "etc.",
         "total": "{0} en total",
         "formative": "Formativa"
+    },
+    "ja":
+    {
+        "grade": "成績概要",
+        "nothing": "まだ成績情報がありません",
+        "network_error_body": "バックエンドから最新成績情報と出勤情報が取得できません。",
+        "cannot_fetch": "成績情報が取得できません。バックエンドの情報が正しく設定されていないか、バックエンドが許可していない可能性があります。",
+        "learn_more": "もっと詳しく",
+        "empty_subject": "まだ成績情報がありない科目",
+        "more_info": "詳細",
+        "etc": "等々",
+        "total": "合計 {0} 件",
+        "formative": "最終の総得点に計上されません"
     }
 }
 </i18n>

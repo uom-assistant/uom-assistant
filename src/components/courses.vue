@@ -718,6 +718,37 @@ export default {
         "ok": "OK",
         "quick_zoom": "Acceder a Zoom",
         "quick_teams": "Acceder a Teams"
+    },
+    "ja": {
+        "subjects": "科目管理",
+        "nothing": "まだ科目がありません",
+        "name": "名前",
+        "actions": "操作",
+        "add_subject": "科目を追加する",
+        "edit_subject": "科目を編集する",
+        "cancel": "キャンセル",
+        "save": "保存",
+        "add": "追加",
+        "delete": "削除",
+        "subject_name": "科目の名前 *",
+        "subject_name_hint": "例えば Mathematical Techniques",
+        "short_name": "短縮名 *",
+        "short_name_hint": "例えば Math",
+        "subject_number": "科目番号 *",
+        "subject_number_hint": "例えば COMP11120",
+        "subject_home": "科目ホームページ *",
+        "subject_color": "科目の色",
+        "hide_subject": "この科目を隠す",
+        "add_link": "オンライン授業リンクを追加する",
+        "link_format": "URL[ 名][ パスワード]",
+        "delete_subject": "科目を削除する",
+        "delete_subject_text": "本当にこの科目 ",
+        "delete_subject_mark": " を削除しますか？",
+        "error": "保存できません",
+        "same_id": "この科目番号はもう他の科目に関していますので、変更が保存されません。",
+        "ok": "はい",
+        "quick_zoom": "Zoomミーテイングを起動する",
+        "quick_teams": "Teamsミーテイングを起動する"
     }
 }
 </i18n>
