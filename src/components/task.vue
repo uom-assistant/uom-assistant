@@ -796,6 +796,18 @@ export default {
         "remain_hour": "{0} hora | {0} horas",
         "remain_min": "{0} minuto | {0} minutos",
         "expired": "Retraso"
+    },
+    "ja": {
+        "coursework": "課題",
+        "add_coursework": "課題を追加する",
+        "ddl_date": "締め切り日",
+        "ddl_time": "締め切り時間",
+        "subject": "科目",
+        "no_subject": "科目が見つかりません",
+        "remain_day": "{0} 日 | {0} 日",
+        "remain_hour": "{0} 時間 | {0} 時間",
+        "remain_min": "{0} 分 | {0} 分",
+        "expired": "期限切れた"
     }
 }
 </i18n>

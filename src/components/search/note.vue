@@ -191,6 +191,12 @@ export default {
         "untitled": "Sin título",
         "download": "Descargar",
         "delete": "Eliminar"
+    },
+    "ja": {
+        "no_content": "内容無し",
+        "untitled": "タイトル無し",
+        "download": "ダウンロード",
+        "delete": "削除"
     }
 }
 </i18n>

@@ -36,7 +36,7 @@
                             </v-list-item-group>
                         </v-list>
                         <div class="empty empty-long" v-if="shownSubjects.length === 0">
-                            {{ $t('nothing') }}
+                            {{ $t('no_class') }}
                         </div>
                     </v-container>
                 </v-tab-item>
@@ -389,7 +389,7 @@ export default {
     "ja": {
         "quick_links": "クイックリンク",
         "add_link": "リンクを追加する",
-        "link_format": "URL[ 名前]",
+        "link_format": "URL[ 名]",
         "nothing": "まだリンクがありません",
         "no_class": "まだ科目がありません",
         "subjects": "科目",
