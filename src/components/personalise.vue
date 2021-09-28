@@ -623,6 +623,28 @@ export default {
         "not_a_image_body": "",
         "ok": "",
         "drop_file": ""
+    },
+    "ja": {
+        "customise": "カストマイズ",
+        "description": "一つの背景画像を選択して、ダッシュボードをパーソナライズする。",
+        "upload": "クリックやドラッグで画像を選択する",
+        "clear": "クリア",
+        "Learning": "学習",
+        "Manchester": "マンチェスター",
+        "Computer": "コンピューター",
+        "Nature": "自然",
+        "Architecture": "ビル",
+        "Special": "特別",
+        "position": "位置",
+        "b&w": "白黒",
+        "too_large": "画像サイズが大きすぎる",
+        "too_large_body": "10MB以上の画像が読み込みできません。",
+        "too_many": "ファイルが多すぎる",
+        "too_many_body": "一度に選択できるのは一つのファイルのみ。",
+        "not_a_image": "画像ファイルではない",
+        "not_a_image_body": "選択されたファイルは画像ではない。",
+        "ok": "はい",
+        "drop_file": "ここでファイルをドロップして"
     }
 }
 </i18n>

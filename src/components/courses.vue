@@ -715,9 +715,9 @@ export default {
         "quick_teams": "Acceder a Teams"
     },
     "ja": {
-        "subjects": "科目管理",
+        "courses": "科目管理",
         "nothing": "まだ科目がありません",
-        "name": "名前",
+        "name": "科目名",
         "actions": "操作",
         "add_subject": "科目を追加する",
         "edit_subject": "科目を編集する",

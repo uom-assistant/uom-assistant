@@ -653,7 +653,7 @@ export default {
         "class_overview": "今日は授業がありません | 今日は {0} つの授業があります | 今日は {0} つの授業があります",
         "class_remian": "，まだ {0} つ残ってる",
         "class_remian_none": "。",
-        "tomorrow_first": "明日の最初の授業は {0} で始まります。",
+        "tomorrow_first": "明日の最初の授業は {0} に始まります。",
         "tomorrow_first_none": "明日は授業がありません。",
         "tomorrow_first_none_rest": "明日は授業がありません、ちょっと休みましょう",
         "next": "次の授業{0}",
