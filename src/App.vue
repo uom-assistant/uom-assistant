@@ -1401,7 +1401,7 @@ html::-webkit-scrollbar {
         "coursework": "課題",
         "note": "クイックノート",
         "mail": "受信トレイ",
-        "grade": "成績",
+        "grade": "成績概要",
         "plugins": "プラグイン"
     }
 }

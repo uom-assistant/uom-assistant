@@ -1230,7 +1230,7 @@ export default {
         "more_info": "詳細",
         "etc": "等々",
         "total": "合計 {0} 件",
-        "formative": "最終的な得点には含まれません"
+        "formative": "最終の総得点に計上されません"
     }
 }
 </i18n>
