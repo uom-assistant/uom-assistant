@@ -730,17 +730,7 @@ export default {
          */
         async store() {
             await localForage.setItem('notes', this.notes);
-            // this.sync();
             this.buildSearchIndex();
-        },
-        /**
-         * Sync data with backend
-         */
-        sync() {
-            this.loading = true;
-            setTimeout(() => {
-                this.loading = false;
-            }, 1000);
         },
         /**
          * Build search index
@@ -1046,11 +1036,6 @@ export default {
         if (storaged !== null) {
             this.notes = storaged;
         }
-
-        // Sync with backend every 30 minutes
-        this.timer = setInterval(() => {
-            this.sync();
-        }, 1800000);
 
         // Configure Markdown renderer
         this.md = markdown({

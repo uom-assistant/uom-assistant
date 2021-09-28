@@ -289,16 +289,6 @@ export default {
                 tasks: this.tasks,
                 ifTasks: this.ifTasks,
             }));
-            this.sync();
-        },
-        /**
-         * Sync data with backend
-         */
-        sync() {
-            this.loading = true;
-            setTimeout(() => {
-                this.loading = false;
-            }, 1000);
         },
         /**
          * Map from subject ID to subject color
@@ -566,11 +556,6 @@ export default {
             this.tasks = storagedTasks.tasks;
             this.ifTasks = storagedTasks.ifTasks;
         }
-
-        // Sync data every 30 minutes
-        this.timer = setInterval(() => {
-            this.sync();
-        }, 1800000);
 
         this.buildSearchIndex();
     },
