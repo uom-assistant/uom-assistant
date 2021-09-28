@@ -136,7 +136,7 @@ export default {
             const searchIndex = [];
             for (const item of tzList.default) {
                 timezoneList.push({
-                    name: this.locale === 'en' ? `${this.$t(item.mainCity)}, ${this.$t(item.countryName)}` : `${this.$t(item.countryName)} ${this.$t(item.mainCity)}`,
+                    name: this.locale === 'en' || this.locale === 'es' ? `${this.$t(item.mainCity)}, ${this.$t(item.countryName)}` : `${this.$t(item.countryName)} ${this.$t(item.mainCity)}`,
                     code: item.name,
                     display: item.mainCity,
                 });
