@@ -125,6 +125,11 @@ export default {
         "oops": "Uhhhhh!",
         "not_found": "Página No Encontrada",
         "dashboard": "Tablero"
+    },
+    "ja": {
+        "oops": "ヤバい！",
+        "not_found": "ページが見つかりません",
+        "dashboard": "ダッシュボード"
     }
 }
 </i18n>

@@ -385,6 +385,16 @@ export default {
         "subjects": "Asignaturas",
         "portals": "Portales",
         "custom": "Personalizado"
+    },
+    "ja": {
+        "quick_links": "クイックリンク",
+        "add_link": "リンクを追加する",
+        "link_format": "URL[ 名前]",
+        "nothing": "まだリンクがありません",
+        "no_class": "まだ科目がありません",
+        "subjects": "科目",
+        "portals": "ポータル",
+        "custom": "カストマイズ"
     }
 }
 </i18n>

@@ -589,7 +589,7 @@ export default {
         "tomorrow_first_none": "You have no sessions tomorrow.",
         "tomorrow_first_none_rest": "You have no sessions tomorrow, have a rest!",
         "next": "Coming up",
-        "no_next": "No class in a day",
+        "no_next": "No more sessions today",
         "min_after": "In {0} min | In {0} mins",
         "hour_after": "In {0} hour | In {0} hours",
         "current_is": "Current session is ",
@@ -642,6 +642,27 @@ export default {
         "timezone_changed_title": "Se detecta cambio de zona horaria",
         "timezone_changed_body": "No se preocupe, todo el contenido relacionado con el tiempo se seguirá mostrando correctamente, las horas que deben convertirse también se convertirán automáticamente. Puede confiar en todo lo que hay en su tablero.",
         "ok": "OK"
+    },
+    "ja":
+    {
+        "overview": "概要",
+        "class_overview": "今日は授業がありません | 今日は {0} つの授業があります | 今日は {0} つの授業があります",
+        "class_remian": "，まだ {0} つ。",
+        "class_remian_none": "。",
+        "tomorrow_first": "明日の最初の授業は {0} で始まります。",
+        "tomorrow_first_none": "明日は授業がありません。",
+        "tomorrow_first_none_rest": "明日は授業がありません、ちょっと休みましょう",
+        "next": "次の授業",
+        "no_next": "これまで今日の授業が全部終わりました",
+        "min_after": "{0} 分後 | {0} 分後",
+        "hour_after": "{0} 時間後 | {0} 時間後",
+        "current_is": "今の授業は ",
+        "current": "今の授業は {0} 分後終わります | 今の授業は {0} 分後終わります",
+        "no_current": "今は授業がありません",
+        "unknown": "不明",
+        "timezone_changed_title": "タイムゾーン変更を検出しました",
+        "timezone_changed_body": "心配しないで、すべての時間を関する情報はまだ正しく表示されます、変換が必要な時間はすぐに変換されます。UoMアシスタントからの全部の情報をまだ信頼してもいいよ。",
+        "ok": "はい"
     }
 }
 </i18n>
