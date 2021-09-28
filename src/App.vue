@@ -923,7 +923,7 @@ export default {
         // Handle uncaught errors
         this.$store.commit('addError', {
             title: `${this.$t('unknown')} ${err.name}`,
-            content: `${err.message} ${this.$t('at')} ${formatDateTime(new Date(), this.locale)}`,
+            content: this.$t('error_at', [err.message, formatDateTime(new Date(), this.locale)]),
             type: 'error',
         });
         return true;
@@ -1322,7 +1322,7 @@ code, kbd, pre, samp {
         "about": "About",
         "not found": "UoM Assistant",
         "unknown": "Unknown",
-        "at": "at",
+        "error_at": "{0} at {1}",
         "backend_reconnect": "Backend is up",
         "backend_reconnect_body": "We have just reconnected to the backend",
         "search": "Search…",
@@ -1376,7 +1376,7 @@ code, kbd, pre, samp {
         "about": "关于",
         "not found": "曼大助手",
         "unknown": "未知",
-        "at": "于",
+        "error_at": "{0} 于 {1}",
         "backend_reconnect": "后端已恢复",
         "backend_reconnect_body": "已经成功连接到后端",
         "search": "搜索…",
@@ -1430,7 +1430,7 @@ code, kbd, pre, samp {
         "about": "Sobre",
         "not found": "UoM Assistant",
         "unknown": "Desconocido",
-        "at": "en",
+        "error_at": "{0} en {1}",
         "backend_reconnect": "Back-end reconectado",
         "backend_reconnect_body": "Conectada a back-end correctamente",
         "search": "Buscar…",
@@ -1482,7 +1482,7 @@ code, kbd, pre, samp {
         "settings": "設定",
         "about": "バージョン情報",
         "unknown": "不明",
-        "at": "に",
+        "error_at": "{1} に {0} 発生",
         "backend_reconnect": "バックエンドは今正常に戻りました",
         "backend_reconnect_body": "バックエンドへの接続に成功しました",
         "search": "検索…",

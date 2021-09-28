@@ -139,6 +139,7 @@ import scss from 'highlight.js/lib/languages/scss';
 import yaml from 'highlight.js/lib/languages/yaml';
 import docker from 'highlight.js/lib/languages/dockerfile';
 import csvLang from '@/tools/csvHighlight';
+import formatDateTime from '@/tools/formatDateTime';
 
 import 'viewerjs/dist/viewer.css';
 import 'katex/dist/katex.css';
@@ -404,6 +405,14 @@ export default {
                 scroller = 0;
             }
         },
+        /**
+         * Format a date object to a string based on locale
+         * @param {Date} dateObj Date object
+         * @returns {string} formatted a date string
+         */
+        getDate(dateObj) {
+            return formatDateTime(dateObj, this.locale);
+        },
     },
     computed: {
         ...mapState({
@@ -474,7 +483,7 @@ export default {
                     } catch (__) {
                         this.$store.commit('addError', {
                             title: this.$t('hl_error'),
-                            content: `${__.name}: ${__.message} ${this.$t('at')} ${this.getDate(new Date())}`,
+                            content: this.$t('error_at', [`${__.name}: ${__.message}`, this.getDate(new Date())]),
                             type: 'warning',
                         });
                     }
@@ -851,7 +860,9 @@ export default {
         "raw_view": "Raw view",
         "preview": "Preview",
         "head_row": "Use first row as header: Enabled",
-        "no_head_row": "Use first row as header: Disabled"
+        "no_head_row": "Use first row as header: Disabled",
+        "hl_error": "Error when highlighting code",
+        "error_at": "{0} at {1}"
     },
     "zh": {
         "close": "关闭",
@@ -862,7 +873,9 @@ export default {
         "raw_view": "原始视图",
         "preview": "预览视图",
         "head_row": "首行作为表头：已开启",
-        "no_head_row": "首行作为表头：已关闭"
+        "no_head_row": "首行作为表头：已关闭",
+        "hl_error": "在创建代码高亮时出错",
+        "error_at": "{0} 于 {1}"
     },
     "es": {
         "close": "Cerrar",
@@ -873,7 +886,9 @@ export default {
         "raw_view": "Vista original",
         "preview": "Vista prevía",
         "head_row": "Usar la primera línea como encabezado: habilitado",
-        "no_head_row": "Usar la primera línea como encabezado: deshabilitado"
+        "no_head_row": "Usar la primera línea como encabezado: deshabilitado",
+        "hl_error": "Error cuando intenta subrayar al código",
+        "error_at": "{0} en {1}"
     },
     "ja": {
         "close": "閉じる",
@@ -884,7 +899,9 @@ export default {
         "raw_view": "テキストビュー",
         "preview": "プレビュー",
         "head_row": "先頭行を先頭とする：有効",
-        "no_head_row": "先頭行を先頭とする：無効"
+        "no_head_row": "先頭行を先頭とする：無効",
+        "hl_error": "コードハイライトを表示する時にエラーが発生しまた。",
+        "error_at": "{1} に {0} 発生"
     }
 }
 </i18n>

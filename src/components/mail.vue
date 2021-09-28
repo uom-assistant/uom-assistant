@@ -133,7 +133,9 @@
                     </v-list-item>
                 </v-list>
                 <div class="more-mail px-4 pb-3 text-body-2 text--secondary" v-show="mails.length > 7">
-                    {{ $t('more_mail') }} <a href="https://outlook.com/student.manchester.ac.uk" target="_blank" rel="noopener nofollow">Outlook</a><a href="https://outlook.com/student.manchester.ac.uk" target="_blank" rel="noopener nofollow" class="no-underline-link"><v-icon x-small color="primary">mdi-open-in-new</v-icon></a>
+                    <i18n path="more_mail" tag="span">
+                        <span><a href="https://outlook.com/student.manchester.ac.uk" target="_blank" rel="noopener nofollow">Outlook</a><a href="https://outlook.com/student.manchester.ac.uk" target="_blank" rel="noopener nofollow" class="no-underline-link"><v-icon x-small color="primary">mdi-open-in-new</v-icon></a></span>
+                    </i18n>
                 </div>
             </div>
             <div class="empty" v-if="mails.length === 0 && init && !loading">
@@ -4395,7 +4397,7 @@ export default {
         "forward": "Forward",
         "mark_junk": "Mark as junk",
         "delete": "Delete email",
-        "more_mail": "Showing emails from the last 2 weeks. To check out more emails please go to",
+        "more_mail": "Showing emails from the last 2 weeks. To check out more emails please go to {0}",
         "me": "Me",
         "from": "From",
         "to": "To",
@@ -4525,7 +4527,7 @@ export default {
         "forward": "转发",
         "mark_junk": "标记为垃圾邮件",
         "delete": "删除邮件",
-        "more_mail": "只显示近两周的邮件。要查看更多邮件请前往",
+        "more_mail": "只显示近两周的邮件。要查看更多邮件请前往 {0}",
         "me": "我",
         "from": "发件人",
         "to": "收件人",
@@ -4655,7 +4657,7 @@ export default {
         "forward": "Reenviar",
         "mark_junk": "Correo basura",
         "delete": "Eliminar correo",
-        "more_mail": "Mostrando correos de las dos últimas semanas. Para ver más vaya a",
+        "more_mail": "Mostrando correos de las dos últimas semanas. Para ver más vaya a {0}",
         "me": "Yo",
         "from": "De",
         "to": "A",
