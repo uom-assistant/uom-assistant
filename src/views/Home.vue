@@ -497,8 +497,7 @@ export default {
         height: 9px;
         display: inline-block;
         border-radius: 50%;
-        margin: 0;
-        margin-right: 2px;
+        margin: 1px;
         margin-left: 2px;
         margin-bottom: 1.5px;
     }
