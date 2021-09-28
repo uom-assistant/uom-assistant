@@ -89,6 +89,10 @@
             </v-card>
         </v-dialog>
         <v-overlay :z-index="6" :value="showPersonalise" @click="showPersonalise = false"></v-overlay>
+        <audio class="d-none" ref="audio">
+            <source src="@/assets/audios/ding.mp3" type="audio/mpeg">
+            <source src="@/assets/audios/ding.ogg" type="audio/ogg">
+        </audio>
     </div>
 </template>
 
@@ -153,6 +157,8 @@ export default {
                 position: 50,
             },
             headerBw: false,
+            showCheckInNotice: false,
+            hasCheckedIn: false,
         };
     },
     watch: {
@@ -167,14 +173,22 @@ export default {
                 this.packery.layout();
             });
         },
+        classBell() {
+            // Update class bell
+            if (this.classBell) {
+                this.$refs.audio.currentTime = 0;
+                this.$refs.audio.volume = 1;
+                this.$refs.audio.play();
+            }
+        },
         timerMin() {
-            this.updateEvents();
+            this.updateEvents('min');
         },
         timerHour() {
             this.getDate();
         },
         todayEvents() {
-            this.updateEvents();
+            this.updateEvents('event');
         },
     },
     computed: {
@@ -187,6 +201,7 @@ export default {
             todayEvents: (state) => state.todayEvents,
             nextDayFirstEvent: (state) => state.nextDayFirstEvent,
             subjects: (state) => state.subjects,
+            classBell: (state) => state.classBell,
         }),
     },
     methods: {
@@ -198,8 +213,9 @@ export default {
         },
         /**
          * Update upcoming events
+         * @param {string} source update source, 'min' or 'event'
          */
-        updateEvents() {
+        updateEvents(source) {
             this.classNum = this.todayEvents.length;
 
             const now = new Date().valueOf();
@@ -252,6 +268,18 @@ export default {
                 this.hourAfter = Math.round(this.minAfter / 60);
                 this.minAfter = this.minAfter === 0 ? 1 : this.minAfter;
                 this.hourAfter = this.hourAfter === 0 ? 1 : this.hourAfter;
+
+                if (this.minAfter === 5 && source === 'min') {
+                    this.hasCheckedIn = false;
+                    if (!this.audioOff) {
+                        this.$refs.audio.currentTime = 0;
+                        this.$refs.audio.volume = 1;
+                        this.$refs.audio.play();
+                    }
+                }
+                if (this.minAfter <= 5 && !this.hasCheckedIn) {
+                    this.showCheckInNotice = true;
+                }
             } else {
                 // No upcoming event in 24 hours
                 this.nextName = this.$t('unknown');

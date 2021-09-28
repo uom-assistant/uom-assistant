@@ -48,6 +48,15 @@
                             </template>
                         </v-list-item>
                     </v-list-item-group>
+                    <v-divider class="my-2"></v-divider>
+                    <v-list-item @click="newCourseSound = !newCourseSound">
+                        <v-list-item-action>
+                            <v-checkbox :input-value="newCourseSound"></v-checkbox>
+                        </v-list-item-action>
+                        <v-list-item-content>
+                            <v-list-item-title>{{ $t('new_course_sound') }}</v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
                 </v-list>
             </v-menu>
             <v-btn
@@ -533,6 +542,7 @@ export default {
         updateReady: false,
         updateReadyVersion: '',
         updating: false,
+        newCourseSound: true,
     }),
     methods: {
         /**
@@ -806,6 +816,11 @@ export default {
             localStorage.setItem('if_widgets', JSON.stringify(this.ifWidgets));
             this.$store.commit('setWidgets', this.ifWidgets);
         },
+        newCourseSound() {
+            // Store class bell status to local storage
+            localStorage.setItem('class_bell', this.newCourseSound);
+            this.$store.commit('setClassBell', this.newCourseSound);
+        },
         locale() {
             // Store language settings to local storage
             this.$i18n.locale = this.locale;
@@ -876,6 +891,10 @@ export default {
         }
         localStorage.setItem('if_widgets', JSON.stringify(this.ifWidgets));
         this.$store.commit('setWidgets', this.ifWidgets);
+
+        // Initialize class bell status
+        this.newCourseSound = (localStorage.getItem('class_bell') || 'true') === 'true';
+        this.$store.commit('setClassBell', this.newCourseSound);
 
         // Initialize dark mode status
         const darkMode = localStorage.getItem('dark');
@@ -1361,7 +1380,8 @@ code, kbd, pre, samp {
         "note": "Quick Notes",
         "mail": "Inbox",
         "grade": "Grade Summary",
-        "plugins": "Plug-ins"
+        "plugins": "Plug-ins",
+        "new_course_sound": "Class Bell"
     },
     "zh": {
         "title": "曼大助手",
@@ -1415,7 +1435,8 @@ code, kbd, pre, samp {
         "note": "快速笔记",
         "mail": "收件箱",
         "grade": "成绩概览",
-        "plugins": "插件"
+        "plugins": "插件",
+        "new_course_sound": "上课铃"
     },
     "es": {
         "title": "UoM Assistant",
@@ -1468,7 +1489,8 @@ code, kbd, pre, samp {
         "note": "Apuntes rápidos",
         "mail": "Correos",
         "grade": "Resumen de notas ",
-        "plugins": "Complementos"
+        "plugins": "Complementos",
+        "new_course_sound": ""
     },
     "ja": {
         "title": "UoMアシスタント",
@@ -1522,7 +1544,8 @@ code, kbd, pre, samp {
         "note": "クイックノート",
         "mail": "受信トレイ",
         "grade": "成績概要",
-        "plugins": "プラグイン"
+        "plugins": "プラグイン",
+        "new_course_sound": ""
     }
 }
 </i18n>

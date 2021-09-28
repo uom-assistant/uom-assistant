@@ -3,7 +3,7 @@
         <div class="main" @dragover.prevent @drop.prevent>
             <p class="mb-3 text--secondary d-flex justify-space-between">
                 {{ $t('description') }}
-                <span class="d-flex ml-3">
+                <span class="d-flex ml-3 flex-shrink-0">
                     <span class="mr-2 text--secondary">{{ $t('b&w') }}</span>
                     <v-switch
                         v-model="bw"
@@ -21,6 +21,7 @@
             <div v-else>
                 <div v-for="item in data" :key="item.cat">
                     <h1 class="text-h6">{{ $t(item.name) }}</h1>
+                    <h2 class="text-body-1 text--disabled" v-if="item.subtitle">{{ item.subtitle }}</h2>
                     <div class="mb-5">
                         <v-btn
                             v-for="i in item.num"
@@ -56,9 +57,9 @@
                     v-model="sliderPosition"
                 ></v-slider>
             </h1>
-            <div class="uploader rounded-lg" :class="{ 'drag-over': isDragOver }" @click="$refs.attachmentInput.click()" @dragover="isDragOver = true">
+            <div class="uploader rounded-lg" :class="{ 'drag-over': isDragOver }" @click="$refs.attachmentInput.click()">
                 <div class="uploader-bg rounded-lg" :style="{ backgroundImage: `url(${customURL})`, backgroundPosition: `50% ${selectedPosition}%` }" :class="{ bw }"></div>
-                <div class="drop-layer" @dragleave="isDragOver = false" @drop="handleFileDrop">
+                <div class="drop-layer" @dragover="isDragOver = true" @dragleave="isDragOver = false" @drop="handleFileDrop">
                     <v-icon x-large color="primary" class="mb-3">mdi-file-hidden</v-icon>
                     <span class="primary--text">{{ $t('drop_file') }}</span>
                 </div>
@@ -521,7 +522,6 @@ export default {
                 opacity: 0;
                 transition: opacity .2s;
                 user-select: none;
-                pointer-events: none;
                 & > i {
                     font-size: 80px!important;
                 }
@@ -570,7 +570,7 @@ export default {
         "Architecture": "Architecture",
         "Special": "Special",
         "position": "Position",
-        "b&w": "B&W",
+        "b&w": "Monochrome",
         "too_large": "Image too large",
         "too_large_body": "Unable to load images larger than 10MB.",
         "too_many": "Too many files",

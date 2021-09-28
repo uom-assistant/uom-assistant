@@ -542,6 +542,19 @@ export default {
                         titleSplit.shift();
                         const titleRemain = `/${titleSplit.join('/')}`;
 
+                        // Try to guess event name from event description
+                        let guessedName = titleName;
+                        if (!subjectMap[titleName]) {
+                            const lines = item[1][0][3].split('\n').map((line) => line.trim().split(': ').map((part) => part.trim()));
+                            const unitCode = lines.find((line) => line[0] === 'Unit Code');
+                            if (unitCode !== undefined && unitCode[1] === titleName) {
+                                const unitName = lines.find((line) => line[0] === 'Unit Description');
+                                if (unitName !== undefined) {
+                                    guessedName = unitName[1];
+                                }
+                            }
+                        }
+
                         // Convert time
                         const rawEnd = new Date(new Date(item[1][1][3]).toUTCString());
 
@@ -552,7 +565,7 @@ export default {
                         }
 
                         const event = {
-                            name: `${subjectMap[titleName] ? subjectMap[titleName] : titleName}${titleRemain}`,
+                            name: `${subjectMap[titleName] ? subjectMap[titleName] : guessedName}${titleRemain}`,
                             details: item[1][0][3],
                             start: startTime,
                             end: rawEnd,

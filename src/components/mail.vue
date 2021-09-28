@@ -63,7 +63,7 @@
                         </v-list-item-group>
                     </v-list>
                 </v-menu>
-                <audio class="new-mail-audio" ref="audio">
+                <audio class="d-none" ref="audio">
                     <source src="@/assets/audios/new_mail.mp3" type="audio/mpeg">
                     <source src="@/assets/audios/new_mail.ogg" type="audio/ogg">
                 </audio>
@@ -3518,9 +3518,6 @@ export default {
     }
     .v-skeleton-loader .v-skeleton-loader__list-item-avatar-three-line {
         height: 79px;
-    }
-    .new-mail-audio {
-        display: none;
     }
     .viewer-layer-mask, .editor-layer-mask, .expand-layer-mask {
         position: absolute;
