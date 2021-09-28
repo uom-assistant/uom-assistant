@@ -798,8 +798,8 @@ export default {
         "expired": "Retraso"
     },
     "ja": {
-        "coursework": "課題",
-        "add_coursework": "課題を追加する",
+        "task": "任務",
+        "add_task": "任務を追加する",
         "ddl_date": "締め切り日",
         "ddl_time": "締め切り時間",
         "subject": "科目",

@@ -1796,7 +1796,6 @@ export default {
         "note_id": "ノートID",
         "copy_note_id": "ノートIDをコピーする",
         "note_id_help": "他のメモアプリにこのノートにリンクするのため、このコード <code>[リンク名](:&lt;ノート ID&gt;)</code> を利用してください、つまり即 <code>[リンク名](:{0})</code>。",
-        "note_id_help": "在其他笔记中使用 <code>[链接名称](:&lt;笔记 ID&gt;)</code> 来链接到此笔记，即 <code>[链接名称](:{0})</code>。",
         "empty_toc": "まだ目録がありません、初めのノートを作成しましょう",
         "editing_toc": "編集ビューで目録が表示できません",
         "switch_to_view": "プレビューに変更する",

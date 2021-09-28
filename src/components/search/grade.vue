@@ -364,7 +364,7 @@ export default {
     },
     "ja": {
         "more_info": "この科目を表示",
-        "formative": "最終的な得点には含まれません"
+        "formative": "最終の総得点に計上されません"
     }
 }
 </i18n>
