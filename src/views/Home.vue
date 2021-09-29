@@ -668,7 +668,7 @@ export default {
         "current_is": "La sesión actual es {0}",
         "current": "Esta sesión terminará en {0} minuto | Esta sesión terminará en {0} minutos",
         "no_current": "No hay clase ahora mismo",
-        "personalise": "",
+        "personalise": "Personalizar",
         "unknown": "Desconocido",
         "timezone_changed_title": "Se detecta cambio de zona horaria",
         "timezone_changed_body": "No se preocupe, todo el contenido relacionado con el tiempo se seguirá mostrando correctamente, las horas que deben convertirse también se convertirán automáticamente. Puede confiar en todo lo que hay en su tablero.",

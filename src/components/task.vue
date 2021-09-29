@@ -780,7 +780,7 @@ export default {
         "remain_day": "{0} día | {0} días",
         "remain_hour": "{0} hora | {0} horas",
         "remain_min": "{0} minuto | {0} minutos",
-        "expired": "Retraso"
+        "expired": "Atrasado"
     },
     "ja": {
         "task": "任務",
