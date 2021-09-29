@@ -370,7 +370,7 @@ export default {
         "no_class": "No asignaturas todavía",
         "subjects": "Asignaturas",
         "portals": "Portales",
-        "custom": "Personalizado"
+        "custom": "Personalizar"
     },
     "ja": {
         "quick_links": "クイックリンク",
