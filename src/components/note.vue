@@ -1742,7 +1742,7 @@ export default {
         "toc": "Tabla de contenidos",
         "note_id": "Apunte ID",
         "copy_note_id": "Copiar apunte ID",
-        "note_id_help": "Usa <code>[Link name](:&lt;Note ID&gt;)</code> en otros apuntes para conectar a este apunte, e.g. <code>[Link name](:{0})</code>",
+        "note_id_help": "Usa <code>[Nombre de enlace](:&lt;Apunte ID&gt;)</code> en otros apuntes para enlazar a este apunte, e.g. <code>[Nombre de enlace](:{0})</code>",
         "empty_toc": "Tabla de contenidos está vacía. ¡Apunte alguna de sus ideas!",
         "editing_toc": "Tabla de contenidos no es visible cuando en edición",
         "switch_to_view": "Cambiar a modo vista",

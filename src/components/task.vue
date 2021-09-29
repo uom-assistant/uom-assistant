@@ -771,8 +771,8 @@ export default {
         "expired": "已过期"
     },
     "es": {
-        "task": "",
-        "add_task": "",
+        "task": "Tarea",
+        "add_task": "Añadir tarea",
         "ddl_date": "Fecha límite",
         "ddl_time": "Hora límite",
         "subject": "Asignatura",
