@@ -317,7 +317,18 @@
                                                     {{ item.name === 'global' ? `mdi-${permissionIcons.global[item.group]}` : `mdi-${permissionIcons[item.name]}` }}
                                                 </v-icon>
                                                 <span v-if="item.name === 'global' && item.group !== 'trackingId'" v-html="$t(`${item.name}/${item.group}`, [item.rw.size > 0 ? `<strong>${$t(item.rw.size === 2 ? 'read_and_write' : (item.rw.has('read') ? 'read' : 'write'))}</strong>` : ''])"></span>
-                                                <span v-else-if="item.name === 'global' && item.group === 'trackingId'"><span v-html="$t(`${item.name}/${item.group}`, [`<strong>${$t('read')}</strong>`])"></span><v-tooltip top max-width="400"><template v-slot:activator="{ on, attrs }"><v-icon small :color="'grey'" class="tracking-notice" v-bind="attrs" v-on="on">mdi-information-outline</v-icon></template><span>{{ $t('tracking_note') }}</span></v-tooltip>{{ $t('tracking_id') }}</span>
+                                                <span v-else-if="item.name === 'global' && item.group === 'trackingId'"><i18n :path="`${item.name}/${item.group}`" tag="span">
+                                                    <strong>{{ $t('read') }}</strong>
+                                                    <span>
+                                                        <v-tooltip top max-width="400">
+                                                            <template v-slot:activator="{ on, attrs }">
+                                                                <v-icon small :color="'grey'" class="tracking-notice" v-bind="attrs" v-on="on">mdi-information-outline</v-icon>
+                                                            </template>
+                                                            <span>{{ $t('tracking_note') }}</span>
+                                                        </v-tooltip>
+                                                        {{ $t('tracking_id') }}
+                                                    </span>
+                                                </i18n></span>
                                                 <div v-else>
                                                     <div v-for="(list, listIndex) in item.group" :key="`item-${item.name}-${list.name}-${listIndex}`" v-html="$t(`${item.name}/${list.name}`, [list.rw.size > 0 ? `<strong>${$t(list.rw.size === 2 ? 'read_and_write' : (list.rw.has('read') ? 'read' : 'write'))}</strong>` : ''])"></div>
                                                 </div>
@@ -498,7 +509,6 @@ export default {
                     trackingId: 'shield-account-outline',
                 },
                 clock: 'map-clock-outline',
-                todo: 'format-list-checks',
                 quickLink: 'link-variant',
                 course: 'book-multiple-outline',
                 attendance: 'order-bool-ascending-variant',
@@ -1181,7 +1191,6 @@ export default {
                         font-size: 45px!important;
                     }
                     .tracking-notice {
-                        margin: 0 3px;
                         vertical-align: text-bottom;
                     }
                 }
@@ -1392,7 +1401,7 @@ export default {
         "global/backend": "{0} your backend login info",
         "global/notification": "Send notifications",
         "global/background": "Running in background",
-        "global/trackingId": "{0} your",
+        "global/trackingId": "{0} your {1}",
         "clock/timezone": "{0} clock widget timezone",
         "quickLink/custom": "{0} your custom links",
         "course/list": "{0} your course unit list",
@@ -1446,7 +1455,7 @@ export default {
         "global/backend": "{0}你的后端信息",
         "global/notification": "向你发送通知",
         "global/background": "在后台运行",
-        "global/trackingId": "{0}你的",
+        "global/trackingId": "{0}你的{1}",
         "clock/timezone": "{0}时钟组件的时区",
         "quickLink/custom": "{0}你的自定义链接",
         "course/list": "{0}你的课程列表",
@@ -1500,9 +1509,8 @@ export default {
         "global/backend": "{0} su información de inicio de sesión",
         "global/notification": "Enviar notificaciones",
         "global/background": "Ejecutar en el fondo",
-        "global/trackingId": "{0} tu",
+        "global/trackingId": "{0} tu {1}",
         "clock/timezone": "{0} zona horaria del widget en el reloj",
-        "todo/list": "{0} su lista PARA-HACER",
         "quickLink/custom": "{0} sus enlaces personalizadas",
         "attendance/absentList": "{0} su lista de ausencias",
         "calendar/events": "{0} sus eventos de asignatura",
@@ -1554,14 +1562,14 @@ export default {
         "global/backend": "バックエンド情報を{0}",
         "global/notification": "あなたに通知を送信する",
         "global/background": "バックグラウンドでの動作",
-        "global/trackingId": "あなたのトラッキングIDを{0}",
+        "global/trackingId": "あなたの {1} を{0}",
         "clock/timezone": "タイムゾーンを{0}",
-        "todo/list": "TO-DOリストを{0}",
         "quickLink/custom": "カストマイズリストを{0}",
         "course/list": "科目リスト{0}",
         "attendance/absentList": "欠勤記録を{0}",
         "calendar/events": "授業イベントを{0}",
         "calendar/view": "カレンダーのビューを{0}",
+        "task/list": "",
         "coursework/list": "課題リストを{0}",
         "quickNote/list": "クイックノートリストを{0}",
         "quickNote/noteContent": "特定のクイックノートの内容を{0}",

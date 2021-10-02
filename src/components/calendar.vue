@@ -517,7 +517,7 @@ export default {
             } catch (icalerr) {
                 this.$store.commit('addError', {
                     title: this.$t('ical_error'),
-                    content: `${icalerr.name}: ${icalerr.message} ${this.$t('at')} ${this.getDate(new Date())}`,
+                    content: this.$t('error_at', [`${icalerr.name}: ${icalerr.message}`, this.getDate(new Date())]),
                     type: 'error',
                 });
             }
@@ -542,6 +542,19 @@ export default {
                         titleSplit.shift();
                         const titleRemain = `/${titleSplit.join('/')}`;
 
+                        // Try to guess event name from event description
+                        let guessedName = titleName;
+                        if (!subjectMap[titleName]) {
+                            const lines = item[1][0][3].split('\n').map((line) => line.trim().split(': ').map((part) => part.trim()));
+                            const unitCode = lines.find((line) => line[0] === 'Unit Code');
+                            if (unitCode !== undefined && unitCode[1] === titleName) {
+                                const unitName = lines.find((line) => line[0] === 'Unit Description');
+                                if (unitName !== undefined) {
+                                    guessedName = unitName[1];
+                                }
+                            }
+                        }
+
                         // Convert time
                         const rawEnd = new Date(new Date(item[1][1][3]).toUTCString());
 
@@ -552,7 +565,7 @@ export default {
                         }
 
                         const event = {
-                            name: `${subjectMap[titleName] ? subjectMap[titleName] : titleName}${titleRemain}`,
+                            name: `${subjectMap[titleName] ? subjectMap[titleName] : guessedName}${titleRemain}`,
                             details: item[1][0][3],
                             start: startTime,
                             end: rawEnd,
@@ -974,7 +987,9 @@ export default {
         "quick_zoom": "Zoom meeting quick start",
         "quick_teams": "Teams meeting quick start",
         "copy_passcode": "Copy passcode",
-        "self_study": " (Independent Study)"
+        "self_study": " (Independent Study)",
+        "ical_error": "Error when parsing the calendar file",
+        "error_at": "{0} at {1}"
     },
     "zh": {
         "today": "今天",
@@ -989,7 +1004,9 @@ export default {
         "quick_zoom": "快速启动 Zoom 会议",
         "quick_teams": "快速启动 Teams 会议",
         "copy_passcode": "复制密码",
-        "self_study": "（自学）"
+        "self_study": "（自学）",
+        "ical_error": "解析日历文件时发生错误",
+        "error_at": "{0} 于 {1}"
     },
     "es": {
         "today": "Hoy",
@@ -1004,15 +1021,15 @@ export default {
         "quick_zoom": "Acceder a Zoom",
         "quick_teams": "Acceder a Teams",
         "copy_passcode": "Copiar contraseña",
-        "self_study": " (Autoestudio)"
+        "self_study": " (Autoestudio)",
+        "ical_error": "",
+        "error_at": "{0} en {1}"
     },
     "ja": {
         "today": "今日",
         "day": "日",
         "week": "周",
         "month": "月",
-        "from": "から：",
-        "to": "まで：",
         "course_ddl": "課題の締め切り",
         "coursework": "課題",
         "subject_home": "科目ホームページ",
@@ -1021,7 +1038,9 @@ export default {
         "quick_zoom": "Zoomミーティングを起動する",
         "quick_teams": "Teamsミーティングを起動する",
         "copy_passcode": "パスワードをコピーする",
-        "self_study": "（独学）"
+        "self_study": "（独学）",
+        "ical_error": "",
+        "error_at": "{1} に {0} 発生"
     }
 }
 </i18n>
