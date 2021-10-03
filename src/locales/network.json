@@ -6,7 +6,7 @@
         "version_error": "Unsupported backend version, please try updating your frontend and contact the administrator. The same error will not be shown again until next successful connection",
         "request_error": "Request Error",
         "backend_maintenance": "Backend Maintenance",
-        "backend_maintenance_body": "The backend is being maintenanced. The same warning will not be shown again until next successful connection",
+        "backend_maintenance_body": "The backend is under maintenance. The same warning will not be shown again until next successful connection",
         "at": "at"
     },
     "zh": {

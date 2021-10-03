@@ -690,6 +690,7 @@ export default {
         "current_is": "今の授業は {0}",
         "current": "今の授業は {0} 分後終わります | 今の授業は {0} 分後終わります",
         "no_current": "今は授業がありません",
+        "personalise": "パーソナライズ",
         "unknown": "不明",
         "timezone_changed_title": "タイムゾーン変更を検出しました",
         "timezone_changed_body": "心配しないて、すべての時間を関する情報はまだ正しく表示されます、変換が必要な時間はすぐに変換されます。UoMアシスタントからの全部の情報をまだ信頼してもいいよ。",
