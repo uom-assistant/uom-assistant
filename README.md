@@ -64,7 +64,7 @@ This project was originally a personal project, born during the pandemic with al
 - Control all your private data and safely sync them across devices
 - Third-party plug-in support
 - Elegant and easy-to-use UI with dark mode support
-- i18n ready: English (UK) and Chinese (Simplified) are currently supported
+- i18n ready: English (UK), Chinese (Simplified), Spanish and Japanese are currently supported. [Locale status & maintainers](https://github.com/uom-assistant/uom-assistant/tree/master/src/locales/maintainers.md)
 - ...
 
 ## Deploy guide

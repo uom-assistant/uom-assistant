@@ -400,9 +400,9 @@ export default {
         },
         /**
          * Update current date
+         * @param {Date} date current date object
          */
-        updateCurrentDate() {
-            const todayObj = new Date();
+        updateCurrentDate(todayObj = new Date()) {
             const thisWeekStartFromObj = new Date(todayObj.valueOf() - (todayObj.getDay() * 24 * 3600 * 1000));
 
             const dd = String(todayObj.getDate()).padStart(2, '0');
@@ -608,7 +608,7 @@ export default {
         },
         /**
          * Convert a Date object to a specified time zone
-         * @param {Date} date Date object
+         * @param {Date | string} date Date object or date string
          * @param {string} tzString timezone name
          * @returns {Date} a new Date object that has converted to the specified time zone
          */
