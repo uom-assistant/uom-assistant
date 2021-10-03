@@ -727,7 +727,20 @@ export default {
                         color = 'colordark';
                     }
 
-                    item.name = `${subjectMap[titleName] ? subjectMap[titleName] : titleName}${titleRemain}`;
+                    // Try to guess event name from event description
+                    let guessedName = titleName;
+                    if (!subjectMap[titleName]) {
+                        const lines = item.details.split('\n').map((line) => line.trim().split(': ').map((part) => part.trim()));
+                        const unitCode = lines.find((line) => line[0] === 'Unit Code');
+                        if (unitCode !== undefined && unitCode[1] === titleName) {
+                            const unitName = lines.find((line) => line[0] === 'Unit Description');
+                            if (unitName !== undefined) {
+                                guessedName = unitName[1];
+                            }
+                        }
+                    }
+
+                    item.name = `${subjectMap[titleName] ? subjectMap[titleName] : guessedName}${titleRemain}`;
                     item.color = color;
                     item.titleColor = colorMap[titleName] ? colorMap[titleName] : 'uomtheme';
                     item.subjectName = `${subjectLongMap[titleName] ? subjectLongMap[titleName] : ''}`;

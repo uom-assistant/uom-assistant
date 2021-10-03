@@ -1381,7 +1381,7 @@ code, kbd, pre, samp {
         "mail": "Inbox",
         "grade": "Grade Summary",
         "plugins": "Plug-ins",
-        "new_course_sound": "Class Bell"
+        "new_course_sound": "Check-in Bell"
     },
     "zh": {
         "title": "曼大助手",
@@ -1436,7 +1436,7 @@ code, kbd, pre, samp {
         "mail": "收件箱",
         "grade": "成绩概览",
         "plugins": "插件",
-        "new_course_sound": "上课铃"
+        "new_course_sound": "签到铃"
     },
     "es": {
         "title": "UoM Assistant",
@@ -1534,7 +1534,6 @@ code, kbd, pre, samp {
         "ok": "はい",
         "account_settings": "アカウント設定",
         "clock": "時計",
-        "todo": "TO-DO",
         "bblinks": "クイックリンク",
         "livelinks": "オンライン授業リンク",
         "subjects": "科目管理",
