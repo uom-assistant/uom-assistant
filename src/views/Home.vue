@@ -5,7 +5,7 @@
             :class="{ higher: higherHeader }"
             outlined
             v-click-outside="{
-                handler: () => showPersonalise = false,
+                handler: togglePersonalise,
                 closeConditional: () => showPersonalise === true,
             }"
         >
