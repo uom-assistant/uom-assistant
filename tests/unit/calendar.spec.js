@@ -69,11 +69,45 @@ describe('calendar.vue', () => {
     test('calculate event progress percentage', () => {
         const wrapper = getShallowWapper(Calendar, { searchid: 6 });
 
-        wrapper.vm.currentTimeStamp = 1633000000000;
+        const day = {
+            day: 4,
+            month: 10,
+            year: 2021,
+        };
+        wrapper.vm.currentTimeStamp = 1633356000000;
 
-        expect(wrapper.vm.getEevntPercentage(1632998200000, 1633005400000)).toMatch('25%');
-        expect(wrapper.vm.getEevntPercentage(1632998200000, 1632998300000)).toMatch('100%');
-        expect(wrapper.vm.getEevntPercentage(1633002400000, 1633005400000)).toMatch('0%');
+        expect(wrapper.vm.getEevntPercentage(1633354200000, 1633361400000, day)).toMatch('25%');
+        expect(wrapper.vm.getEevntPercentage(1633354200000, 1633355200000, day)).toMatch('100%');
+        expect(wrapper.vm.getEevntPercentage(1633361400000, 1633362400000, day)).toMatch('0%');
+    });
+
+    test('calculate event progress percentage for multi-day events', () => {
+        const wrapper = getShallowWapper(Calendar, { searchid: 6 });
+
+        const day = {
+            day: 4,
+            month: 10,
+            year: 2021,
+        };
+        const nextDay = {
+            day: 5,
+            month: 10,
+            year: 2021,
+        };
+        wrapper.vm.currentTimeStamp = 1633361400000;
+
+        expect(wrapper.vm.getEevntPercentage(1633356000000, 1633370400000, day)).toMatch('75%');
+        expect(wrapper.vm.getEevntPercentage(1633356000000, 1633370400000, nextDay)).toMatch('0%');
+
+        wrapper.vm.currentTimeStamp = 1633363200000;
+
+        expect(wrapper.vm.getEevntPercentage(1633356000000, 1633370400000, day)).toMatch('100%');
+        expect(wrapper.vm.getEevntPercentage(1633356000000, 1633370400000, nextDay)).toMatch('0%');
+
+        wrapper.vm.currentTimeStamp = 1633365000000;
+
+        expect(wrapper.vm.getEevntPercentage(1633356000000, 1633370400000, day)).toMatch('100%');
+        expect(wrapper.vm.getEevntPercentage(1633356000000, 1633370400000, nextDay)).toMatch('25%');
     });
 
     test('linkify text', () => {
