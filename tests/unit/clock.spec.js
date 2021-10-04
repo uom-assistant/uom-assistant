@@ -1,4 +1,3 @@
-/* eslint-disable no-tabs */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vue from 'vue';
 import Vuetify from 'vuetify';
@@ -50,7 +49,7 @@ describe('clock.vue', () => {
         expect(wrapper.vm.getCity).toMatch('Shanghai');
     });
 
-    it('convert timezone', () => {
+    test('convert timezone', () => {
         const wrapper = getShallowWapper(Clock, { searchid: 0 });
 
         expect(wrapper.vm.convertTimeZone(new Date('2021-09-27T01:00:00Z'), 'GMT') - wrapper.vm.convertTimeZone(new Date('2021-09-27T01:00:00Z'), 'Asia/Shanghai')).toEqual(-28800000);

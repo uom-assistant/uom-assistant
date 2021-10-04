@@ -74,6 +74,7 @@
     "fetch-mock": "^9.11.0",
     "follow-redirects": "^1.14.0",
     "html-minifier": "^3.5.21",
+    "identity-obj-proxy": "^3.0.0",
     "ignore-loader": "^0.1.2",
     "less": "^4.1.1",
     "less-loader": "^7.3.0",
