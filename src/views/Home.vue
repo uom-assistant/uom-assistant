@@ -672,7 +672,16 @@ export default {
         "unknown": "Desconocido",
         "timezone_changed_title": "Se detecta cambio de zona horaria",
         "timezone_changed_body": "No se preocupe, todo el contenido relacionado con el tiempo se seguirá mostrando correctamente, las horas que deben convertirse también se convertirán automáticamente. Puede confiar en todo lo que hay en su tablero.",
-        "ok": "OK"
+        "ok": "OK",
+        "checkin": "Check-in",
+        "go_checkin": "Ir a check-in",
+        "checkin_dialog": "Check-in recordatorio",
+        "checkin_dialog_body": "Puede que necesite hacer el check-in {0}.",
+        "no_course_checkin": "No hay asignaturas para hacer el check-in.",
+        "and": "y",
+        "already_checkedin": "Si ya hizo el check-in o confirmó que no es necesario hacer el check-in en este curso, puede descartar este recordatorio.",
+        "dismiss": "Descartar este recordatorio",
+        "please_check": "Por favor verifique su historial de check-in y asistencia en persona. UoM Assistant no será responsable de ninguna consecuencia que surja de un check-in incorrecto."
     },
     "ja":
     {
