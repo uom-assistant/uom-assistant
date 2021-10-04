@@ -94,20 +94,21 @@ describe('calendar.vue', () => {
             month: 10,
             year: 2021,
         };
-        wrapper.vm.currentTimeStamp = 1633361400000;
+        const currentTimeStamp = new Date(nextDay.year, nextDay.month - 1, nextDay.day).getTime();
+        wrapper.vm.currentTimeStamp = currentTimeStamp - 1800 * 1000;
 
-        expect(wrapper.vm.getEevntPercentage(1633356000000, 1633370400000, day)).toMatch('75%');
-        expect(wrapper.vm.getEevntPercentage(1633356000000, 1633370400000, nextDay)).toMatch('0%');
+        expect(wrapper.vm.getEevntPercentage(currentTimeStamp - 3600 * 1000 * 2, currentTimeStamp + 3600 * 1000 * 2, day)).toMatch('75%');
+        expect(wrapper.vm.getEevntPercentage(currentTimeStamp - 3600 * 1000 * 2, currentTimeStamp + 3600 * 1000 * 2, nextDay)).toMatch('0%');
 
-        wrapper.vm.currentTimeStamp = 1633363200000;
+        wrapper.vm.currentTimeStamp = currentTimeStamp;
 
-        expect(wrapper.vm.getEevntPercentage(1633356000000, 1633370400000, day)).toMatch('100%');
-        expect(wrapper.vm.getEevntPercentage(1633356000000, 1633370400000, nextDay)).toMatch('0%');
+        expect(wrapper.vm.getEevntPercentage(currentTimeStamp - 3600 * 1000 * 2, currentTimeStamp + 3600 * 1000 * 2, day)).toMatch('100%');
+        expect(wrapper.vm.getEevntPercentage(currentTimeStamp - 3600 * 1000 * 2, currentTimeStamp + 3600 * 1000 * 2, nextDay)).toMatch('0%');
 
-        wrapper.vm.currentTimeStamp = 1633365000000;
+        wrapper.vm.currentTimeStamp = currentTimeStamp + 1800 * 1000;
 
-        expect(wrapper.vm.getEevntPercentage(1633356000000, 1633370400000, day)).toMatch('100%');
-        expect(wrapper.vm.getEevntPercentage(1633356000000, 1633370400000, nextDay)).toMatch('25%');
+        expect(wrapper.vm.getEevntPercentage(currentTimeStamp - 3600 * 1000 * 2, currentTimeStamp + 3600 * 1000 * 2, day)).toMatch('100%');
+        expect(wrapper.vm.getEevntPercentage(currentTimeStamp - 3600 * 1000 * 2, currentTimeStamp + 3600 * 1000 * 2, nextDay)).toMatch('25%');
     });
 
     test('linkify text', () => {
