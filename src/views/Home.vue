@@ -4,19 +4,23 @@
             class="mx-auto rounded-lg header-card"
             :class="{ higher: higherHeader }"
             outlined
+            v-click-outside="{
+                handler: togglePersonalise,
+                closeConditional: () => showPersonalise === true,
+            }"
         >
-            <div class="header-bg rounded-lg" :style="{ backgroundImage: `url(${headerImage.image})`, backgroundPosition: `50% ${headerImage.position}%` }" :class="{ bw: headerBw }"></div>
+            <div class="header-bg rounded-lg" :style="{ backgroundImage: `url(${headerImage.image})`, backgroundPosition: `50% ${headerImage.position}%` }" :class="{ bw: headerBw, 'has-checkin': showCheckInNotice && $vuetify.breakpoint.xs }"></div>
             <!-- Overview -->
-            <div class="next-class float" v-if="!$vuetify.breakpoint.xs && !(nextEvent === null && current === null)">
+            <div class="next-class float" :class="{ 'has-checkin': showCheckInNotice }" v-if="!$vuetify.breakpoint.xs && !(nextEvent === null && current === null)">
                 <span class="d-block text-truncate"><i18n path="next" tag="span" class="text--secondary" v-show="nextEvent !== null">
-                    <span class="text--primary"><span :class="subjectColor(nextEvent.subjectId)" class="subject-color-samll" v-show="subjectColor(nextEvent.subjectId) !== ''" v-if="nextEvent !== null"></span> <strong v-show="nextEvent !== null">{{ nextName }}</strong></span>
+                    <span class="text--primary"><span :class="subjectColor(nextEvent.subjectId)" class="subject-color-dot-small" v-show="subjectColor(nextEvent.subjectId) !== ''" v-if="nextEvent !== null"></span> <strong v-show="nextEvent !== null">{{ nextName }}</strong></span>
                 </i18n></span>
                 <span class="text--secondary d-block" v-if="nextEvent === null">{{ $t('no_next') }}</span>
                 <span class="text-h5 primary--text pt-1 d-inline-block">
                     <span v-show="nextEvent !== null">{{ (minAfter > 60 ? $tc('hour_after', hourAfter, [hourAfter]) : $tc('min_after', minAfter, [minAfter])) }}</span>
                     <v-icon color="primary" large v-show="nextEvent === null">mdi-check-all</v-icon>
                 </span><br>
-                <span class="text--disabled pt-1 d-inline-block smaller-font">{{ current === null ? $t('no_current') : currentEnd > 20 ? $t('current_is', [currentName]) : $tc('current', currentEnd, [currentEnd]) }}</span>
+                <span class="text--disabled pt-1 d-block smaller-font text-truncate">{{ current === null ? $t('no_current') : currentEnd > 20 ? $t('current_is', [currentName]) : $tc('current', currentEnd, [currentEnd]) }}</span>
             </div>
             <v-list-item three-line class="global-header">
                 <v-list-item-content>
@@ -30,20 +34,25 @@
                         {{ nowDate }}
                     </v-list-item-title>
                     <v-list-item-subtitle class="mb-2">
-                        <span v-if="classNum !== 0 && classRemain === 0">{{ tomorrowFirst !== '' ? $t('tomorrow_first', [tomorrowFirst]) : $t('tomorrow_first_none_rest') }}</span>
+                        <span v-if="(classNum !== 0 && classRemain === 0) || (classNum === 0 && classRemain === 0 && tomorrowFirst !== '')">{{ tomorrowFirst !== '' ? $t('tomorrow_first', [tomorrowFirst]) : $t('tomorrow_first_none_rest') }}</span>
                         <span v-else>{{ $tc('class_overview', classNum, [classNum]) }}{{ $t(classNum > 0 ? 'class_remian' : 'class_remian_none', [classRemain]) }}</span>
                     </v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>
-            <div class="next-class normal" v-if="$vuetify.breakpoint.xs && !(nextEvent === null && current === null)">
+            <div class="next-class normal" :class="{ 'has-checkin': showCheckInNotice }" v-if="$vuetify.breakpoint.xs && !(nextEvent === null && current === null)">
                 <span class="d-block text-truncate"><i18n path="next" tag="span" class="text--secondary" v-show="nextEvent !== null">
-                    <span class="text--primary"><span :class="subjectColor(nextEvent.subjectId)" class="subject-color-samll" v-show="subjectColor(nextEvent.subjectId) !== ''" v-if="nextEvent !== null"></span> <strong v-show="nextEvent !== null">{{ nextName }}</strong></span>
+                    <span class="text--primary"><span :class="subjectColor(nextEvent.subjectId)" class="subject-color-dot-small" v-show="subjectColor(nextEvent.subjectId) !== ''" v-if="nextEvent !== null"></span> <strong v-show="nextEvent !== null">{{ nextName }}</strong></span>
                 </i18n></span>
                 <span class="text--secondary d-block" v-if="nextEvent === null">{{ $t('no_next') }}</span>
                 <span class="text-h5 primary--text pt-1 d-inline-block">
                     <span v-show="nextEvent !== null">{{ (minAfter > 60 ? $tc('hour_after', hourAfter, [hourAfter]) : $tc('min_after', minAfter, [minAfter])) }}</span>
                     <v-icon color="primary" large v-show="nextEvent === null">mdi-check-all</v-icon></span><br>
-                <span class="text--disabled pt-1 d-inline-block smaller-font">{{ current === null ? $t('no_current') : currentEnd > 20 ? $t('current_is', [currentName]) : $tc('current', currentEnd, [currentEnd]) }}</span>
+                <span class="text--disabled pt-1 d-block smaller-font text-truncate">{{ current === null ? $t('no_current') : currentEnd > 20 ? $t('current_is', [currentName]) : $tc('current', currentEnd, [currentEnd]) }}</span>
+            </div>
+            <div class="checkin-btn-container" :class="{ hide: !showCheckInNotice, mobile: $vuetify.breakpoint.xs }">
+                <button class="checkin-btn primary" v-ripple="{ class: `white--text` }" :title="$t('checkin')" @click="checkinDialog = true">
+                    <v-icon class="white--text">mdi-checkbox-marked-outline</v-icon>
+                </button>
             </div>
             <v-expand-transition>
                 <personalise class="personalise-panel" v-show="showPersonalise" @change="(img) => headerImage = img" @bw="(val) => headerBw = val" ref="personalise"></personalise>
@@ -77,18 +86,68 @@
                     {{ $t('timezone_changed_body') }}
                 </v-card-text>
                 <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
-                    color="primary"
-                    text
-                    @click="timezoneChanged = false"
-                >
-                    {{ $t('ok') }}
-                </v-btn>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="timezoneChanged = false"
+                    >
+                        {{ $t('ok') }}
+                    </v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <v-overlay :z-index="6" :value="showPersonalise" @click="showPersonalise = false"></v-overlay>
+        <v-dialog
+            v-model="checkinDialog"
+            max-width="500"
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('checkin_dialog') }}
+                </v-card-title>
+                <v-card-text>
+                    {{ $t('please_check') }}
+                </v-card-text>
+                <v-card-text class=" mb-n6">
+                    <i18n path="checkin_dialog_body" tag="span" v-if="checkinCourses.length > 0">
+                        <span>
+                            <span class="text--primary"><span :class="subjectColor(checkinCourses[0].code)" class="subject-color-dot-small" v-show="subjectColor(checkinCourses[0].code) !== ''"></span> <strong>{{ checkinCourses[0].name }}</strong></span>
+                            <span v-if="checkinCourses.length > 1"> {{ $t('and') }} </span>
+                            <span v-if="checkinCourses.length > 1" class="text--primary"><span :class="subjectColor(checkinCourses[1].code)" class="subject-color-dot-small" v-show="subjectColor(checkinCourses[1].code) !== ''"></span> <strong>{{ checkinCourses[1].name }}</strong></span>
+                        </span>
+                    </i18n>
+                    <span v-else>{{ $t('no_course_checkin') }}</span>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        text
+                        color="primary"
+                        href="https://my.manchester.ac.uk/MyCheckIn"
+                        target="_blank"
+                        @click="dismissCheckin"
+                        :disabled="checkinCourses.length === 0"
+                    >
+                        {{ $t('go_checkin') }}
+                        <v-icon small color="primary" class="ml-1 check-in-open">mdi-open-in-new</v-icon>
+                    </v-btn>
+                </v-card-actions>
+                <v-card-text class="mt-4 mb-n6">
+                    {{ $t('already_checkedin') }}
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="dismissCheckin"
+                    >
+                        {{ $t('dismiss') }}
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-overlay :z-index="6" :value="showPersonalise"></v-overlay>
         <audio class="d-none" ref="audio">
             <source src="@/assets/audios/ding.mp3" type="audio/mpeg">
             <source src="@/assets/audios/ding.ogg" type="audio/ogg">
@@ -159,6 +218,8 @@ export default {
             headerBw: false,
             showCheckInNotice: false,
             hasCheckedIn: false,
+            checkinDialog: false,
+            checkinCourses: [],
         };
     },
     watch: {
@@ -177,7 +238,7 @@ export default {
             // Update class bell
             if (this.classBell) {
                 this.$refs.audio.currentTime = 0;
-                this.$refs.audio.volume = 1;
+                this.$refs.audio.volume = 0.5;
                 this.$refs.audio.play();
             }
         },
@@ -260,25 +321,59 @@ export default {
                 this.currentName = this.$t('unknown');
                 this.currentEnd = 0;
             }
+
+            if (current === null && nextEvent === null && this.checkinCourses.length > 0) {
+                this.checkinCourses = [];
+                this.showCheckInNotice = false;
+                this.hasCheckedIn = false;
+            }
+
             this.nextEvent = nextEvent;
             if (nextEvent !== null) {
                 // Calculate next event start time
+                const oldName = this.checkinCourses[0]?.rawTitle || '';
                 this.nextName = nextEvent.subjectName === '' ? nextEvent.name.split('/')[0] : nextEvent.subjectName;
                 this.minAfter = Math.round(((nextEvent.start.valueOf() - now) / 1000) / 60);
                 this.hourAfter = Math.round(this.minAfter / 60);
                 this.minAfter = this.minAfter === 0 ? 1 : this.minAfter;
                 this.hourAfter = this.hourAfter === 0 ? 1 : this.hourAfter;
 
-                if (this.minAfter === 5 && source === 'min') {
+                if (current === null && this.minAfter > 10) {
+                    this.checkinCourses = [];
+                    this.showCheckInNotice = false;
                     this.hasCheckedIn = false;
+                }
+
+                // Check if the next course needs to be checked in
+                const course = this.needsCheckin(nextEvent.rawTitle, this.nextName);
+
+                // Clear pervious course reminder
+                if (oldName !== nextEvent.rawTitle && this.checkinCourses.length > 1) {
+                    this.checkinCourses = [this.checkinCourses[this.checkinCourses.length - 1]];
+                }
+
+                if (oldName !== nextEvent.rawTitle && course === null && this.checkinCourses.length === 1) {
+                    this.checkinCourses = [];
+                    this.showCheckInNotice = false;
+                    this.hasCheckedIn = false;
+                }
+
+                if (this.minAfter === 10 && source === 'min' && course !== null) {
+                    this.hasCheckedIn = false;
+                    // Ring the bell
                     if (!this.audioOff) {
                         this.$refs.audio.currentTime = 0;
-                        this.$refs.audio.volume = 1;
+                        this.$refs.audio.volume = 0.5;
                         this.$refs.audio.play();
                     }
+                    this.checkinCourses.push(course);
                 }
-                if (this.minAfter <= 5 && !this.hasCheckedIn) {
+                if (this.minAfter <= 10 && !this.hasCheckedIn && course !== null) {
                     this.showCheckInNotice = true;
+                    // Add the course only if the course is not in the check-in list
+                    if (this.checkinCourses.findIndex((item) => item.name === course.name && item.code === course.code) === -1) {
+                        this.checkinCourses.push(course);
+                    }
                 }
             } else {
                 // No upcoming event in 24 hours
@@ -286,6 +381,19 @@ export default {
                 this.minAfter = 0;
                 this.hourAfter = 0;
             }
+        },
+        /**
+         * Check whether the event needs to be checked in
+         */
+        needsCheckin(eventName, courseName) {
+            if (!eventName.includes('/') || eventName.includes('/LAB')) {
+                return null;
+            }
+            return {
+                name: courseName,
+                code: eventName.split('/')[0],
+                rawTitle: eventName,
+            };
         },
         /**
          * Store widgets' order
@@ -355,6 +463,17 @@ export default {
                     personaliseTimer = null;
                 }, 300);
             }
+        },
+        /**
+         * Dismiss the check-in notice
+         */
+        dismissCheckin() {
+            this.checkinDialog = false;
+            this.hasCheckedIn = true;
+            this.showCheckInNotice = false;
+            setTimeout(() => {
+                this.checkinCourses = [];
+            }, 300);
         },
     },
     mounted() {
@@ -472,8 +591,12 @@ export default {
             height: 100%;
             z-index: 0;
             opacity: .15;
+            transition: height .3s;
             &.bw {
                 filter: grayscale(1);
+            }
+            &.has-checkin {
+                height: calc(100% - 50px);
             }
         }
         &.higher {
@@ -517,14 +640,13 @@ export default {
     overflow: hidden;
     position: relative;
     z-index: 1;
+    transition: all .3s;
     .smaller-font {
         font-size: 0.875rem;
     }
-    .subject-color-samll {
+    .subject-color-dot-small {
         width: 9px;
         height: 9px;
-        display: inline-block;
-        border-radius: 50%;
         margin: 1px;
         margin-left: 2px;
         margin-bottom: 1.5px;
@@ -533,14 +655,93 @@ export default {
         padding: 16px;
         padding-top: 0;
         width: 100%;
+        &.has-checkin {
+            margin-bottom: 50px;
+        }
     }
     &.float {
         padding: 19px 20px;
         text-align: right;
-        width: 290px;
+        width: 240px;
         float: right;
-        @media (min-width: 700px) {
+        &.has-checkin {
+            margin-right: 45px;
+            width: 195px;
+        }
+        @media (min-width: 670px) {
+            width: 295px;
+            &.has-checkin {
+                width: 250px;
+            }
+        }
+        @media (min-width: 760px) {
             width: 385px;
+            &.has-checkin {
+                width: 340px;
+            }
+        }
+    }
+}
+.checkin-btn-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 45px;
+    height: 100%;
+    border-radius: 0 7px 7px 0;
+    overflow: hidden;
+    z-index: 2;
+    transition: none;
+    .checkin-btn {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 45px;
+        height: 100%;
+        transition: all .3s;
+    }
+    &.hide {
+        width: 0;
+        transition: all .3s .3s;
+        .checkin-btn {
+            left: 45px;
+        }
+    }
+    &.mobile {
+        top: calc(100% - 50px);
+        width: 100%;
+        height: 50px;
+        border-radius: 0 0 7px 7px;
+        .checkin-btn {
+            width: 100%;
+            height: 50px;
+        }
+        &.hide {
+            width: 100%;
+            height: 0;
+            .checkin-btn {
+                top: 100%;
+                left: 0;
+            }
+        }
+    }
+}
+.check-in-open {
+    margin-top: 1px;
+}
+.subject-color-dot-small {
+    width: 8px;
+    height: 8px;
+    display: inline-block;
+    border-radius: 50%;
+    margin: 1px;
+    margin-left: 2px;
+    margin-bottom: 1px;
+}
+#app.theme--dark {
+    .checkin-btn-container {
+        .checkin-btn i {
+            color: #1e1e1e!important;
         }
     }
 }
@@ -630,7 +831,16 @@ export default {
         "unknown": "Unknown",
         "timezone_changed_title": "Time zone change detected",
         "timezone_changed_body": "Don't worry, all time-related content will still be displayed correctly, times that need to be converted will be converted automatically as well. You can still trust everything on your dashboard.",
-        "ok": "OK"
+        "ok": "OK",
+        "checkin": "Check-in",
+        "go_checkin": "Go check-in",
+        "checkin_dialog": "Check-in reminder",
+        "checkin_dialog_body": "You may need to check into {0}.",
+        "no_course_checkin": "No courses to be checked-in.",
+        "and": "and",
+        "already_checkedin": "If you have already checked-in or confirmed there is no need to check into this course, you can dismiss this reminder.",
+        "dismiss": "Dismiss",
+        "please_check": "Please check your check-in history and attendance in person. UoM Assistant cannot be responsible for any consequences arising from incorrect check-ins."
     },
     "zh": {
         "overview": "总览",
@@ -651,7 +861,16 @@ export default {
         "unknown": "未知",
         "timezone_changed_title": "检测到时区更改",
         "timezone_changed_body": "别担心，所有时间相关的内容仍会正确显示，需要被转换的时间会被自动转换。你仍然可以信任曼大助手显示的所有内容。",
-        "ok": "好"
+        "ok": "好",
+        "checkin": "签到",
+        "go_checkin": "去签到",
+        "checkin_dialog": "签到提醒",
+        "checkin_dialog_body": "你可能需要签到 {0}。",
+        "no_course_checkin": "没有需要签到的课程。",
+        "and": "和",
+        "already_checkedin": "如果你已经签到了此课程或确认此课程无需签到，则可以关闭此次提醒。",
+        "dismiss": "关闭此次提醒",
+        "please_check": "请务必自行检查你的签到及出勤情况。曼大助手无法对任何因签到错误而造成的后果负责。"
     },
     "es": {
         "overview": "Información general",

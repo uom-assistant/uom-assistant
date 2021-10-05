@@ -5,6 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "node ./scripts/update_pdfjs.js && vue-cli-service build",
+    "prebuild": "npm run test:unit",
+    "test:unit": "vue-cli-service test:unit --verbose",
     "lint": "vue-cli-service lint",
     "update:pdfjs": "node ./scripts/update_pdfjs.js",
     "update:timezone": "node ./scripts/update_timezone.js"
@@ -57,9 +59,11 @@
     "@vue/cli-plugin-eslint": "~4.5.12",
     "@vue/cli-plugin-pwa": "~4.5.12",
     "@vue/cli-plugin-router": "~4.5.12",
+    "@vue/cli-plugin-unit-jest": "^4.5.13",
     "@vue/cli-plugin-vuex": "~4.5.12",
     "@vue/cli-service": "~4.5.12",
     "@vue/eslint-config-airbnb": "^5.3.0",
+    "@vue/test-utils": "^1.0.3",
     "@vvo/tzdb": "^6.4.1",
     "adm-zip": "^0.5.5",
     "babel-eslint": "^10.1.0",
@@ -70,6 +74,7 @@
     "fetch-mock": "^9.11.0",
     "follow-redirects": "^1.14.0",
     "html-minifier": "^3.5.21",
+    "identity-obj-proxy": "^3.0.0",
     "ignore-loader": "^0.1.2",
     "less": "^4.1.1",
     "less-loader": "^7.3.0",

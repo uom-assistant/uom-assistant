@@ -127,7 +127,7 @@
                                 {{ localeDetail ? (new Intl.DateTimeFormat(localeDetail.iso, day === 1 && type !== 'day' ? { day: 'numeric', month: 'short' } : { day: 'numeric' }).format(new Date(date))) : day }}
                             </v-btn>
                         </template>
-                        <template v-slot:event="{ eventSummary, event }">
+                        <template v-slot:event="{ eventSummary, event, day }">
                             <div
                                 class="pl-1 event-block"
                                 :class="{ 'text--disabled': event.selfStudy }"
@@ -137,8 +137,8 @@
                             <div
                                 class="event-block-overlay"
                                 :style="{
-                                    width: type === 'day' || type === 'week' ? '100%' : getEevntPercentage(event.start, event.end),
-                                    height: type === 'month' ? '100%' : getEevntPercentage(event.start, event.end),
+                                    width: type === 'day' || type === 'week' ? '100%' : getEevntPercentage(event.start, event.end, day),
+                                    height: type === 'month' ? '100%' : getEevntPercentage(event.start, event.end, day),
                                 }"
                             ></div>
                         </template>
@@ -400,9 +400,9 @@ export default {
         },
         /**
          * Update current date
+         * @param {Date} date current date object
          */
-        updateCurrentDate() {
-            const todayObj = new Date();
+        updateCurrentDate(todayObj = new Date()) {
             const thisWeekStartFromObj = new Date(todayObj.valueOf() - (todayObj.getDay() * 24 * 3600 * 1000));
 
             const dd = String(todayObj.getDate()).padStart(2, '0');
@@ -419,16 +419,30 @@ export default {
          * Get event percentage passed
          * @param {number} start event start time
          * @param {number} end event end time
+         * @param {object} day day object
          * @returns {string} percentage as a atring
          */
-        getEevntPercentage(start, end) {
-            if (end <= this.currentTimeStamp) {
+        getEevntPercentage(start, end, day) {
+            const dayStart = new Date(day.year, day.month - 1, day.day, 0, 0, 0);
+            const dayEnd = new Date(dayStart.valueOf() + 24 * 3600 * 1000);
+
+            let clampedStart = start;
+            if (start < dayStart.valueOf()) {
+                clampedStart = dayStart.valueOf();
+            }
+
+            let clampedEnd = end;
+            if (end > dayEnd.valueOf()) {
+                clampedEnd = dayEnd.valueOf();
+            }
+
+            if (clampedEnd <= this.currentTimeStamp) {
                 return '100%';
             }
-            if (start >= this.currentTimeStamp) {
+            if (clampedStart >= this.currentTimeStamp) {
                 return '0%';
             }
-            return `${((this.currentTimeStamp - start) / (end - start)) * 100}%`;
+            return `${((this.currentTimeStamp - clampedStart) / (clampedEnd - clampedStart)) * 100}%`;
         },
         /**
          * Linkify event details
@@ -608,7 +622,7 @@ export default {
         },
         /**
          * Convert a Date object to a specified time zone
-         * @param {Date} date Date object
+         * @param {Date | string} date Date object or date string
          * @param {string} tzString timezone name
          * @returns {Date} a new Date object that has converted to the specified time zone
          */
@@ -727,7 +741,20 @@ export default {
                         color = 'colordark';
                     }
 
-                    item.name = `${subjectMap[titleName] ? subjectMap[titleName] : titleName}${titleRemain}`;
+                    // Try to guess event name from event description
+                    let guessedName = titleName;
+                    if (!subjectMap[titleName]) {
+                        const lines = item.details.split('\n').map((line) => line.trim().split(': ').map((part) => part.trim()));
+                        const unitCode = lines.find((line) => line[0] === 'Unit Code');
+                        if (unitCode !== undefined && unitCode[1] === titleName) {
+                            const unitName = lines.find((line) => line[0] === 'Unit Description');
+                            if (unitName !== undefined) {
+                                guessedName = unitName[1];
+                            }
+                        }
+                    }
+
+                    item.name = `${subjectMap[titleName] ? subjectMap[titleName] : guessedName}${titleRemain}`;
                     item.color = color;
                     item.titleColor = colorMap[titleName] ? colorMap[titleName] : 'uomtheme';
                     item.subjectName = `${subjectLongMap[titleName] ? subjectLongMap[titleName] : ''}`;

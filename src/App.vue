@@ -1353,11 +1353,11 @@ code, kbd, pre, samp {
         "import": "Import",
         "skip": "Skip",
         "value_privacy": "We value your privacy",
-        "privacy_policy": "We understand how important your UoM account is to you. All your private data will be stored locally in your browser and will not be shared with third parties until you authorise it.",
+        "privacy_policy": "We understand how important your UoM account is to you. All your private data will be stored locally in your browser and will not be shared with any third party without your consent.",
         "read_privacy_policy": "Check out our {0}.",
         "privacy_policy_link": "privacy policy",
         "student_lead": "A student-led project",
-        "not_offical": "UoM Assistant is not a product developed or published by the University of Manchester.",
+        "not_offical": "UoM Assistant is not a product developed or published by the University of Manchester. ",
         "lead_by": "This project was designed and developed by a team of UoM students and is not an official representation of UoM.",
         "got_it": "Got it",
         "connect_to": "Connection",
@@ -1381,7 +1381,7 @@ code, kbd, pre, samp {
         "mail": "Inbox",
         "grade": "Grade Summary",
         "plugins": "Plug-ins",
-        "new_course_sound": "Class Bell"
+        "new_course_sound": "Check-in Bell"
     },
     "zh": {
         "title": "曼大助手",
@@ -1436,7 +1436,7 @@ code, kbd, pre, samp {
         "mail": "收件箱",
         "grade": "成绩概览",
         "plugins": "插件",
-        "new_course_sound": "上课铃"
+        "new_course_sound": "签到铃"
     },
     "es": {
         "title": "UoM Assistant",
@@ -1535,7 +1535,6 @@ code, kbd, pre, samp {
         "ok": "はい",
         "account_settings": "アカウント設定",
         "clock": "時計",
-        "todo": "TO-DO",
         "bblinks": "クイックリンク",
         "livelinks": "オンライン授業リンク",
         "subjects": "科目管理",

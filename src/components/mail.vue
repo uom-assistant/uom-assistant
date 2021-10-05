@@ -1886,7 +1886,7 @@ export default {
 
                 if (response.data.content === '') {
                     // Empty body
-                    this.viewer.bodyHTML = `<html><head><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}</style></head><body> </body></html>`;
+                    this.viewer.bodyHTML = `<html><head><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}</style></head><body><br><br><br></body></html>`;
                     this.viewer.bodyRawHTML = '';
                     this.viewer.textContent = '';
                     this.viewer.bodyText = '';
@@ -2199,7 +2199,7 @@ export default {
                     // Set mail body
                     if (cachedMail.content === '') {
                         // Empty body
-                        this.viewer.bodyHTML = `<html><head><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}</style></head><body> </body></html>`;
+                        this.viewer.bodyHTML = `<html><head><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}</style></head><body><br><br><br></body></html>`;
                         this.viewer.bodyRawHTML = '';
                         this.viewer.textContent = '';
                         this.viewer.bodyText = '';
@@ -3765,8 +3765,8 @@ export default {
                         button {
                             font-size: 15px!important;
                             position: absolute;
-                            right: 11px;
-                            top: 7px;
+                            right: 9px;
+                            top: 5px;
                         }
                     }
                 }
@@ -3786,8 +3786,8 @@ export default {
                             button {
                                 font-size: 15px!important;
                                 position: absolute;
-                                right: 11px;
-                                top: 7px;
+                                right: 9px;
+                                top: 5px;
                             }
                         }
                     }
@@ -3986,8 +3986,8 @@ export default {
                             line-height: 24px;
                             button {
                                 position: absolute;
-                                right: 11px;
-                                top: 6px;
+                                right: 8px;
+                                top: 3px;
                             }
                         }
                     }
