@@ -1,7 +1,7 @@
 const path = require('path');
-const terser = require('terser');
+const { minify } = require('terser');
 const CleanCSS = require('clean-css');
-const minify = require('html-minifier').minify;
+const minifyHTML = require('html-minifier').minify;
 
 module.exports = {
     productionSourceMap: false,
@@ -83,27 +83,27 @@ module.exports = {
                 }, {
                     from: path.resolve(__dirname, 'pdfjs_viewer/web/debugger.js'),
                     to: path.resolve(__dirname, 'dist/pdf-viewer/web/debugger.js'),
-                    transform: (content) => terser.minify(content.toString()).code,
+                    transform: async (content) => (await minify(content.toString())).code,
                     toType: 'file',
                 }, {
                     from: path.resolve(__dirname, 'pdfjs_viewer/web/viewer.js'),
                     to: path.resolve(__dirname, 'dist/pdf-viewer/web/viewer.js'),
-                    transform: (content) => terser.minify(content.toString()).code,
+                    transform: async (content) => (await minify(content.toString())).code,
                     toType: 'file',
                 }, {
                     from: path.resolve(__dirname, 'pdfjs_viewer/build/pdf.js'),
                     to: path.resolve(__dirname, 'dist/pdf-viewer/build/pdf.js'),
-                    transform: (content) => terser.minify(content.toString()).code,
+                    transform: async (content) => (await minify(content.toString())).code,
                     toType: 'file',
                 }, {
                     from: path.resolve(__dirname, 'pdfjs_viewer/build/pdf.sandbox.js'),
                     to: path.resolve(__dirname, 'dist/pdf-viewer/build/pdf.sandbox.js'),
-                    transform: (content) => terser.minify(content.toString()).code,
+                    transform: async (content) => (await minify(content.toString())).code,
                     toType: 'file',
                 }, {
                     from: path.resolve(__dirname, 'pdfjs_viewer/build/pdf.worker.js'),
                     to: path.resolve(__dirname, 'dist/pdf-viewer/build/pdf.worker.js'),
-                    transform: (content) => terser.minify(content.toString()).code,
+                    transform: async (content) => (await minify(content.toString())).code,
                     toType: 'file',
                 }, {
                     from: path.resolve(__dirname, 'pdfjs_viewer/web/viewer.css'),
@@ -113,12 +113,12 @@ module.exports = {
                 }, {
                     from: path.resolve(__dirname, 'src/tools/override.js'),
                     to: path.resolve(__dirname, 'dist/pdf-viewer/web/override.js'),
-                    transform: (content) => terser.minify(content.toString()).code,
+                    transform: async (content) => (await minify(content.toString())).code,
                     toType: 'file',
                 }, {
                     from: path.resolve(__dirname, 'pdfjs_viewer/web/viewer.html'),
                     to: path.resolve(__dirname, 'dist/pdf-viewer/web/viewer.html'),
-                    transform: (content) => minify(content.toString().replace('<link rel="stylesheet" href="viewer.css">', '<link rel="stylesheet" href="viewer.css"><script src="override.js"></script>'), {
+                    transform: (content) => minifyHTML(content.toString().replace('<link rel="stylesheet" href="viewer.css">', '<link rel="stylesheet" href="viewer.css"><script src="override.js"></script>'), {
                         caseSensitive: true,
                         collapseBooleanAttributes: true,
                         collapseWhitespace: true,

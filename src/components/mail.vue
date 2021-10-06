@@ -869,7 +869,7 @@ import { codemirror } from 'vue-codemirror';
 import { saveAs } from 'file-saver';
 import localForage from 'localforage';
 import markdown from 'markdown-it';
-import franc from 'franc-min';
+import { franc } from 'franc-min';
 
 import mdSub from 'markdown-it-sub';
 import mdSup from 'markdown-it-sup';
