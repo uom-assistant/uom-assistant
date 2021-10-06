@@ -730,7 +730,7 @@ export default {
         "save": "保存",
         "add": "追加",
         "delete": "削除",
-        "subject_name": "科目の名前 *",
+        "subject_name": "科目名 *",
         "subject_name_hint": "例えば Mathematical Techniques",
         "short_name": "短縮名 *",
         "short_name_hint": "例えば Math",
