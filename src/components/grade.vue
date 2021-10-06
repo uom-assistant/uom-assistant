@@ -1238,7 +1238,7 @@ export default {
         "grade": "Resumen de notas",
         "nothing": "No hay nada todavía",
         "network_error_body": "No ha sido posible obtener las últimas notas y datos de asistencias desde el servidor back-end",
-        "cannot_fetch": "No ha sido posible obtener los datos de las notas, posiblemente debido a la una configuración inapropiada del servidor back-end o por falta de permisión.",
+        "cannot_fetch": "No ha sido posible obtener los datos de las notas, puede ser debido a que los datos de back-end no estén correctamente configurado o por falta de permisión.",
         "learn_more": "Saber más",
         "empty_subject": "Asignatura sin calificaciones todavía",
         "more_info": "Más",

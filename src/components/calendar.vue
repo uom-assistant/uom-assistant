@@ -1040,8 +1040,8 @@ export default {
         "day": "Día",
         "week": "Semana",
         "month": "Mes",
-        "course_ddl": "Fecha límite para trabajo de curso",
-        "coursework": "Trabajo de curso",
+        "course_ddl": "Fecha límite para trabajo de asignatura",
+        "coursework": "Trabajo de asignatura",
         "subject_home": "Página principal de asignatura",
         "ical_error": "No ha sido posible analizar los archivos ical.",
         "network_error_body": "No ha sido posible obtener los últimos eventos desde la subscripción del calendario.",
@@ -1049,7 +1049,7 @@ export default {
         "quick_teams": "Acceder a Teams",
         "copy_passcode": "Copiar contraseña",
         "self_study": " (Autoestudio)",
-        "ical_error": "",
+        "ical_error": "Error al analizar el archivo de calendario",
         "error_at": "{0} en {1}"
     },
     "ja": {

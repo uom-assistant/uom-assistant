@@ -882,11 +882,11 @@ export default {
         "download": "Descargar",
         "audio_unsupported": "Su navegador no admite la reproducción de audio",
         "video_unsupported": "Su navegador no admite la reproducción de video.",
-        "breakline": "Cambiar de línea",
+        "breakline": "Cambio de línea",
         "raw_view": "Vista original",
         "preview": "Vista prevía",
         "head_row": "Usar la primera línea como encabezado: habilitado",
-        "no_head_row": "Usar la primera línea como encabezado: deshabilitado",
+        "no_head_row": "Usar la primera línea como encabezado: Deshabilitado",
         "hl_error": "Error cuando intenta subrayar al código",
         "error_at": "{0} en {1}"
     },

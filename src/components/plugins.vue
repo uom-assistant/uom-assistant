@@ -1515,7 +1515,7 @@ export default {
         "attendance/absentList": "{0} su lista de ausencias",
         "calendar/events": "{0} sus eventos de asignatura",
         "calendar/view": "{0} vista del calendario",
-        "task/list": "",
+        "task/list": "{0} tu lista de tareas",
         "quickNote/list": "{0} su lista de apuntes rápidos",
         "quickNote/noteContent": "{0} contenido de un apunte rápido",
         "quickNote/view": "{0} interfaz del usuario del widget apuntes rápidos",
