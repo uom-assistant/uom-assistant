@@ -730,17 +730,7 @@ export default {
          */
         async store() {
             await localForage.setItem('notes', this.notes);
-            // this.sync();
             this.buildSearchIndex();
-        },
-        /**
-         * Sync data with backend
-         */
-        sync() {
-            this.loading = true;
-            setTimeout(() => {
-                this.loading = false;
-            }, 1000);
         },
         /**
          * Build search index
@@ -1047,11 +1037,6 @@ export default {
             this.notes = storaged;
         }
 
-        // Sync with backend every 30 minutes
-        this.timer = setInterval(() => {
-            this.sync();
-        }, 1800000);
-
         // Configure Markdown renderer
         this.md = markdown({
             html: false,
@@ -1067,7 +1052,7 @@ export default {
                     } catch (__) {
                         this.$store.commit('addError', {
                             title: this.$t('hl_error'),
-                            content: `${__.name}: ${__.message} ${this.$t('at')} ${this.getDate(new Date())}`,
+                            content: this.$t('error_at', [`${__.name}: ${__.message}`, this.getDate(new Date())]),
                             type: 'warning',
                         });
                     }
@@ -1677,7 +1662,7 @@ export default {
         "too_many_title": "Maybe too many notes",
         "too_many_body": "This is not an error. You are creating more than 50 notes, which is not a good idea. Please consider moving them to a better place such as a note management app. In any case, you can continue using quick notes.",
         "hl_error": "Error when highlighting code",
-        "at": "at",
+        "error_at": "{0} at {1}",
         "toc": "Table of contents",
         "note_id": "Note ID",
         "copy_note_id": "Copy note ID",
@@ -1715,7 +1700,7 @@ export default {
         "too_many_title": "太多笔记了",
         "too_many_body": "这不是一个错误。你正在创建超过 50 个笔记，这不是一个好主意。请考虑将它们移动到笔记管理应用等更合适的地方。无论如何，你仍然可以继续使用快速笔记。",
         "hl_error": "在创建代码高亮时出错",
-        "at": "于",
+        "error_at": "{0} 于 {1}",
         "toc": "目录",
         "note_id": "笔记 ID",
         "copy_note_id": "复制笔记 ID",
@@ -1753,7 +1738,7 @@ export default {
         "too_many_title": "Demasiados apuntes quizás",
         "too_many_body": "Esto no es un error. Está creando más de 50 apuntes, que no es una buena idea. Por favor considere usar una aplicación para organizar apuntes en lugar de apuntes rápidos. Puedes continuar a usar apuntes rápidos de todas formas.",
         "hl_error": "Error cuando intenta subrayar al código",
-        "at": "en",
+        "error_at": "{0} en {1}",
         "toc": "",
         "note_id": "",
         "copy_note_id": "",
@@ -1791,7 +1776,7 @@ export default {
         "too_many_title": "ノートが多すぎる",
         "too_many_body": "これはエラーじゃないですけど、あなたは50件以上のノートを作成しています、これは良いアイデアではない。ここより適切な所に、例えば何かノート管理アプなどに移動ことを考えてください。とにかく、このクイックノートを続ける利用してもいいです。",
         "hl_error": "コードハイライトを表示する時にエラー発生しました。",
-        "at": "で",
+        "error_at": "{1} に {0} 発生",
         "toc": "目録",
         "note_id": "ノートID",
         "copy_note_id": "ノートIDをコピーする",

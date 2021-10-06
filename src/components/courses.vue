@@ -471,11 +471,6 @@ export default {
         this.$store.commit('setSubjects', this.subjects);
 
         this.filter = (localStorage.getItem('course_filter') || 'false') === 'true';
-
-        // Sync with backend every 3 hours
-        this.timer = setInterval(() => {
-            this.sync();
-        }, 10800000);
     },
     beforeDestroy() {
         clearInterval(this.timer);

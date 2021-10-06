@@ -8,13 +8,15 @@
             <div class="header-bg rounded-lg" :style="{ backgroundImage: `url(${headerImage.image})`, backgroundPosition: `50% ${headerImage.position}%` }" :class="{ bw: headerBw }"></div>
             <!-- Overview -->
             <div class="next-class float" v-if="!$vuetify.breakpoint.xs && !(nextEvent === null && current === null)">
-                <span class="d-block text-truncate"><span class="text--secondary" v-show="nextEvent !== null">{{ $t('next') }}</span> <span :class="subjectColor(nextEvent.subjectId)" class="subject-color-samll" v-show="subjectColor(nextEvent.subjectId) !== ''" v-if="nextEvent !== null"></span> <strong v-show="nextEvent !== null">{{ nextName }}</strong></span>
+                <span class="d-block text-truncate"><i18n path="next" tag="span" class="text--secondary" v-show="nextEvent !== null">
+                    <span class="text--primary"><span :class="subjectColor(nextEvent.subjectId)" class="subject-color-samll" v-show="subjectColor(nextEvent.subjectId) !== ''" v-if="nextEvent !== null"></span> <strong v-show="nextEvent !== null">{{ nextName }}</strong></span>
+                </i18n></span>
                 <span class="text--secondary d-block" v-if="nextEvent === null">{{ $t('no_next') }}</span>
                 <span class="text-h5 primary--text pt-1 d-inline-block">
                     <span v-show="nextEvent !== null">{{ (minAfter > 60 ? $tc('hour_after', hourAfter, [hourAfter]) : $tc('min_after', minAfter, [minAfter])) }}</span>
                     <v-icon color="primary" large v-show="nextEvent === null">mdi-check-all</v-icon>
                 </span><br>
-                <span class="text--disabled pt-1 d-inline-block smaller-font">{{ current === null ? $t('no_current') : currentEnd > 20 ? `${$t('current_is')}${currentName}` : $tc('current', currentEnd, [currentEnd]) }}</span>
+                <span class="text--disabled pt-1 d-inline-block smaller-font">{{ current === null ? $t('no_current') : currentEnd > 20 ? $t('current_is', [currentName]) : $tc('current', currentEnd, [currentEnd]) }}</span>
             </div>
             <v-list-item three-line class="global-header">
                 <v-list-item-content>
@@ -34,12 +36,14 @@
                 </v-list-item-content>
             </v-list-item>
             <div class="next-class normal" v-if="$vuetify.breakpoint.xs && !(nextEvent === null && current === null)">
-                <span class="d-block text-truncate"><span class="text--secondary" v-show="nextEvent !== null">{{ $t('next') }}</span> <span :class="subjectColor(nextEvent.subjectId)" class="subject-color-samll" v-show="subjectColor(nextEvent.subjectId) !== ''" v-if="nextEvent !== null"></span> <strong v-show="nextEvent !== null">{{ nextName }}</strong></span>
+                <span class="d-block text-truncate"><i18n path="next" tag="span" class="text--secondary" v-show="nextEvent !== null">
+                    <span class="text--primary"><span :class="subjectColor(nextEvent.subjectId)" class="subject-color-samll" v-show="subjectColor(nextEvent.subjectId) !== ''" v-if="nextEvent !== null"></span> <strong v-show="nextEvent !== null">{{ nextName }}</strong></span>
+                </i18n></span>
                 <span class="text--secondary d-block" v-if="nextEvent === null">{{ $t('no_next') }}</span>
                 <span class="text-h5 primary--text pt-1 d-inline-block">
                     <span v-show="nextEvent !== null">{{ (minAfter > 60 ? $tc('hour_after', hourAfter, [hourAfter]) : $tc('min_after', minAfter, [minAfter])) }}</span>
                     <v-icon color="primary" large v-show="nextEvent === null">mdi-check-all</v-icon></span><br>
-                <span class="text--disabled pt-1 d-inline-block smaller-font">{{ current === null ? $t('no_current') : currentEnd > 20 ? `${$t('current_is')}${currentName}` : $tc('current', currentEnd, [currentEnd]) }}</span>
+                <span class="text--disabled pt-1 d-inline-block smaller-font">{{ current === null ? $t('no_current') : currentEnd > 20 ? $t('current_is', [currentName]) : $tc('current', currentEnd, [currentEnd]) }}</span>
             </div>
             <v-expand-transition>
                 <personalise class="personalise-panel" v-show="showPersonalise" @change="(img) => headerImage = img" @bw="(val) => headerBw = val" ref="personalise"></personalise>
@@ -85,6 +89,10 @@
             </v-card>
         </v-dialog>
         <v-overlay :z-index="6" :value="showPersonalise" @click="showPersonalise = false"></v-overlay>
+        <audio class="d-none" ref="audio">
+            <source src="@/assets/audios/ding.mp3" type="audio/mpeg">
+            <source src="@/assets/audios/ding.ogg" type="audio/ogg">
+        </audio>
     </div>
 </template>
 
@@ -149,6 +157,8 @@ export default {
                 position: 50,
             },
             headerBw: false,
+            showCheckInNotice: false,
+            hasCheckedIn: false,
         };
     },
     watch: {
@@ -163,14 +173,22 @@ export default {
                 this.packery.layout();
             });
         },
+        classBell() {
+            // Update class bell
+            if (this.classBell) {
+                this.$refs.audio.currentTime = 0;
+                this.$refs.audio.volume = 1;
+                this.$refs.audio.play();
+            }
+        },
         timerMin() {
-            this.updateEvents();
+            this.updateEvents('min');
         },
         timerHour() {
             this.getDate();
         },
         todayEvents() {
-            this.updateEvents();
+            this.updateEvents('event');
         },
     },
     computed: {
@@ -183,6 +201,7 @@ export default {
             todayEvents: (state) => state.todayEvents,
             nextDayFirstEvent: (state) => state.nextDayFirstEvent,
             subjects: (state) => state.subjects,
+            classBell: (state) => state.classBell,
         }),
     },
     methods: {
@@ -194,8 +213,9 @@ export default {
         },
         /**
          * Update upcoming events
+         * @param {string} source update source, 'min' or 'event'
          */
-        updateEvents() {
+        updateEvents(source) {
             this.classNum = this.todayEvents.length;
 
             const now = new Date().valueOf();
@@ -248,6 +268,18 @@ export default {
                 this.hourAfter = Math.round(this.minAfter / 60);
                 this.minAfter = this.minAfter === 0 ? 1 : this.minAfter;
                 this.hourAfter = this.hourAfter === 0 ? 1 : this.hourAfter;
+
+                if (this.minAfter === 5 && source === 'min') {
+                    this.hasCheckedIn = false;
+                    if (!this.audioOff) {
+                        this.$refs.audio.currentTime = 0;
+                        this.$refs.audio.volume = 1;
+                        this.$refs.audio.play();
+                    }
+                }
+                if (this.minAfter <= 5 && !this.hasCheckedIn) {
+                    this.showCheckInNotice = true;
+                }
             } else {
                 // No upcoming event in 24 hours
                 this.nextName = this.$t('unknown');
@@ -493,8 +525,7 @@ export default {
         height: 9px;
         display: inline-block;
         border-radius: 50%;
-        margin: 0;
-        margin-right: 2px;
+        margin: 1px;
         margin-left: 2px;
         margin-bottom: 1.5px;
     }
@@ -588,11 +619,11 @@ export default {
         "tomorrow_first": " Tomorrow's first session will start at {0}.",
         "tomorrow_first_none": "You have no sessions tomorrow.",
         "tomorrow_first_none_rest": "You have no sessions tomorrow, have a rest!",
-        "next": "Coming up",
+        "next": "Coming up {0}",
         "no_next": "No more sessions today",
         "min_after": "In {0} min | In {0} mins",
         "hour_after": "In {0} hour | In {0} hours",
-        "current_is": "Current session is ",
+        "current_is": "Current session is {0}",
         "current": "Current session will end in {0} min | Current session will end in {0} mins",
         "no_current": "There is no session currently",
         "personalise": "Personalise",
@@ -609,11 +640,11 @@ export default {
         "tomorrow_first": "明天的第一节课将于 {0} 开始。",
         "tomorrow_first_none": "你明天没有课。",
         "tomorrow_first_none_rest": "你明天没有课，休息一下吧。",
-        "next": "下一节",
+        "next": "下一节 {0}",
         "no_next": "一天之内没有课程",
         "min_after": "{0} 分钟后 | {0} 分钟后",
         "hour_after": "{0} 小时后 | {0} 小时后",
-        "current_is": "正在上 ",
+        "current_is": "正在上 {0}",
         "current": "当前课程会在 {0} 分钟后结束 | 当前课程会在 {0} 分钟后结束",
         "no_current": "现在没有课程",
         "personalise": "个性化",
@@ -630,14 +661,14 @@ export default {
         "tomorrow_first": "La primera clase de mañana empezará en {0}. ",
         "tomorrow_first_none": "No tiene clases mañana.",
         "tomorrow_first_none_rest": "No tiene clases mañana, tómese un descanso!",
-        "next": "Siguiente",
+        "next": "Siguiente {0}",
         "no_next": "No hay clases en un día",
         "min_after": "En {0} minuto | En {0} minutos",
         "hour_after": "En {0} hora | En {0} horas",
-        "current_is": "La sesión actual es ",
+        "current_is": "La sesión actual es {0}",
         "current": "Esta sesión terminará en {0} minuto | Esta sesión terminará en {0} minutos",
         "no_current": "No hay clase ahora mismo",
-        "personalise": "个性化",
+        "personalise": "",
         "unknown": "Desconocido",
         "timezone_changed_title": "Se detecta cambio de zona horaria",
         "timezone_changed_body": "No se preocupe, todo el contenido relacionado con el tiempo se seguirá mostrando correctamente, las horas que deben convertirse también se convertirán automáticamente. Puede confiar en todo lo que hay en su tablero.",
@@ -652,13 +683,14 @@ export default {
         "tomorrow_first": "明日の最初の授業は {0} に始まります。",
         "tomorrow_first_none": "明日は授業がありません。",
         "tomorrow_first_none_rest": "明日は授業がありません、ちょっと休みましょう",
-        "next": "次の授業",
+        "next": "次の授業 {0}",
         "no_next": "これまで今日の授業が全部終わりました",
         "min_after": "{0} 分後 | {0} 分後",
         "hour_after": "{0} 時間後 | {0} 時間後",
-        "current_is": "今の授業は ",
+        "current_is": "今の授業は {0}",
         "current": "今の授業は {0} 分後終わります | 今の授業は {0} 分後終わります",
         "no_current": "今は授業がありません",
+        "personalise": "パーソナライズ",
         "unknown": "不明",
         "timezone_changed_title": "タイムゾーン変更を検出しました",
         "timezone_changed_body": "心配しないて、すべての時間を関する情報はまだ正しく表示されます、変換が必要な時間はすぐに変換されます。UoMアシスタントからの全部の情報をまだ信頼してもいいよ。",

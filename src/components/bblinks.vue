@@ -204,16 +204,6 @@ export default {
          */
         store() {
             localStorage.setItem('bblinks', JSON.stringify(this.links));
-            this.sync();
-        },
-        /**
-         * Sync data with backend
-         */
-        sync() {
-            this.loading = true;
-            setTimeout(() => {
-                this.loading = false;
-            }, 1000);
         },
     },
     watch: {
@@ -252,10 +242,6 @@ export default {
         if (storaged) {
             this.links = JSON.parse(storaged);
         }
-
-        this.timer = setInterval(() => {
-            this.sync();
-        }, 1800000);
 
         // Layout when initialized
         setTimeout(() => {

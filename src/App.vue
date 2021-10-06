@@ -48,6 +48,15 @@
                             </template>
                         </v-list-item>
                     </v-list-item-group>
+                    <v-divider class="my-2"></v-divider>
+                    <v-list-item @click="newCourseSound = !newCourseSound">
+                        <v-list-item-action>
+                            <v-checkbox :input-value="newCourseSound"></v-checkbox>
+                        </v-list-item-action>
+                        <v-list-item-content>
+                            <v-list-item-title>{{ $t('new_course_sound') }}</v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
                 </v-list>
             </v-menu>
             <v-btn
@@ -533,6 +542,7 @@ export default {
         updateReady: false,
         updateReadyVersion: '',
         updating: false,
+        newCourseSound: true,
     }),
     methods: {
         /**
@@ -806,6 +816,11 @@ export default {
             localStorage.setItem('if_widgets', JSON.stringify(this.ifWidgets));
             this.$store.commit('setWidgets', this.ifWidgets);
         },
+        newCourseSound() {
+            // Store class bell status to local storage
+            localStorage.setItem('class_bell', this.newCourseSound);
+            this.$store.commit('setClassBell', this.newCourseSound);
+        },
         locale() {
             // Store language settings to local storage
             this.$i18n.locale = this.locale;
@@ -877,6 +892,10 @@ export default {
         localStorage.setItem('if_widgets', JSON.stringify(this.ifWidgets));
         this.$store.commit('setWidgets', this.ifWidgets);
 
+        // Initialize class bell status
+        this.newCourseSound = (localStorage.getItem('class_bell') || 'true') === 'true';
+        this.$store.commit('setClassBell', this.newCourseSound);
+
         // Initialize dark mode status
         const darkMode = localStorage.getItem('dark');
         this.$vuetify.theme.dark = darkMode ? (darkMode === 'true') : false;
@@ -923,7 +942,7 @@ export default {
         // Handle uncaught errors
         this.$store.commit('addError', {
             title: `${this.$t('unknown')} ${err.name}`,
-            content: `${err.message} ${this.$t('at')} ${formatDateTime(new Date(), this.locale)}`,
+            content: this.$t('error_at', [err.message, formatDateTime(new Date(), this.locale)]),
             type: 'error',
         });
         return true;
@@ -1015,6 +1034,7 @@ html::-webkit-scrollbar {
     border-radius: 0;
 }
 .welcome-dialog .welcome-dialog-card {
+    overflow: hidden;
     .stepper {
         position: absolute;
         top: 30px;
@@ -1217,6 +1237,9 @@ html::-webkit-scrollbar {
     left: -100%;
     top: -100%;
 }
+code, kbd, pre, samp {
+    font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
+}
 @media (max-width: 960px) {
     .global-search-input {
         top: 4px;
@@ -1312,16 +1335,16 @@ html::-webkit-scrollbar {
         "front_end_update_ready": "New version of the frontend is now available",
         "front_end_update": "Update",
         "front_end_ignore": "Ignore",
-        "updating": "Updating...",
+        "updating": "Updating…",
         "dashboard": "Dashboard",
         "settings": "Settings",
         "about": "About",
         "not found": "UoM Assistant",
         "unknown": "Unknown",
-        "at": "at",
+        "error_at": "{0} at {1}",
         "backend_reconnect": "Backend is up",
         "backend_reconnect_body": "We have just reconnected to the backend",
-        "search": "Search...",
+        "search": "Search…",
         "welcome": "Hi there!",
         "not_yet": "Seems like you haven't set up your UoM Assistant yet",
         "press_to_settings": "Press \"Continue\" to set up your own dashboard",
@@ -1357,7 +1380,8 @@ html::-webkit-scrollbar {
         "note": "Quick Notes",
         "mail": "Inbox",
         "grade": "Grade Summary",
-        "plugins": "Plug-ins"
+        "plugins": "Plug-ins",
+        "new_course_sound": "Class Bell"
     },
     "zh": {
         "title": "曼大助手",
@@ -1372,7 +1396,7 @@ html::-webkit-scrollbar {
         "about": "关于",
         "not found": "曼大助手",
         "unknown": "未知",
-        "at": "于",
+        "error_at": "{0} 于 {1}",
         "backend_reconnect": "后端已恢复",
         "backend_reconnect_body": "已经成功连接到后端",
         "search": "搜索…",
@@ -1411,7 +1435,8 @@ html::-webkit-scrollbar {
         "note": "快速笔记",
         "mail": "收件箱",
         "grade": "成绩概览",
-        "plugins": "插件"
+        "plugins": "插件",
+        "new_course_sound": "上课铃"
     },
     "es": {
         "title": "UoM Assistant",
@@ -1420,16 +1445,16 @@ html::-webkit-scrollbar {
         "front_end_update_ready": "Nuava versión de front-end disponible",
         "front_end_update": "Actualizar",
         "front_end_ignore": "Ignorar",
-        "updating": "Actualizando...",
+        "updating": "Actualizando…",
         "dashboard": "Tablero",
         "settings": "Ajustes",
         "about": "Sobre",
         "not found": "UoM Assistant",
         "unknown": "Desconocido",
-        "at": "en",
+        "error_at": "{0} en {1}",
         "backend_reconnect": "Back-end reconectado",
         "backend_reconnect_body": "Conectada a back-end correctamente",
-        "search": "Buscar...",
+        "search": "Buscar…",
         "welcome": "Bienvenido!",
         "not_yet": "Parace ser que todavía no ha ajustado su UoM Assistant",
         "press_to_settings": "Haga clic en \"CONTINUAR\" para ajustar su propio tablero",
@@ -1464,7 +1489,8 @@ html::-webkit-scrollbar {
         "note": "Apuntes rápidos",
         "mail": "Correos",
         "grade": "Resumen de notas ",
-        "plugins": "Complementos"
+        "plugins": "Complementos",
+        "new_course_sound": ""
     },
     "ja": {
         "title": "UoMアシスタント",
@@ -1478,7 +1504,7 @@ html::-webkit-scrollbar {
         "settings": "設定",
         "about": "バージョン情報",
         "unknown": "不明",
-        "at": "に",
+        "error_at": "{1} に {0} 発生",
         "backend_reconnect": "バックエンドは今正常に戻りました",
         "backend_reconnect_body": "バックエンドへの接続に成功しました",
         "search": "検索…",
@@ -1518,7 +1544,8 @@ html::-webkit-scrollbar {
         "note": "クイックノート",
         "mail": "受信トレイ",
         "grade": "成績概要",
-        "plugins": "プラグイン"
+        "plugins": "プラグイン",
+        "new_course_sound": ""
     }
 }
 </i18n>

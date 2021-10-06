@@ -28,6 +28,7 @@ export default new Vuex.Store({
         attendance: false,
         attendanceUpdated: 0,
         darkMode: false,
+        classBell: true,
     },
     mutations: {
         setLocale(state, language) {
@@ -93,6 +94,9 @@ export default new Vuex.Store({
         },
         setDarkMode(state, darkMode) {
             state.darkMode = darkMode;
+        },
+        setClassBell(state, classBell) {
+            state.classBell = classBell;
         },
     },
     actions: {
