@@ -31,7 +31,7 @@
                 class="mx-auto loading-tab"
                 type="heading"
             ></v-skeleton-loader>
-            <div class="loading-view" v-if="(!init && loading) || (!init && !loading) || (init && !loading && gradeListFlat.length === 0)" :class="{ 'not-inited-yet': (!init && !loading) || (init && !loading && gradeListFlat.length === 0) }">
+            <div class="loading-view" v-if="(!init && loading) || (!init && !loading) || (init && gradeListFlat.length === 0)" :class="{ 'not-inited-yet': (!init && !loading) || (init && gradeListFlat.length === 0) }">
                 <v-card class="loading-bg mx-auto mb-2" v-if="!init && loading" outlined>
                     <v-skeleton-loader
                         class="mx-auto"
