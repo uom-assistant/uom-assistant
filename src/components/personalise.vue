@@ -638,7 +638,7 @@ export default {
         "position": "位置",
         "b&w": "白黒",
         "too_large": "画像サイズが大きすぎる",
-        "too_large_body": "10MB以上の画像が読み込みできません。",
+        "too_large_body": "10MB以上の画像が読み込めません。",
         "too_many": "ファイルが多すぎる",
         "too_many_body": "一度に選択できるのは一つのファイルのみ。",
         "not_a_image": "画像ファイルではない",
