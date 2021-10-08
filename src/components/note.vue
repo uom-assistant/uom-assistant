@@ -936,6 +936,10 @@ export default {
          * @param {string} locale preferred locale
          */
         async initGuide(locale) {
+            // If already downloaded, exit
+            if (localStorage.getItem('uoma_note_guide') === 'true') {
+                return;
+            }
             // Download markdown guide
             let response = await betterFetch(`https://cdn.jsdelivr.net/gh/uom-assistant/uom-assistant/github_assets/markdown/${locale}/markdown_guide.md`).catch(() => false);
 
@@ -973,6 +977,9 @@ export default {
                 });
                 this.previews.unshift(this.buildPreviews(0));
             }
+
+            // Mark as downloaded
+            localStorage.setItem('uoma_note_guide', 'true');
         },
     },
     watch: {
