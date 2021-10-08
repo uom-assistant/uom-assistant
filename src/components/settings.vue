@@ -139,7 +139,7 @@ export default {
                 (value) => (value === '' || value.length > 3) || '',
             ],
             rulesEmail: [
-                (value) => (value === '' || /^[a-z]+\.[a-z]+(((\.)?[a-z]+)*)@([a-z]|\d)+((\.)?([a-z]|\d)+)*$/i.test(value.toLowerCase())) || '',
+                (value) => (value === '' || /^[a-z]+\.[a-z]+(((\.)?[a-z]+)*)(-\d)*@([a-z]|\d)+((\.)?([a-z]|\d)+)*$/i.test(value.toLowerCase())) || '',
             ],
         };
     },

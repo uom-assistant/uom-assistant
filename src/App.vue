@@ -461,7 +461,6 @@
         <v-dialog
             v-model="privacyPolicy"
             max-width="500"
-            persistent
         >
             <v-card>
                 <v-card-title class="headline">

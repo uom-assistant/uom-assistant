@@ -28,7 +28,7 @@ Frontend:
 - [x] Grade summary widget
 - [ ] Plug-in widget
 - [ ] Search
-- [ ] Set up guide
+- [X] Set up guide
 - [ ] Settings page
 - [x] About page
 - [x] Logo
