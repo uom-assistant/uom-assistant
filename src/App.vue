@@ -182,7 +182,7 @@
         </v-navigation-drawer>
         <v-main>
             <v-container fluid>
-                <router-view ref="view"></router-view>
+                <router-view ref="view" :key="`router-${routerRefreshKey}`"></router-view>
             </v-container>
         </v-main>
         <v-dialog
@@ -238,7 +238,7 @@
                         x-large
                         color="primary"
                         class="mb-3 main-btn"
-                        @click="stage = -1"
+                        @click="startWelcome"
                     >
                         {{ $t('continue') }}
                     </v-btn>
@@ -246,18 +246,10 @@
                         <v-btn
                             depressed
                             small
-                            class="mr-1 second-btn"
-                            @click="skip"
-                        >
-                            {{ $t('import') }}
-                        </v-btn>
-                        <v-btn
-                            depressed
-                            small
                             class="second-btn"
                             @click="skip"
                         >
-                            {{ $t('skip') }}
+                            {{ $t('import') }}
                         </v-btn>
                     </div>
                 </v-card-text>
@@ -272,7 +264,7 @@
                                     </h1>
                                     <p>{{ $t('privacy_policy') }}</p>
                                     <i18n path="read_privacy_policy" tag="p">
-                                        <a @click="skip">{{ $t('privacy_policy_link') }}</a>
+                                        <a @click="privacyPolicy = true">{{ $t('privacy_policy_link') }}</a>
                                     </i18n>
                                 </div>
                             </v-card-text>
@@ -309,6 +301,7 @@
                             validate-on-blur
                             :label="$t('backend_url')"
                             :rules="rulesUrl"
+                            :readonly="loading"
                             :disabled="needToken"
                             :error="urlError"
                             :error-messages="urlError ? (urlErrorTemp ? $t('backend_maintenance') : $t('wrong_url')) : []"
@@ -359,17 +352,30 @@
                 </v-card-text>
                 <v-card-text class="same-height personal" :class="{ 'show-1': stage === 2 }">
                     <h1 class="mt-12 pb-4 pt-10" :class="$vuetify.breakpoint.xs ? 'text-h5' : 'text-h4'">{{ $t('account_settings') }}</h1>
-                    <settings class="settings mt-4" ref="settingsField"></settings>
+                    <settings class="settings mt-4" ref="settingsField" @valid="(status) => settingsValid = status" @submit="checkConfig"></settings>
                     <v-btn
                         depressed
                         large
                         color="primary"
                         class="mb-3 main-btn mt-3"
-                        @click="welcome = false"
+                        @click="checkConfig()"
                         :loading="loading"
-                        :disabled="loading"
+                        :disabled="loading || !settingsValid"
                     >
                         {{ $t('next') }}
+                    </v-btn>
+                </v-card-text>
+                <v-card-text class="same-height done" :class="{ 'show-1': stage === 3 }">
+                    <h1 class="mt-15 pt-10 set-up-done-title" :class="$vuetify.breakpoint.xs ? 'text-h3 pb-5' : 'text-h1 pb-15'">🎉</h1>
+                    <div v-html="$t('setup_done')" class="text-body-1 set-up-done" :class="$vuetify.breakpoint.xs ? 'small mb-3' : 'mb-10'"></div>
+                    <v-btn
+                        depressed
+                        x-large
+                        color="primary"
+                        class="mb-3 main-btn mt-3"
+                        @click="welcomeDone"
+                    >
+                        {{ $t('done') }}
                     </v-btn>
                 </v-card-text>
             </v-card>
@@ -392,6 +398,82 @@
                     color="primary"
                     text
                     @click="dismissWelcomeMessage"
+                >
+                    {{ $t('ok') }}
+                </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog
+            v-model="accountNotice"
+            max-width="400"
+            persistent
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('account_notice_title') }}
+                </v-card-title>
+                <v-card-text>
+                    {{ $t('account_notice_body') }}
+                </v-card-text>
+                <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                    text
+                    @click="accountNotice = false"
+                >
+                    {{ $t('cancel') }}
+                </v-btn>
+                <v-btn
+                    color="primary"
+                    text
+                    @click="checkConfig(true)"
+                >
+                    {{ $t('continue') }}
+                </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog
+            v-model="loginError"
+            max-width="400"
+            persistent
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('login_error_title') }}
+                </v-card-title>
+                <v-card-text>
+                    {{ $t(loginErrorText) }}
+                </v-card-text>
+                <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                    color="primary"
+                    text
+                    @click="closeLoginError"
+                >
+                    {{ $t('ok') }}
+                </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog
+            v-model="privacyPolicy"
+            max-width="500"
+            persistent
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('privacy_policy_link') }}
+                </v-card-title>
+                <v-card-text class="privacy-policy-dialog-text" v-html="$t('privacy_policy_text')"></v-card-text>
+                <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                    color="primary"
+                    text
+                    @click="privacyPolicy = false"
                 >
                     {{ $t('ok') }}
                 </v-btn>
@@ -516,6 +598,12 @@ export default {
         backend: {},
         account: {},
         searchOpened: false,
+        settingsValid: false,
+        accountNotice: false,
+        routerRefreshKey: 0,
+        loginError: false,
+        loginErrorText: '',
+        privacyPolicy: false,
         rulesUrl: [
             (value) => !!value || '',
             (value) => /^[\w-]+(\.[\w-]+)+([\w.,@^=%:/~+-]*)?$/i.test(value) || '',
@@ -567,9 +655,29 @@ export default {
             this.welcome = false;
         },
         /**
+         * Start setup guide
+         */
+        startWelcome() {
+            this.stage = -1;
+
+            // Download guide notes
+            this.$store.commit('setSearchNotification', {
+                target: 'note',
+                payload: { action: 'initGuide', index: this.locale },
+            });
+        },
+        /**
          * Start initial settings
          */
         goToSettings() {
+            const backend = JSON.parse(localStorage.getItem('backend') || `{
+                "url": "",
+                "token": "",
+                "status": true
+            }`);
+
+            this.backendURL = backend.url;
+
             this.stage = 1;
             setTimeout(() => {
                 this.$refs.backendUrl.focus();
@@ -590,8 +698,9 @@ export default {
             let requestFailed = false;
             // Send request
             const response = await betterFetch(`https://${this.backendURL}${this.backendURL.substr(-1) === '/' ? '' : '/'}check_ability/`, {
-                headers: new Headers({
-                    'X-UOMA-TOKEN': this.backendToken ? this.backendToken : '',
+                method: 'POST',
+                body: JSON.stringify({
+                    token: this.backendToken ? this.backendToken : '',
                 }),
             }).catch(() => {
                 // Network error
@@ -643,6 +752,9 @@ export default {
                     // Go to account settings
                     this.stage = 2;
                     this.$refs.settingsField.setState(response.data);
+                    this.$nextTick(() => {
+                        this.$refs.settingsField.refreshKey = new Date().valueOf();
+                    });
                     setTimeout(() => {
                         this.$refs.settingsField.focusFirst();
                     }, 500);
@@ -653,11 +765,160 @@ export default {
             }
         },
         /**
+         * Check UoM Account info and finish the guide
+         * @param {boolean} skipAccountCheck whether to skip account check
+         */
+        async checkConfig(skipAccountCheck = false) {
+            this.accountNotice = false;
+
+            if (!this.settingsValid) {
+                return;
+            }
+
+            // Restore account info if present
+            const account = JSON.parse(localStorage.getItem('account') || `{
+                "calendar": "",
+                "email": "",
+                "password": "",
+                "username": ""
+            }`);
+
+            // Set calendar URL
+            account.calendar = this.$refs.settingsField.calendarURL.slice(8).replace(/\/api\/ical\//g, '/').split('/').slice(1, 3).join('/');
+
+            // Check if UoM account info is presented
+            if (!skipAccountCheck && this.$refs.settingsField.allowAccount && (!this.$refs.settingsField.username && !this.$refs.settingsField.password && !this.$refs.settingsField.email)) {
+                this.accountNotice = true;
+                return;
+            }
+
+            if ((!this.$refs.settingsField.allowAccount && this.$refs.settingsField.calendarURL) || (this.$refs.settingsField.allowAccount && (!this.$refs.settingsField.username && !this.$refs.settingsField.password && !this.$refs.settingsField.email))) {
+                // Store account info without username and password
+                localStorage.setItem('account', JSON.stringify({
+                    calendar: account.calendar,
+                    email: '',
+                    password: '',
+                    username: '',
+                }));
+
+                // Store backend info
+                localStorage.setItem('backend', JSON.stringify({
+                    url: this.backendURL.substr(-1) === '/' ? this.backendURL.slice(0, -1) : this.backendURL,
+                    token: this.backendToken ? this.backendToken : '',
+                    status: true,
+                }));
+
+                // Go to finish screen
+                this.stage = 3;
+                setTimeout(() => {
+                    this.loading = false;
+                }, 200);
+                return;
+            }
+
+            // Try to login
+            if (this.$refs.settingsField.allowAccount && ((this.$refs.settingsField.username && this.$refs.settingsField.password && this.$refs.settingsField.email) || (!this.$refs.settingsField.username && !this.$refs.settingsField.password && !this.$refs.settingsField.email))) {
+                this.loading = true;
+                let requestFailed = false;
+
+                const response = await betterFetch(`https://${this.backendURL}${this.backendURL.substr(-1) === '/' ? '' : '/'}check_account/`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        username: this.$refs.settingsField.username,
+                        password: this.$refs.settingsField.password,
+                        token: this.backendToken ? this.backendToken : '',
+                    }),
+                }).catch(() => {
+                    // Network error
+                    this.loading = false;
+                    this.loginError = true;
+                    this.loginErrorText = 'network_error';
+                    requestFailed = true;
+                });
+
+                if (requestFailed) {
+                    return;
+                }
+
+                if (Object.prototype.toString.call(response) !== '[object Object]' || !response.uomabVersion || !response.success || response.data.tokenRequired) {
+                    // Not a valid UoM Assistant backend
+                    this.loading = false;
+                    this.loginError = true;
+                    this.loginErrorText = 'backend_error';
+                    return;
+                }
+
+                if (response.maintenance || !checkBackendVersion(response.uomabVersion)) {
+                    // Backend maintenance
+                    this.loading = false;
+                    this.loginError = true;
+                    this.loginErrorText = 'backend_maintenance';
+                    return;
+                }
+
+                if (!response.data.login) {
+                    // Wrong Token
+                    this.loading = false;
+                    this.loginError = true;
+                    this.loginErrorText = 'login_error';
+                    return;
+                }
+
+                // Store account info
+                account.username = this.$refs.settingsField.username;
+                account.password = this.$refs.settingsField.password;
+                account.email = `${this.$refs.settingsField.email}.manchester.ac.uk`;
+                localStorage.setItem('account', JSON.stringify(account));
+
+                // Store backend info
+                localStorage.setItem('backend', JSON.stringify({
+                    url: this.backendURL.substr(-1) === '/' ? this.backendURL.slice(0, -1) : this.backendURL,
+                    token: this.backendToken ? this.backendToken : '',
+                    status: true,
+                }));
+
+                // Mark setuo guide as done
+                localStorage.setItem('setup', 'true');
+
+                // Go to finish screen
+                this.stage = 3;
+                setTimeout(() => {
+                    this.loading = false;
+                }, 200);
+            }
+        },
+        /**
+         * Close the login error dialog and focus the username input in needed
+         */
+        closeLoginError() {
+            this.loginError = false;
+            if (this.loginErrorText === 'login_error') {
+                this.$nextTick(() => {
+                    this.$refs.settingsField.focusUsername();
+                });
+            }
+        },
+        /**
+         * Close the setup guide and refresh the dashboard
+         */
+        welcomeDone() {
+            this.$store.commit('setBackend', JSON.parse(localStorage.getItem('backend')) || { status: true });
+            this.$store.commit('setBackendStatus', true);
+            this.$store.commit('setAccount', JSON.parse(localStorage.getItem('account')) || {});
+            this.welcome = false;
+            if (this.$route.path === '/') {
+                this.routerRefreshKey = new Date().valueOf();
+            }
+        },
+        /**
          * Dismiss welcome message dialog and go to account settings
          */
         dismissWelcomeMessage() {
             this.welcomeMessageDialog = false;
             this.stage = 2;
+            this.$nextTick(() => {
+                this.$refs.settingsField.refreshKey = new Date().valueOf();
+            });
             setTimeout(() => {
                 this.$refs.settingsField.focusFirst();
             }, 500);
@@ -774,7 +1035,7 @@ export default {
          * Check whether to show the welcome dialog
          */
         checkWelcome() {
-            if (this.$route.path === '/' || this.$route.path === '/settings') {
+            if ((this.$route.path === '/' || this.$route.path === '/settings') && localStorage.getItem('setup') !== 'true') {
                 this.welcome = true;
             }
         },
@@ -1174,7 +1435,30 @@ html::-webkit-scrollbar {
             pointer-events: auto;
             transition: opacity .2s .2s;
         }
+        .set-up-done-title {
+            color: black;
+        }
+        .set-up-done {
+            max-width: 500px;
+            max-height: calc(100% - 310px);
+            overflow: auto;
+            p {
+                text-align: left;
+                color: rgba(0, 0, 0, .8);
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+            &.small {
+                p {
+                    font-size: 14px;
+                }
+            }
+        }
     }
+}
+.privacy-policy-dialog-text {
+    padding: 10px 24px 0!important;
 }
 .global-search-input {
     position: absolute;
@@ -1370,6 +1654,17 @@ code, kbd, pre, samp {
         "message_from_backend": "Message from the backend",
         "ok": "OK",
         "account_settings": "Account Settings",
+        "done": "Done",
+        "account_notice_title": "UoM account not set",
+        "account_notice_body": "You have not set up your UoM account information, which will result in the grade summary, attendance and inbox widget being unavailable. Continue anyway?",
+        "cancel": "Cancel",
+        "setup_done": "<p>Congratulations! Your UoM Assistant dashboard is now ready to use.</p><p>Now you can find a note in the \"Quick Notes\" widget called <em>UoM Assistant Quick Tour</em>. This note provides a brief introduction to the features that UoM Assistant provides and you can use it to quickly familiarise yourself with the use of UoM Assistant.</p><p>Thanks to the volunteers in the UoM Assistant community, you can now use the \"Course Info Importer\" plug-in in the \"Plug-ins\" widget to look for and import course data with few clicks for your year without filling in the course data manually.</p><p>For more information about UoM Assistant, please visit our <a href=\"https://github.com/uom-assistant/uom-assistant\" target=\"_blank\" rel=\"noopener nofollow\">GitHub Repo</a>.",
+        "network_error": "Cannot verify your UoM account information due to network error. Please try again later.",
+        "backend_error": "Cannot verify your UoM account information due to backend error. Please try again later.",
+        "backend_maintenance": "Since the backend is under maintenance, we cannot verify your UoM account information. Please try again later.",
+        "login_error": "Cannot verify your UoM account information. Please check the username and the password and try again.",
+        "login_error_title": "Failed to verify",
+        "privacy_policy_text": "<p><strong>We cannot guarantee the security of your personal information if you use an unofficial UoM Assistant instance. Third-party UoM Assistant instances may have their own privacy policy that you could read yourself.</strong></p><p>All your data used by UoM Assistant will be stored locally on your device. UoM Assistant will send your University of Manchester login details to the corresponding UoM Assistant backend to retrieve data such as your grades and attendance when necessary. The UoM Assistant backend will not retain your personal information or share them with any third party, including, but not limited to, your university email address, username, password, login cookie and token.</p><p>We cannot guarantee how your information will be handled by third parties, therefore, please be mindful when using third-party services and plug-ins. We will not share your personal information with any third party without your consent.</p><p>UoM Assistant does not track your use of UoM Assistant in any way.</p><p>Please note that we are not liable for any loss or corruption of data, so it is advised to backup important information such as notes and tasks. Clearing site data will remove all stored data of the website, including information such as your username and password, and bring UoM Assistant back to its original state. You can also clear all the data stored by UoM Assistant in your browser from the settings page of UoM Assistant.</p>",
         "clock": "Clock",
         "bblinks": "Quick Links",
         "livelinks": "Online Session Links",
@@ -1425,6 +1720,17 @@ code, kbd, pre, samp {
         "message_from_backend": "来自后端的消息",
         "ok": "好",
         "account_settings": "账户设置",
+        "done": "完成",
+        "account_notice_title": "未设置账户信息",
+        "account_notice_body": "你没有设置曼大账户信息，这将会导致成绩概览、出勤统计及邮箱组件不可用。确定要继续吗？",
+        "cancel": "取消",
+        "setup_done": "<p>恭喜！你的曼大助手仪表板已经设置完毕，可以使用了。</p><p>现在你可以在“快速笔记”组件中找到名为《曼大助手漫游指南》的笔记。这篇笔记简单介绍了曼大助手的各项功能，你可以通过这篇笔记快速熟悉曼大助手的使用。</p><p>多亏了曼大助手社区志愿者的帮助，你现在可以通过“插件”组件中的 \"Course Info Importer\" 插件尝试寻找并快速导入对应年级的课程数据而无需手动填写课程数据。</p><p>要了解更多有关曼大助手的信息，欢迎访问我们的 <a href=\"https://github.com/uom-assistant/uom-assistant\" target=\"_blank\" rel=\"noopener nofollow\">GitHub</a>。",
+        "network_error": "网络错误，无法验证你的曼大账户信息，请稍后重试。",
+        "backend_error": "后端错误，无法验证你的曼大账户信息，请稍后重试。",
+        "backend_maintenance": "后端正在维护，无法验证你的曼大账户信息，请稍后重试。",
+        "login_error": "无法验证你的曼大账户信息，请检查用户名与密码并重试。",
+        "login_error_title": "验证失败",
+        "privacy_policy_text": "<p><strong>如果你使用非官方的曼大助手实例，我们无法保证你的个人信息安全。你可能需要自行了解第三方的曼大助手实例的隐私政策。</strong></p><p>曼大助手使用的所有信息将被存储在你的浏览器本地。曼大助手会在需要时将你的曼大登录信息发送到相应的曼大助手后端，以便获取你的成绩和出勤情况等数据并汇总展示在界面中。曼大助手后端不会保留任何你的个人信息，包括但不限于你的曼大邮箱地址、用户名、密码、登录 Cookie 和 Token 等，也不会与任何第三方分享这些信息。</p><p>我们不能保证第三方将如何处理你的信息，因此请小心使用第三方服务和插件。未经你的同意，我们不会与任何第三方分享你的个人信息。</p><p>曼大助手不会以任何方式跟踪你使用曼大助手的情况。</p><p>请注意，我们不对任何数据的丢失或损坏负责，因此强烈建议你备份笔记、任务等重要信息。清除网站数据将删除网站的所有存储数据，包括你的用户名和密码等信息，并完全重置曼大助手。你也可以在曼大助手的设置页清除曼大助手保存在浏览器中的所有信息。</p>",
         "clock": "时钟",
         "bblinks": "快速链接",
         "livelinks": "在线课程链接",
@@ -1467,7 +1773,7 @@ code, kbd, pre, samp {
         "read_privacy_policy": "Vea nustra {0}",
         "privacy_policy_link": "política de privacidad",
         "student_lead": "Un proyecto dirigido por estudiantes",
-        "not_offical": "UoM Assistant no es un producto desarrollado ni publicado por la Universidad de Manchester.",
+        "not_offical": "UoM Assistant no es un producto desarrollado ni publicado por la Universidad de Manchester. ",
         "lead_by": "Este proyecto está diseñado y desarrollado por un equipo de estudiantes de la UoM y no es una representación oficial de la UoM",
         "got_it": "Entendido",
         "connect_to": "Conexión",
@@ -1480,6 +1786,17 @@ code, kbd, pre, samp {
         "message_from_backend": "Mensaje desde back-end",
         "ok": "OK",
         "account_settings": "Ajustes de la cuenta",
+        "done": "",
+        "account_notice_title": "",
+        "account_notice_body": "",
+        "cancel": "",
+        "setup_done": "",
+        "network_error": "",
+        "backend_error": "",
+        "backend_maintenance": "",
+        "login_error": "",
+        "login_error_title": "",
+        "privacy_policy_text": "",
         "clock": "Reloj",
         "bblinks": "Enlaces rápidos",
         "livelinks": "Enlaces de sesiones online",
@@ -1537,6 +1854,17 @@ code, kbd, pre, samp {
         "clock": "時計",
         "bblinks": "クイックリンク",
         "livelinks": "オンライン授業リンク",
+        "done": "",
+        "account_notice_title": "",
+        "account_notice_body": "",
+        "cancel": "",
+        "setup_done": "",
+        "network_error": "",
+        "backend_error": "",
+        "backend_maintenance": "",
+        "login_error": "",
+        "login_error_title": "",
+        "privacy_policy_text": "",
         "subjects": "科目管理",
         "attendance": "出勤統計",
         "calendar": "カレンダー",

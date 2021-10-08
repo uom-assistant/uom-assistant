@@ -4,12 +4,14 @@
             v-model.trim="calendarURL"
             outlined
             :label="$t('calendar_subscription')"
+            :key="`settings-calendar-${refreshKey}`"
             :rules="rulesUrl"
             validate-on-blur
             prepend-inner-icon="mdi-calendar-sync-outline"
             class="input"
             ref="calendarSub"
             hide-details="auto"
+            @keypress.enter="submit"
         ></v-text-field>
         <span class="mt-1 mb-2 clickable" @click="icaHelper = true">
             <v-icon small class="help-icon">
@@ -21,44 +23,47 @@
             v-model.trim="username"
             outlined
             :label="$t('uom_username')"
+            :key="`settings-username-${refreshKey}`"
             :rules="rulesUsername"
             validate-on-blur
             :disabled="!allowAccount"
             :error-messages="hintUsername"
             prepend-inner-icon="mdi-account-circle-outline"
             class="input"
+            ref="username"
+            @keypress.enter="submit"
         ></v-text-field>
         <v-text-field
             v-model.trim="password"
             outlined
             :label="$t('uom_password')"
+            :key="`settings-password-${refreshKey}`"
+            :rules="rulesPassword"
+            validate-on-blur
             :type="showPassword ? 'text' : 'password'"
             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
             :disabled="!allowAccount"
             :error-messages="hintPassword"
             prepend-inner-icon="mdi-lock-outline"
             class="input"
-            hide-details="auto"
             @click:append="showPassword = !showPassword"
+            @keypress.enter="submit"
         ></v-text-field>
-        <span class="mt-1 mb-2 clickable" v-show="allowAccount" @click="privacyPolicy = true">
-            <v-icon small class="help-icon">
-                mdi-information-outline
-            </v-icon>
-            {{ $t('privacy_policy') }}
-        </span>
         <v-text-field
             v-model.trim="email"
             outlined
             :label="$t('uom_email')"
+            :key="`settings-email-${refreshKey}`"
+            :rules="rulesEmail"
+            validate-on-blur
             :disabled="!allowAccount || !allowEmail"
             :error-messages="hintEmail"
             prepend-inner-icon="mdi-at"
             suffix=".manchester.ac.uk"
             class="input"
-            hide-details="auto"
+            @keypress.enter="submit"
         ></v-text-field>
-        <v-switch
+        <!-- <v-switch
             v-model="allowSave"
             :label="$t('allow_save')"
             :disabled="!allowSync"
@@ -77,7 +82,7 @@
                 </v-icon>
             </template>
             <span>{{ allowSync ? $t('will_store_on') : $t('not_allow_sync') }}</span>
-        </v-tooltip>
+        </v-tooltip> -->
         <v-dialog
             v-model="icaHelper"
             max-width="550"
@@ -94,28 +99,6 @@
                     color="primary"
                     text
                     @click="icaHelper = false"
-                >
-                    {{ $t('ok') }}
-                </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-        <v-dialog
-            v-model="privacyPolicy"
-            max-width="500"
-        >
-            <v-card>
-                <v-card-title class="headline">
-                    {{ $t('privacy_policy') }}
-                </v-card-title>
-                <v-card-text v-html="$t('privacy_policy_body')">
-                </v-card-text>
-                <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
-                    color="primary"
-                    text
-                    @click="privacyPolicy = false"
                 >
                     {{ $t('ok') }}
                 </v-btn>
@@ -143,14 +126,20 @@ export default {
             allowSave: false,
             allowAccount: true,
             allowEmail: true,
-            allowSync: true,
+            // allowSync: true,
+            refreshKey: 0,
             icaHelper: false,
-            privacyPolicy: false,
             rulesUrl: [
                 (value) => (value === '' || /^((https):\/\/)[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*(\.ics))$/i.test(value)) || '',
             ],
             rulesUsername: [
                 (value) => (value === '' || /^[a-z]\d{5}[a-z]{2}$/i.test(value.toLowerCase())) || '',
+            ],
+            rulesPassword: [
+                (value) => (value === '' || value.length > 3) || '',
+            ],
+            rulesEmail: [
+                (value) => (value === '' || /^[a-z]+\.[a-z]+(((\.)?[a-z]+)*)@([a-z]|\d)+((\.)?([a-z]|\d)+)*$/i.test(value.toLowerCase())) || '',
             ],
         };
     },
@@ -162,6 +151,12 @@ export default {
             this.$refs.calendarSub.focus();
         },
         /**
+         * Focus on the username input
+         */
+        focusUsername() {
+            this.$refs.username.focus();
+        },
+        /**
          * Set input's states
          */
         setState(info) {
@@ -170,27 +165,79 @@ export default {
                 this.hintUsername = this.$t('not_allow_account');
                 this.hintPassword = this.$t('not_allow_account');
                 this.hintEmail = this.$t('not_allow_email');
+
+                this.username = '';
+                this.password = '';
+                this.email = '';
             } else if (!info.allowEmail) {
                 this.allowEmail = false;
                 this.hintEmail = this.$t('not_allow_email');
+
+                this.email = '';
             }
-            if (!info.allowAccount || !info.allowSync) {
-                this.allowSync = false;
-            }
+            // if (!info.allowAccount || !info.allowSync) {
+            //     this.allowSync = false;
+            // }
+        },
+        submit() {
+            this.$emit('submit');
         },
     },
     watch: {
         locale() {
             this.$i18n.locale = this.locale;
         },
+        valid() {
+            this.$emit('valid', this.valid);
+        },
     },
     computed: {
         ...mapState({
             locale: (state) => state.locale,
         }),
+        valid() {
+            // Check if the form is valid
+            for (const rule of this.rulesUrl) {
+                if (this.calendarURL === '' || !rule(this.calendarURL)) {
+                    return false;
+                }
+            }
+            if (this.allowAccount && (this.username || this.password || this.email)) {
+                for (const rule of this.rulesUsername) {
+                    if (this.username === '' || !rule(this.username)) {
+                        return false;
+                    }
+                }
+                for (const rule of this.rulesPassword) {
+                    if (this.password === '' || !rule(this.password)) {
+                        return false;
+                    }
+                }
+                for (const rule of this.rulesEmail) {
+                    if (this.email === '' || !rule(this.email)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        },
     },
     mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
+
+        const account = JSON.parse(localStorage.getItem('account') || `{
+            "calendar": "",
+            "email": "",
+            "password": "",
+            "username": ""
+        }`);
+
+        this.calendarURL = `https://scientia-eu-v3-3-0-api-d3-02.azurewebsites.net/api/ical/${account.calendar}/timetable.ics`;
+        this.username = account.username;
+        this.password = account.password;
+        this.email = account.email.replace(/\.manchester\.ac\.uk$/, '');
+
+        this.refreshKey = new Date().valueOf();
     },
 };
 </script>
@@ -225,8 +272,6 @@ export default {
         "not_allow_sync": "This backend doesn't allow you to sync settings",
         "where_ica": "Where can I get my calendar subscription?",
         "where_ica_body": "Go to <a href=\"https://timetables.manchester.ac.uk/\" target=\"_blank\" rel=\"noreferrer noopener\">this page</a> and click the \"Subscribe\" button in the top right corner of the page after logging in, then click \"More\" and \"Copy\" and paste the URL here.",
-        "privacy_policy": "Privacy Policy",
-        "privacy_policy_body": "If \"Sync Settings\" is not turned on, <strong>the backend will not store or retain any of your UoM account information</strong>, including username, password, email, grades and more. However, in order to access your grades, emails, attendance etc. from the UoM systems, your UoM account information will be securely transferred to the backend (but will not be retained). <br><br>When \"Sync Settings\" is turned on, <strong>your username, password and email will be stored on the backend</strong>, but no other information will be stored.",
         "ok": "OK"
     },
     "zh": {
@@ -241,8 +286,6 @@ export default {
         "not_allow_sync": "这个后端不允许同步设置",
         "where_ica": "我能在哪里获得我的日历订阅？",
         "where_ica_body": "前往<a href=\"https://timetables.manchester.ac.uk/\" target=\"_blank\" rel=\"noreferrer noopener\">此页面</a>，并在登录后点击页面右上角 \"Subscribe\" 按钮，然后依次点击 \"More\", \"Copy\"，并在此粘贴得到的 URL。",
-        "privacy_policy": "隐私政策",
-        "privacy_policy_body": "在未打开“同步设置”选项的情况下，<strong>后端不会存储或保留你的任何曼大账户信息</strong>，包括用户名、密码、邮箱、成绩等。但为了从曼大系统中获取你的成绩、邮件、出席等信息，你的曼大账户信息会被安全地传输至后端（但不会被保留）。<br><br>在打开“同步设置”选项时，<strong>后端会存储你的用户名、密码和邮箱</strong>，但不会存储其他任何信息。",
         "ok": "好"
     },
     "es": {
@@ -257,8 +300,6 @@ export default {
         "not_allow_sync": "Este servidor back-end no permite la sincronización de ajustes",
         "where_ica": "Dónde puedo obtener mi subscripción del calendario",
         "where_ica_body": "Vaya a <a href=\"https://timetables.manchester.ac.uk/\" target=\"_blank\" rel=\"noreferrer noopener\">esta página</a>, y tras iniciar sesión haga clic en el botón de \"Subscribe\" en la parte de arriba derecha，más tarde a \"More\", \"Copy\", respectivamente, y copie el URL obtenido.",
-        "privacy_policy": "Política de Privacidad",
-        "privacy_policy_body": "Si la \"Configuración de sincronización \" no está activada, <strong> el servidor back-end no almacenará ni retendrá la información de su cuenta de UoM </strong>, incluidos el nombre de usuario, la contraseña, el correo electrónico, las notas y más. Sin embargo, para acceder a sus notas, correos electrónicos, asistencia, etc. desde los sistemas de UoM, la información de su cuenta de UoM se transferirá de forma segura al back-end (pero no se conservará). <br> <br> Cuando la \"Configuración de sincronización \" está activada, <strong> su nombre de usuario, contraseña y correo electrónico se almacenarán en el back-end </strong>, pero no se almacenará ninguna otra información.",
         "ok": "OK"
     },
     "ja": {
@@ -273,8 +314,6 @@ export default {
         "not_allow_sync": "このバックエンドは同期設定が対応されない。",
         "where_ica": "どこに私のカレンダーの登録を見つかる？",
         "where_ica_body": "このページ<a href=\"https://timetables.manchester.ac.uk/\" target=\"_blank\" rel=\"noreferrer noopener\">をアクセスして</a>，ログインしてたら右上の「Subscribe」ボタンをクリックして、そして「More」,「Copy」の順にクリックして、ここに先で取得したURLをペーストしてください。",
-        "privacy_policy": "プライバシーポリシー",
-        "privacy_policy_body": "「同期設定」を有効にされないたら、<strong>バックエンドはあなたの大学アカウント情報を保存したり保持したりしません</strong>、それにユーザー名、パスワード、メールアドレス、成績が含まれる。でもマンチェスター大学のシステムから成績、メール、出勤等々の情報を取得するために、あなたの大学アカウント情報は安全にバックエンドに送信されます（ただし保存されません）。<br><br>「同期設定」有効にすると、<strong>バックエンドはあなたのユーザー名、パスワード、メールアドレスを保存します</strong>，その他の情報は保存されません。",
         "ok": "はい"
     }
 }

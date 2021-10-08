@@ -610,6 +610,11 @@
         "mainCity": "Tórshavn"
     },
     {
+        "name": "Africa/Windhoek",
+        "countryName": "Namibia",
+        "mainCity": "Windhoek"
+    },
+    {
         "name": "Africa/Algiers",
         "countryName": "Algeria",
         "mainCity": "Algiers"
@@ -873,11 +878,6 @@
         "name": "Africa/Maputo",
         "countryName": "Mozambique",
         "mainCity": "Maputo"
-    },
-    {
-        "name": "Africa/Windhoek",
-        "countryName": "Namibia",
-        "mainCity": "Windhoek"
     },
     {
         "name": "Africa/Juba",

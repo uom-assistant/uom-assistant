@@ -358,7 +358,7 @@ export default {
                     this.hasCheckedIn = false;
                 }
 
-                if (this.minAfter === 10 && source === 'min' && course !== null) {
+                if (this.minAfter === 10 && source === 'min' && course !== null && !this.checkinCourses.find((item) => item.rawTitle === course.rawTitle)) {
                     this.hasCheckedIn = false;
                     // Ring the bell
                     if (!this.audioOff) {

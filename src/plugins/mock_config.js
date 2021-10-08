@@ -70,6 +70,21 @@ export default [
         after: 1000,
     },
     {
+        url: 'https://test.com/check_account/',
+        method: 'post',
+        status: 200,
+        headers: {},
+        response: {
+            success: true,
+            uomabVersion: '0.1.0',
+            maintenance: false,
+            data: {
+                login: true,
+            },
+        },
+        after: 1000,
+    },
+    {
         url: 'path:/grade_attendance/',
         method: 'post',
         status: 200,

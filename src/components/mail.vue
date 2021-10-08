@@ -500,7 +500,7 @@
                                     class="mr-1 mb-n1"
                                     @click="translateMail"
                                     :loading="viewer.translateState === 'loading'"
-                                    :disabled="viewer.translateState === 'loading'"
+                                    :disabled="viewer.translateState === 'loading' || !viewer.translateFrom || !preferredTranslateTo[1]"
                                     v-if="viewer.translateState !== 'translated'"
                                 >{{ $t('translate') }}</v-btn>
                                 <v-btn
@@ -854,6 +854,7 @@
                         color="primary"
                         text
                         @click="saveTranslationSettingsDialog"
+                        :disabled="!editingPreferredTranslateTo"
                     >
                         {{ $t('save') }}
                     </v-btn>
@@ -867,9 +868,9 @@
 import { mapState } from 'vuex';
 import { codemirror } from 'vue-codemirror';
 import { saveAs } from 'file-saver';
+import { franc } from 'franc-min';
 import localForage from 'localforage';
 import markdown from 'markdown-it';
-import { franc } from 'franc-min';
 
 import mdSub from 'markdown-it-sub';
 import mdSup from 'markdown-it-sup';
