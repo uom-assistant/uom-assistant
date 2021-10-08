@@ -8,7 +8,7 @@ export default {
          * @returns {boolean} `true` if it's valid
          */
         checkResponse(response) {
-            if (Object.prototype.toString.call(response) !== '[object Object]' || !response.uomabVersion) {
+            if (!response.uomabVersion) {
                 // Not a valid UoM Assistant backend
                 if (this.backendStatus) {
                     this.$store.commit('addError', {

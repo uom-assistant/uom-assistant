@@ -713,7 +713,7 @@ export default {
                 return;
             }
 
-            if (Object.prototype.toString.call(response) !== '[object Object]' || !response.uomabVersion || !response.success) {
+            if (!response.uomabVersion || !response.success) {
                 // Not a valid UoM Assistant backend
                 this.urlErrorTemp = false;
                 this.urlError = true;
@@ -839,11 +839,19 @@ export default {
                     return;
                 }
 
-                if (Object.prototype.toString.call(response) !== '[object Object]' || !response.uomabVersion || !response.success || response.data.tokenRequired) {
+                if (!response.uomabVersion || !response.success) {
                     // Not a valid UoM Assistant backend
                     this.loading = false;
                     this.loginError = true;
                     this.loginErrorText = 'backend_error';
+                    return;
+                }
+
+                if (response.data.tokenRequired) {
+                    // Not a valid UoM Assistant backend
+                    this.loading = false;
+                    this.loginError = true;
+                    this.loginErrorText = 'token_required';
                     return;
                 }
 
@@ -864,9 +872,9 @@ export default {
                 }
 
                 // Store account info
-                account.username = this.$refs.settingsField.username;
+                account.username = this.$refs.settingsField.username.toLowerCase();
                 account.password = this.$refs.settingsField.password;
-                account.email = `${this.$refs.settingsField.email}.manchester.ac.uk`;
+                account.email = `${this.$refs.settingsField.email}.manchester.ac.uk`.toLowerCase();
                 localStorage.setItem('account', JSON.stringify(account));
 
                 // Store backend info
@@ -1661,6 +1669,7 @@ code, kbd, pre, samp {
         "network_error": "Cannot verify your UoM account information due to network error. Please try again later.",
         "backend_error": "Cannot verify your UoM account information due to backend error. Please try again later.",
         "backend_maintenance": "Since the backend is under maintenance, we cannot verify your UoM account information. Please try again later.",
+        "token_required": "Cannot verify your UoM account information due to backend token change. Please try again later.",
         "login_error": "Cannot verify your UoM account information. Please check the username and the password and try again.",
         "login_error_title": "Failed to verify",
         "privacy_policy_text": "<p><strong>We cannot guarantee the security of your personal information if you use an unofficial UoM Assistant instance. Third-party UoM Assistant instances may have their own privacy policy that you could read yourself.</strong></p><p>All your data used by UoM Assistant will be stored locally on your device. UoM Assistant will send your University of Manchester login details to the corresponding UoM Assistant backend to retrieve data such as your grades and attendance when necessary. The UoM Assistant backend will not retain your personal information or share them with any third party, including, but not limited to, your university email address, username, password, login cookie and token.</p><p>We cannot guarantee how your information will be handled by third parties, therefore, please be mindful when using third-party services and plug-ins. We will not share your personal information with any third party without your consent.</p><p>UoM Assistant does not track your use of UoM Assistant in any way.</p><p>Please note that we are not liable for any loss or corruption of data, so it is advised to backup important information such as notes and tasks. Clearing site data will remove all stored data of the website, including information such as your username and password, and bring UoM Assistant back to its original state. You can also clear all the data stored by UoM Assistant in your browser from the settings page of UoM Assistant.</p>",
@@ -1727,6 +1736,7 @@ code, kbd, pre, samp {
         "network_error": "网络错误，无法验证你的曼大账户信息，请稍后重试。",
         "backend_error": "后端错误，无法验证你的曼大账户信息，请稍后重试。",
         "backend_maintenance": "后端正在维护，无法验证你的曼大账户信息，请稍后重试。",
+        "token_required": "后端令牌已更改，请稍后重试",
         "login_error": "无法验证你的曼大账户信息，请检查用户名与密码并重试。",
         "login_error_title": "验证失败",
         "privacy_policy_text": "<p><strong>如果你使用非官方的曼大助手实例，我们无法保证你的个人信息安全。你可能需要自行了解第三方的曼大助手实例的隐私政策。</strong></p><p>曼大助手使用的所有信息将被存储在你的浏览器本地。曼大助手会在需要时将你的曼大登录信息发送到相应的曼大助手后端，以便获取你的成绩和出勤情况等数据并汇总展示在界面中。曼大助手后端不会保留任何你的个人信息，包括但不限于你的曼大邮箱地址、用户名、密码、登录 Cookie 和 Token 等，也不会与任何第三方分享这些信息。</p><p>我们不能保证第三方将如何处理你的信息，因此请小心使用第三方服务和插件。未经你的同意，我们不会与任何第三方分享你的个人信息。</p><p>曼大助手不会以任何方式跟踪你使用曼大助手的情况。</p><p>请注意，我们不对任何数据的丢失或损坏负责，因此强烈建议你备份笔记、任务等重要信息。清除网站数据将删除网站的所有存储数据，包括你的用户名和密码等信息，并完全重置曼大助手。你也可以在曼大助手的设置页清除曼大助手保存在浏览器中的所有信息。</p>",
@@ -1793,6 +1803,7 @@ code, kbd, pre, samp {
         "network_error": "",
         "backend_error": "",
         "backend_maintenance": "",
+        "token_required": "",
         "login_error": "",
         "login_error_title": "",
         "privacy_policy_text": "",
@@ -1861,6 +1872,7 @@ code, kbd, pre, samp {
         "network_error": "",
         "backend_error": "",
         "backend_maintenance": "",
+        "token_required": "",
         "login_error": "",
         "login_error_title": "",
         "privacy_policy_text": "",
