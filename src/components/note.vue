@@ -44,10 +44,10 @@
                 <v-list flat class="list">
                     <v-list-item-group
                         v-model="ifNotes"
-                        multiple
+                        :multiple="multi"
                         :color="multi ? 'primary' : ''"
                     >
-                        <v-list-item v-for="(note, index) in notes" :key="index" @click.stop="multi ? null : openNote(index)" :class="{ multi }">
+                        <v-list-item v-for="(note, index) in notes" :key="index" @click.stop="openNote(index)" :class="{ multi }">
                             <template v-slot:default="{ active }">
                                 <v-list-item-action v-show="multi">
                                     <v-checkbox :input-value="active"></v-checkbox>
@@ -516,6 +516,9 @@ export default {
          * @param {number} index note index
          */
         openNote(index) {
+            if (this.multi) {
+                return;
+            }
             this.editing = index;
             this.editingTitle = this.notes[index].title;
             this.code = this.notes[index].content;

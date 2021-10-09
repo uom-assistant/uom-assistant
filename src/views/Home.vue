@@ -9,7 +9,7 @@
                 closeConditional: () => showPersonalise === true,
             }"
         >
-            <div class="header-bg rounded-lg" :style="{ backgroundImage: `url(${headerImage.image})`, backgroundPosition: `50% ${headerImage.position}%` }" :class="{ bw: headerBw, 'has-checkin': showCheckInNotice && $vuetify.breakpoint.xs }"></div>
+            <div class="header-bg" :style="{ backgroundImage: `url(${headerImage.image})`, backgroundPosition: `50% ${headerImage.position}%` }" :class="{ bw: headerBw, 'has-checkin': showCheckInNotice && $vuetify.breakpoint.xs }"></div>
             <!-- Overview -->
             <div class="next-class float" :class="{ 'has-checkin': showCheckInNotice }" v-if="!$vuetify.breakpoint.xs && !(nextEvent === null && current === null)">
                 <span class="d-block text-truncate"><i18n path="next" tag="span" class="text--secondary" v-show="nextEvent !== null">
@@ -61,17 +61,17 @@
         <div id="blocks">
             <div id="sizer" class="block size1x layouted"></div>
             <!-- Main widgets -->
-            <clock id="index-1" class="block size1x" v-show="widgets.includes(0)" :searchid="0"></clock>
-            <calendar id="index-2" class="block size2x" v-show="widgets.includes(6)" :searchid="6"></calendar>
-            <plugins id="index-11" class="block" :class="pluginExpanded ? 'size2x' : 'size1x'" v-show="widgets.includes(10)" :searchid="10" @toggle-expanded="toggleExpanded"></plugins>
-            <bblinks id="index-3" class="block size1x" v-show="widgets.includes(1)" :searchid="1"></bblinks>
-            <livelinks id="index-4" class="block size1x" v-show="widgets.includes(2)" :searchid="2"></livelinks>
-            <courses id="index-5" class="block size1x" v-show="widgets.includes(3)" :searchid="3"></courses>
-            <attendance id="index-6" class="block size1x" v-show="widgets.includes(4)" :searchid="4"></attendance>
-            <task id="index-7" class="block size1x" v-show="widgets.includes(5)" :searchid="5"></task>
-            <note id="index-8" class="block size1x" v-show="widgets.includes(7)" :searchid="7"></note>
-            <mail id="index-9" class="block size1x" v-show="widgets.includes(8)" :searchid="8"></mail>
-            <grade id="index-10" class="block size1x" v-show="widgets.includes(9)" :searchid="9"></grade>
+            <clock id="index-1" class="block size1x" v-show="widgetList.includes(0)" :searchid="0"></clock>
+            <calendar id="index-2" class="block size2x" v-show="widgetList.includes(6)" :searchid="6"></calendar>
+            <plugins id="index-11" class="block" :class="pluginExpanded ? 'size2x' : 'size1x'" v-show="widgetList.includes(10)" :searchid="10" @toggle-expanded="toggleExpanded"></plugins>
+            <bblinks id="index-3" class="block size1x" v-show="widgetList.includes(1)" :searchid="1"></bblinks>
+            <livelinks id="index-4" class="block size1x" v-show="widgetList.includes(2)" :searchid="2"></livelinks>
+            <courses id="index-5" class="block size1x" v-show="widgetList.includes(3)" :searchid="3"></courses>
+            <attendance id="index-6" class="block size1x" v-show="widgetList.includes(4)" :searchid="4"></attendance>
+            <task id="index-7" class="block size1x" v-show="widgetList.includes(5)" :searchid="5"></task>
+            <note id="index-8" class="block size1x" v-show="widgetList.includes(7)" :searchid="7"></note>
+            <mail id="index-9" class="block size1x" v-show="widgetList.includes(8)" :searchid="8"></mail>
+            <grade id="index-10" class="block size1x" v-show="widgetList.includes(9)" :searchid="9"></grade>
         </div>
         <v-dialog
             v-model="timezoneChanged"
@@ -177,6 +177,7 @@ import personalise from '@/components/personalise.vue';
 import formatDate from '@/tools/formatDate';
 
 let personaliseTimer = null;
+const draggabillyList = [];
 
 export default {
     name: 'Home',
@@ -220,6 +221,7 @@ export default {
             hasCheckedIn: false,
             checkinDialog: false,
             checkinCourses: [],
+            widgetList: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         };
     },
     watch: {
@@ -230,6 +232,7 @@ export default {
         },
         widgets() {
             // Update layout
+            this.widgetList = this.widgets;
             this.$nextTick(() => {
                 this.packery.layout();
             });
@@ -241,6 +244,12 @@ export default {
                 this.$refs.audio.volume = 0.5;
                 this.$refs.audio.play();
             }
+        },
+        layoutLock() {
+            // Update layout lock
+            draggabillyList.forEach((draggabilly) => {
+                draggabilly[this.layoutLock ? 'disable' : 'enable']();
+            });
         },
         timerMin() {
             this.updateEvents('min');
@@ -263,6 +272,7 @@ export default {
             nextDayFirstEvent: (state) => state.nextDayFirstEvent,
             subjects: (state) => state.subjects,
             classBell: (state) => state.classBell,
+            layoutLock: (state) => state.layoutLock,
         }),
     },
     methods: {
@@ -522,10 +532,24 @@ export default {
 
         // Make widgets draggable
         document.querySelectorAll('.block').forEach((ele) => {
-            packery.bindDraggabillyEvents(new Draggabilly(ele, {
+            draggabillyList.push(new Draggabilly(ele, {
                 handle: '.handle',
             }));
+            packery.bindDraggabillyEvents(draggabillyList[draggabillyList.length - 1]);
         });
+
+        // Update layout lock
+        draggabillyList.forEach((draggabilly) => {
+            draggabilly[this.layoutLock ? 'disable' : 'enable']();
+        });
+
+        this.$nextTick(() => {
+            this.widgetList = this.widgets;
+            setTimeout(() => {
+                packery.layout();
+            }, 100);
+        });
+
         this.$store.commit('setPackery', packery);
         this.getDate();
     },
@@ -592,6 +616,7 @@ export default {
             z-index: 0;
             opacity: .15;
             transition: height .3s;
+            border-radius: 7px!important;
             &.bw {
                 filter: grayscale(1);
             }

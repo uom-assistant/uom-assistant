@@ -24,6 +24,7 @@ export default {
         attendanceUpdated: 0,
         darkMode: false,
         classBell: true,
+        layoutLock: false,
     },
     mutations: {
         setLocale(state, language) {
@@ -92,6 +93,9 @@ export default {
         },
         setClassBell(state, classBell) {
             state.classBell = classBell;
+        },
+        setLayoutLock(state, layoutLock) {
+            state.layoutLock = layoutLock;
         },
     },
     actions: {},

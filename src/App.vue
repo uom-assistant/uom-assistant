@@ -5,6 +5,7 @@
             <v-toolbar-title class="not-selectable app-title" @click="$route.path === '/' ? null : $router.push('/')" :class="{ pointer: $route.path !== '/' }">{{ $t($route.name === 'Home' ? 'title' : ($route.name || '').toLowerCase()) }}</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-menu
+                v-model="showSettingsMenu"
                 offset-y
                 bottom
                 left
@@ -23,8 +24,8 @@
                         <v-icon>mdi-tune</v-icon>
                     </v-btn>
                 </template>
-                <v-list flat class="shown-list pt-0">
-                    <v-list-item class="pt-2 pb-2 daynight" @click="toggleDark">
+                <v-list flat class="shown-list">
+                    <v-list-item class="daynight" @click="toggleDark">
                         <v-list-item-icon>
                             <v-icon>{{ $vuetify.theme.dark ? 'mdi-white-balance-sunny' : 'mdi-weather-night' }}</v-icon>
                         </v-list-item-icon>
@@ -32,7 +33,25 @@
                             <v-list-item-title>{{ $vuetify.theme.dark ? $t('light_mode') : $t('dark_mode') }}</v-list-item-title>
                         </v-list-item-content>
                     </v-list-item>
-                    <v-divider class="mb-2"></v-divider>
+                    <v-list-item @click="layoutLock = !layoutLock" class="daynight">
+                        <v-list-item-icon class="layout-lock" ref="lockicon">
+                            <div class="lock-head no-animation" ref="lockhead" :class="{ off: !layoutLock }"></div>
+                            <div class="lock-body"></div>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>{{ layoutLock ? $t('unlock_layout') : $t('lock_layout') }}</v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+                    <v-list-item @click="newCourseSound = !newCourseSound" class="daynight">
+                        <v-list-item-icon class="check-in-bell" :class="{ off: !newCourseSound }" ref="bellicon">
+                            <v-icon class="on-icon">{{ 'mdi-bell-outline' }}</v-icon>
+                            <v-icon class="off-icon">{{ 'mdi-bell-off-outline' }}</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>{{ $t('new_course_sound') }}</v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+                    <v-divider class="my-2"></v-divider>
                     <v-list-item-group
                         v-model="ifWidgets"
                         multiple
@@ -48,15 +67,6 @@
                             </template>
                         </v-list-item>
                     </v-list-item-group>
-                    <v-divider class="my-2"></v-divider>
-                    <v-list-item @click="newCourseSound = !newCourseSound">
-                        <v-list-item-action>
-                            <v-checkbox :input-value="newCourseSound"></v-checkbox>
-                        </v-list-item-action>
-                        <v-list-item-content>
-                            <v-list-item-title>{{ $t('new_course_sound') }}</v-list-item-title>
-                        </v-list-item-content>
-                    </v-list-item>
                 </v-list>
             </v-menu>
             <v-btn
@@ -567,6 +577,9 @@ import * as version from '../public/version.json';
 
 import '@/styles/highlight.less';
 
+let checkInBellTimer = -1;
+let layoytLockTimer = -1;
+
 export default {
     name: 'App',
     components: {
@@ -577,6 +590,7 @@ export default {
         clockSearch,
     },
     data: () => ({
+        showSettingsMenu: false,
         welcome: false,
         drawer: false,
         group: 0,
@@ -630,6 +644,7 @@ export default {
         updateReadyVersion: '',
         updating: false,
         newCourseSound: true,
+        layoutLock: false,
     }),
     methods: {
         /**
@@ -1088,6 +1103,44 @@ export default {
             // Store class bell status to local storage
             localStorage.setItem('class_bell', this.newCourseSound);
             this.$store.commit('setClassBell', this.newCourseSound);
+
+            if (this.$refs.bellicon) {
+                this.$nextTick(() => {
+                    this.$refs.bellicon.classList[this.newCourseSound ? 'add' : 'remove']('on');
+
+                    if (this.newCourseSound) {
+                        if (checkInBellTimer !== -1) {
+                            clearTimeout(checkInBellTimer);
+                        }
+                        checkInBellTimer = setTimeout(() => {
+                            this.$refs.bellicon.classList.remove('on');
+                        }, 500);
+                    }
+                });
+            }
+        },
+        layoutLock() {
+            // Store layout lock status to local storage
+            localStorage.setItem('lock_layout', this.layoutLock);
+            this.$store.commit('setLayoutLock', this.layoutLock);
+
+            if (this.$refs.lockicon) {
+                this.$nextTick(() => {
+                    this.$refs.lockicon.classList[this.layoutLock ? 'add' : 'remove']('on');
+
+                    this.$refs.lockhead.classList.remove('no-animation');
+                    this.$refs.lockhead.classList[this.layoutLock ? 'add' : 'remove']('on');
+
+                    if (layoytLockTimer !== -1) {
+                        clearTimeout(layoytLockTimer);
+                    }
+                    layoytLockTimer = setTimeout(() => {
+                        this.$refs.lockicon.classList.remove('on');
+                        this.$refs.lockhead.classList.remove('on');
+                        this.$refs.lockhead.classList.add('no-animation');
+                    }, 500);
+                });
+            }
         },
         locale() {
             // Store language settings to local storage
@@ -1164,6 +1217,10 @@ export default {
         this.newCourseSound = (localStorage.getItem('class_bell') || 'true') === 'true';
         this.$store.commit('setClassBell', this.newCourseSound);
 
+        // Initialize layout lock status
+        this.layoutLock = (localStorage.getItem('lock_layout') || 'false') === 'true';
+        this.$store.commit('setLayoutLock', this.layoutLock);
+
         // Initialize dark mode status
         const darkMode = localStorage.getItem('dark');
         this.$vuetify.theme.dark = darkMode ? (darkMode === 'true') : false;
@@ -1225,6 +1282,104 @@ export default {
         transform: translateY(0);
     }
 }
+@keyframes shake {
+    0% {
+        transform: rotate(0);
+    }
+    4.5% {
+        transform: rotate(-8deg);
+    }
+    9.5% {
+        transform: rotate(8deg);
+    }
+    14.5% {
+        transform: rotate(-6deg);
+    }
+    23.5% {
+        transform: rotate(6deg);
+    }
+    26.5% {
+        transform: rotate(-4deg);
+    }
+    37.5% {
+        transform: rotate(4deg);
+    }
+    40.5% {
+        transform: rotate(-2deg);
+    }
+    46.5% {
+        transform: rotate(2deg);
+    }
+    50% {
+        transform: rotate(0);
+    }
+}
+@keyframes unlock {
+    0% {
+        transform: translateY(0);
+        width: 10px;
+        left: 7px;
+    }
+    25% {
+        transform: translateY(-2px);
+        width: 10px;
+        left: 7px;
+    }
+    62.5% {
+        transform: translateY(-2px);
+        width: 0;
+        left: 17px;
+    }
+    62.6% {
+        transform: translateY(-2px);
+        width: 5px;
+        left: 15px;
+    }
+    100% {
+        transform: translateY(-2px);
+        width: 10px;
+        left: 15px;
+    }
+}
+@keyframes lock {
+    0% {
+        transform: translateY(-2px);
+        width: 10px;
+        left: 15px;
+    }
+    24.9% {
+        transform: translateY(-2px);
+        width: 5px;
+        left: 15px;
+    }
+    25% {
+        transform: translateY(-2px);
+        width: 0;
+        left: 17px;
+    }
+    50% {
+        transform: translateY(-2px);
+        width: 10px;
+        left: 7px;
+    }
+    100% {
+        transform: translateY(0);
+        width: 10px;
+        left: 7px;
+    }
+}
+@keyframes lockall {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(2px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
 html::-webkit-scrollbar {
     width: 0;
 }
@@ -1277,6 +1432,108 @@ html::-webkit-scrollbar {
     .v-list-item__icon {
         margin: 12px 16px 12px 0;
         margin-right: 16px!important;
+    }
+    .layout-lock {
+        position: relative;
+        .lock-head {
+            width: 10px;
+            height: 8px;
+            position: absolute;
+            top: 1px;
+            left: 7px;
+            border: 2px solid #757575;
+            border-radius: 5px 5px 0 0;
+            border-bottom: none;
+            z-index: 2;
+            &.off {
+                animation: unlock .3s 0s 1 linear both;
+            }
+            &.on {
+                animation: lock .5s 0s 1 linear both;
+            }
+            &.no-animation {
+                animation-duration: 0s;
+            }
+        }
+        .lock-body {
+            width: 16px;
+            height: 14px;
+            position: absolute;
+            top: 8px;
+            left: 4px;
+            border: 2px solid #757575;
+            border-radius: 2px;
+            z-index: 3;
+            &::before {
+                content: "";
+                width: 2px;
+                height: 2px;
+                position: absolute;
+                top: -4px;
+                left: 9px;
+                background-color: #757575;
+            }
+            &::after {
+                content: "";
+                width: 4px;
+                height: 4px;
+                position: absolute;
+                top: 3px;
+                left: 4px;
+                background-color: #757575;
+                border-radius: 3px;
+            }
+        }
+        &.on {
+            animation: lockall .2s .4s 1 both;
+        }
+    }
+    .check-in-bell {
+        position: relative;
+        .on-icon, .off-icon {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+            transition: opacity .3s;
+            opacity: 1;
+            transform-origin: top center;
+        }
+        .off-icon {
+            opacity: 0;
+        }
+        &::after {
+            content: "";
+            position: absolute;
+            top: 1px;
+            left: 2px;
+            width: 114%;
+            height: 3px;
+            background-color: #757575;
+            transform: rotate(45deg) scaleX(0) scaleY(.5);
+            z-index: 3;
+            transition: transform .3s, opacity 0s;
+            transform-origin: left;
+            opacity: 1;
+        }
+        &.on {
+            animation: shake 1s ease-in-out 0s 1;
+        }
+        &.off {
+            &::after, &::before {
+                transform: rotate(45deg) scaleX(1) scaleY(.5);
+                opacity: 0;
+                transition: transform .3s, opacity 0s .3s;
+            }
+            .on-icon {
+                opacity: 0;
+                transition: opacity .2s .2s;
+            }
+            .off-icon {
+                opacity: 1;
+                transition: opacity .2s .2s;
+            }
+        }
     }
 }
 .shown-list {
@@ -1614,6 +1871,41 @@ code, kbd, pre, samp {
     .v-autocomplete__content.v-menu__content {
         box-shadow: 0px 5px 5px -3px rgba(0, 0, 0, .2), 0px 8px 10px 1px rgba(0, 0, 0, .14), 0px 3px 14px 2px rgba(0, 0, 0, .12);
     }
+    .welcome-dialog .welcome-dialog-card .v-card__text .set-up-done p {
+        color: rgba(255, 255, 255, .8);
+    }
+    .daynight {
+        .layout-lock {
+            .lock-head {
+                border: 2px solid #BCBCBC;
+                border-bottom: none;
+            }
+            .lock-body {
+                border: 2px solid #BCBCBC;
+                &::before {
+                    background-color: #BCBCBC;
+                }
+                &::after {
+                    background-color: #BCBCBC;
+                }
+            }
+        }
+        .check-in-bell {
+            &::after {
+                background-color: #BCBCBC;
+                top: 1px;
+                left: 1px;
+                width: 116%;
+                height: 2px;
+                transform: rotate(45deg) scaleX(0);
+            }
+            &.off {
+                &::after, &::before {
+                    transform: rotate(45deg) scaleX(1);
+                }
+            }
+        }
+    }
 }
 </style>
 
@@ -1673,6 +1965,8 @@ code, kbd, pre, samp {
         "login_error": "Cannot verify your UoM account information. Please check the username and the password and try again.",
         "login_error_title": "Failed to verify",
         "privacy_policy_text": "<p><strong>We cannot guarantee the security of your personal information if you use an unofficial UoM Assistant instance. Third-party UoM Assistant instances may have their own privacy policy that you could read yourself.</strong></p><p>All your data used by UoM Assistant will be stored locally on your device. UoM Assistant will send your University of Manchester login details to the corresponding UoM Assistant backend to retrieve data such as your grades and attendance when necessary. The UoM Assistant backend will not retain your personal information or share them with any third party, including, but not limited to, your university email address, username, password, login cookie and token.</p><p>We cannot guarantee how your information will be handled by third parties, therefore, please be mindful when using third-party services and plug-ins. We will not share your personal information with any third party without your consent.</p><p>UoM Assistant does not track your use of UoM Assistant in any way.</p><p>Please note that we are not liable for any loss or corruption of data, so it is advised to backup important information such as notes and tasks. Clearing site data will remove all stored data of the website, including information such as your username and password, and bring UoM Assistant back to its original state. You can also clear all the data stored by UoM Assistant in your browser from the settings page of UoM Assistant.</p>",
+        "lock_layout": "Lock Layout",
+        "unlock_layout": "Unlock Layout",
         "clock": "Clock",
         "bblinks": "Quick Links",
         "livelinks": "Online Session Links",
@@ -1740,6 +2034,8 @@ code, kbd, pre, samp {
         "login_error": "无法验证你的曼大账户信息，请检查用户名与密码并重试。",
         "login_error_title": "验证失败",
         "privacy_policy_text": "<p><strong>如果你使用非官方的曼大助手实例，我们无法保证你的个人信息安全。你可能需要自行了解第三方的曼大助手实例的隐私政策。</strong></p><p>曼大助手使用的所有信息将被存储在你的浏览器本地。曼大助手会在需要时将你的曼大登录信息发送到相应的曼大助手后端，以便获取你的成绩和出勤情况等数据并汇总展示在界面中。曼大助手后端不会保留任何你的个人信息，包括但不限于你的曼大邮箱地址、用户名、密码、登录 Cookie 和 Token 等，也不会与任何第三方分享这些信息。</p><p>我们不能保证第三方将如何处理你的信息，因此请小心使用第三方服务和插件。未经你的同意，我们不会与任何第三方分享你的个人信息。</p><p>曼大助手不会以任何方式跟踪你使用曼大助手的情况。</p><p>请注意，我们不对任何数据的丢失或损坏负责，因此强烈建议你备份笔记、任务等重要信息。清除网站数据将删除网站的所有存储数据，包括你的用户名和密码等信息，并完全重置曼大助手。你也可以在曼大助手的设置页清除曼大助手保存在浏览器中的所有信息。</p>",
+        "lock_layout": "锁定布局",
+        "unlock_layout": "解锁布局",
         "clock": "时钟",
         "bblinks": "快速链接",
         "livelinks": "在线课程链接",
@@ -1807,6 +2103,8 @@ code, kbd, pre, samp {
         "login_error": "",
         "login_error_title": "",
         "privacy_policy_text": "",
+        "lock_layout": "Lock Layout",
+        "unlock_layout": "Unlock Layout",
         "clock": "Reloj",
         "bblinks": "Enlaces rápidos",
         "livelinks": "Enlaces de sesiones online",
@@ -1876,6 +2174,8 @@ code, kbd, pre, samp {
         "login_error": "",
         "login_error_title": "",
         "privacy_policy_text": "",
+        "lock_layout": "",
+        "unlock_layout": "",
         "subjects": "科目管理",
         "attendance": "出勤統計",
         "calendar": "カレンダー",
