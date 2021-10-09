@@ -247,9 +247,7 @@ export default {
         },
         layoutLock() {
             // Update layout lock
-            draggabillyList.forEach((draggabilly) => {
-                draggabilly[this.layoutLock ? 'disable' : 'enable']();
-            });
+            this.lockLayout(this.layoutLock);
         },
         timerMin() {
             this.updateEvents('min');
@@ -485,6 +483,30 @@ export default {
                 this.checkinCourses = [];
             }, 300);
         },
+        /**
+         * Lock layout
+         * @param {boolean} lock whether to lock the layout
+         */
+        lockLayout(lock) {
+            if (lock) {
+                // Lock
+                draggabillyList.map((draggabilly) => {
+                    this.packery.unbindDraggabillyEvents(draggabilly);
+                    draggabilly.disable();
+                    draggabilly.unbindHandles();
+                    return null;
+                });
+                draggabillyList.splice(0);
+            } else {
+                // Unlock
+                document.querySelectorAll('.block').forEach((ele) => {
+                    draggabillyList.push(new Draggabilly(ele, {
+                        handle: '.handle',
+                    }));
+                    this.packery.bindDraggabillyEvents(draggabillyList[draggabillyList.length - 1]);
+                });
+            }
+        },
     },
     mounted() {
         // Initialize language
@@ -539,9 +561,7 @@ export default {
         });
 
         // Update layout lock
-        draggabillyList.forEach((draggabilly) => {
-            draggabilly[this.layoutLock ? 'disable' : 'enable']();
-        });
+        this.lockLayout(this.layoutLock);
 
         this.$nextTick(() => {
             this.widgetList = this.widgets;
