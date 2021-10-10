@@ -833,8 +833,6 @@ export default {
                 return;
             }
 
-            console.log(backendToken, this.backendToken);
-
             // Try to login
             if (this.$refs.settingsField.allowAccount && ((this.$refs.settingsField.username && this.$refs.settingsField.password && this.$refs.settingsField.email) || (!this.$refs.settingsField.username && !this.$refs.settingsField.password && !this.$refs.settingsField.email))) {
                 this.loading = true;
@@ -1268,8 +1266,6 @@ export default {
         this.$router.afterEach(() => {
             this.checkWelcome();
         });
-
-        console.log('iOS safari test');
     },
     beforeDestroy() {
         clearInterval(this.timer);

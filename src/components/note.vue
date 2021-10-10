@@ -47,7 +47,7 @@
                         :multiple="multi"
                         :color="multi ? 'primary' : ''"
                     >
-                        <v-list-item v-for="(note, index) in notes" :key="index" @click.stop="openNote(index)" :class="{ multi }">
+                        <v-list-item v-for="(note, index) in notes" :key="index" @click="openNote(index)" :class="{ multi }">
                             <template v-slot:default="{ active }">
                                 <v-list-item-action v-show="multi">
                                     <v-checkbox :input-value="active"></v-checkbox>
@@ -516,6 +516,7 @@ export default {
          * @param {number} index note index
          */
         openNote(index) {
+            console.log(index);
             if (this.multi) {
                 return;
             }
