@@ -783,8 +783,8 @@ export default {
         "expired": "Atrasado"
     },
     "ja": {
-        "task": "任務",
-        "add_task": "任務を追加する",
+        "task": "タスク",
+        "add_task": "タスクを追加する",
         "ddl_date": "締め切り日",
         "ddl_time": "締め切り時間",
         "subject": "科目",
