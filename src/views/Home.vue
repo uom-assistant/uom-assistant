@@ -552,17 +552,6 @@ export default {
         packery.on('layoutComplete', this.orderItems);
         packery.on('dragItemPositioned', this.orderItems);
 
-        // Make widgets draggable
-        document.querySelectorAll('.block').forEach((ele) => {
-            draggabillyList.push(new Draggabilly(ele, {
-                handle: '.handle',
-            }));
-            packery.bindDraggabillyEvents(draggabillyList[draggabillyList.length - 1]);
-        });
-
-        // Update layout lock
-        this.lockLayout(this.layoutLock);
-
         this.$nextTick(() => {
             this.widgetList = this.widgets;
             setTimeout(() => {
@@ -572,6 +561,13 @@ export default {
 
         this.$store.commit('setPackery', packery);
         this.getDate();
+
+        // Update layout lock
+        this.$nextTick(() => {
+            this.$nextTick(() => {
+                this.lockLayout(this.layoutLock);
+            });
+        });
     },
 };
 </script>

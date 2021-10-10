@@ -111,8 +111,7 @@
                     }"
                 >
                     <template v-slot:item="data">
-                        <v-list-item-avatar :color="data.item.color" v-if="data.item.color" size="20">
-                        </v-list-item-avatar>
+                        <v-list-item-avatar :color="data.item.color" v-if="data.item.color" size="20"></v-list-item-avatar>
                         <v-list-item-content>
                             <v-list-item-title>{{ data.item.id }}</v-list-item-title>
                             <v-list-item-subtitle>{{ data.item.name }}</v-list-item-subtitle>

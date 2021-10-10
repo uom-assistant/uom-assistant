@@ -5,42 +5,41 @@
     >
         <v-row class="fill-height">
             <v-col class="phb-11">
-                <v-sheet height="64" class="handle">
-                    <v-toolbar
-                        flat
-                    >
+                <v-sheet class="handle">
+                    <v-toolbar flat>
                         <v-btn
                             outlined
-                            class="mr-2"
+                            :class="$vuetify.breakpoint.xs ? 'mr-1' : 'mr-2'"
                             :color="$vuetify.theme.dark ? 'grey lighten-1' : 'grey darken-2'"
                             @click="focus = ''"
                         >
                             {{ $t('today') }}
                         </v-btn>
                         <v-btn
-                            fab
-                            text
-                            small
+                            icon
+                            max-width="36"
+                            max-height="36"
                             :color="$vuetify.theme.dark ? 'grey lighten-1' : 'grey darken-2'"
+                            class="mr-1"
                             @click="prev"
                         >
-                            <v-icon small>
+                            <v-icon>
                                 mdi-chevron-left
                             </v-icon>
                         </v-btn>
                         <v-btn
-                            fab
-                            text
-                            small
+                            icon
+                            max-width="36"
+                            max-height="36"
                             :color="$vuetify.theme.dark ? 'grey lighten-1' : 'grey darken-2'"
-                            class="mr-2"
+                            class="mr-1"
                             @click="next"
                         >
-                            <v-icon small>
+                            <v-icon>
                                 mdi-chevron-right
                             </v-icon>
                         </v-btn>
-                        <v-toolbar-title v-if="$refs.calendar">
+                        <v-toolbar-title v-if="$refs.calendar" class="d-none d-sm-block ml-1">
                             {{ $refs.calendar.title }}
                         </v-toolbar-title>
                         <v-progress-circular
@@ -49,9 +48,23 @@
                             :width="2"
                             :size="18"
                             class="loading"
+                            :class="{ 'd-none': $vuetify.breakpoint.xs}"
                             v-show="loading"
                         ></v-progress-circular>
                         <v-spacer></v-spacer>
+                        <v-btn
+                            icon
+                            max-width="36"
+                            max-height="36"
+                            :color="$vuetify.theme.dark ? 'grey lighten-1' : 'grey darken-2'"
+                            class="settings-icon"
+                            :class="$vuetify.breakpoint.xs ? 'mr-1' : 'mr-2'"
+                            @click="setFirstDay"
+                        >
+                            <v-icon>
+                                mdi-cog-outline
+                            </v-icon>
+                        </v-btn>
                         <v-menu
                             bottom
                             right
@@ -63,7 +76,7 @@
                                     v-bind="attrs"
                                     v-on="on"
                                 >
-                                    <span>{{ $t(typeToLabel[type].toLowerCase()) }}</span>
+                                    <span>{{ $t(type) }}</span>
                                     <v-icon right>
                                         mdi-menu-down
                                     </v-icon>
@@ -92,6 +105,7 @@
                         :event-color="getEventColor"
                         :type="type"
                         :locale="calendarLocale"
+                        :weekdays="weekDays"
                         :key="`calendar-${refreshId}`"
                         :interval-height="40"
                         @click:event="showEvent"
@@ -147,7 +161,7 @@
                         v-model="selectedOpen"
                         nudge-right="5"
                         transition="slide-x-transition"
-                        content-class="large-radius"
+                        content-class="large-radius event-card-container"
                         :close-on-content-click="false"
                         :activator="selectedElement"
                         offset-x
@@ -243,6 +257,41 @@
                 </v-sheet>
             </v-col>
         </v-row>
+        <v-dialog
+            v-model="setttingsDialog"
+            max-width="400"
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('first_day_settings') }}
+                </v-card-title>
+                <v-card-text>
+                    <v-select
+                        v-model="editingFirstDay"
+                        :items="weekDaysItems()"
+                        hide-details
+                        dense
+                        outlined
+                    ></v-select>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        text
+                        @click="setttingsDialog = false"
+                    >
+                        {{ $t('cancel') }}
+                    </v-btn>
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="saveFirstDay"
+                    >
+                        {{ $t('save') }}
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-card>
 </template>
 
@@ -267,11 +316,6 @@ export default {
             loading: false,
             focus: '',
             type: 'month',
-            typeToLabel: {
-                month: 'Month',
-                week: 'Week',
-                day: 'Day',
-            },
             nowY: '-10px',
             selectedEvent: {},
             selectedElement: null,
@@ -286,6 +330,9 @@ export default {
             courseworkEvents: [],
             updateTimer: null,
             updatePointertimer: null,
+            setttingsDialog: false,
+            firstDay: 0,
+            editingFirstDay: 0,
         };
     },
     methods: {
@@ -403,7 +450,7 @@ export default {
          * @param {Date} date current date object
          */
         updateCurrentDate(todayObj = new Date()) {
-            const thisWeekStartFromObj = new Date(todayObj.valueOf() - (todayObj.getDay() * 24 * 3600 * 1000));
+            const thisWeekStartFromObj = new Date(todayObj.valueOf() - (this.weekDays.indexOf(todayObj.getDay()) * 24 * 3600 * 1000));
 
             const dd = String(todayObj.getDate()).padStart(2, '0');
             const mm = String(todayObj.getMonth() + 1).padStart(2, '0');
@@ -545,8 +592,8 @@ export default {
                 if (item[0] === 'vevent') {
                     const startTime = new Date(new Date(item[1][3][3]).toUTCString());
                     const timeDiff = (startTime.valueOf() - nowDate) / 1000;
-                    // Events range: -1 month to +3 months
-                    if (timeDiff < 7776000 && timeDiff > -2592000) {
+                    // Events range: -1 month to +2 months
+                    if (timeDiff < 5184000 && timeDiff > -2592000) {
                         // Get event title, adapted to events with locations
                         const title = typeof item[1][6][3] === 'number' ? item[1][7][3] : item[1][6][3];
 
@@ -710,6 +757,41 @@ export default {
                 sessionLinks: [],
             };
         },
+        /**
+         * Open the settings to set the first day of the week
+         */
+        setFirstDay() {
+            this.setttingsDialog = true;
+            this.editingFirstDay = this.firstDay;
+        },
+        /**
+         * Save the first day of the week
+         */
+        saveFirstDay() {
+            this.setttingsDialog = false;
+            this.firstDay = this.editingFirstDay;
+            this.store();
+            this.updateCurrentDate();
+        },
+        /**
+         * Generate week days list for selector
+         * @returns {{ text: string, value: number }[]} week days list
+         */
+        weekDaysItems() {
+            return [0, 1, 2, 3, 4, 5, 6].map((item) => ({
+                text: new Intl.DateTimeFormat(this.localeDetail ? this.localeDetail.iso : 'en', { weekday: 'long' }).format(new Date(3600000 * 24 * (-4 + item))),
+                value: item,
+            }));
+        },
+        /**
+         * Store settings
+         */
+        store() {
+            localStorage.setItem('calendar', JSON.stringify({
+                firstDay: this.firstDay,
+                type: this.type,
+            }));
+        },
     },
     watch: {
         locale() {
@@ -788,6 +870,10 @@ export default {
             this.$refs.calendar.checkChange();
             this.refreshId = `${new Date().valueOf()}`;
         },
+        type() {
+            // Store changes
+            this.store();
+        },
     },
     computed: {
         ...mapState({
@@ -801,14 +887,30 @@ export default {
             backendStatus: (state) => state.backendStatus,
             account: (state) => state.account,
         }),
+        /**
+         * Get ISO locale for calendar
+         * @returns {string} ISO locale string
+         */
         calendarLocale() {
             return this.localeDetail === null ? 'en' : this.localeDetail.iso;
+        },
+        /**
+         * Calculate week days
+         * @returns {number[]} an array of week days
+         */
+        weekDays() {
+            return [...Array(7)].map((item, index) => (index + this.firstDay) % 7);
         },
     },
     async mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
 
-        // Restore notes from localstorage
+        // Restore settings from localstorage
+        const settings = JSON.parse(localStorage.getItem('calendar') || '{"firstDay":0,"type":"month"}');
+        this.type = settings.type;
+        this.firstDay = settings.firstDay;
+
+        // Restore events from indexeddb
         const storaged = await localForage.getItem('calendar');
         if (storaged !== null) {
             this.events = storaged;
@@ -834,6 +936,8 @@ export default {
             this.updateTime();
         }, 20000);
 
+        this.updateTime();
+
         // Force refresh
         setTimeout(() => {
             this.refreshId = `${new Date().valueOf()}`;
@@ -855,6 +959,15 @@ export default {
     contain: strict;
     .loading {
         margin-left: 10px;
+    }
+    .settings-icon {
+        opacity: 0;
+        transition: opacity .2s;
+    }
+    .handle:hover {
+        .settings-icon {
+            opacity: 1;
+        }
     }
     .phb-11 {
         padding-left: 11px;
@@ -930,59 +1043,69 @@ export default {
         margin-bottom: 3px;
     }
 }
-.event-card {
-    .calendar-selected-name {
-        line-height: 17px;
-        margin-top: 10px;
-        .calendar-smaller-font {
-            font-size: 0.875rem;
-        }
-    }
-    .list {
-        margin-bottom: 20px;
-        background-color: #f3f3f3;
-        border-radius: 6px;
-        .v-list-item {
-            cursor: default;
-            min-height: 28px;
-        }
-        a {
-            cursor: pointer;
-            text-decoration: none;
-            &:hover, &:focus {
-                text-decoration: underline;
+.event-card-container {
+    overflow-x: auto;
+    background-color: white;
+    .event-card {
+        .calendar-selected-name {
+            line-height: 17px;
+            margin-top: 10px;
+            .calendar-smaller-font {
+                font-size: 0.875rem;
             }
         }
-        a.no-underline-link {
-            text-decoration: none;
-            padding-left: 5px;
-        }
-        .v-list-item__content {
-            padding: 0;
-        }
-        .copy {
-            margin: 0;
-            margin-left: 8px!important;
-            .v-btn {
-                font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
-                width: 90px;
-                margin-right: -4px;
-                .v-icon--left {
-                    margin-right: 4px;
+        .list {
+            margin-bottom: 20px;
+            background-color: #f3f3f3;
+            border-radius: 6px;
+            .v-list-item {
+                cursor: default;
+                min-height: 28px;
+            }
+            a {
+                cursor: pointer;
+                text-decoration: none;
+                &:hover, &:focus {
+                    text-decoration: underline;
+                }
+            }
+            a.no-underline-link {
+                text-decoration: none;
+                padding-left: 5px;
+            }
+            .v-list-item__content {
+                padding: 0;
+            }
+            .copy {
+                margin: 0;
+                margin-left: 8px!important;
+                .v-btn {
+                    font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
+                    width: 90px;
+                    margin-right: -4px;
+                    .v-icon--left {
+                        margin-right: 4px;
+                    }
                 }
             }
         }
-    }
-    pre {
-        font-family: Roboto, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif;
+        .v-card__text {
+            width: fit-content;
+            pre {
+                font-family: Roboto, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif;
+            }
+        }
     }
 }
-#app.theme--dark .event-card {
-    .list {
-        background-color: #2c2c2c;
-    }
-    .v-toolbar {
-        background-color: #1E1E1E!important;
+#app.theme--dark .event-card-container {
+    background-color: #1E1E1E;
+    .event-card {
+        .list {
+            background-color: #2c2c2c;
+        }
+        .v-toolbar {
+            background-color: #1E1E1E!important;
+        }
     }
 }
 #app.theme--dark .v-calendar-events .v-event-more {
@@ -1016,7 +1139,10 @@ export default {
         "copy_passcode": "Copy passcode",
         "self_study": " (Independent Study)",
         "ical_error": "Error when parsing the calendar file",
-        "error_at": "{0} at {1}"
+        "error_at": "{0} at {1}",
+        "first_day_settings": "First day of weeks",
+        "cancel": "Cancel",
+        "save": "Save"
     },
     "zh": {
         "today": "今天",
@@ -1033,7 +1159,10 @@ export default {
         "copy_passcode": "复制密码",
         "self_study": "（自学）",
         "ical_error": "解析日历文件时发生错误",
-        "error_at": "{0} 于 {1}"
+        "error_at": "{0} 于 {1}",
+        "first_day_settings": "每周第一天",
+        "cancel": "取消",
+        "save": "保存"
     },
     "es": {
         "today": "Hoy",
@@ -1050,7 +1179,10 @@ export default {
         "copy_passcode": "Copiar contraseña",
         "self_study": " (Autoestudio)",
         "ical_error": "Error al analizar el archivo de calendario",
-        "error_at": "{0} en {1}"
+        "error_at": "{0} en {1}",
+        "first_day_settings": "",
+        "cancel": "",
+        "save": ""
     },
     "ja": {
         "today": "今日",
@@ -1067,7 +1199,10 @@ export default {
         "copy_passcode": "パスワードをコピーする",
         "self_study": "（独学）",
         "ical_error": "",
-        "error_at": "{1} に {0} 発生"
+        "error_at": "{1} に {0} 発生",
+        "first_day_settings": "",
+        "cancel": "",
+        "save": ""
     }
 }
 </i18n>
