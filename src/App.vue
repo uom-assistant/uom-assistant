@@ -955,6 +955,8 @@ export default {
             this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
             this.$store.commit('setDarkMode', this.$vuetify.theme.dark);
             localStorage.setItem('dark', this.$vuetify.theme.dark ? 'true' : 'false');
+
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', this.$vuetify.theme.dark ? '#272727' : '#F5F5F5');
         },
         /**
          * Open search bar and focus on it
@@ -1225,6 +1227,8 @@ export default {
         const darkMode = localStorage.getItem('dark');
         this.$vuetify.theme.dark = darkMode ? (darkMode === 'true') : false;
         this.$store.commit('setDarkMode', this.$vuetify.theme.dark);
+
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', this.$vuetify.theme.dark ? '#272727' : '#F5F5F5');
 
         // Initialize backend connection
         try {

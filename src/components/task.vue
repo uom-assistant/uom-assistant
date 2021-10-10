@@ -23,6 +23,7 @@
                 prepend-inner-icon="mdi-format-list-checks"
                 clearable
                 v-model.trim="addText"
+                @keypress.enter="addOne"
             ></v-text-field>
             <div class="date-expend" :class="{ expended: addText && addText.length > 0 }">
                 <v-menu
