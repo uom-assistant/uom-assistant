@@ -44,10 +44,10 @@
                 <v-list flat class="list">
                     <v-list-item-group
                         v-model="ifNotes"
-                        multiple
+                        :multiple="multi"
                         :color="multi ? 'primary' : ''"
                     >
-                        <v-list-item v-for="(note, index) in notes" :key="index" @click.stop="multi ? null : openNote(index)" :class="{ multi }">
+                        <v-list-item v-for="(note, index) in notes" :key="index" @click.prevent="openNote(index)" :class="{ multi }">
                             <template v-slot:default="{ active }">
                                 <v-list-item-action v-show="multi">
                                     <v-checkbox :input-value="active"></v-checkbox>
@@ -326,6 +326,7 @@ import 'codemirror/addon/edit/matchbrackets';
 import scroll from '@/mixins/scroll';
 import clipboard from '@/mixins/clipboard';
 
+import betterFetch from '@/tools/betterFetch';
 import formatDateTime from '@/tools/formatDateTime';
 import debounce from '@/tools/debounce';
 import csv from '@/tools/csvHighlight';
@@ -515,6 +516,9 @@ export default {
          * @param {number} index note index
          */
         openNote(index) {
+            if (this.multi) {
+                return;
+            }
             this.editing = index;
             this.editingTitle = this.notes[index].title;
             this.code = this.notes[index].content;
@@ -754,7 +758,7 @@ export default {
             const searchIndex = [];
             const tempDOM = document.createElement('div');
             for (let i = 0; i < this.notes.length; i += 1) {
-                tempDOM.innerHTML = this.md.render(this.notes[i].content);
+                tempDOM.innerHTML = this.md.render(this.notes[i].content.replace(/\[uoma-toc\]/g, '\\[uoma-toc\\]'));
                 searchIndex.push({
                     title: this.notes[i].title === '' ? this.$t('untitled') : this.notes[i].title,
                     rawTitle: this.notes[i].title,
@@ -767,22 +771,22 @@ export default {
         },
         /**
          * Build plain text preview for notes
-         * @param {number?} index index of note to be updated or update all
+         * @param {number?} index index of note to be updated or -1 to update all
+         * @return {string | string[]} preview string
          */
         buildPreviews(index = -1) {
             if (index < 0) {
                 const previews = [];
                 const tempDOM = document.createElement('div');
                 for (const note of this.notes) {
-                    tempDOM.innerHTML = this.md.render(note.content);
+                    tempDOM.innerHTML = this.md.render(note.content.replace(/\[uoma-toc\]/g, '\\[uoma-toc\\]'));
                     previews.push(tempDOM.textContent.slice(0, 200));
                 }
-                this.previews = previews;
-            } else {
-                const tempDOM = document.createElement('div');
-                tempDOM.innerHTML = this.md.render(this.notes[index].content);
-                this.previews[index] = tempDOM.textContent.slice(0, 200);
+                return previews;
             }
+            const tempDOM = document.createElement('div');
+            tempDOM.innerHTML = this.md.render(this.notes[index].content.replace(/\[uoma-toc\]/g, '\\[uoma-toc\\]'));
+            return tempDOM.textContent.slice(0, 200);
         },
         /**
          * Format a date object to a string based on locale
@@ -930,6 +934,56 @@ export default {
                 }
             }
         },
+        /**
+         * Download guide notes from GitHub and add them to notes
+         * @param {string} locale preferred locale
+         */
+        async initGuide(locale) {
+            // If already downloaded, exit
+            if (localStorage.getItem('uoma_note_guide') === 'true') {
+                return;
+            }
+            // Download markdown guide
+            let response = await betterFetch(`https://cdn.jsdelivr.net/gh/uom-assistant/uom-assistant/github_assets/markdown/${locale}/markdown_guide.md`).catch(() => false);
+
+            if (typeof response !== 'string') {
+                // Failed, fallback to en
+                response = await betterFetch('https://cdn.jsdelivr.net/gh/uom-assistant/uom-assistant/github_assets/markdown/en/markdown_guide.md').catch(() => false);
+            }
+
+            if (typeof response === 'string') {
+                // Add a note
+                this.notes.unshift({
+                    id: this.generateUniqueId(),
+                    title: this.$t('markdown_guide'),
+                    content: response,
+                    update: new Date().valueOf(),
+                });
+                this.previews.unshift(this.buildPreviews(0));
+            }
+
+            // Download UOMA guide
+            response = await betterFetch(`https://cdn.jsdelivr.net/gh/uom-assistant/uom-assistant/github_assets/markdown/${locale}/uoma_guide.md`).catch(() => false);
+
+            if (typeof response !== 'string') {
+                // Failed, fallback to en
+                response = await betterFetch('https://cdn.jsdelivr.net/gh/uom-assistant/uom-assistant/github_assets/markdown/en/uoma_guide.md').catch(() => false);
+            }
+
+            if (typeof response === 'string') {
+                // Add a note
+                this.notes.unshift({
+                    id: this.generateUniqueId(),
+                    title: this.$t('uoma_guide'),
+                    content: response,
+                    update: new Date().valueOf(),
+                });
+                this.previews.unshift(this.buildPreviews(0));
+            }
+
+            // Mark as downloaded
+            localStorage.setItem('uoma_note_guide', 'true');
+        },
     },
     watch: {
         locale() {
@@ -956,7 +1010,7 @@ export default {
             if (this.layerOpened) {
                 this.notes[this.editing].content = this.code;
                 this.notes[this.editing].update = new Date().valueOf();
-                this.buildPreviews(this.editing);
+                this.previews[this.editing] = this.buildPreviews(this.editing);
                 this.debouncedSave();
             }
         },
@@ -1095,7 +1149,7 @@ export default {
         });
         this.md.use(mdToc, { placeholder: '\\[uoma-toc\\]', slugify });
 
-        this.buildPreviews();
+        this.previews = this.buildPreviews();
         this.buildSearchIndex();
 
         window.addEventListener('resize', this.debouncedOnResize);
@@ -1670,7 +1724,9 @@ export default {
         "empty_toc": "Table of contents is empty. Go write down some idea!",
         "editing_toc": "Table of contents cannot be viewed in edit view",
         "switch_to_view": "Go view",
-        "switch_to_edit": "Go edit"
+        "switch_to_edit": "Go edit",
+        "uoma_guide": "✨ UoM Assistant Quick Tour",
+        "markdown_guide": "📎 Quick Notes Markdown Extension Syntax Guide"
     },
     "zh": {
         "note": "快速笔记",
@@ -1708,7 +1764,9 @@ export default {
         "empty_toc": "还没有目录。开始撰写笔记吧",
         "editing_toc": "编辑视图下无法查看目录",
         "switch_to_view": "切换到查看视图",
-        "switch_to_edit": "切换到编辑视图"
+        "switch_to_edit": "切换到编辑视图",
+        "uoma_guide": "✨ 曼大助手漫游指南",
+        "markdown_guide": "📎 快速笔记 Markdown 扩展语法指北"
     },
     "es": {
         "note": "Apuntes rápidos",
@@ -1723,7 +1781,7 @@ export default {
         "delete": "Eliminar",
         "select": "Selección múltiples",
         "untitled": "Sin título",
-        "num_selected": "{0} seleccionado",
+        "num_selected": "{0} seleccionados",
         "select_all": "Seleccionar todos",
         "select_none": "Dejar de seleccionar",
         "cancel_select": "Salir de selección múltiples",
@@ -1732,21 +1790,23 @@ export default {
         "confirm": "Confirmar",
         "cancel": "Cancelar",
         "ok": "OK",
-        "want_remove": "Está seguro de eliminar {0} apunte seleccionado? | Está seguro de eliminar los {0} apuntes elegido?",
+        "want_remove": "Está seguro de eliminar {0} apunte seleccionado? | Está seguro de eliminar los {0} apuntes elegidos?",
         "want_remove_single": "Está seguro de eliminar {0}?",
         "remove_all": "Está seguro de eliminar todos los apuntes?",
         "too_many_title": "Demasiados apuntes quizás",
         "too_many_body": "Esto no es un error. Está creando más de 50 apuntes, que no es una buena idea. Por favor considere usar una aplicación para organizar apuntes en lugar de apuntes rápidos. Puedes continuar a usar apuntes rápidos de todas formas.",
         "hl_error": "Error cuando intenta subrayar al código",
         "error_at": "{0} en {1}",
-        "toc": "",
-        "note_id": "",
-        "copy_note_id": "",
-        "note_id_help": "",
-        "empty_toc": "",
-        "editing_toc": "",
-        "switch_to_view": "",
-        "switch_to_edit": ""
+        "toc": "Tabla de contenidos",
+        "note_id": "Apunte ID",
+        "copy_note_id": "Copiar apunte ID",
+        "note_id_help": "Usa <code>[Nombre de enlace](:&lt;Apunte ID&gt;)</code> en otros apuntes para enlazar a este apunte, e.g. <code>[Nombre de enlace](:{0})</code>",
+        "empty_toc": "Tabla de contenidos está vacía. ¡Apunte alguna de sus ideas!",
+        "editing_toc": "Tabla de contenidos no es visible cuando en edición",
+        "switch_to_view": "Cambiar a modo vista",
+        "switch_to_edit": "Cambiar a modo edición",
+        "uoma_guide": "",
+        "markdown_guide": "📎 Apuntes Rápidos Markdown: Guía de sintaxis extendida"
     },
     "ja": {
         "note": "クイックノート",
@@ -1784,7 +1844,9 @@ export default {
         "empty_toc": "まだ目録がありません、初めのノートを作成しましょう",
         "editing_toc": "編集ビューで目録を表示できません",
         "switch_to_view": "プレビューに変更する",
-        "switch_to_edit": "編集ビューに変更する"
+        "switch_to_edit": "編集ビューに変更する",
+        "uoma_guide": "",
+        "markdown_guide": ""
     }
 }
 </i18n>

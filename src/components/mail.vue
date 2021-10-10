@@ -500,7 +500,7 @@
                                     class="mr-1 mb-n1"
                                     @click="translateMail"
                                     :loading="viewer.translateState === 'loading'"
-                                    :disabled="viewer.translateState === 'loading'"
+                                    :disabled="viewer.translateState === 'loading' || !viewer.translateFrom || !preferredTranslateTo[1]"
                                     v-if="viewer.translateState !== 'translated'"
                                 >{{ $t('translate') }}</v-btn>
                                 <v-btn
@@ -854,6 +854,7 @@
                         color="primary"
                         text
                         @click="saveTranslationSettingsDialog"
+                        :disabled="!editingPreferredTranslateTo"
                     >
                         {{ $t('save') }}
                     </v-btn>
@@ -867,9 +868,9 @@
 import { mapState } from 'vuex';
 import { codemirror } from 'vue-codemirror';
 import { saveAs } from 'file-saver';
+import { franc } from 'franc-min';
 import localForage from 'localforage';
 import markdown from 'markdown-it';
-import franc from 'franc-min';
 
 import mdSub from 'markdown-it-sub';
 import mdSup from 'markdown-it-sup';
@@ -1886,7 +1887,7 @@ export default {
 
                 if (response.data.content === '') {
                     // Empty body
-                    this.viewer.bodyHTML = `<html><head><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}</style></head><body> </body></html>`;
+                    this.viewer.bodyHTML = `<html><head><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}</style></head><body><br><br><br></body></html>`;
                     this.viewer.bodyRawHTML = '';
                     this.viewer.textContent = '';
                     this.viewer.bodyText = '';
@@ -2199,7 +2200,7 @@ export default {
                     // Set mail body
                     if (cachedMail.content === '') {
                         // Empty body
-                        this.viewer.bodyHTML = `<html><head><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}</style></head><body> </body></html>`;
+                        this.viewer.bodyHTML = `<html><head><style>${this.sandboxCss}${this.$vuetify.theme.dark ? this.sandboxCssDark : ''}</style></head><body><br><br><br></body></html>`;
                         this.viewer.bodyRawHTML = '';
                         this.viewer.textContent = '';
                         this.viewer.bodyText = '';
@@ -3765,8 +3766,8 @@ export default {
                         button {
                             font-size: 15px!important;
                             position: absolute;
-                            right: 11px;
-                            top: 7px;
+                            right: 9px;
+                            top: 5px;
                         }
                     }
                 }
@@ -3786,8 +3787,8 @@ export default {
                             button {
                                 font-size: 15px!important;
                                 position: absolute;
-                                right: 11px;
-                                top: 7px;
+                                right: 9px;
+                                top: 5px;
                             }
                         }
                     }
@@ -3986,8 +3987,8 @@ export default {
                             line-height: 24px;
                             button {
                                 position: absolute;
-                                right: 11px;
-                                top: 6px;
+                                right: 8px;
+                                top: 3px;
                             }
                         }
                     }

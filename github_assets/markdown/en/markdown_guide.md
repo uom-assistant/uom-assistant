@@ -1,5 +1,3 @@
-# Quick Notes Extended Markdown Syntax Guide
-
 For the convenience of taking notes in a richer form, Quick Notes also support the following extended Markdown syntax in addition to the common ones:
 
 ## Highlight

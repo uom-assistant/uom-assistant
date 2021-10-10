@@ -1,5 +1,3 @@
-# Apuntes Rápidos Markdown: Guía de sintaxis extendida
-
 Además de la sintaxis común de Markdown, para facilitar el apunte en diversas formas, apuntes rápidos también admite las siguientes sintaxis de Markdown:
 
 ## Subrayar

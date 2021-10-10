@@ -17,6 +17,7 @@ if (process.env.NODE_ENV === 'development') {
             }, {
                 delay: item.after,
                 headers: item.headers,
+                body: item.body,
                 overwriteRoutes: false,
             });
         }
