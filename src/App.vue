@@ -579,6 +579,7 @@ import '@/styles/highlight.less';
 
 let checkInBellTimer = -1;
 let layoytLockTimer = -1;
+let backendToken = '';
 
 export default {
     name: 'App',
@@ -757,6 +758,8 @@ export default {
                 this.loading = false;
             } else {
                 // Connected successfully
+                backendToken = this.backendToken;
+
                 if (response.data.welcomeMessage && response.data.welcomeMessage !== '') {
                     // Show welcome messages
                     this.welcomeMessage = response.data.welcomeMessage;
@@ -818,7 +821,7 @@ export default {
                 // Store backend info
                 localStorage.setItem('backend', JSON.stringify({
                     url: this.backendURL.substr(-1) === '/' ? this.backendURL.slice(0, -1) : this.backendURL,
-                    token: this.backendToken ? this.backendToken : '',
+                    token: backendToken || '',
                     status: true,
                 }));
 
@@ -830,6 +833,8 @@ export default {
                 return;
             }
 
+            console.log(backendToken, this.backendToken);
+
             // Try to login
             if (this.$refs.settingsField.allowAccount && ((this.$refs.settingsField.username && this.$refs.settingsField.password && this.$refs.settingsField.email) || (!this.$refs.settingsField.username && !this.$refs.settingsField.password && !this.$refs.settingsField.email))) {
                 this.loading = true;
@@ -840,7 +845,7 @@ export default {
                     body: JSON.stringify({
                         username: this.$refs.settingsField.username,
                         password: this.$refs.settingsField.password,
-                        token: this.backendToken ? this.backendToken : '',
+                        token: backendToken || '',
                     }),
                 }).catch(() => {
                     // Network error
@@ -895,7 +900,7 @@ export default {
                 // Store backend info
                 localStorage.setItem('backend', JSON.stringify({
                     url: this.backendURL.substr(-1) === '/' ? this.backendURL.slice(0, -1) : this.backendURL,
-                    token: this.backendToken ? this.backendToken : '',
+                    token: backendToken || '',
                     status: true,
                 }));
 
@@ -1263,6 +1268,8 @@ export default {
         this.$router.afterEach(() => {
             this.checkWelcome();
         });
+
+        console.log('iOS safari test');
     },
     beforeDestroy() {
         clearInterval(this.timer);
