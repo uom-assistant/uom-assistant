@@ -664,16 +664,20 @@ export default {
         .delete {
             margin-right: 0;
             margin-left: 8px;
-            opacity: 0;
-            transition: .2s;
+            @media (hover: hover) {
+                opacity: 0;
+                transition: .2s;
+            }
         }
         .v-list-item {
             background-color: transparent;
             transition: background-color .2s;
-            &:hover, &:focus {
-                background-color: rgba(0, 0, 0, .04);
-                .delete {
-                    opacity: 1;
+            @media (hover: hover) {
+                &:hover, &:focus {
+                    background-color: rgba(0, 0, 0, .04);
+                    .delete {
+                        opacity: 1;
+                    }
                 }
             }
         }

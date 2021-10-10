@@ -10,7 +10,7 @@
                         <v-btn
                             outlined
                             :class="$vuetify.breakpoint.xs ? 'mr-1' : 'mr-2'"
-                            :color="$vuetify.theme.dark ? 'grey lighten-1' : 'grey darken-2'"
+                            :color="$vuetify.theme.dark ? 'grey lighten-1' : 'grey darken-3'"
                             @click="focus = ''"
                         >
                             {{ $t('today') }}
@@ -19,7 +19,6 @@
                             icon
                             max-width="36"
                             max-height="36"
-                            :color="$vuetify.theme.dark ? 'grey lighten-1' : 'grey darken-2'"
                             class="mr-1"
                             @click="prev"
                         >
@@ -31,7 +30,6 @@
                             icon
                             max-width="36"
                             max-height="36"
-                            :color="$vuetify.theme.dark ? 'grey lighten-1' : 'grey darken-2'"
                             class="mr-1"
                             @click="next"
                         >
@@ -56,9 +54,7 @@
                             icon
                             max-width="36"
                             max-height="36"
-                            :color="$vuetify.theme.dark ? 'grey lighten-1' : 'grey darken-2'"
-                            class="settings-icon"
-                            :class="$vuetify.breakpoint.xs ? 'mr-1' : 'mr-2'"
+                            :class="$vuetify.breakpoint.xs ? 'mr-1' : 'mr-3'"
                             @click="setFirstDay"
                         >
                             <v-icon>
@@ -72,7 +68,7 @@
                             <template v-slot:activator="{ on, attrs }">
                                 <v-btn
                                     outlined
-                                    :color="$vuetify.theme.dark ? 'grey lighten-1' : 'grey darken-2'"
+                                    :color="$vuetify.theme.dark ? 'grey lighten-1' : 'grey darken-3'"
                                     v-bind="attrs"
                                     v-on="on"
                                 >
@@ -134,6 +130,9 @@
                         <template v-slot:day-label-header="{ date, day, present }">
                             <v-btn
                                 fab
+                                :x-small="$vuetify.breakpoint.xs"
+                                :small="!$vuetify.breakpoint.xs"
+                                class="my-1"
                                 depressed
                                 :color="present ? 'primary' : 'transparent'"
                                 @click="viewDay({ date })"
@@ -160,11 +159,11 @@
                     <v-menu
                         v-model="selectedOpen"
                         nudge-right="5"
-                        transition="slide-x-transition"
-                        content-class="large-radius event-card-container"
+                        offset-x
+                        :content-class="`large-radius event-card-container${$vuetify.breakpoint.xs ? ' full-screen-menu' : ''}`"
+                        :transition="$vuetify.breakpoint.xs ? 'slide-y-reverse-transition' : 'slide-x-transition'"
                         :close-on-content-click="false"
                         :activator="selectedElement"
-                        offset-x
                     >
                         <v-card
                             class="event-card"
@@ -173,6 +172,7 @@
                         >
                             <v-toolbar
                                 color="#ffffff"
+                                height="64"
                                 flat
                             >
                                 <v-toolbar-title :class="selectedEvent.titleColor ? `${selectedEvent.titleColor.split(' ')[0] === 'uomtheme' ? 'primary' : selectedEvent.titleColor.split(' ')[0]}--text${selectedEvent.titleColor.split(' ').length > 1 ? ` text--${selectedEvent.titleColor.split(' ')[1]}` : ''}` : ''" class="calendar-selected-name">
@@ -185,7 +185,7 @@
                                         <v-btn
                                             icon
                                             small
-                                            class="mr-0 ml-2 course-home"
+                                            class="mr-0 ml-2"
                                             target="_blank"
                                             :href="subjectLinks(selectedEvent.subjectId).homeLink"
                                             color="grey"
@@ -197,6 +197,16 @@
                                     </template>
                                     <span>{{ $t('subject_home') }}</span>
                                 </v-tooltip>
+                                <v-btn
+                                    icon
+                                    small
+                                    class="ml-2 mr-0"
+                                    :class="{ 'd-none': !$vuetify.breakpoint.xs }"
+                                    color="grey"
+                                    @click="selectedOpen = false"
+                                >
+                                    <v-icon>mdi-chevron-down</v-icon>
+                                </v-btn>
                             </v-toolbar>
                             <v-card-text>
                                 <span v-if="selectedEvent.details !== 'Coursework Deadline'">
@@ -425,18 +435,18 @@ export default {
          * Update timing bar position in day view
          */
         updateTime() {
-            if (this.$refs.calendar) {
+            if (this.$refs.calendar && this.$refs.calendar.updateTimes) {
                 this.currentTimeStamp = new Date().valueOf();
                 this.$refs.calendar.updateTimes();
             }
             if (this.type === 'day') {
-                if (this.today === this.currentDate && this.$refs.calendar) {
+                if (this.today === this.currentDate && this.$refs.calendar && this.$refs.calendar.timeToY) {
                     this.nowY = `${this.$refs.calendar.timeToY(this.$refs.calendar.times.now)}px`;
                 } else {
                     this.nowY = '-10px';
                 }
             } else if (this.type === 'week') {
-                if (this.today === this.currentWeekStart && this.$refs.calendar) {
+                if (this.today === this.currentWeekStart && this.$refs.calendar && this.$refs.calendar.timeToY) {
                     this.nowY = `${this.$refs.calendar.timeToY(this.$refs.calendar.times.now)}px`;
                 } else {
                     this.nowY = '-10px';
@@ -960,15 +970,6 @@ export default {
     .loading {
         margin-left: 10px;
     }
-    .settings-icon {
-        opacity: 0;
-        transition: opacity .2s;
-    }
-    .handle:hover {
-        .settings-icon {
-            opacity: 1;
-        }
-    }
     .phb-11 {
         padding-left: 11px;
         padding-right: 11px;
@@ -1047,9 +1048,11 @@ export default {
     overflow-x: auto;
     background-color: white;
     .event-card {
+        width: fit-content;
+        max-width: fit-content;
         .calendar-selected-name {
             line-height: 17px;
-            margin-top: 10px;
+            margin-top: 3px;
             .calendar-smaller-font {
                 font-size: 0.875rem;
             }
@@ -1097,6 +1100,34 @@ export default {
         }
     }
 }
+.v-menu__content.full-screen-menu {
+    position: fixed;
+    top: 0!important;
+    left: 0!important;
+    max-width: 100vw;
+    width: 100vw;
+    height: 100%;
+    border-radius: 0!important;
+    .event-card {
+        border-radius: 0;
+        height: 100%;
+        overflow: auto;
+        overscroll-behavior: contain;
+        .v-card__text {
+            width: 100%;
+            pre {
+                white-space: pre-wrap;
+                word-break: break-word;
+            }
+        }
+        .v-toolbar {
+            top: 0;
+            left: 0;
+            width: 100vw;
+            z-index: 10;
+        }
+    }
+}
 #app.theme--dark .event-card-container {
     background-color: #1E1E1E;
     .event-card {
@@ -1132,7 +1163,6 @@ export default {
         "course_ddl": "Coursework Deadline",
         "coursework": "Coursework",
         "subject_home": "Course Unit Home Page",
-        "ical_error": "Cannot parse ical file",
         "network_error_body": "Cannot fetch latest events from calendar subscription URL",
         "quick_zoom": "Zoom meeting quick start",
         "quick_teams": "Teams meeting quick start",
@@ -1152,7 +1182,6 @@ export default {
         "course_ddl": "作业到期",
         "coursework": "作业",
         "subject_home": "科目主页",
-        "ical_error": "无法解析 ical 文件",
         "network_error_body": "无法从日历订阅 URL 获取最新事件",
         "quick_zoom": "快速启动 Zoom 会议",
         "quick_teams": "快速启动 Teams 会议",
@@ -1172,7 +1201,6 @@ export default {
         "course_ddl": "Fecha límite para trabajo de asignatura",
         "coursework": "Trabajo de asignatura",
         "subject_home": "Página principal de asignatura",
-        "ical_error": "No ha sido posible analizar los archivos ical.",
         "network_error_body": "No ha sido posible obtener los últimos eventos desde la subscripción del calendario.",
         "quick_zoom": "Acceder a Zoom",
         "quick_teams": "Acceder a Teams",
@@ -1192,12 +1220,12 @@ export default {
         "course_ddl": "課題の締め切り",
         "coursework": "課題",
         "subject_home": "科目ホームページ",
-        "ical_error": "icalファイル解析不能",
         "network_error_body": "カレンダー購読のURLから最新予定表の情報を取得できません。",
         "quick_zoom": "Zoomミーティングを起動する",
         "quick_teams": "Teamsミーティングを起動する",
         "copy_passcode": "パスワードをコピーする",
         "self_study": "（独学）",
+        "ical_error": "icalファイル解析不能",
         "error_at": "{1} に {0} 発生",
         "first_day_settings": "毎週の初日",
         "cancel": "キャンセル",

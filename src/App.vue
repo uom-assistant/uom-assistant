@@ -142,8 +142,8 @@
         </div>
         <v-navigation-drawer
             v-model="drawer"
-            absolute
             temporary
+            fixed
         >
             <v-list-item>
                 <v-list-item-avatar tile size="37">

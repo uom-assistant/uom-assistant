@@ -13,6 +13,10 @@ export default {
          * @param {Event} e scroll event
          */
         scrollHandler(e) {
+            if (!e || !e.target || typeof e.target.scrollTop !== 'number') {
+                return;
+            }
+
             scroll = e.target.scrollTop;
 
             if (scroll > 5 && headerShadowCopy === false) {

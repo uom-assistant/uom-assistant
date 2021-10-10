@@ -1441,23 +1441,29 @@ export default {
         }
         .delete {
             margin: 0 0 0 8px!important;
-            opacity: 0;
-            transition: .2s;
+            display: none;
+            @media (hover: hover) {
+                display: inline-flex;
+                transition: .2s;
+                opacity: 0;
+            }
         }
         .v-list-item {
             transition: background-color .2s;
             min-height: 30px;
-            &:hover, &:focus {
-                background-color: rgba(0, 0, 0, .04);
-                .delete {
-                    opacity: 1;
-                }
-                .v-list-item__subtitle {
-                    & > span.hide {
-                        display: none;
+            @media (hover: hover) {
+                &:hover, &:focus {
+                    background-color: rgba(0, 0, 0, .04);
+                    .delete {
+                        opacity: 1;
                     }
-                    & > div {
-                        display: block;
+                    .v-list-item__subtitle {
+                        & > span.hide {
+                            display: none;
+                        }
+                        & > div {
+                            display: block;
+                        }
                     }
                 }
             }

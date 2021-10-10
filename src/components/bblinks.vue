@@ -13,7 +13,7 @@
         ></v-progress-circular>
         <div class="bblinks-outer">
             <h2 class="handle">{{ $t('quick_links') }}</h2>
-            <v-tabs @change="relocate">
+            <v-tabs @change="relocate" show-arrows>
                 <v-tab :key="`${this.locale}1`">{{ $t('subjects') }}</v-tab>
                 <v-tab :key="`${this.locale}2`">{{ $t('portals') }}</v-tab>
                 <v-tab :key="`${this.locale}3`">{{ $t('custom') }}</v-tab>
