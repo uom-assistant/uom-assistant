@@ -1034,12 +1034,11 @@ export default {
         "coursework": "課題",
         "subject_home": "科目ホームページ",
         "ical_error": "icalファイル解析不能",
-        "network_error_body": "カレンダーサブスクライブのURLから最新イベントの情報を取得できません。",
+        "network_error_body": "カレンダー購読のURLから最新予定表の情報を取得できません。",
         "quick_zoom": "Zoomミーティングを起動する",
         "quick_teams": "Teamsミーティングを起動する",
         "copy_passcode": "パスワードをコピーする",
         "self_study": "（独学）",
-        "ical_error": "",
         "error_at": "{1} に {0} 発生"
     }
 }

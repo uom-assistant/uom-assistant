@@ -262,10 +262,10 @@ export default {
         "ok": "OK"
     },
     "ja": {
-        "calendar_subscription": "カレンダーの登録",
-        "uom_username": "大学のユーザー名",
-        "uom_email": "大学のメールアドレス",
-        "uom_password": "大学のパスワード",
+        "calendar_subscription": "カレンダーの購読",
+        "uom_username": "大学ユーザー名",
+        "uom_email": "大学メールアドレス",
+        "uom_password": "大学パスワード",
         "allow_save": "このバックエンドの同期設定を使う",
         "will_store_on": "このオプションを有効にすると、バックエンドはあなたの大学アカウント情報を保存することをご注意ください。",
         "not_allow_account": "このバックエンドはマンチェスター大学アカウントの使用が対応されない。",
