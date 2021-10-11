@@ -1538,7 +1538,7 @@ code, kbd, pre, samp {
         "bblinks": "クイックリンク",
         "livelinks": "オンライン授業リンク",
         "subjects": "科目管理",
-        "attendance": "出勤統計",
+        "attendance": "出席統計",
         "calendar": "カレンダー",
         "task": "タスク",
         "note": "クイックノート",
