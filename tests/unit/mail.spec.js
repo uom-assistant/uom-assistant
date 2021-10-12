@@ -92,10 +92,14 @@ describe('mail.vue', () => {
             {
                 id: -1,
                 unseen: true,
+                subject: false,
+                from: false,
             },
             {
                 id: 1,
                 unseen: false,
+                subject: false,
+                from: false,
             },
         ];
         expect(wrapper.vm.isUnseen(-1)).toBe(true);
@@ -111,10 +115,14 @@ describe('mail.vue', () => {
             {
                 id: -1,
                 flagged: true,
+                subject: false,
+                from: false,
             },
             {
                 id: 1,
                 flagged: false,
+                subject: false,
+                from: false,
             },
         ];
         expect(wrapper.vm.isFlagged(-1)).toBe(true);
@@ -140,14 +148,20 @@ describe('mail.vue', () => {
             {
                 id: -1,
                 unseen: true,
+                subject: false,
+                from: false,
             },
             {
                 id: 0,
                 unseen: true,
+                subject: false,
+                from: false,
             },
             {
                 id: 1,
                 unseen: false,
+                subject: false,
+                from: false,
             },
         ];
         wrapper.vm.markAsRead(-1);
@@ -166,14 +180,20 @@ describe('mail.vue', () => {
             {
                 id: -1,
                 unseen: true,
+                subject: false,
+                from: false,
             },
             {
                 id: 0,
                 unseen: true,
+                subject: false,
+                from: false,
             },
             {
                 id: 1,
                 unseen: false,
+                subject: false,
+                from: false,
             },
         ];
         wrapper.vm.markAllAsRead();
@@ -189,9 +209,21 @@ describe('mail.vue', () => {
         const wrapper = getShallowWapper(Mail, { searchid: 8 });
 
         wrapper.vm.mails = [
-            { id: -1 },
-            { id: 0 },
-            { id: 1 },
+            {
+                id: -1,
+                subject: false,
+                from: false,
+            },
+            {
+                id: 0,
+                subject: false,
+                from: false,
+            },
+            {
+                id: 1,
+                subject: false,
+                from: false,
+            },
         ];
         wrapper.vm.markAsJunk(0);
 
@@ -207,9 +239,21 @@ describe('mail.vue', () => {
         const wrapper = getShallowWapper(Mail, { searchid: 8 });
 
         wrapper.vm.mails = [
-            { id: -1 },
-            { id: 0 },
-            { id: 1 },
+            {
+                id: -1,
+                subject: false,
+                from: false,
+            },
+            {
+                id: 0,
+                subject: false,
+                from: false,
+            },
+            {
+                id: 1,
+                subject: false,
+                from: false,
+            },
         ];
         wrapper.vm.deleteMail(0);
 
