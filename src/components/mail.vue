@@ -114,7 +114,7 @@
                                 >
                                     mdi-clock-outline
                                 </v-icon>
-                                <span :title="getDate(new Date(mail.date * 1000))" :key="timeUpdate(mail.date * 1000) ? `${keyMin}-${index}` : `mail-key-${index}`">{{ displayDate(new Date(mail.date * 1000)) }}</span>
+                                <span :title="getDate(new Date(mail.date * 1000))" :key="timeUpdate(mail.date * 1000) ? `${keyMin}-${index}` : `mail-key-${index}`" class="relative-time">{{ displayDate(new Date(mail.date * 1000)) }}</span>
                                 <v-icon
                                     small
                                     color="primary"
@@ -446,7 +446,7 @@
                 <div class="mail-translation mx-5 pa-3 pr-2 mt-2" v-if="translateEnabled && viewer.translator && viewer.textContent !== '' && viewer.sourceLang !== 'und' && languageMap[viewer.sourceLang] && viewer.sourceLang !== preferredTranslateTo[0] && preferredTranslateTo[1][viewer.translator] !== false && !(!loadingBody && (!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML && viewer.bodyRawHTML !== '')">
                     <div class="translation-notice">
                         <v-icon class="mr-2">mdi-translate</v-icon>
-                        <span class="text-body-2">{{ $t('in_language', [Array.isArray(languageMap[viewer.sourceLang]) ? $t(`lang_${viewer.sourceLang}`) : $t(`lang_${languageMap[viewer.sourceLang].locale}`)]) }}</span>
+                        <span class="text-body-2">{{ $t('in_language', [Array.isArray(languageMap[viewer.sourceLang]) ? $t(`lang_${viewer.sourceLang}`) : getLanguageName(languageMap[viewer.sourceLang])]) }}</span>
                         <v-btn icon @click.stop="viewTranslationExpanded = !viewTranslationExpanded" small class="float-right expand-btn" :title="$t('more')">
                             <v-icon :class="{ 'detail-expanded': viewTranslationExpanded }">mdi-chevron-down</v-icon>
                         </v-btn>
@@ -485,7 +485,7 @@
                                     hide-details
                                     :readonly="viewer.translateState === 'source'"
                                     :disabled="viewer.translateState !== 'source'"
-                                    :value="this.$t(`lang_${preferredTranslateTo[1].locale}`)"
+                                    :value="getLanguageName(preferredTranslateTo[1])"
                                     :label="$t('translate_to')"
                                 ></v-text-field>
                             </div>
@@ -822,7 +822,7 @@
                         item-value="code"
                         item-text="name"
                         prepend-inner-icon="mdi-translate"
-                        :items="preferredLanguageList"
+                        :items="preferredLanguageList()"
                         :label="$t('translate_to_language')"
                         :no-data-text="$t('no_language')"
                         :key="`preferred-lang-to-${locale}`"
@@ -2626,7 +2626,7 @@ export default {
                 }
                 if (item[1][service]) {
                     return {
-                        name: this.$t(`lang_${item[1].locale}`),
+                        name: window.displayFormatters.language.of(item[1].azure || (item[1].google || item[1].locale.replace(/_/g, '-'))),
                         code: item[1][service],
                     };
                 }
@@ -3262,23 +3262,23 @@ export default {
                 return this.getDate(date);
             }
             // More than 1 week
-            if (now - mail < 864000000 && now - mail >= 604800000) {
-                return this.$t('remain_week', [1]);
+            if (now - mail >= 604800000) {
+                return window.uomaTimeFormatters.relative.format(-1, 'week');
             }
             // More than 1 day
             if (now - mail >= 86400000) {
                 const day = Math.floor((now - mail) / 86400000);
-                return this.$tc('remain_day', day, [day]);
+                return window.uomaTimeFormatters.relative.format(0 - day, 'day');
             }
             // More than 1 hour
             if (now - mail < 86400000 && now - mail > 3600000) {
                 const hour = Math.round((now - mail) / 3600000);
-                return this.$tc('remain_hour', hour, [hour]);
+                return window.uomaTimeFormatters.relative.format(0 - hour, 'hour');
             }
             // Less than 1 hour
             if (now - mail < 3600000 && now - mail > 120000) {
                 const mins = Math.round((now - mail) / 60000);
-                return this.$tc('remain_min', mins, [mins]);
+                return window.uomaTimeFormatters.relative.format(0 - mins, 'minute');
             }
             // Less than 2 mins
             if (now - mail < 120000 && now - mail > 0) {
@@ -3330,6 +3330,29 @@ export default {
                 });
             }
             return searchIndex;
+        },
+        /**
+         * Flat and translate language list
+         * @returns {array} language list
+         */
+        preferredLanguageList() {
+            const result = Object.entries(this.languageMap).map((item) => {
+                if (Array.isArray(item[1])) {
+                    // If the language have variants
+                    return item[1].map((lang) => ({
+                        name: window.displayFormatters.language.of(lang.azure || (lang.google || lang.locale.replace(/_/g, '-'))),
+                        code: [item[0], lang],
+                    }));
+                }
+                return {
+                    name: window.displayFormatters.language.of(item[1].azure || (item[1].google || item[1].locale.replace(/_/g, '-'))),
+                    code: [item[0], item[1]],
+                };
+            }).flat();
+            return result;
+        },
+        getLanguageName(language) {
+            return window.displayFormatters.language.of(language.azure || (language.google || language.locale.replace(/_/g, '-')));
         },
     },
     watch: {
@@ -3465,22 +3488,6 @@ export default {
         mailUnseen() {
             // Filter out unread mails
             return this.mails.filter((item) => item.unseen);
-        },
-        preferredLanguageList() {
-            const result = Object.entries(this.languageMap).map((item) => {
-                if (Array.isArray(item[1])) {
-                    // If the language have variants
-                    return item[1].map((lang) => ({
-                        name: this.$t(`lang_${lang.locale}`),
-                        code: [item[0], lang],
-                    }));
-                }
-                return {
-                    name: this.$t(`lang_${item[1].locale}`),
-                    code: [item[0], item[1]],
-                };
-            }).flat();
-            return result;
         },
     },
     async mounted() {
@@ -4188,6 +4195,12 @@ export default {
         .time-icon {
             vertical-align: text-top;
         }
+        .relative-time {
+            display: inline-block;
+            &::first-letter {
+                text-transform: capitalize;
+            }
+        }
         .person-icon {
             vertical-align: text-top;
         }
@@ -4468,10 +4481,6 @@ export default {
         "sound_notification": "New email sound notification",
         "no_subject": "No Subject",
         "mail_view": "Email",
-        "remain_week": "{0} week ago",
-        "remain_day": "{0} day ago | {0} days ago",
-        "remain_hour": "{0} hour ago | {0} hours ago",
-        "remain_min": "{0} min ago | {0} mins ago",
         "just_now": "Just now",
         "flagged": "Flagged",
         "flag": "Flag",
@@ -4527,58 +4536,8 @@ export default {
         "no_language": "No languages found",
         "lang_auto": "Auto detect",
         "lang_cmn": "Chinese",
-        "lang_zh": "Chinese (Simplified)",
-        "lang_zh_tw": "Chinese (Traditional)",
-        "lang_es": "Spanish",
-        "lang_en": "English",
-        "lang_ru": "Russian",
-        "lang_ar": "Arabic",
-        "lang_bn": "Bengali",
-        "lang_hi": "Hindi",
         "lang_por": "Portuguese",
-        "lang_pt_pt": "Portuguese (Portugal)",
-        "lang_pt": "Portuguese (Brazil)",
-        "lang_id": "Indonesian",
-        "lang_ja": "Japanese",
-        "lang_fr": "French",
-        "lang_de": "German",
-        "lang_jv": "Javanese",
-        "lang_ko": "Korean",
-        "lang_te": "Telugu",
-        "lang_vi": "Vietnamese",
-        "lang_mr": "Marathi",
-        "lang_it": "Italian",
-        "lang_ta": "Tamil",
-        "lang_tr": "Turkish",
-        "lang_ur": "Urdu",
-        "lang_gu": "Gujarati",
-        "lang_pl": "Polish",
-        "lang_uk": "Ukrainian",
-        "lang_fa": "Persian",
-        "lang_kn": "Kannada",
-        "lang_ml": "Maithili",
-        "lang_my": "Burmese",
-        "lang_or": "Oriya (Oria)",
-        "lang_sw": "Swahili",
-        "lang_su": "Sundanese",
-        "lang_ro": "Romanian",
-        "lang_pa": "Panjabi",
-        "lang_am": "Amharic",
-        "lang_ha": "Hausa",
-        "lang_bs": "Bosnian",
-        "lang_hr": "Croatian",
-        "lang_nl": "Dutch",
-        "lang_srp": "Serbian",
-        "lang_sr_cy": "Serbian (Cyrillic)",
-        "lang_sr_la": "Serbian (Latin)",
-        "lang_th": "Thai",
-        "lang_ku": "Central Kurdish",
-        "lang_yo": "Yoruba",
-        "lang_hu": "Hungarian",
-        "lang_el": "Greek",
-        "lang_cs": "Czech",
-        "lang_bg": "Bulgarian",
-        "lang_sv": "Swedish"
+        "lang_srp": "Serbian"
     },
     "zh": {
         "mail": "收件箱",
@@ -4598,10 +4557,6 @@ export default {
         "sound_notification": "新邮件通知音",
         "no_subject": "无主题",
         "mail_view": "邮件",
-        "remain_week": "{0} 周前",
-        "remain_day": "{0} 天前 | {0} 天前",
-        "remain_hour": "{0} 小时前 | {0} 小时前",
-        "remain_min": "{0} 分钟前 | {0} 分钟前",
         "just_now": "刚刚",
         "flagged": "已旗标",
         "flag": "旗标",
@@ -4657,58 +4612,8 @@ export default {
         "no_language": "找不到语言",
         "lang_auto": "自动检测",
         "lang_cmn": "中文",
-        "lang_zh": "中文（简体）",
-        "lang_zh_tw": "中文（繁体）",
-        "lang_es": "西班牙语",
-        "lang_en": "英语",
-        "lang_ru": "俄语",
-        "lang_ar": "阿拉伯语",
-        "lang_bn": "孟加拉语",
-        "lang_hi": "印地语",
         "lang_por": "葡萄牙语",
-        "lang_pt_pt": "葡萄牙语（葡萄牙）",
-        "lang_pt": "葡萄牙语（巴西）",
-        "lang_id": "印度尼西亚语",
-        "lang_ja": "日语",
-        "lang_fr": "法语",
-        "lang_de": "德语",
-        "lang_jv": "爪哇语",
-        "lang_ko": "韩语",
-        "lang_te": "泰卢固语",
-        "lang_vi": "越南语",
-        "lang_mr": "马拉地语",
-        "lang_it": "意大利语",
-        "lang_ta": "泰米尔语",
-        "lang_tr": "土耳其语",
-        "lang_ur": "乌尔都语",
-        "lang_gu": "古吉拉特语",
-        "lang_pl": "波兰语",
-        "lang_uk": "乌克兰语",
-        "lang_fa": "波斯语",
-        "lang_kn": "卡纳达语",
-        "lang_ml": "马拉雅拉姆文",
-        "lang_my": "缅甸语",
-        "lang_or": "奥里亚语（奥里亚）",
-        "lang_sw": "斯瓦希里语",
-        "lang_su": "巽他语",
-        "lang_ro": "罗马尼亚语",
-        "lang_pa": "旁遮普语",
-        "lang_am": "阿姆哈拉语",
-        "lang_ha": "豪萨语",
-        "lang_bs": "波斯尼亚语",
-        "lang_hr": "克罗地亚语",
-        "lang_nl": "荷兰语",
-        "lang_srp": "塞尔维亚语",
-        "lang_sr_cy": "塞尔维亚语 (西里尔文)",
-        "lang_sr_la": "塞尔维亚语 (拉丁文)",
-        "lang_th": "泰语",
-        "lang_ku": "中部库尔德语",
-        "lang_yo": "约鲁巴语",
-        "lang_hu": "匈牙利语",
-        "lang_el": "希腊语",
-        "lang_cs": "捷克语",
-        "lang_bg": "保加利亚语",
-        "lang_sv": "瑞典语"
+        "lang_srp": "塞尔维亚语"
     },
     "es": {
         "mail": "Bandeja de entrada",
@@ -4728,10 +4633,6 @@ export default {
         "sound_notification": "Sonido de notificacion de un correo nuevo",
         "no_subject": "No asignaturas",
         "mail_view": "Correos",
-        "remain_week": "Hace {0} semanas",
-        "remain_day": "Hace {0} día | Hace {0} días",
-        "remain_hour": "Hace {0} hora | Hace {0} horas",
-        "remain_min": "Hace {0} minuto | Hace {0} minutos",
         "just_now": "Ahora mismo",
         "flagged": "Marcado",
         "flag": "Marcar",
@@ -4787,58 +4688,8 @@ export default {
         "no_language": "No idioma encontrado",
         "lang_auto": "Autodetección",
         "lang_cmn": "Chino",
-        "lang_zh": "Chino (Simplificado)",
-        "lang_zh_tw": "Chino (Tradicional)",
-        "lang_es": "Español",
-        "lang_en": "Inglés",
-        "lang_ru": "Ruso",
-        "lang_ar": "Árabe",
-        "lang_bn": "Bengalí",
-        "lang_hi": "Hindi",
         "lang_por": "Portugués",
-        "lang_pt_pt": "Portugués (Portugal)",
-        "lang_pt": "Portugués (Brasil)",
-        "lang_id": "Indonesio",
-        "lang_ja": "Japonés",
-        "lang_fr": "Francés",
-        "lang_de": "Alemán",
-        "lang_jv": "Javanés",
-        "lang_ko": "Koreano",
-        "lang_te": "Telugu",
-        "lang_vi": "Vietnamita",
-        "lang_mr": "Maratí",
-        "lang_it": "Italiano",
-        "lang_ta": "Tamil",
-        "lang_tr": "Turco",
-        "lang_ur": "Urdu",
-        "lang_gu": "Gujaratí",
-        "lang_pl": "Polaco",
-        "lang_uk": "Ucrainiano",
-        "lang_fa": "Farsi",
-        "lang_kn": "Canarés",
-        "lang_ml": "Maitilí",
-        "lang_my": "Birmano",
-        "lang_or": "Oriya (Oria)",
-        "lang_sw": "Suajili",
-        "lang_su": "Sondanés",
-        "lang_ro": "Rumano",
-        "lang_pa": "Pynjabi",
-        "lang_am": "Amhárico",
-        "lang_ha": "Hausa",
-        "lang_bs": "Bosnio",
-        "lang_hr": "Croata",
-        "lang_nl": "Neerlandés",
-        "lang_srp": "Serbio",
-        "lang_sr_cy": "Serbio (Cirilico)",
-        "lang_sr_la": "Serbio (Latin)",
-        "lang_th": "Tailandés",
-        "lang_ku": "Kurdo central",
-        "lang_yo": "Yoruba",
-        "lang_hu": "Húngaro",
-        "lang_el": "Griego",
-        "lang_cs": "Checo",
-        "lang_bg": "Búlgaro",
-        "lang_sv": "Sueco"
+        "lang_srp": "Serbio"
     },
     "ja": {
         "mail": "受信トレイ",
@@ -4917,58 +4768,8 @@ export default {
         "no_language": "言語が見つかりません",
         "lang_auto": "言語を検出する",
         "lang_cmn": "中国語",
-        "lang_zh": "中国語（簡体字）",
-        "lang_zh_tw": "中国語（繫体字）",
-        "lang_es": "スペイン語",
-        "lang_en": "英語",
-        "lang_ru": "ロシア語",
-        "lang_ar": "アラビア語",
-        "lang_bn": "ベンガル語",
-        "lang_hi": "ヒンディー語",
         "lang_por": "ポルトガル語",
-        "lang_pt_pt": "ポルトガル語 (ポルトガル)",
-        "lang_pt": "ポルトガル語（ブラジル)",
-        "lang_id": "インドネシア語",
-        "lang_ja": "日本語",
-        "lang_fr": "フランス語",
-        "lang_de": "ドイツ語",
-        "lang_jv": "ジャワ語",
-        "lang_ko": "韓国語",
-        "lang_te": "テルグ語",
-        "lang_vi": "ベトナム語",
-        "lang_mr": "マラーティー語",
-        "lang_it": "イタリア語",
-        "lang_ta": "タミル",
-        "lang_tr": "トルコ語",
-        "lang_ur": "ウルドゥー語",
-        "lang_gu": "グジャラート語",
-        "lang_pl": "ポーランド語",
-        "lang_uk": "ウクライナ",
-        "lang_fa": "ペルシャ語",
-        "lang_kn": "カンナダ語",
-        "lang_ml": "マラヤラム語",
-        "lang_my": "ビルマ語",
-        "lang_or": "オリヤー語（オリリア)",
-        "lang_sw": "スワヒリ語",
-        "lang_su": "スンダ語",
-        "lang_ro": "ルーマニア語",
-        "lang_pa": "パンジャブ",
-        "lang_am": "アムハラ語",
-        "lang_ha": "ハウサ語",
-        "lang_bs": "ボスニア語",
-        "lang_hr": "クロアチア語",
-        "lang_nl": "オランダ語",
-        "lang_srp": "セルビア語",
-        "lang_sr_cy": "セルビア語（キリル文字)",
-        "lang_sr_la": "セルビア語（ラテン文字)",
-        "lang_th": "タイ語",
-        "lang_ku": "中央のクルド語",
-        "lang_yo": "ヨルバ語",
-        "lang_hu": "ハンガリー語",
-        "lang_el": "ギリシャ語",
-        "lang_cs": "チェコ語",
-        "lang_bg": "ブルガリア語",
-        "lang_sv": "スウェーデン語"
+        "lang_srp": "セルビア語"
     }
 }
 </i18n>

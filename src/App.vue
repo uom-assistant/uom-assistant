@@ -609,7 +609,13 @@ window.uomaTimeFormatters = {
         month: 'numeric',
         day: 'numeric',
     }),
+    relative: new Intl.RelativeTimeFormat(langIso, { numeric: 'auto' }),
 };
+window.displayFormatters = {
+    region: new Intl.DisplayNames([langIso], { type: 'region' }),
+    language: new Intl.DisplayNames([langIso], { type: 'language' }),
+};
+
 let timeFormattersInited = false;
 
 export default {
@@ -1223,6 +1229,11 @@ export default {
                         month: 'numeric',
                         day: 'numeric',
                     }),
+                    relative: new Intl.RelativeTimeFormat(this.localeDetail.iso, { numeric: 'auto' }),
+                };
+                window.displayFormatters = {
+                    region: new Intl.DisplayNames([this.localeDetail.iso], { type: 'region' }),
+                    language: new Intl.DisplayNames([this.localeDetail.iso], { type: 'language' }),
                 };
             } else {
                 timeFormattersInited = true;

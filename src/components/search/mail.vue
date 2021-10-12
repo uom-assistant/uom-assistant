@@ -199,23 +199,23 @@ export default {
                 return this.getDate(date);
             }
             // More than 1 week
-            if (now - mail < 864000000 && now - mail >= 604800000) {
-                return this.$t('remain_week', [1]);
+            if (now - mail >= 604800000) {
+                return window.uomaTimeFormatters.relative.format(-1, 'week');
             }
             // More than 1 day
             if (now - mail >= 86400000) {
                 const day = Math.floor((now - mail) / 86400000);
-                return this.$tc('remain_day', day, [day]);
+                return window.uomaTimeFormatters.relative.format(0 - day, 'day');
             }
             // More than 1 hour
             if (now - mail < 86400000 && now - mail > 3600000) {
                 const hour = Math.round((now - mail) / 3600000);
-                return this.$tc('remain_hour', hour, [hour]);
+                return window.uomaTimeFormatters.relative.format(0 - hour, 'hour');
             }
             // Less than 1 hour
             if (now - mail < 3600000 && now - mail > 120000) {
                 const mins = Math.round((now - mail) / 60000);
-                return this.$tc('remain_min', mins, [mins]);
+                return window.uomaTimeFormatters.relative.format(0 - mins, 'minute');
             }
             // Less than 2 mins
             if (now - mail < 120000 && now - mail > 0) {
@@ -369,38 +369,22 @@ export default {
 {
     "en": {
         "no_subject": "No Subject",
-        "remain_week": "{0} week ago",
-        "remain_day": "{0} day ago | {0} days ago",
-        "remain_hour": "{0} hour ago | {0} hours ago",
-        "remain_min": "{0} min ago | {0} mins ago",
         "just_now": "Just now",
         "flagged": "Flagged"
     },
     "zh": {
         "no_subject": "无主题",
-        "remain_week": "{0} 周前",
-        "remain_day": "{0} 天前 | {0} 天前",
-        "remain_hour": "{0} 小时前 | {0} 小时前",
-        "remain_min": "{0} 分钟前 | {0} 分钟前",
         "just_now": "刚刚",
         "flagged": "已旗标"
     },
     "es": {
         "no_subject": "No asignaturas",
-        "remain_week": "Hace {0} semanas",
-        "remain_day": "Hace {0} día | Hace {0} días",
-        "remain_hour": "Hace {0} hora | Hace {0} horas",
-        "remain_min": "Hace {0} minuto | Hace {0} minutos",
         "just_now": "Ahora mismo",
         "flagged": "Marcado",
         "flag": "Marcar"
     },
     "ja": {
         "no_subject": "件名無し",
-        "remain_week": "{0} 周前",
-        "remain_day": "{0} 日前 | {0} 日前",
-        "remain_hour": "{0} 時間前 | {0} 時間前",
-        "remain_min": "{0} 分前 | {0} 分前",
         "just_now": "たった今",
         "flagged": "フラグを付済み"
     }
