@@ -40,6 +40,11 @@ describe('mail.vue', () => {
                 month: 'numeric',
                 day: 'numeric',
             }),
+            relative: new Intl.RelativeTimeFormat('en', { numeric: 'auto' }),
+        };
+        window.displayFormatters = {
+            region: new Intl.DisplayNames(['en'], { type: 'region' }),
+            language: new Intl.DisplayNames(['en'], { type: 'language' }),
         };
     });
 

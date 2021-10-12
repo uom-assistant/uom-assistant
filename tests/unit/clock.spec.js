@@ -20,6 +20,11 @@ describe('clock.vue', () => {
     beforeEach(() => {
         vuetify = new Vuetify();
         store = new Vuex.Store(storeConfig);
+
+        window.displayFormatters = {
+            region: new Intl.DisplayNames(['en'], { type: 'region' }),
+            language: new Intl.DisplayNames(['en'], { type: 'language' }),
+        };
     });
 
     const getShallowWapper = (component, propsData) => shallowMount(component, {
