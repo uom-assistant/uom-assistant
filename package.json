@@ -12,7 +12,6 @@
     "update:timezone": "node ./scripts/update_timezone.js"
   },
   "dependencies": {
-    "@formatjs/intl-displaynames": "^5.2.4",
     "codemirror": "^5.63.1",
     "core-js": "^3.18.2",
     "csvtojson": "^2.0.10",
@@ -55,6 +54,7 @@
     "vuex": "^3.6.2"
   },
   "devDependencies": {
+    "@formatjs/intl-displaynames": "^5.2.4",
     "@intlify/vue-i18n-loader": "^1.1.0",
     "@vue/cli-plugin-babel": "~4.5.13",
     "@vue/cli-plugin-eslint": "~4.5.13",

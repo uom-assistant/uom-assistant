@@ -2191,7 +2191,7 @@ export default {
                 if (targetMail === -1) {
                     return;
                 }
-                if (targetMail.unseen) {
+                if (this.mails[targetMail].unseen) {
                     this.mails[targetMail].unseen = false;
                     this.$store.commit('setSearchNotification', {
                         target: 'mailSearch',
