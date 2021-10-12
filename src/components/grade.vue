@@ -522,7 +522,7 @@ export default {
          * @returns {string} formatted a date string
          */
         getDate(dateObj) {
-            return formatDate(dateObj, this.locale, false);
+            return formatDate(dateObj, this.locale, window.uomaTimeFormatters, false);
         },
         /**
          * Update layout after animation

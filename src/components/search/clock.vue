@@ -19,6 +19,9 @@
 <script>
 import { mapState } from 'vuex';
 
+// Time zone conversion is expensive, so we cache and update the time difference every 15 minutes
+let remoteDiff = 0;
+
 let hourRemote = '';
 let minRemote = '';
 let sec = '';
@@ -46,27 +49,46 @@ export default {
             return new Date((typeof date === 'string' ? new Date(date) : date).toLocaleString('en-US', { timeZone: tzString }));
         },
         /**
+         * Update time difference between remote and local
+         * @param {Date} now date object needs to be calculated
+         */
+        updateRemoteDiff(now) {
+            const flooredNow = Math.floor(now.valueOf() / 1000) * 1000;
+            remoteDiff = this.convertTimeZone(new Date(flooredNow), this.timezone).valueOf() - flooredNow;
+        },
+        /**
          * Update time
          */
         updateTime(init = false) {
             const now = new Date(new Date().valueOf());
-            const remoteNow = this.convertTimeZone(now, this.timezone);
 
             const secOld = sec;
+
+            sec = `${now.getSeconds()}`.padStart(2, '0');
+
+            if (secOld !== sec || init) {
+                this.$refs.secRemote.textContent = sec;
+
+                const minLocal = now.getMinutes();
+                if ((minLocal === 0 || minLocal === 15 || minLocal === 30 || minLocal === 45) && sec === '00') {
+                    this.updateRemoteDiff(now);
+                }
+            }
+
+            const remoteNow = new Date(now.valueOf() + remoteDiff);
             const minRemoteOld = minRemote;
             const hourRemoteOld = hourRemote;
 
-            sec = `${now.getSeconds()}`.padStart(2, '0');
             minRemote = `${remoteNow.getMinutes()}`.padStart(2, '0');
             hourRemote = `${remoteNow.getHours()}`.padStart(2, '0');
 
             if (secOld !== sec || init) {
                 this.$refs.secRemote.textContent = sec;
             }
-            if (minRemoteOld !== minRemote || init) {
+            if (minRemoteOld !== minRemote || sec === '00' || init) {
                 this.$refs.minRemote.textContent = minRemote;
             }
-            if (hourRemoteOld !== hourRemote || init) {
+            if (hourRemoteOld !== hourRemote || (sec === '00' && minRemote === '00') || init) {
                 this.$refs.hourRemote.textContent = hourRemote;
                 if (hourRemote <= 5 || hourRemote >= 19) {
                     this.remoteNight = true;
@@ -81,6 +103,7 @@ export default {
             this.$i18n.locale = this.locale;
         },
         timezone() {
+            this.updateRemoteDiff(new Date());
             this.updateTime();
         },
     },
@@ -100,6 +123,8 @@ export default {
 
         // Update time every 1 second
         this.timer = setInterval(this.updateTime, 1000);
+
+        this.updateRemoteDiff(new Date());
 
         this.updateTime(true);
     },

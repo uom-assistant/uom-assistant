@@ -137,7 +137,7 @@ export default {
          * @returns {string} formatted a date string
          */
         getDate(dateObj) {
-            return formatDate(dateObj, this.locale, false);
+            return formatDate(dateObj, this.locale, window.uomaTimeFormatters, false);
         },
     },
     watch: {
@@ -193,6 +193,7 @@ export default {
             subjects: (state) => state.subjects,
             attendance: (state) => state.attendance,
             attendanceUpdated: (state) => state.attendanceUpdated,
+            timeFormatters: (state) => state.timeFormatters,
         }),
     },
     mounted() {

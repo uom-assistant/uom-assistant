@@ -452,7 +452,7 @@ export default {
          * @returns {string} formatted a date string
          */
         getDate(dateObj) {
-            return formatDateTime(dateObj, this.locale, false);
+            return formatDateTime(dateObj, this.locale, window.uomaTimeFormatters, false);
         },
         /**
          * Build search index

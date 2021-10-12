@@ -199,10 +199,10 @@
                         </v-list-item>
                         <v-list-item @click="deleteMail(viewing)" :disabled="loading || loadingFlag.length > 0 || downloading !== '' || loadingPreview != ''">
                             <v-list-item-icon>
-                                <v-icon>mdi-delete-outline</v-icon>
+                                <v-icon color="red">mdi-delete-outline</v-icon>
                             </v-list-item-icon>
                             <v-list-item-content>
-                                <v-list-item-title>{{ $t('delete') }}</v-list-item-title>
+                                <v-list-item-title class="red--text">{{ $t('delete') }}</v-list-item-title>
                             </v-list-item-content>
                         </v-list-item>
                     </v-list>
@@ -763,10 +763,10 @@
                 </v-list-item>
                 <v-list-item @click="deleteMail(selectedId)" :disabled="loading || loadingFlag.length > 0 || downloading !== '' || loadingPreview != ''">
                     <v-list-item-icon>
-                        <v-icon>mdi-delete-outline</v-icon>
+                        <v-icon color="red">mdi-delete-outline</v-icon>
                     </v-list-item-icon>
                     <v-list-item-content>
-                        <v-list-item-title>{{ $t('delete') }}</v-list-item-title>
+                        <v-list-item-title class="red--text">{{ $t('delete') }}</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
             </v-list>
@@ -800,7 +800,6 @@
             v-model="translateSettingsDialog"
             max-width="500"
             content-class="translate-settings"
-            persistent
         >
             <v-card>
                 <v-card-title class="headline">
@@ -900,6 +899,296 @@ import { mailCss, mailDarkCss, mailTextCss } from '@/tools/mailCss';
 import 'codemirror/theme/xq-light.css';
 import 'codemirror/lib/codemirror.css';
 
+const fileIconMap = {
+    pdf: 'file-pdf-box',
+    zip: 'zip-box-outline',
+    rar: 'zip-box-outline',
+    '7z': 'zip-box-outline',
+    gz: 'zip-box-outline',
+    tar: 'zip-box-outline',
+    mp4: 'play-box-outline',
+    m4v: 'play-box-outline',
+    webm: 'play-box-outline',
+    flv: 'play-box-outline',
+    ogv: 'play-box-outline',
+    mpeg: 'play-box-outline',
+    avi: 'play-box-outline',
+    mov: 'play-box-outline',
+    mp3: 'music-note-outline',
+    wav: 'music-note-outline',
+    flac: 'music-note-outline',
+    ape: 'music-note-outline',
+    dsd: 'music-note-outline',
+    ogg: 'music-note-outline',
+    oga: 'music-note-outline',
+    aac: 'music-note-outline',
+    jpg: 'image',
+    jpeg: 'image',
+    png: 'image',
+    bmp: 'image',
+    gif: 'image',
+    webp: 'image',
+    nef: 'image',
+    raw: 'image',
+    ppt: 'microsoft-powerpoint',
+    pptx: 'microsoft-powerpoint',
+    pptm: 'microsoft-powerpoint',
+    pps: 'microsoft-powerpoint',
+    ppsx: 'microsoft-powerpoint',
+    ppsm: 'microsoft-powerpoint',
+    pot: 'microsoft-powerpoint',
+    potx: 'microsoft-powerpoint',
+    potm: 'microsoft-powerpoint',
+    doc: 'microsoft-word',
+    docx: 'microsoft-word',
+    docm: 'microsoft-word',
+    dot: 'microsoft-word',
+    dotx: 'microsoft-word',
+    dotm: 'microsoft-word',
+    xls: 'microsoft-excel',
+    xlsx: 'microsoft-excel',
+    xlsm: 'microsoft-excel',
+    xlsb: 'microsoft-excel',
+    xlt: 'microsoft-excel',
+    xltx: 'microsoft-excel',
+    xltm: 'microsoft-excel',
+    txt: 'file-document-outline',
+    py: 'language-python',
+    pyc: 'language-python',
+    java: 'language-java',
+    jar: 'language-java',
+    class: 'language-java',
+    js: 'language-javascript',
+    mjs: 'language-javascript',
+    ts: 'language-typescript',
+    jsx: 'react',
+    tsx: 'react',
+    json: 'code-json',
+    c: 'language-c',
+    h: 'language-c',
+    cpp: 'language-cpp',
+    hpp: 'language-cpp',
+    r: 'language-r',
+    rs: 'language-rust',
+    go: 'language-go',
+    hs: 'language-haskell',
+    lhs: 'language-haskell',
+    sass: 'sass',
+    scss: 'sass',
+    lua: 'language-lua',
+    rb: 'language-ruby',
+    erb: 'language-ruby',
+    gemfile: 'language-ruby',
+    html: 'language-html5',
+    htm: 'language-html5',
+    xml: 'xml',
+    md: 'language-markdown-outline',
+    php: 'language-php',
+    css: 'language-css3',
+    vue: 'vuejs',
+    dockerfile: 'docker',
+    dockerignore: 'docker',
+    gitignore: 'git',
+    npmignore: 'npm',
+    psd: 'drawing-box',
+    svg: 'svg',
+    woff: 'format-size',
+    woff2: 'format-size',
+    ttf: 'format-size',
+    otf: 'format-size',
+    vsix: 'microsoft-visual-studio-code',
+    csv: 'file-table-outline',
+    sql: 'database-search',
+    ipynb: 'notebook-outline',
+    yml: 'file-cog-outline',
+    yaml: 'file-cog-outline',
+    conf: 'file-cog-outline',
+    exe: 'console-line',
+    apk: 'android',
+    dmg: 'package-down',
+    deb: 'debian',
+    ics: 'calendar-month-outline',
+    c4d: 'cube-outline',
+    fbx: 'cube-outline',
+    tex: 'format-text',
+    dtx: 'format-text',
+    ins: 'format-text',
+    sty: 'format-text',
+};
+const previewMap = {
+    png: 'image',
+    jpg: 'image',
+    jpeg: 'image',
+    bmp: 'image',
+    gif: 'image',
+    webp: 'image',
+    svg: 'svg',
+    mp3: 'audio',
+    wav: 'audio',
+    ogg: 'audio',
+    oga: 'audio',
+    aac: 'audio',
+    flac: 'audio',
+    mp4: 'video',
+    m4v: 'video',
+    ogv: 'video',
+    webm: 'video',
+    pdf: 'pdf',
+    csv: 'csv',
+    txt: 'text',
+    dockerignore: 'text',
+    gitignore: 'text',
+    npmignore: 'text',
+    md: 'markdown',
+    dockerfile: 'code',
+    js: 'code',
+    py: 'code',
+    php: 'code',
+    sh: 'code',
+    c: 'code',
+    cpp: 'code',
+    css: 'code',
+    go: 'code',
+    html: 'code',
+    htm: 'code',
+    xml: 'code',
+    vue: 'code',
+    hs: 'code',
+    json: 'code',
+    java: 'code',
+    tex: 'code',
+    dtx: 'code',
+    ins: 'code',
+    sty: 'code',
+    lisp: 'code',
+    lua: 'code',
+    rs: 'code',
+    ts: 'code',
+    v: 'code',
+    rb: 'code',
+    sql: 'code',
+    less: 'code',
+    scss: 'code',
+    yml: 'code',
+    yaml: 'code',
+};
+const untrustedKeyWords = {
+    tokenlized: [
+        [
+            [
+                'nootropics',
+                'turnitin',
+                'smartdrug',
+                'smart drug',
+                'cognitive enhancer',
+                'price',
+                'sale',
+                'discount',
+            ], 0.5,
+        ],
+        [
+            [
+                'qq',
+                'wechat',
+                'brain performance',
+                'bio-hackers',
+                'bio hackers',
+                'dissertation',
+            ], 0.4,
+        ],
+        [
+            [
+                'exam',
+                'coursework',
+                'report',
+                'drug',
+                'dissertation',
+                'assignment',
+                'degree',
+            ], 0.3,
+        ],
+        [
+            [
+                'project',
+                'groupwork',
+                'assignment',
+                'writer',
+                'proofreading',
+                'service',
+            ], 0.2,
+        ],
+    ],
+    untokenlized: [
+        [
+            [
+                '代写',
+                '代考',
+                '导师',
+                '高分',
+                '润色',
+                '报价',
+                '写手',
+                '优惠',
+                '立减',
+                '企鹅',
+                '客服',
+                '订单',
+                '保分',
+                '申诉',
+                '答疑',
+                '辅导',
+                '服务',
+                '通过率',
+                '及格率',
+                '得分点',
+            ], 0.5,
+        ],
+        [
+            [
+                '补考',
+                '客户',
+                '微信',
+                '评分',
+                '助你',
+                '交稿',
+            ], 0.4,
+        ],
+        [
+            [
+                '分数',
+                '定制',
+                '审核',
+                '科目',
+                '免费',
+                '预定',
+            ], 0.3,
+        ],
+        [
+            [
+                '考试',
+                '论文',
+                '批改',
+                '挂科',
+                '复习',
+                '学位',
+                '考场',
+                '答题',
+                '答疑',
+                '做题',
+                '选题',
+                '检测',
+            ], 0.2,
+        ],
+        [
+            [
+                '作者',
+                '学生',
+                '课堂',
+            ], 0.1,
+        ],
+    ],
+};
+
 export default {
     name: 'mail',
     components: {
@@ -963,179 +1252,6 @@ export default {
             preferredTranslateTo: null,
             editingTranslateEnabled: true,
             editingPreferredTranslateTo: null,
-            fileIconMap: {
-                pdf: 'file-pdf-box',
-                zip: 'zip-box-outline',
-                rar: 'zip-box-outline',
-                '7z': 'zip-box-outline',
-                gz: 'zip-box-outline',
-                tar: 'zip-box-outline',
-                mp4: 'play-box-outline',
-                m4v: 'play-box-outline',
-                webm: 'play-box-outline',
-                flv: 'play-box-outline',
-                ogv: 'play-box-outline',
-                mpeg: 'play-box-outline',
-                avi: 'play-box-outline',
-                mov: 'play-box-outline',
-                mp3: 'music-note-outline',
-                wav: 'music-note-outline',
-                flac: 'music-note-outline',
-                ape: 'music-note-outline',
-                dsd: 'music-note-outline',
-                ogg: 'music-note-outline',
-                oga: 'music-note-outline',
-                aac: 'music-note-outline',
-                jpg: 'image',
-                jpeg: 'image',
-                png: 'image',
-                bmp: 'image',
-                gif: 'image',
-                webp: 'image',
-                nef: 'image',
-                raw: 'image',
-                ppt: 'microsoft-powerpoint',
-                pptx: 'microsoft-powerpoint',
-                pptm: 'microsoft-powerpoint',
-                pps: 'microsoft-powerpoint',
-                ppsx: 'microsoft-powerpoint',
-                ppsm: 'microsoft-powerpoint',
-                pot: 'microsoft-powerpoint',
-                potx: 'microsoft-powerpoint',
-                potm: 'microsoft-powerpoint',
-                doc: 'microsoft-word',
-                docx: 'microsoft-word',
-                docm: 'microsoft-word',
-                dot: 'microsoft-word',
-                dotx: 'microsoft-word',
-                dotm: 'microsoft-word',
-                xls: 'microsoft-excel',
-                xlsx: 'microsoft-excel',
-                xlsm: 'microsoft-excel',
-                xlsb: 'microsoft-excel',
-                xlt: 'microsoft-excel',
-                xltx: 'microsoft-excel',
-                xltm: 'microsoft-excel',
-                txt: 'file-document-outline',
-                py: 'language-python',
-                pyc: 'language-python',
-                java: 'language-java',
-                jar: 'language-java',
-                class: 'language-java',
-                js: 'language-javascript',
-                mjs: 'language-javascript',
-                ts: 'language-typescript',
-                jsx: 'react',
-                tsx: 'react',
-                json: 'code-json',
-                c: 'language-c',
-                h: 'language-c',
-                cpp: 'language-cpp',
-                hpp: 'language-cpp',
-                r: 'language-r',
-                rs: 'language-rust',
-                go: 'language-go',
-                hs: 'language-haskell',
-                lhs: 'language-haskell',
-                sass: 'sass',
-                scss: 'sass',
-                lua: 'language-lua',
-                rb: 'language-ruby',
-                erb: 'language-ruby',
-                gemfile: 'language-ruby',
-                html: 'language-html5',
-                htm: 'language-html5',
-                xml: 'xml',
-                md: 'language-markdown-outline',
-                php: 'language-php',
-                css: 'language-css3',
-                vue: 'vuejs',
-                dockerfile: 'docker',
-                dockerignore: 'docker',
-                gitignore: 'git',
-                npmignore: 'npm',
-                psd: 'drawing-box',
-                svg: 'svg',
-                woff: 'format-size',
-                woff2: 'format-size',
-                ttf: 'format-size',
-                otf: 'format-size',
-                vsix: 'microsoft-visual-studio-code',
-                csv: 'file-table-outline',
-                sql: 'database-search',
-                ipynb: 'notebook-outline',
-                yml: 'file-cog-outline',
-                yaml: 'file-cog-outline',
-                conf: 'file-cog-outline',
-                exe: 'console-line',
-                apk: 'android',
-                dmg: 'package-down',
-                deb: 'debian',
-                ics: 'calendar-month-outline',
-                c4d: 'cube-outline',
-                fbx: 'cube-outline',
-                tex: 'format-text',
-                dtx: 'format-text',
-                ins: 'format-text',
-                sty: 'format-text',
-            },
-            previewMap: {
-                png: 'image',
-                jpg: 'image',
-                jpeg: 'image',
-                bmp: 'image',
-                gif: 'image',
-                webp: 'image',
-                svg: 'svg',
-                mp3: 'audio',
-                wav: 'audio',
-                ogg: 'audio',
-                oga: 'audio',
-                aac: 'audio',
-                flac: 'audio',
-                mp4: 'video',
-                m4v: 'video',
-                ogv: 'video',
-                webm: 'video',
-                pdf: 'pdf',
-                csv: 'csv',
-                txt: 'text',
-                dockerignore: 'text',
-                gitignore: 'text',
-                npmignore: 'text',
-                md: 'markdown',
-                dockerfile: 'code',
-                js: 'code',
-                py: 'code',
-                php: 'code',
-                sh: 'code',
-                c: 'code',
-                cpp: 'code',
-                css: 'code',
-                go: 'code',
-                html: 'code',
-                htm: 'code',
-                xml: 'code',
-                vue: 'code',
-                hs: 'code',
-                json: 'code',
-                java: 'code',
-                tex: 'code',
-                dtx: 'code',
-                ins: 'code',
-                sty: 'code',
-                lisp: 'code',
-                lua: 'code',
-                rs: 'code',
-                ts: 'code',
-                v: 'code',
-                rb: 'code',
-                sql: 'code',
-                less: 'code',
-                scss: 'code',
-                yml: 'code',
-                yaml: 'code',
-            },
             viewer: {
                 subject: '',
                 from: false,
@@ -1566,122 +1682,6 @@ export default {
                     },
                 },
             },
-            untrustedKeyWords: {
-                tokenlized: [
-                    [
-                        [
-                            'nootropics',
-                            'turnitin',
-                            'smartdrug',
-                            'smart drug',
-                            'cognitive enhancer',
-                            'price',
-                            'sale',
-                            'discount',
-                        ], 0.5,
-                    ],
-                    [
-                        [
-                            'qq',
-                            'wechat',
-                            'brain performance',
-                            'bio-hackers',
-                            'bio hackers',
-                            'dissertation',
-                        ], 0.4,
-                    ],
-                    [
-                        [
-                            'exam',
-                            'coursework',
-                            'report',
-                            'drug',
-                            'dissertation',
-                            'assignment',
-                            'degree',
-                        ], 0.3,
-                    ],
-                    [
-                        [
-                            'project',
-                            'groupwork',
-                            'assignment',
-                            'writer',
-                            'proofreading',
-                            'service',
-                        ], 0.2,
-                    ],
-                ],
-                untokenlized: [
-                    [
-                        [
-                            '代写',
-                            '代考',
-                            '导师',
-                            '高分',
-                            '润色',
-                            '报价',
-                            '写手',
-                            '优惠',
-                            '立减',
-                            '企鹅',
-                            '客服',
-                            '订单',
-                            '保分',
-                            '申诉',
-                            '答疑',
-                            '辅导',
-                            '服务',
-                            '通过率',
-                            '及格率',
-                            '得分点',
-                        ], 0.5,
-                    ],
-                    [
-                        [
-                            '补考',
-                            '客户',
-                            '微信',
-                            '评分',
-                            '助你',
-                            '交稿',
-                        ], 0.4,
-                    ],
-                    [
-                        [
-                            '分数',
-                            '定制',
-                            '审核',
-                            '科目',
-                            '免费',
-                            '预定',
-                        ], 0.3,
-                    ],
-                    [
-                        [
-                            '考试',
-                            '论文',
-                            '批改',
-                            '挂科',
-                            '复习',
-                            '学位',
-                            '考场',
-                            '答题',
-                            '答疑',
-                            '做题',
-                            '选题',
-                            '检测',
-                        ], 0.2,
-                    ],
-                    [
-                        [
-                            '作者',
-                            '学生',
-                            '课堂',
-                        ], 0.1,
-                    ],
-                ],
-            },
             sandboxCss: mailCss,
             sandboxCssDark: mailDarkCss,
             sandboxCssText: mailTextCss,
@@ -2035,7 +2035,7 @@ export default {
                 // Preview
                 const fileNameSplited = fileName.split('.');
                 this.previewerConfig.blob = URL.createObjectURL(response);
-                this.previewerConfig.type = this.previewMap[fileNameSplited[fileNameSplited.length - 1].toLowerCase()];
+                this.previewerConfig.type = previewMap[fileNameSplited[fileNameSplited.length - 1].toLowerCase()];
                 if (this.previewerConfig.type === 'text' || this.previewerConfig.type === 'csv' || this.previewerConfig.type === 'svg' || this.previewerConfig.type === 'markdown' || this.previewerConfig.type === 'code') {
                     this.previewerConfig.content = await response.text();
                 } else {
@@ -2660,13 +2660,13 @@ export default {
 
             // Check untokenlized keywords, remove all spaces in the content
             const noSpaceConetnt = content.replace(/ /g, '').replace(/\n/g, '').replace(/\t/g, '').replace(/\r/g, '');
-            for (const keyword of this.untrustedKeyWords.untokenlized) {
+            for (const keyword of untrustedKeyWords.untokenlized) {
                 weight += (noSpaceConetnt.match(new RegExp(`(${keyword[0].join('|')})`, 'g')) || []).length * keyword[1];
             }
 
             // Check tokenlized keywords, turn the content into lower case
             const lowerConetnt = content.toLowerCase();
-            for (const keyword of this.untrustedKeyWords.tokenlized) {
+            for (const keyword of untrustedKeyWords.tokenlized) {
                 weight += (lowerConetnt.match(new RegExp(`(${keyword[0].join('|')})`, 'g')) || []).length * keyword[1];
             }
 
@@ -2824,7 +2824,7 @@ export default {
          */
         getFileIcon(name) {
             const fileName = name.split('.');
-            return this.fileIconMap[fileName[fileName.length - 1].toLowerCase()] || 'file-outline';
+            return fileIconMap[fileName[fileName.length - 1].toLowerCase()] || 'file-outline';
         },
         /**
          * Check whether the file can be previewed
@@ -2834,7 +2834,7 @@ export default {
          */
         canPreview(name, size) {
             const fileName = name.split('.');
-            return this.previewMap[fileName[fileName.length - 1].toLowerCase()] !== undefined && size <= 5242880;
+            return previewMap[fileName[fileName.length - 1].toLowerCase()] !== undefined && size <= 5242880;
         },
         /**
          * Format bytes to file size unit
@@ -3251,7 +3251,7 @@ export default {
          * @returns {string} formatted a date string
          */
         getDate(dateObj) {
-            return formatDateTime(dateObj, this.locale, false);
+            return formatDateTime(dateObj, this.locale, window.uomaTimeFormatters, false);
         },
     },
     watch: {

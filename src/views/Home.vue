@@ -228,7 +228,7 @@ export default {
         locale() {
             // Responding to language changes and update time format
             this.$i18n.locale = this.locale;
-            this.nowDate = formatDate(new Date(), this.locale);
+            this.nowDate = formatDate(new Date(), this.locale, window.uomaTimeFormatters);
         },
         widgets() {
             // Update layout
@@ -271,6 +271,7 @@ export default {
             subjects: (state) => state.subjects,
             classBell: (state) => state.classBell,
             layoutLock: (state) => state.layoutLock,
+            timeFormatters: (state) => state.timeFormatters,
         }),
     },
     methods: {
@@ -278,7 +279,7 @@ export default {
          * Update date
          */
         getDate() {
-            this.nowDate = formatDate(new Date(), this.locale);
+            this.nowDate = formatDate(new Date(), this.locale, window.uomaTimeFormatters);
         },
         /**
          * Update upcoming events
@@ -360,7 +361,7 @@ export default {
                     this.checkinCourses = [this.checkinCourses[this.checkinCourses.length - 1]];
                 }
 
-                if (oldName !== nextEvent.rawTitle && course === null && this.checkinCourses.length === 1) {
+                if (oldName !== nextEvent.rawTitle && course === null && this.checkinCourses.length === 1 && this.minAfter <= 10) {
                     this.checkinCourses = [];
                     this.showCheckInNotice = false;
                     this.hasCheckedIn = false;
@@ -521,7 +522,7 @@ export default {
             currentTimeZone = localStorage.getItem('current_timezone');
         }
 
-        const clientTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const clientTimeZone = window.uomaTimeFormatters.date.resolvedOptions().timeZone;
         if (currentTimeZone !== clientTimeZone) {
             if (currentTimeZone !== '') {
                 this.timezoneChanged = true;
@@ -631,13 +632,16 @@ export default {
             height: 100%;
             z-index: 0;
             opacity: .15;
-            transition: height .3s;
+            transition: height .3s, border-radius 0s .3s;
             border-radius: 7px!important;
             &.bw {
                 filter: grayscale(1);
             }
             &.has-checkin {
                 height: calc(100% - 50px);
+                border-bottom-left-radius: 0!important;
+                border-bottom-right-radius: 0!important;
+                transition: height .3s, border-radius 0s;
             }
         }
         &.higher {

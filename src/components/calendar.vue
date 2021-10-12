@@ -124,7 +124,7 @@
                                 :color="present ? 'primary' : 'transparent'"
                                 @click="viewDay({ date })"
                             >
-                                {{ localeDetail ? (new Intl.DateTimeFormat(localeDetail.iso, day === 1 ? { day: 'numeric', month: 'short' } : { day: 'numeric' }).format(new Date(date))) : day }}
+                                {{ dateText(date, day) }}
                             </v-btn>
                         </template>
                         <template v-slot:day-label-header="{ date, day, present }">
@@ -137,7 +137,7 @@
                                 :color="present ? 'primary' : 'transparent'"
                                 @click="viewDay({ date })"
                             >
-                                {{ localeDetail ? (new Intl.DateTimeFormat(localeDetail.iso, day === 1 && type !== 'day' ? { day: 'numeric', month: 'short' } : { day: 'numeric' }).format(new Date(date))) : day }}
+                                {{ dateText(date, day) }}
                             </v-btn>
                         </template>
                         <template v-slot:event="{ eventSummary, event, day }">
@@ -278,7 +278,7 @@
                 <v-card-text>
                     <v-select
                         v-model="editingFirstDay"
-                        :items="weekDaysItems()"
+                        :items="weekDaysItems"
                         hide-details
                         dense
                         outlined
@@ -335,7 +335,7 @@ export default {
             currentDate: '',
             currentWeekStart: '',
             currentTimeStamp: 0,
-            refreshId: `${new Date().getDate()}`,
+            refreshId: 0,
             classEvents: [],
             courseworkEvents: [],
             updateTimer: null,
@@ -550,7 +550,7 @@ export default {
                     this.loading = false;
                     this.updateTime();
                     this.$refs.calendar.checkChange();
-                    this.refreshId = `${new Date().valueOf()}`;
+                    this.refreshId = new Date().valueOf();
 
                     this.updateTodayEvents();
                     this.updateNextDayFirstEvent();
@@ -662,7 +662,7 @@ export default {
             if (this.$refs.calendar) {
                 this.$refs.calendar.checkChange();
             }
-            this.refreshId = `${new Date().valueOf()}`;
+            this.refreshId = new Date().valueOf();
 
             // Broadcast latest events
             this.updateTodayEvents();
@@ -675,7 +675,7 @@ export default {
          * @returns {string} formatted a date string
          */
         getDate(dateObj, seconds = true) {
-            return formatDateTime(dateObj, this.locale, seconds);
+            return formatDateTime(dateObj, this.locale, window.uomaTimeFormatters, seconds);
         },
         /**
          * Convert a Date object to a specified time zone
@@ -691,10 +691,10 @@ export default {
          */
         updateTodayEvents() {
             const eventList = [];
+            const nowTime = this.convertTimeZone(new Date(), 'Europe/London');
             for (const event of this.events) {
                 if (event.details !== 'Coursework Deadline') {
                     const eventTime = this.convertTimeZone(event.start, 'Europe/London');
-                    const nowTime = this.convertTimeZone(new Date(), 'Europe/London');
                     if (eventTime.getMonth() === nowTime.getMonth() && eventTime.getDate() === nowTime.getDate()) {
                         eventList.push(event);
                     }
@@ -707,10 +707,10 @@ export default {
          */
         updateNextDayFirstEvent() {
             const eventList = [];
+            const nowTime = this.convertTimeZone(new Date(new Date().valueOf() + 86400000), 'Europe/London');
             for (const event of this.events) {
                 if (event.details !== 'Coursework Deadline') {
                     const eventTime = this.convertTimeZone(event.start, 'Europe/London');
-                    const nowTime = this.convertTimeZone(new Date(new Date().valueOf() + 86400000), 'Europe/London');
                     if (eventTime.getMonth() === nowTime.getMonth() && eventTime.getDate() === nowTime.getDate()) {
                         eventList.push(event);
                     }
@@ -783,15 +783,11 @@ export default {
             this.store();
             this.updateCurrentDate();
         },
-        /**
-         * Generate week days list for selector
-         * @returns {{ text: string, value: number }[]} week days list
-         */
-        weekDaysItems() {
-            return [0, 1, 2, 3, 4, 5, 6].map((item) => ({
-                text: new Intl.DateTimeFormat(this.localeDetail ? this.localeDetail.iso : 'en', { weekday: 'long' }).format(new Date(3600000 * 24 * (-4 + item))),
-                value: item,
-            }));
+        dateText(date, day) {
+            if (this.localeDetail) {
+                return day === 1 ? window.uomaTimeFormatters.month.format(new Date(date)) : window.uomaTimeFormatters.day.format(new Date(date));
+            }
+            return day;
         },
         /**
          * Store settings
@@ -868,7 +864,7 @@ export default {
             this.updateNextDayFirstEvent();
 
             if (this.timerHour.substr(0, 2) === '00') {
-                this.refreshId = `${new Date().valueOf()}`;
+                this.refreshId = new Date().valueOf();
                 this.updateCurrentDate();
                 this.updateTime();
             }
@@ -878,7 +874,7 @@ export default {
             this.courseworkEvents = this.courseworks ? this.courseworks : [];
             this.events = this.classEvents.concat(this.courseworkEvents);
             this.$refs.calendar.checkChange();
-            this.refreshId = `${new Date().valueOf()}`;
+            this.refreshId = new Date().valueOf();
         },
         type() {
             // Store changes
@@ -910,6 +906,17 @@ export default {
          */
         weekDays() {
             return [...Array(7)].map((item, index) => (index + this.firstDay) % 7);
+        },
+        /**
+         * Generate week days list for selector
+         * @returns {{ text: string, value: number }[]} week days list
+         */
+        weekDaysItems() {
+            const base = new Date(1970, 0, 1).valueOf();
+            return [0, 1, 2, 3, 4, 5, 6].map((item) => ({
+                text: window.uomaTimeFormatters.date.formatToParts(new Date(base + 3600000 * 24 * (-4 + item))).find((part) => part.type === 'weekday').value,
+                value: item,
+            }));
         },
     },
     async mounted() {
@@ -950,7 +957,7 @@ export default {
 
         // Force refresh
         setTimeout(() => {
-            this.refreshId = `${new Date().valueOf()}`;
+            this.refreshId = new Date().valueOf();
         }, 1000);
     },
     beforeDestroy() {
@@ -1052,7 +1059,7 @@ export default {
         max-width: fit-content;
         .calendar-selected-name {
             line-height: 17px;
-            margin-top: 3px;
+            padding-top: 3px;
             .calendar-smaller-font {
                 font-size: 0.875rem;
             }

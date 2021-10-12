@@ -12,6 +12,9 @@ let styleString = `
 button#openFile, button#download, a#viewBookmark, button#secondaryOpenFile, button#secondaryDownload, a#secondaryViewBookmark {
     display: none!important;
 }
+#viewerContainer {
+    contain: layout paint;
+}
 `;
 if (theme === 'dark') {
     styleString += `

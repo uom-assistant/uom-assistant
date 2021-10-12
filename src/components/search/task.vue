@@ -194,7 +194,7 @@ export default {
          * @returns {string} formatted a date string
          */
         getDate(dateObj) {
-            return formatDateTime(dateObj, this.locale, false);
+            return formatDateTime(dateObj, this.locale, window.uomaTimeFormatters, false);
         },
         /**
          * Update `ifTodos` based on prop

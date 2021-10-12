@@ -47,7 +47,7 @@
                         :multiple="multi"
                         :color="multi ? 'primary' : ''"
                     >
-                        <v-list-item v-for="(note, index) in notes" :key="index" @click.prevent="openNote(index)" :class="{ multi }">
+                        <v-list-item v-for="(note, index) in notes" :key="index" @click.prevent="openNote(index)" :class="{ multi }" @contextmenu.prevent="(e) => showListMenu(e, index)">
                             <template v-slot:default="{ active }">
                                 <v-list-item-action v-show="multi">
                                     <v-checkbox :input-value="active"></v-checkbox>
@@ -172,6 +172,34 @@
             <codemirror v-model="code" :options="cmOption" class="md-editor" v-show="mode === 'edit'" :key="cmRefresh" ref="codemirror" @scroll.passive="onScroll"></codemirror>
             <div class="render-result" v-show="mode === 'view'" @scroll.passive="onScrollView" ref="renderScroll"><div ref="render" @click="checkNoteLink" @keypress.enter="checkNoteLink" id="note-render"></div></div>
         </div>
+        <v-menu
+            v-model="listMenu"
+            :position-x="listMenuX"
+            :position-y="listMenuY"
+            absolute
+            offset-y
+            close-on-click
+            close-on-content-click
+        >
+            <v-list class="mail-menu-list">
+                <v-list-item @click="downloadNote(selectedId)">
+                    <v-list-item-icon>
+                        <v-icon>mdi-arrow-collapse-down</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                        <v-list-item-title>{{ $t('download') }}</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+                <v-list-item @click="removeNote(selectedId)">
+                    <v-list-item-icon>
+                        <v-icon color="red">mdi-delete-outline</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                        <v-list-item-title class="red--text">{{ $t('delete') }}</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+            </v-list>
+        </v-menu>
         <v-dialog
             v-model="removeConfirm"
             max-width="400"
@@ -415,6 +443,10 @@ export default {
             tocHTML: '',
             titleOffest: {},
             tocOpened: false,
+            selectedId: -1,
+            listMenu: false,
+            listMenuX: -1,
+            listMenuY: -1,
             cmOption: {
                 tabSize: 4,
                 indentUnit: 4,
@@ -478,6 +510,8 @@ export default {
             } else {
                 this.tooManyWarning = false;
             }
+
+            this.listMenu = false;
 
             this.notes.unshift({
                 id: this.generateUniqueId(),
@@ -610,6 +644,8 @@ export default {
             this.previews.splice(this.toRemove, 1);
             this.removeNoteConfirm = false;
 
+            this.listMenu = false;
+
             // If all notes are deleted, exit multi selection mode
             if (this.notes.length === 0 && this.multi) {
                 this.multi = false;
@@ -694,6 +730,8 @@ export default {
                 this.toRemove = this.ifNotes[0];
                 this.removeConfirmed();
             } else {
+                this.listMenu = false;
+
                 const newNotes = [];
                 const newPreviews = [];
                 for (let index = 0; index < this.notes.length; index += 1) {
@@ -794,7 +832,7 @@ export default {
          * @returns {string} formatted a date string
          */
         getDate(dateObj) {
-            return formatDateTime(dateObj, this.locale);
+            return formatDateTime(dateObj, this.locale, window.uomaTimeFormatters);
         },
         /**
          * Update scroll percentage when editor scrolls
@@ -932,6 +970,23 @@ export default {
                 for (const ele of this.$refs.render.querySelectorAll('h1[id^="uoma-note-"], h2[id^="uoma-note-"], h3[id^="uoma-note-"], h4[id^="uoma-note-"], h5[id^="uoma-note-"], h6[id^="uoma-note-"]')) {
                     this.titleOffest[ele.id] = ele.offsetTop;
                 }
+            }
+        },
+        /**
+         * Show context menu in note list
+         * @param {Event} e context menu event
+         * @param {number} noteId selected note ID
+         */
+        showListMenu(e, noteId) {
+            this.listMenu = false;
+            // Only show menu on touch screens
+            if (!window.matchMedia('(hover: hover)').matches) {
+                this.selectedId = noteId;
+                this.listMenuX = e.clientX;
+                this.listMenuY = e.clientY;
+                this.$nextTick(() => {
+                    this.listMenu = true;
+                });
             }
         },
         /**
@@ -1702,9 +1757,9 @@ export default {
         "md_support": "Markdown supported",
         "view": "View",
         "edit": "Edit",
-        "new": "New",
-        "download": "Download",
-        "delete": "Delete",
+        "new": "New note",
+        "download": "Download note",
+        "delete": "Delete note",
         "select": "Multiple selection",
         "untitled": "Untitled",
         "num_selected": "{0} selected",
@@ -1742,9 +1797,9 @@ export default {
         "md_support": "支持 Markdown",
         "view": "查看",
         "edit": "编辑",
-        "new": "新建",
-        "download": "下载",
-        "delete": "删除",
+        "new": "新建笔记",
+        "download": "下载笔记",
+        "delete": "删除笔记",
         "select": "多选",
         "untitled": "无标题",
         "num_selected": "已选择 {0} 项",
@@ -1782,9 +1837,9 @@ export default {
         "md_support": "Markdown aplicable",
         "view": "Ver",
         "edit": "Editar",
-        "new": "Nuevo",
-        "download": "Descargar",
-        "delete": "Eliminar",
+        "new": "",
+        "download": "",
+        "delete": "",
         "select": "Selección múltiples",
         "untitled": "Sin título",
         "num_selected": "{0} seleccionados",
@@ -1822,9 +1877,9 @@ export default {
         "md_support": "Markdownに対応しています",
         "view": "表示",
         "edit": "編集",
-        "new": "新規ノート",
-        "download": "ダウンロード",
-        "delete": "削除",
+        "new": "",
+        "download": "",
+        "delete": "",
         "select": "選択",
         "untitled": "タイトル無し",
         "num_selected": "{0}件を選択された",

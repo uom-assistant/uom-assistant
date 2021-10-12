@@ -174,7 +174,7 @@ export default {
          * @returns {string} formatted a date string
          */
         getDate(dateObj) {
-            return formatDate(dateObj, this.locale, false);
+            return formatDate(dateObj, this.locale, window.uomaTimeFormatters, false);
         },
         /**
          * Get latest 2 grade items from a grade list

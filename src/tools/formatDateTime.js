@@ -7,11 +7,12 @@ import localeList from '../locales/localeList';
  * @param {boolean?} seconds whether to contain seconds
  * @returns {string} formated date time string
  */
-const formatDateTime = (date, locale, seconds = true) => {
+const formatDateTime = (date, locale, timeFormatters, seconds = true) => {
     const localeDetail = localeList.find((item) => item.locale === locale);
-    const yr = new Intl.DateTimeFormat(localeDetail.iso, { year: 'numeric' }).format(date);
-    const mo = new Intl.DateTimeFormat(localeDetail.iso, { month: 'numeric' }).format(date);
-    const da = new Intl.DateTimeFormat(localeDetail.iso, { day: 'numeric' }).format(date);
+    const formattedDate = timeFormatters.time.formatToParts(date);
+    const yr = formattedDate.find((item) => item.type === 'year').value;
+    const mo = formattedDate.find((item) => item.type === 'month').value;
+    const da = formattedDate.find((item) => item.type === 'day').value;
     const hr = `${date.getHours()}`.padStart(2, '0');
     const mi = `${date.getMinutes()}`.padStart(2, '0');
     const sc = `${date.getSeconds()}`.padStart(2, '0');

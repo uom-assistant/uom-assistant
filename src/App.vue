@@ -581,6 +581,32 @@ let checkInBellTimer = -1;
 let layoytLockTimer = -1;
 let backendToken = '';
 
+// Set shared time formatters
+// Intl.DateTimeFormat is expensive, see https://bugs.chromium.org/p/v8/issues/detail?id=6528
+const initLang = localStorage.getItem('language') || 'en';
+const langIso = localeList.find((item) => item.locale === initLang).iso;
+window.uomaTimeFormatters = {
+    month: new Intl.DateTimeFormat(langIso, {
+        month: 'short',
+        day: 'numeric',
+    }),
+    day: new Intl.DateTimeFormat(langIso, {
+        day: 'numeric',
+    }),
+    date: new Intl.DateTimeFormat(langIso, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        weekday: 'long',
+    }),
+    time: new Intl.DateTimeFormat(langIso, {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+    }),
+};
+let timeFormattersInited = false;
+
 export default {
     name: 'App',
     components: {
@@ -607,7 +633,7 @@ export default {
         welcomeMessage: '',
         welcomeMessageDialog: false,
         darkMode: false,
-        locale: 'en',
+        locale: '',
         localeDetail: null,
         backend: {},
         account: {},
@@ -654,7 +680,6 @@ export default {
          */
         toggleLocale(language) {
             this.locale = language;
-            this.localeDetail = this.languageList.find((item) => item.locale === language);
         },
         /**
          * Dismiss an error
@@ -1159,6 +1184,32 @@ export default {
             this.$store.commit('setLocale', this.locale);
             this.$store.commit('setLocaleDetail', this.localeDetail);
 
+            if (timeFormattersInited) {
+                // Set shared time formatters
+                window.uomaTimeFormatters = {
+                    month: new Intl.DateTimeFormat(this.localeDetail.iso, {
+                        month: 'short',
+                        day: 'numeric',
+                    }),
+                    day: new Intl.DateTimeFormat(this.localeDetail.iso, {
+                        day: 'numeric',
+                    }),
+                    date: new Intl.DateTimeFormat(this.localeDetail.iso, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        weekday: 'long',
+                    }),
+                    time: new Intl.DateTimeFormat(this.localeDetail.iso, {
+                        year: 'numeric',
+                        month: 'numeric',
+                        day: 'numeric',
+                    }),
+                };
+            } else {
+                timeFormattersInited = true;
+            }
+
             this.$nextTick(() => {
                 this.searchResult();
             });
@@ -1187,9 +1238,7 @@ export default {
         window.isUoma = true;
 
         // Initialize language
-        this.locale = localStorage.getItem('language') || 'en';
-        this.$i18n.locale = this.locale;
-        localStorage.setItem('language', this.$i18n.locale);
+        this.locale = initLang;
 
         // Set version
         updateStorage();
@@ -1274,7 +1323,7 @@ export default {
         // Handle uncaught errors
         this.$store.commit('addError', {
             title: `${this.$t('unknown')} ${err.name}`,
-            content: this.$t('error_at', [err.message, formatDateTime(new Date(), this.locale)]),
+            content: this.$t('error_at', [err.message, formatDateTime(new Date(), this.locale ? this.locale : 'en', window.uomaTimeFormatters)]),
             type: 'error',
         });
         return true;
@@ -1394,7 +1443,7 @@ html::-webkit-scrollbar {
     font-family: Roboto, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif;
     -webkit-font-smoothing: antialiased;
     max-width: 100vw;
-    overflow-x: hidden;
+    overflow: hidden;
     #alert-space {
         width: calc(100% - 50px);
         right: 25px;

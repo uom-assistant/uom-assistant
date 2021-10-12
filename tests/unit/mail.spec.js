@@ -20,6 +20,27 @@ describe('mail.vue', () => {
     beforeEach(() => {
         vuetify = new Vuetify();
         store = new Vuex.Store(storeConfig);
+
+        window.uomaTimeFormatters = {
+            month: new Intl.DateTimeFormat('en', {
+                month: 'short',
+                day: 'numeric',
+            }),
+            day: new Intl.DateTimeFormat('en', {
+                day: 'numeric',
+            }),
+            date: new Intl.DateTimeFormat('en', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                weekday: 'long',
+            }),
+            time: new Intl.DateTimeFormat('en', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+            }),
+        };
     });
 
     const getShallowWapper = (component, propsData) => shallowMount(component, {

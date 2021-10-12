@@ -101,6 +101,9 @@
 import { mapState } from 'vuex';
 import * as tzList from '@/tools/tzList.json';
 
+// Time zone conversion is expensive, so we cache and update the time difference every 15 minutes
+let remoteDiff = 0;
+
 let hourLocal = '';
 let minLocal = '';
 let hourRemote = '';
@@ -160,12 +163,19 @@ export default {
             });
         },
         /**
+         * Update time difference between remote and local
+         * @param {Date} now date object needs to be calculated
+         */
+        updateRemoteDiff(now) {
+            const flooredNow = Math.floor(now.valueOf() / 1000) * 1000;
+            remoteDiff = this.convertTimeZone(new Date(flooredNow), this.timeZone).valueOf() - flooredNow;
+        },
+        /**
          * Update clock UI
          * @param {boolean} init whether it's for init the view
          */
         updateView(init = false) {
             const now = new Date(new Date().valueOf() + this.base * 3600000);
-            const remoteNow = this.convertTimeZone(now, this.timeZone);
 
             const secOld = sec;
             const minLocalOld = minLocal;
@@ -176,14 +186,22 @@ export default {
             sec = `${now.getSeconds()}`.padStart(2, '0');
             minLocal = `${now.getMinutes()}`.padStart(2, '0');
             hourLocal = `${now.getHours()}`.padStart(2, '0');
-            minRemote = `${remoteNow.getMinutes()}`.padStart(2, '0');
-            hourRemote = `${remoteNow.getHours()}`.padStart(2, '0');
 
             if (secOld !== sec || init) {
                 this.$refs.secLocal.textContent = sec;
                 this.$refs.secRemote.textContent = sec;
+
+                if ((minLocal === '00' || minLocal === '15' || minLocal === '30' || minLocal === '45') && sec === '00') {
+                    this.updateRemoteDiff(now);
+                }
             }
-            if (minLocalOld !== minLocal || init) {
+
+            const remoteNow = new Date(now.valueOf() + remoteDiff);
+
+            minRemote = `${remoteNow.getMinutes()}`.padStart(2, '0');
+            hourRemote = `${remoteNow.getHours()}`.padStart(2, '0');
+
+            if (minLocalOld !== minLocal || sec === '00' || init) {
                 this.$refs.minLocal.textContent = minLocal;
                 if (!init) {
                     this.$store.commit('setTimerMin', minLocal);
@@ -248,11 +266,13 @@ export default {
             } else {
                 this.store();
             }
+            this.updateRemoteDiff(new Date(new Date().valueOf() + this.base * 3600000));
         },
         base() {
             // Re-calculate date time when time travel base time changed
             const now = new Date(new Date().valueOf() + this.base * 3600000);
-            const remoteNow = this.convertTimeZone(now, this.timeZone);
+            this.updateRemoteDiff(now);
+            const remoteNow = new Date(now.valueOf() + remoteDiff);
 
             const hourLocalOld = hourLocal;
             const hourRemoteOld = hourRemote;
@@ -310,6 +330,8 @@ export default {
                 display: item.mainCity,
             });
         }
+
+        this.updateRemoteDiff(new Date(new Date().valueOf() + this.base * 3600000));
 
         // Update time every 1 second
         this.updateView(true);
