@@ -280,16 +280,20 @@ export default {
         .delete {
             margin-right: 0;
             margin-left: 8px;
-            opacity: 0;
-            transition: .2s;
+            @media (hover: hover) {
+                opacity: 0;
+                transition: .2s;
+            }
         }
         .v-list-item {
             background-color: transparent;
             transition: background-color .2s;
-            &:hover, &:focus {
-                background-color: rgba(0, 0, 0, .04);
-                .delete {
-                    opacity: 1;
+            @media (hover: hover) {
+                &:hover, &:focus {
+                    background-color: rgba(0, 0, 0, .04);
+                    .delete {
+                        opacity: 1;
+                    }
                 }
             }
         }
@@ -354,7 +358,7 @@ export default {
         "remain_day": "{0} día | {0} días",
         "remain_hour": "{0} hora | {0} horas",
         "remain_min": "{0} minuto | {0} minutos",
-        "expired": "Retraso"
+        "expired": "Atrasado"
     },
     "ja": {
         "remain_day": "{0} 日 | {0} 日",

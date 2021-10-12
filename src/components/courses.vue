@@ -204,7 +204,9 @@
                     {{ $t('delete_subject') }}
                 </v-card-title>
                 <v-card-text>
-                    {{ $t('delete_subject_text') }}<strong>{{ subjects[editingIndex].name }}</strong>{{ $t('delete_subject_mark') }}
+                    <i18n path="delete_subject_text" tag="span">
+                        <strong>{{ subjects[editingIndex].name }}</strong>
+                    </i18n>
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
@@ -641,8 +643,7 @@ export default {
         "add_link": "Add a live session link",
         "link_format": "URL[ name][ passcode]",
         "delete_subject": "Delete course unit",
-        "delete_subject_text": "Do you want to delete the course unit ",
-        "delete_subject_mark": "?",
+        "delete_subject_text": "Do you want to delete the course unit {0}?",
         "filter_course": "Filter out hidden courses",
         "error": "Cannot Save",
         "same_id": "This code is already linked to another course unit. Changes not saved.",
@@ -673,8 +674,7 @@ export default {
         "add_link": "添加在线课程链接",
         "link_format": "URL[ 名称][ 密码]",
         "delete_subject": "删除科目",
-        "delete_subject_text": "你确定要删除科目 ",
-        "delete_subject_mark": " 吗？",
+        "delete_subject_text": "你确定要删除科目 {0} 吗？",
         "filter_course": "过滤隐藏的科目",
         "error": "无法保存",
         "same_id": "这个科目编号已经关联到其他科目。更改没有保存。",
@@ -705,8 +705,7 @@ export default {
         "add_link": "Añadir enlace de una sesión online",
         "link_format": "URL[ nombre][ contraseña]",
         "delete_subject": "Eliminar asignatura",
-        "delete_subject_text": "Está seguro de eliminar la asignatura ",
-        "delete_subject_mark": "?",
+        "delete_subject_text": "Está seguro de eliminar la asignatura {0}?",
         "filter_course": "",
         "error": "No se ha podido guardar",
         "same_id": "Este número de asignatura ya está conectada a otra asignatura. Cambios no se ha guardado.",
@@ -737,8 +736,7 @@ export default {
         "add_link": "オンライン授業リンクを追加する",
         "link_format": "URL[ 名][ パスワード]",
         "delete_subject": "科目を削除する",
-        "delete_subject_text": "本当にこの科目 ",
-        "delete_subject_mark": " を削除しますか？",
+        "delete_subject_text": "本当にこの科目 {0} を削除しますか？",
         "filter_course": "隠れた科目を除外する",
         "error": "保存できません",
         "same_id": "この科目番号はもう他の科目に関していますので、変更が保存されません。",

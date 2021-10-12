@@ -336,10 +336,10 @@ export default {
         "annual": "Anual",
         "last_month": "Mes pasado",
         "nothing": "No registro de ausencia",
-        "cannot_fetch": "No ha sido posible obtener los datos de asistencia, puede ser debido al inopropiado configurado servidor back-end o falta de permisión.",
+        "cannot_fetch": "No ha sido posible obtener los datos de asistencia, puede ser debido a que los datos de back-end no estén correctamente configurado o por falta de permisión.",
         "learn_more": "Saber más",
         "absent": "Ausente",
-        "no_data": ""
+        "no_data": "Falta datos de asistencia"
     },
     "ja": {
         "attendance": "出席統計",

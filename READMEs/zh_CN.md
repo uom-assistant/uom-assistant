@@ -25,7 +25,7 @@ Languages: [English](https://github.com/uom-assistant/uom-assistant) | Chinese (
 - 掌控你所有的私密数据并将它们安全地跨设备同步
 - 支持第三方插件
 - 优雅美观的用户界面，同时带有暗色模式
-- 国际化支持: 目前已支持英语（英国）和中文（简体）
+- 国际化支持: 目前已支持英语（英国）、中文（简体）、西班牙语和日语。 [本地化状态与维护者](https://github.com/uom-assistant/uom-assistant/tree/master/src/locales/maintainers.md)
 - ...
 
 ## 部署指南

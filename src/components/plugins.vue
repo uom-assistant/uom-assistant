@@ -1024,7 +1024,7 @@ export default {
         }
     }
     .scroll {
-        height: 420px;
+        height: 500px;
         overflow: auto;
         width: 100%;
         position: relative;
@@ -1101,7 +1101,7 @@ export default {
         }
         .detail-screen {
             width: 100%;
-            height: 395px;
+            height: 475px;
             justify-content: center;
             align-items: center;
             flex-direction: column;
@@ -1208,11 +1208,11 @@ export default {
     }
     .plugin-outer {
         width: 100%;
-        height: 480px;
+        height: 560px;
     }
     .empty {
         width: 100%;
-        height: 420px;
+        height: 500px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -1274,7 +1274,7 @@ export default {
                 background-color: #F0F0F0;
             }
             .detail-screen {
-                height: 400px;
+                height: 480px;
                 .permisson-list {
                     width: calc(100% + 14px);
                     margin-left: -14px;
@@ -1515,7 +1515,7 @@ export default {
         "attendance/absentList": "{0} su lista de ausencias",
         "calendar/events": "{0} sus eventos de asignatura",
         "calendar/view": "{0} vista del calendario",
-        "task/list": "",
+        "task/list": "{0} tu lista de tareas",
         "quickNote/list": "{0} su lista de apuntes rápidos",
         "quickNote/noteContent": "{0} contenido de un apunte rápido",
         "quickNote/view": "{0} interfaz del usuario del widget apuntes rápidos",

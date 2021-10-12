@@ -23,6 +23,7 @@
                 prepend-inner-icon="mdi-format-list-checks"
                 clearable
                 v-model.trim="addText"
+                @keypress.enter="addOne"
             ></v-text-field>
             <div class="date-expend" :class="{ expended: addText && addText.length > 0 }">
                 <v-menu
@@ -111,8 +112,7 @@
                     }"
                 >
                     <template v-slot:item="data">
-                        <v-list-item-avatar :color="data.item.color" v-if="data.item.color" size="20">
-                        </v-list-item-avatar>
+                        <v-list-item-avatar :color="data.item.color" v-if="data.item.color" size="20"></v-list-item-avatar>
                         <v-list-item-content>
                             <v-list-item-title>{{ data.item.id }}</v-list-item-title>
                             <v-list-item-subtitle>{{ data.item.name }}</v-list-item-subtitle>
@@ -664,16 +664,20 @@ export default {
         .delete {
             margin-right: 0;
             margin-left: 8px;
-            opacity: 0;
-            transition: .2s;
+            @media (hover: hover) {
+                opacity: 0;
+                transition: .2s;
+            }
         }
         .v-list-item {
             background-color: transparent;
             transition: background-color .2s;
-            &:hover, &:focus {
-                background-color: rgba(0, 0, 0, .04);
-                .delete {
-                    opacity: 1;
+            @media (hover: hover) {
+                &:hover, &:focus {
+                    background-color: rgba(0, 0, 0, .04);
+                    .delete {
+                        opacity: 1;
+                    }
                 }
             }
         }
@@ -771,8 +775,8 @@ export default {
         "expired": "已过期"
     },
     "es": {
-        "task": "",
-        "add_task": "",
+        "task": "Tarea",
+        "add_task": "Añadir tarea",
         "ddl_date": "Fecha límite",
         "ddl_time": "Hora límite",
         "subject": "Asignatura",
@@ -780,7 +784,7 @@ export default {
         "remain_day": "{0} día | {0} días",
         "remain_hour": "{0} hora | {0} horas",
         "remain_min": "{0} minuto | {0} minutos",
-        "expired": "Retraso"
+        "expired": "Atrasado"
     },
     "ja": {
         "task": "タスク",

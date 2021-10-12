@@ -1,10 +1,10 @@
 export default [
     {
         url: 'https://test.com/check_ability/',
-        method: 'get',
+        method: 'post',
         status: 200,
-        headers: {
-            'X-UOMA-TOKEN': '00000000000000000000000000000000',
+        body: {
+            token: '00000000000000000000000000000000',
         },
         response: {
             success: true,
@@ -22,9 +22,8 @@ export default [
     },
     {
         url: 'https://test.com/check_ability/',
-        method: 'get',
+        method: 'post',
         status: 200,
-        headers: {},
         response: {
             success: true,
             uomabVersion: '0.1.0',
@@ -37,7 +36,7 @@ export default [
     },
     {
         url: 'https://test2.com/check_ability/',
-        method: 'get',
+        method: 'post',
         status: 200,
         headers: {},
         response: {
@@ -56,7 +55,7 @@ export default [
     },
     {
         url: 'https://test3.com/check_ability/',
-        method: 'get',
+        method: 'post',
         status: 200,
         headers: {},
         response: {
@@ -65,6 +64,21 @@ export default [
             maintenance: true,
             data: {
                 tokenRequired: true,
+            },
+        },
+        after: 1000,
+    },
+    {
+        url: 'https://test.com/check_account/',
+        method: 'post',
+        status: 200,
+        headers: {},
+        response: {
+            success: true,
+            uomabVersion: '0.1.0',
+            maintenance: false,
+            data: {
+                login: true,
             },
         },
         after: 1000,
