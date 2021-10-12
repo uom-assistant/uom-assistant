@@ -4,7 +4,7 @@
             class="mx-auto rounded grade-item"
             outlined
             v-for="(subject, index) in gradeListFiltered"
-            :key="`subject-${index}`"
+            :key="`subject-${subject.subject}-${index}`"
         >
             <div class="subject-summary">
                 <v-progress-circular

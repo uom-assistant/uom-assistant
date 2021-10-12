@@ -130,6 +130,10 @@
                     {{ $t('task') }}
                 </div>
                 <taskSearch :tasks="searchIndexFiltered[5]" v-if="searchIndexFiltered[5] && searchIndexFiltered[5].length > 0"></taskSearch>
+                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[8] && searchIndexFiltered[8].length > 0">
+                    {{ $t('mail') }}
+                </div>
+                <mailSearch :mails="searchIndexFiltered[8]" v-if="searchIndexFiltered[8] && searchIndexFiltered[8].length > 0"></mailSearch>
                 <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[9] && searchIndexFiltered[9].length > 0">
                     {{ $t('grade') }}
                 </div>
@@ -565,6 +569,7 @@ import * as JsSearch from 'js-search';
 import settings from '@/components/settings.vue';
 import noteSearch from '@/components/search/note.vue';
 import taskSearch from '@/components/search/task.vue';
+import mailSearch from '@/components/search/mail.vue';
 import gradeSearch from '@/components/search/grade.vue';
 import clockSearch from '@/components/search/clock.vue';
 
@@ -613,6 +618,7 @@ export default {
         settings,
         noteSearch,
         taskSearch,
+        mailSearch,
         gradeSearch,
         clockSearch,
     },
@@ -704,6 +710,18 @@ export default {
             this.$store.commit('setSearchNotification', {
                 target: 'note',
                 payload: { action: 'initGuide', index: this.locale },
+            });
+
+            // Set default translation language
+            this.$store.commit('setSearchNotification', {
+                target: 'mail',
+                payload: {
+                    action: 'initTranslationSettings',
+                    data: {
+                        language: this.localeDetail.iso3,
+                        locale: this.locale,
+                    },
+                },
             });
         },
         /**
@@ -1087,7 +1105,7 @@ export default {
          * Check whether to show the welcome dialog
          */
         checkWelcome() {
-            if ((this.$route.path === '/' || this.$route.path === '/settings') && localStorage.getItem('setup') !== 'true') {
+            if (this.$route.path === '/' && localStorage.getItem('setup') !== 'true') {
                 this.welcome = true;
             }
         },

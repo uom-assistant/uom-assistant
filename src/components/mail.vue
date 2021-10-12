@@ -1191,6 +1191,9 @@ const untrustedKeyWords = {
 
 export default {
     name: 'mail',
+    props: {
+        searchid: Number,
+    },
     components: {
         codemirror,
         previewer,
@@ -1768,6 +1771,7 @@ export default {
                 // Is not updating, skip checking new mails
                 this.init = true;
                 this.mails = response.data.sort((a, b) => (b.date - a.date));
+                this.buildSearchIndex();
                 this.$nextTick(() => {
                     if (this.$refs.scrollTarget) {
                         this.scrollHandler({ target: this.$refs.scrollTarget });
@@ -1790,6 +1794,7 @@ export default {
                 // Update list
                 this.mails = response.data.sort((a, b) => (b.date - a.date));
                 this.refreshLoding = false;
+                this.buildSearchIndex();
                 this.$nextTick(() => {
                     if (this.$refs.scrollTarget) {
                         this.scrollHandler({ target: this.$refs.scrollTarget });
@@ -1937,6 +1942,13 @@ export default {
                     return;
                 }
                 this.mails[targetMail].flagged = !this.mails[targetMail].flagged;
+                this.$store.commit('setSearchNotification', {
+                    target: 'mailSearch',
+                    payload: {
+                        action,
+                        id: this.mails[targetMail].id,
+                    },
+                });
                 if (mailId === this.viewing) {
                     this.viewer.flagged = this.mails[targetMail].flagged;
                 }
@@ -2133,9 +2145,9 @@ export default {
          * @param {number} id mail ID
          */
         openMail(id) {
-            // Mail not found
             const mail = this.mails.find((item) => item.id === id);
             if (!mail) {
+                // Mail not found
                 return;
             }
             // Reset viewer
@@ -2179,7 +2191,16 @@ export default {
                 if (targetMail === -1) {
                     return;
                 }
-                this.mails[targetMail].unseen = false;
+                if (targetMail.unseen) {
+                    this.mails[targetMail].unseen = false;
+                    this.$store.commit('setSearchNotification', {
+                        target: 'mailSearch',
+                        payload: {
+                            action: 'seen',
+                            id: this.mails[targetMail].id,
+                        },
+                    });
+                }
                 this.doAction(id, 'body');
             } else {
                 // Cached, recover from cache
@@ -2188,14 +2209,21 @@ export default {
                 this.viewer.bodyText = '';
                 this.viewer.textContent = '';
                 this.sandboxHeight = 0;
-                if (mail.unseen) {
-                    this.doAction(id, 'seen');
-                }
                 const targetMail = this.mails.findIndex((item) => item.id === id);
                 if (targetMail === -1) {
                     return;
                 }
-                this.mails[targetMail].unseen = false;
+                if (mail.unseen) {
+                    this.mails[targetMail].unseen = false;
+                    this.doAction(id, 'seen');
+                    this.$store.commit('setSearchNotification', {
+                        target: 'mailSearch',
+                        payload: {
+                            action: 'seen',
+                            id: this.mails[targetMail].id,
+                        },
+                    });
+                }
                 this.$nextTick(() => {
                     // Set mail body
                     if (cachedMail.content === '') {
@@ -2283,6 +2311,7 @@ export default {
             for (let i = 0; i < this.mails.length; i += 1) {
                 this.mails[i].unseen = false;
             }
+            this.buildSearchIndex();
         },
         /**
          * Mark a mail as read by mail ID
@@ -2295,6 +2324,7 @@ export default {
             }
             this.mails[mail].unseen = false;
             this.doAction(id, 'seen');
+            this.buildSearchIndex();
         },
         /**
          * Mark a mail as junk
@@ -2308,6 +2338,7 @@ export default {
             }
             this.mails.splice(mail, 1);
             this.doAction(id, 'junk');
+            this.buildSearchIndex();
             this.$nextTick(() => {
                 if (this.$refs.scrollTarget) {
                     this.scrollHandler({ target: this.$refs.scrollTarget });
@@ -2326,6 +2357,7 @@ export default {
             }
             this.mails.splice(mail, 1);
             this.doAction(id, 'delete');
+            this.buildSearchIndex();
             this.$nextTick(() => {
                 if (this.$refs.scrollTarget) {
                     this.scrollHandler({ target: this.$refs.scrollTarget });
@@ -2627,6 +2659,15 @@ export default {
 
             // Save to localStorage
             localStorage.setItem('mail_enable_translation', this.translateEnabled);
+            localStorage.setItem('mail_preferred_language', JSON.stringify(this.preferredTranslateTo));
+        },
+        /**
+         * Initialize the translation settings
+         * @param {string} language language ISO 639-3 code
+         * @param {string} locale locale BCP47 code
+         */
+        initTranslationSettings({ language, locale }) {
+            this.preferredTranslateTo = [language, Array.isArray(this.languageMap[language]) ? this.languageMap[language].find((item) => item.locale === locale) : this.languageMap[language]];
             localStorage.setItem('mail_preferred_language', JSON.stringify(this.preferredTranslateTo));
         },
         /**
@@ -3253,6 +3294,43 @@ export default {
         getDate(dateObj) {
             return formatDateTime(dateObj, this.locale, window.uomaTimeFormatters, false);
         },
+        /**
+         * Build search index
+         */
+        buildSearchIndex() {
+            this.$store.commit('setSearchIndex', {
+                id: this.searchid,
+                payload: {
+                    name: 'mail',
+                    key: 'id',
+                    indexes: ['subject', 'from', 'fromAddress', 'course', 'courseName'],
+                    data: this.getSearchIndexArray(),
+                },
+            });
+        },
+        /**
+         * Get search index array
+         * @returns {array} search index
+         */
+        getSearchIndexArray() {
+            const searchIndex = [];
+            for (const mail of this.mails) {
+                const courseId = this.getSubjectId(mail.subject, mail.from);
+                searchIndex.push({
+                    date: mail.date,
+                    flagged: mail.flagged,
+                    from: mail.from,
+                    fromAddress: mail.fromAddress,
+                    subject: mail.subject,
+                    course: courseId,
+                    courseName: courseId === false ? [] : [this.subjectNameMap(courseId), this.subjectLongNameMap(courseId)],
+                    unseen: mail.unseen,
+                    id: mail.id,
+                    avatar: this.getMailAvatar(mail.subject, mail.from, mail.fromAddress),
+                });
+            }
+            return searchIndex;
+        },
     },
     watch: {
         locale() {
@@ -3366,6 +3444,12 @@ export default {
                 }
             }
         },
+        searchNotification() {
+            // Handle search actions
+            if (this.searchNotification.target === 'mail') {
+                this[this.searchNotification.payload.action](this.searchNotification.payload.data);
+            }
+        },
     },
     computed: {
         ...mapState({
@@ -3376,10 +3460,11 @@ export default {
             subjects: (state) => state.subjects,
             timerMin: (state) => state.timerMin,
             darkMode: (state) => state.darkMode,
+            searchNotification: (state) => state.searchNotification,
         }),
         mailUnseen() {
             // Filter out unread mails
-            return this.mails.filter((item) => (item.unseen));
+            return this.mails.filter((item) => item.unseen);
         },
         preferredLanguageList() {
             const result = Object.entries(this.languageMap).map((item) => {
@@ -3413,7 +3498,7 @@ export default {
             this.preferredTranslateTo = JSON.parse(localStorage.getItem('mail_preferred_language'));
         } else {
             this.preferredTranslateTo = ['eng', this.languageMap.eng];
-            localStorage.setItem('mail_preferred_language', JSON.stringify(['eng', this.languageMap.eng]));
+            localStorage.setItem('mail_preferred_language', JSON.stringify(this.preferredTranslateTo));
         }
 
         // Render note
@@ -3465,6 +3550,8 @@ export default {
 
         // Restore cache
         this.cachedMails = await localForage.getItem('mail_cache') || [];
+
+        this.buildSearchIndex();
     },
     beforeDestroy() {
         clearInterval(this.timer);
