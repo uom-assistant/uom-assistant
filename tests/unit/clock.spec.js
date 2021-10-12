@@ -3,6 +3,9 @@ import Vue from 'vue';
 import Vuetify from 'vuetify';
 import Vuex from 'vuex';
 
+import '@formatjs/intl-displaynames/polyfill';
+import '@formatjs/intl-displaynames/locale-data/en';
+
 import storeConfig from '@/store/store';
 import locales from '@/locales/localeList';
 
