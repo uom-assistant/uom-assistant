@@ -47,7 +47,7 @@
                         :multiple="multi"
                         :color="multi ? 'primary' : ''"
                     >
-                        <v-list-item v-for="(note, index) in notes" :key="index" @click.prevent="openNote(index)" :class="{ multi }" @contextmenu.prevent="(e) => showListMenu(e, index)">
+                        <v-list-item v-for="(note, index) in notes" :key="index" @click.prevent="openNote(index)" :class="{ multi }" @contextmenu="(e) => showListMenu(e, index)">
                             <template v-slot:default="{ active }">
                                 <v-list-item-action v-show="multi">
                                     <v-checkbox :input-value="active"></v-checkbox>
@@ -981,6 +981,7 @@ export default {
             this.listMenu = false;
             // Only show menu on touch screens
             if (!window.matchMedia('(hover: hover)').matches) {
+                e.preventDefault();
                 this.selectedId = noteId;
                 this.listMenuX = e.clientX;
                 this.listMenuY = e.clientY;

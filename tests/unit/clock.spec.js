@@ -26,7 +26,6 @@ describe('clock.vue', () => {
 
         window.displayFormatters = {
             region: new Intl.DisplayNames(['en'], { type: 'region' }),
-            language: new Intl.DisplayNames(['en'], { type: 'language' }),
         };
     });
 

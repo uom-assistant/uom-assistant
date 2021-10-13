@@ -53,8 +53,8 @@ export default {
          * @param {Date} now date object needs to be calculated
          */
         updateRemoteDiff(now) {
-            const flooredNow = Math.floor(now.valueOf() / 1000) * 1000;
-            remoteDiff = this.convertTimeZone(new Date(flooredNow), this.timezone).valueOf() - flooredNow;
+            const secNow = now - now.getMilliseconds();
+            remoteDiff = this.convertTimeZone(new Date(secNow), this.timeZone) - secNow;
         },
         /**
          * Update time
@@ -121,12 +121,15 @@ export default {
     mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
 
-        // Update time every 1 second
-        this.timer = setInterval(this.updateTime, 1000);
-
         this.updateRemoteDiff(new Date());
 
         this.updateTime(true);
+
+        // Update time every 1 second
+        setTimeout(() => {
+            this.updateTime();
+            this.timer = setInterval(this.updateTime, 1000);
+        }, 1000 - new Date().getMilliseconds());
     },
     beforeDestroy() {
         clearInterval(this.timer);

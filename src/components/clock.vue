@@ -167,8 +167,8 @@ export default {
          * @param {Date} now date object needs to be calculated
          */
         updateRemoteDiff(now) {
-            const flooredNow = Math.floor(now.valueOf() / 1000) * 1000;
-            remoteDiff = this.convertTimeZone(new Date(flooredNow), this.timeZone).valueOf() - flooredNow;
+            const secNow = now - now.getMilliseconds();
+            remoteDiff = this.convertTimeZone(new Date(secNow), this.timeZone) - secNow;
         },
         /**
          * Update clock UI
@@ -335,7 +335,10 @@ export default {
 
         // Update time every 1 second
         this.updateView(true);
-        this.timer = setInterval(this.updateView, 1000);
+        setTimeout(() => {
+            this.updateView();
+            this.timer = setInterval(this.updateView, 1000);
+        }, 1000 - new Date().getMilliseconds());
         this.updateList();
     },
     beforeDestroy() {

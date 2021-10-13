@@ -613,7 +613,6 @@ window.uomaTimeFormatters = {
 };
 window.displayFormatters = {
     region: new Intl.DisplayNames([langIso], { type: 'region' }),
-    language: new Intl.DisplayNames([langIso], { type: 'language' }),
 };
 
 let timeFormattersInited = false;
@@ -1233,7 +1232,6 @@ export default {
                 };
                 window.displayFormatters = {
                     region: new Intl.DisplayNames([this.localeDetail.iso], { type: 'region' }),
-                    language: new Intl.DisplayNames([this.localeDetail.iso], { type: 'language' }),
                 };
             } else {
                 timeFormattersInited = true;
@@ -1937,7 +1935,7 @@ code, kbd, pre, samp {
             border-color: #575757;
             &::after {
                 background: #575757;
-                background: linear-gradient(90deg, transparent, #575757);
+                background: linear-gradient(90deg, rgba(87, 87, 87, 0), rgb(87, 87, 87));
             }
         }
         .v-calendar-daily__interval {
