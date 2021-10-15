@@ -2,13 +2,17 @@
  * A `fetch` wrapper that makes fetch simpler
  * @param {string} url url
  * @param {object?} option `fetch` options
+ * @param {boolean|number?} allowElectron not allow electron to handle the request or pass the length of the backend url to allow it
  * @param {string?} targetType target content type, use '' to auto detect
  * @returns {Promise<object|string>} response data or response object when error
  */
-export default async (url, option = {}, targetType = '') => {
+export default async (url, option = {}, allowElectron = false, targetType = '') => {
     if (process.env.NODE_ENV === 'test') {
         console.warn(`Request to ${url} is ignored while testing.`);
         return Promise.resolve();
+    }
+    if (allowElectron && window.__UOMA_ELECTRON__ && window.__UOMA_ELECTRON_BRIDGE__) {
+        return window.__UOMA_ELECTRON_BRIDGE__.fetch(url.substr(allowElectron + 9), option.body);
     }
     const response = await fetch(url, option);
     if (response.ok && response.status === 200) {

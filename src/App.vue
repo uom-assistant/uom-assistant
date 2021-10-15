@@ -892,7 +892,7 @@ export default {
                         username: this.$refs.settingsField.username,
                         password: this.$refs.settingsField.password,
                         token: backendToken || '',
-                    }),
+                    }, `${this.backendURL}${this.backendURL.substr(-1) === '/' ? '' : '/'}`.length - 1),
                 }).catch(() => {
                     // Network error
                     this.loading = false;
@@ -1008,6 +1008,10 @@ export default {
             localStorage.setItem('dark', this.$vuetify.theme.dark ? 'true' : 'false');
 
             document.querySelector('meta[name="theme-color"]').setAttribute('content', this.$vuetify.theme.dark ? '#272727' : '#F5F5F5');
+
+            if (window.__UOMA_ELECTRON__ && window.__UOMA_ELECTRON_BRIDGE__) {
+                window.__UOMA_ELECTRON_BRIDGE__.setAttr('theme', this.$vuetify.theme.dark ? 'dark' : 'light');
+            }
         },
         /**
          * Open search bar and focus on it
@@ -1207,6 +1211,10 @@ export default {
             this.$store.commit('setLocale', this.locale);
             this.$store.commit('setLocaleDetail', this.localeDetail);
 
+            if (window.__UOMA_ELECTRON__ && window.__UOMA_ELECTRON_BRIDGE__) {
+                window.__UOMA_ELECTRON_BRIDGE__.setAttr('language', this.locale);
+            }
+
             if (timeFormattersInited) {
                 // Set shared time formatters
                 window.uomaTimeFormatters = {
@@ -1308,6 +1316,10 @@ export default {
         this.$store.commit('setDarkMode', this.$vuetify.theme.dark);
 
         document.querySelector('meta[name="theme-color"]').setAttribute('content', this.$vuetify.theme.dark ? '#272727' : '#F5F5F5');
+
+        if (window.__UOMA_ELECTRON__ && window.__UOMA_ELECTRON_BRIDGE__) {
+            window.__UOMA_ELECTRON_BRIDGE__.setAttr('theme', this.$vuetify.theme.dark ? 'dark' : 'light');
+        }
 
         // Initialize backend connection
         try {

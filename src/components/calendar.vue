@@ -278,7 +278,7 @@
                 <v-card-text>
                     <v-select
                         v-model="editingFirstDay"
-                        :items="weekDaysItems"
+                        :items="weekDaysItems()"
                         hide-details
                         dense
                         outlined
@@ -533,7 +533,7 @@ export default {
                 body: JSON.stringify({
                     subid: this.account.calendar,
                     token: this.backend.token ? this.backend.token : '',
-                }),
+                }, this.backend.url.length),
             }).catch(() => {
                 if (tryCount < 2) {
                     // Retry
@@ -798,6 +798,17 @@ export default {
                 type: this.type,
             }));
         },
+        /**
+         * Generate week days list for selector
+         * @returns {{ text: string, value: number }[]} week days list
+         */
+        weekDaysItems() {
+            const base = new Date(1970, 0, 1).valueOf();
+            return [0, 1, 2, 3, 4, 5, 6].map((item) => ({
+                text: window.uomaTimeFormatters.date.formatToParts(new Date(base + 3600000 * 24 * (-4 + item))).find((part) => part.type === 'weekday').value,
+                value: item,
+            }));
+        },
     },
     watch: {
         locale() {
@@ -906,17 +917,6 @@ export default {
          */
         weekDays() {
             return [...Array(7)].map((item, index) => (index + this.firstDay) % 7);
-        },
-        /**
-         * Generate week days list for selector
-         * @returns {{ text: string, value: number }[]} week days list
-         */
-        weekDaysItems() {
-            const base = new Date(1970, 0, 1).valueOf();
-            return [0, 1, 2, 3, 4, 5, 6].map((item) => ({
-                text: window.uomaTimeFormatters.date.formatToParts(new Date(base + 3600000 * 24 * (-4 + item))).find((part) => part.type === 'weekday').value,
-                value: item,
-            }));
         },
     },
     async mounted() {

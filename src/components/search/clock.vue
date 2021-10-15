@@ -60,6 +60,9 @@ export default {
          * Update time
          */
         updateTime(init = false) {
+            if (!this.$refs.secRemote) {
+                return;
+            }
             const now = new Date(new Date().valueOf());
 
             const secOld = sec;

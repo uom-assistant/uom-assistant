@@ -1729,7 +1729,7 @@ export default {
                     password: this.account.password,
                     email: this.account.email,
                     token: this.backend.token ? this.backend.token : '',
-                }),
+                }, this.backend.url.length),
             }).catch(() => {
                 if (tryCount < 2) {
                     // Retry
@@ -1847,7 +1847,7 @@ export default {
                     action,
                     mailId,
                     token: this.backend.token ? this.backend.token : '',
-                }),
+                }, this.backend.url.length),
             }).catch(() => {
                 // Network error
                 this.loading = false;
@@ -2409,7 +2409,7 @@ export default {
                         body: minBody,
                         from: this.viewer.translateFrom,
                         to: this.preferredTranslateTo[1][this.viewer.translator],
-                    }),
+                    }, this.backend.url.length),
                 }).catch(() => {
                     // Network error
                     this.loading = false;
@@ -2512,7 +2512,7 @@ export default {
                 body: JSON.stringify({
                     token: this.backend.token ? this.backend.token : '',
                     email: this.account.email,
-                }),
+                }, this.backend.url.length),
             }).catch(() => {
                 // Network error
                 this.loading = false;

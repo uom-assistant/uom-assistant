@@ -175,6 +175,9 @@ export default {
          * @param {boolean} init whether it's for init the view
          */
         updateView(init = false) {
+            if (!this.$refs.secRemote) {
+                return;
+            }
             const now = new Date(new Date().valueOf() + this.base * 3600000);
 
             const secOld = sec;

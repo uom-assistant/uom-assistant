@@ -1507,9 +1507,11 @@ export default {
         .v-list-item {
             transition: background-color .2s;
             min-height: 30px;
+            &:hover, &:focus {
+                background-color: rgba(0, 0, 0, .04);
+            }
             @media (hover: hover) {
                 &:hover, &:focus {
-                    background-color: rgba(0, 0, 0, .04);
                     .delete {
                         opacity: 1;
                     }
