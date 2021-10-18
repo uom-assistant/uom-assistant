@@ -1729,7 +1729,7 @@ export default {
                     password: this.account.password,
                     email: this.account.email,
                     token: this.backend.token ? this.backend.token : '',
-                }, this.backend.url.length),
+                }, true),
             }).catch(() => {
                 if (tryCount < 2) {
                     // Retry
@@ -1847,7 +1847,7 @@ export default {
                     action,
                     mailId,
                     token: this.backend.token ? this.backend.token : '',
-                }, this.backend.url.length),
+                }, true),
             }).catch(() => {
                 // Network error
                 this.loading = false;
@@ -2409,7 +2409,7 @@ export default {
                         body: minBody,
                         from: this.viewer.translateFrom,
                         to: this.preferredTranslateTo[1][this.viewer.translator],
-                    }, this.backend.url.length),
+                    }, true),
                 }).catch(() => {
                     // Network error
                     this.loading = false;
@@ -2512,7 +2512,7 @@ export default {
                 body: JSON.stringify({
                     token: this.backend.token ? this.backend.token : '',
                     email: this.account.email,
-                }, this.backend.url.length),
+                }, true),
             }).catch(() => {
                 // Network error
                 this.loading = false;
@@ -4288,6 +4288,7 @@ export default {
         margin-bottom: 0;
         background-color: #f3f3f3;
         border-radius: 6px;
+        max-width: 500px;
         .v-list-item {
             cursor: default;
             min-height: 32px;
@@ -4311,7 +4312,6 @@ export default {
             margin-left: 8px!important;
             .v-btn {
                 font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
-                width: 90px;
                 margin-right: -4px;
                 .v-icon--left {
                     margin-right: 4px;

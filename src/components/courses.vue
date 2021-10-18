@@ -133,19 +133,68 @@
                         <v-checkbox
                             v-model="editingHide"
                             :label="$t('hide_subject')"
-                            class="checkbox"
+                            class="checkbox d-inline-block"
                         ></v-checkbox>
+                        <v-tooltip top max-width="400">
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-icon
+                                    v-bind="attrs"
+                                    v-on="on"
+                                    class="d-inline-block inline-help-icon"
+                                    small
+                                >
+                                    mdi-help-circle-outline
+                                </v-icon>
+                            </template>
+                            <span>{{ $t('hide_help') }}</span>
+                        </v-tooltip>
                         <div class="subject-links rounded-lg">
-                            <v-text-field
-                                v-model.trim="editingSessionLink"
-                                :label="$t('add_link')"
-                                :placeholder="$t('link_format')"
-                                outlined
-                                hide-details
-                                clearable
-                                prepend-inner-icon="mdi-link-variant"
-                                v-on:keyup.enter="addLink"
-                            ></v-text-field>
+                            <h2 class="text-subtitle-2">{{ $t('live_links') }}</h2>
+                            <div class="d-flex mt-2">
+                                <v-text-field
+                                    v-model.trim="editingSessionLink"
+                                    label="URL"
+                                    outlined
+                                    hide-details
+                                    clearable
+                                    dense
+                                    prepend-inner-icon="mdi-link-variant"
+                                    class="link-url"
+                                    v-on:keyup.enter="addLink"
+                                ></v-text-field>
+                                <v-text-field
+                                    v-model.trim="editingSessionLinkCode"
+                                    :label="$t('live_link_code')"
+                                    outlined
+                                    hide-details
+                                    clearable
+                                    dense
+                                    prepend-inner-icon="mdi-lock-outline"
+                                    class="ml-2 link-code"
+                                ></v-text-field>
+                            </div>
+                            <div class="d-flex mt-2">
+                                <v-text-field
+                                    v-model.trim="editingSessionLinkName"
+                                    :label="$t('link_name')"
+                                    outlined
+                                    hide-details
+                                    clearable
+                                    dense
+                                    prepend-inner-icon="mdi-text-short"
+                                ></v-text-field>
+                                <v-btn
+                                    depressed
+                                    color="primary"
+                                    class="add-submit"
+                                    :disabled="!editingSessionLink"
+                                    @click="addLink"
+                                >
+                                    <v-icon dark>
+                                        mdi-plus
+                                    </v-icon>
+                                </v-btn>
+                            </div>
                             <v-list flat class="list" v-if="editingSessionLinks.length > 0">
                                 <v-list-item-group>
                                     <v-list-item
@@ -162,7 +211,7 @@
                                             </v-list-item-content>
 
                                             <v-list-item-action class="delete">
-                                                <code v-if="link.passcode" class="mr-1">{{ link.passcode }}</code>
+                                                <code v-if="link.passcode" class="mr-1 pb-1">{{ link.passcode }}</code>
                                                 <v-btn icon @click.stop="removeLink(index)">
                                                     <v-icon color="grey">mdi-delete-outline</v-icon>
                                                 </v-btn>
@@ -275,6 +324,8 @@ export default {
             editingHide: false,
             editingColor: 'blue',
             editingSessionLink: '',
+            editingSessionLinkCode: '',
+            editingSessionLinkName: '',
             editingSessionLinks: [],
             deleteDialog: false,
             sameIdError: false,
@@ -288,25 +339,16 @@ export default {
          */
         addLink() {
             if (this.editingSessionLink !== '') {
-                const input = this.editingSessionLink.split(' ');
-                const link = input.shift();
-                let name = link;
-                let passcode = '';
-                if (input.length !== 0) {
-                    // Extract passcode if it exists
-                    if (/^\d{4,6}$/i.test(input[input.length - 1])) {
-                        passcode = input[input.length - 1];
-                        input.pop();
-                    }
-                    name = input.join(' ');
-                }
                 this.editingSessionLinks.push({
-                    name,
+                    name: this.editingSessionLinkName || this.editingSessionLink,
                     // If link is not a valid link, add a default protocol (HTTP)
-                    link: (link.indexOf('http://') === 0) || (link.indexOf('https://') === 0) || (link.indexOf('zoommtg://') === 0) || (link.indexOf('msteams://') === 0) ? link : `http://${link}`,
-                    passcode,
+                    link: (this.editingSessionLink.indexOf('http://') === 0) || (this.editingSessionLink.indexOf('https://') === 0) || (this.editingSessionLink.indexOf('zoommtg://') === 0) || (this.editingSessionLink.indexOf('msteams://') === 0) ? this.editingSessionLink : `http://${this.editingSessionLink}`,
+                    passcode: this.editingSessionLinkCode,
                 });
+
                 this.editingSessionLink = '';
+                this.editingSessionLinkCode = '';
+                this.editingSessionLinkName = '';
                 this.packery.shiftLayout();
             }
         },
@@ -333,6 +375,8 @@ export default {
             this.editingHide = this.subjects[index].hide;
             this.editingColor = this.subjects[index].color;
             this.editingSessionLink = '';
+            this.editingSessionLinkCode = '';
+            this.editingSessionLinkName = '';
             // Add links one by one to avoid reference copy
             this.editingSessionLinks = [];
             for (let i = 0; i < this.subjects[index].sessionLinks.length; i += 1) {
@@ -553,6 +597,12 @@ export default {
 .container .checkbox {
     margin-top: -10px;
 }
+.container .inline-help-icon {
+    vertical-align: baseline!important;
+    margin-left: 5px;
+    transform: translateY(-3px);
+    font-size: 18px!important;
+}
 .subject-links {
     width: 100%;
     background-color: #F5F5F5;
@@ -560,6 +610,17 @@ export default {
     box-sizing: border-box;
     max-height: 500px;
     overflow: auto;
+    .link-url {
+        width: 65%;
+    }
+    .link-code {
+        width: calc(35% - 8px);
+    }
+    .add-submit {
+        height: 40px!important;
+        min-width: 56px!important;
+        margin-left: 8px;
+    }
     .list {
         background-color: transparent;
         padding-top: 15px;
@@ -640,7 +701,10 @@ export default {
         "subject_home": "Course Unit Home Page *",
         "subject_color": "Course Unit Coleeeour",
         "hide_subject": "Hide this course unit",
-        "add_link": "Add a live session link",
+        "hide_help": "Hide this course unit in the Quick Links and Online Session Links widgets, but keep recognizing this course unit in other widgets.",
+        "live_links": "Online Session Links",
+        "live_link_code": "Passcode",
+        "link_name": "Link Name",
         "link_format": "URL[ name][ passcode]",
         "delete_subject": "Delete course unit",
         "delete_subject_text": "Do you want to delete the course unit {0}?",
@@ -671,8 +735,10 @@ export default {
         "subject_home": "科目主页 *",
         "subject_color": "科目颜色",
         "hide_subject": "隐藏这个科目",
-        "add_link": "添加在线课程链接",
-        "link_format": "URL[ 名称][ 密码]",
+        "hide_help": "在快速链接和在线课程链接中隐藏此科目，但在其他组件中保持对此科目的识别。",
+        "live_links": "在线课程链接",
+        "live_link_code": "密码",
+        "link_name": "链接名称",
         "delete_subject": "删除科目",
         "delete_subject_text": "你确定要删除科目 {0} 吗？",
         "filter_course": "过滤隐藏的科目",
@@ -702,8 +768,10 @@ export default {
         "subject_home": "Página principal de la asignatura *",
         "subject_color": "Color de asignatura",
         "hide_subject": "Esconder esta asignatura",
-        "add_link": "Añadir enlace de una sesión online",
-        "link_format": "URL[ nombre][ contraseña]",
+        "hide_help": "",
+        "live_links": "Enlaces de clases online",
+        "live_link_code": "",
+        "link_name": "",
         "delete_subject": "Eliminar asignatura",
         "delete_subject_text": "Está seguro de eliminar la asignatura {0}?",
         "filter_course": "",
@@ -733,8 +801,10 @@ export default {
         "subject_home": "科目ホームページ *",
         "subject_color": "科目の色",
         "hide_subject": "この科目を隠す",
-        "add_link": "オンライン授業リンクを追加する",
-        "link_format": "URL[ 名][ パスワード]",
+        "hide_help": "",
+        "live_links": "オンライン授業リンク",
+        "live_link_code": "",
+        "link_name": "",
         "delete_subject": "科目を削除する",
         "delete_subject_text": "本当にこの科目 {0} を削除しますか？",
         "error": "保存できません",

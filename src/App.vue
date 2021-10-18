@@ -892,7 +892,7 @@ export default {
                         username: this.$refs.settingsField.username,
                         password: this.$refs.settingsField.password,
                         token: backendToken || '',
-                    }, `${this.backendURL}${this.backendURL.substr(-1) === '/' ? '' : '/'}`.length - 1),
+                    }, true),
                 }).catch(() => {
                     // Network error
                     this.loading = false;

@@ -243,11 +243,11 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.inline-icon {
-    vertical-align: baseline!important;
-    margin-left: 5px;
-    font-size: 22px!important;
-}
+// .inline-icon {
+//     vertical-align: baseline!important;
+//     margin-left: 5px;
+//     font-size: 22px!important;
+// }
 .help-icon {
     vertical-align: text-top!important;
 }

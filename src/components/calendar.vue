@@ -112,7 +112,10 @@
                         <template v-slot:day-body="{ date, week }">
                             <div
                             class="v-current-time"
-                            :class="{ first: date === week[0].date }"
+                            :class="{
+                                first: (date === week[0].date && type === 'day') || (date === currentDate && type === 'week'),
+                                week: date !== currentDate && type === 'week',
+                            }"
                             :style="{ top: nowY }"
                             ></div>
                         </template>
@@ -533,7 +536,7 @@ export default {
                 body: JSON.stringify({
                     subid: this.account.calendar,
                     token: this.backend.token ? this.backend.token : '',
-                }, this.backend.url.length),
+                }, true),
             }).catch(() => {
                 if (tryCount < 2) {
                     // Retry
@@ -1022,6 +1025,7 @@ export default {
         position: absolute;
         left: -1px;
         right: 0;
+        margin-top: -1px;
         pointer-events: none;
         &.first::before {
             content: '';
@@ -1032,6 +1036,9 @@ export default {
             border-radius: 50%;
             margin-top: -5px;
             margin-left: -6.5px;
+        }
+        &.week {
+            opacity: .3;
         }
     }
     .v-calendar-daily__interval-text {
@@ -1068,6 +1075,7 @@ export default {
             margin-bottom: 20px;
             background-color: #f3f3f3;
             border-radius: 6px;
+            max-width: 800px;
             .v-list-item {
                 cursor: default;
                 min-height: 28px;
@@ -1091,7 +1099,6 @@ export default {
                 margin-left: 8px!important;
                 .v-btn {
                     font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
-                    width: 90px;
                     margin-right: -4px;
                     .v-icon--left {
                         margin-right: 4px;
