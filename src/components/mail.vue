@@ -293,16 +293,27 @@
                                                         :class="(copySuccess && copyingIndex === index) ? 'copied' : ''"
                                                         :title="$t('copy_passcode')"
                                                     >
+                                                        <div class="showing">
+                                                            <v-icon
+                                                                left
+                                                                dark
+                                                                small
+                                                                :color="(copySuccess && copyingIndex === index) ? 'green' : 'gray'"
+                                                                :class="(copySuccess && copyingIndex === index) ? 'mr-0' : ''"
+                                                            >
+                                                                {{ (copySuccess && copyingIndex === index) ? 'mdi-check' : 'mdi-content-copy' }}
+                                                            </v-icon>
+                                                            {{ (copySuccess && copyingIndex === index) ? '' : link.passcode }}
+                                                        </div>
                                                         <v-icon
                                                             left
                                                             dark
                                                             small
-                                                            :color="(copySuccess && copyingIndex === index) ? 'green' : 'gray'"
-                                                            :class="(copySuccess && copyingIndex === index) ? 'mr-0' : ''"
+                                                            color="transparent"
                                                         >
-                                                            {{ (copySuccess && copyingIndex === index) ? 'mdi-check' : 'mdi-content-copy' }}
+                                                            mdi-content-copy
                                                         </v-icon>
-                                                        {{ (copySuccess && copyingIndex === index) ? '' : link.passcode }}
+                                                        <span class="transparent--text">{{ link.passcode }}</span>
                                                     </v-btn>
                                                 </v-list-item-action>
                                             </template>
@@ -4313,8 +4324,19 @@ export default {
             .v-btn {
                 font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
                 margin-right: -4px;
+                position: relative;
                 .v-icon--left {
                     margin-right: 4px;
+                }
+                .showing {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    flex: 1 0 auto;
+                    justify-content: inherit;
                 }
             }
         }

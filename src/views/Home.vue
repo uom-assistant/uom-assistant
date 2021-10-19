@@ -804,7 +804,7 @@ export default {
     @media (min-width: 800px) {
         max-width: calc(100% / 2 - 8px);
     }
-    @media (min-width: 1200px) {
+    @media (min-width: 1190px) {
         max-width: calc(100% / 3 - 10.5px);
     }
     @media (min-width: 1600px) {
@@ -831,7 +831,7 @@ export default {
     @media (min-width: 800px) {
         max-width: calc(100% - 2px);
     }
-    @media (min-width: 1200px) {
+    @media (min-width: 1190px) {
         max-width: calc(200% / 3 - 6px);
     }
     @media (min-width: 1600px) {
