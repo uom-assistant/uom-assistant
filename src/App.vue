@@ -1649,6 +1649,13 @@ html::-webkit-scrollbar {
     left: -1000px;
     opacity: 0;
 }
+.welcome-dialog {
+    background-color: white;
+    border-radius: 8px;
+}
+.welcome-dialog.v-dialog--fullscreen {
+    border-radius: 0;
+}
 .welcome-dialog.welcome-overflow {
     overflow: hidden;
 }
@@ -1656,6 +1663,7 @@ html::-webkit-scrollbar {
     border-radius: 0;
 }
 .welcome-dialog .welcome-dialog-card {
+    border-radius: 8px;
     overflow: hidden;
     .stepper {
         position: absolute;
@@ -1910,6 +1918,9 @@ code, kbd, pre, samp {
         .v-time-picker-title {
             color: #424242;
         }
+    }
+    .welcome-dialog {
+        background-color: #1E1E1E;
     }
     .welcome-dialog .welcome-dialog-card .main-btn {
         color: black;

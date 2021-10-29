@@ -9,18 +9,21 @@
             :width="2"
             :size="18"
             class="loading"
+            :class="{ corner: yearList.length < 2 }"
             v-show="loading"
         ></v-progress-circular>
         <div class="grade-outer">
             <h2 class="pr-5 handle">
                 {{ $t('grade') }}
-                <v-btn icon small class="grade-goto" href="https://studentnet.cs.manchester.ac.uk/me/spot/" target="_blank" rel="noopener nofollow">
+                <v-btn icon small class="grade-goto" href="https://studentnet.cs.manchester.ac.uk/me/spotv2/spotv2.php" target="_blank" rel="noopener nofollow">
                     <v-icon>mdi-chevron-right</v-icon>
                 </v-btn>
                 <v-select
+                    v-model="selectedGradeList"
+                    :items="yearList"
+                    v-show="yearList.length > 1"
                     class="year-selector"
                     height="28"
-                    :items="yearList"
                     dense
                     hide-details
                     outlined
@@ -45,8 +48,16 @@
                     <span>{{ $t('nothing') }}</span>
                 </div>
             </div>
-            <v-tabs v-model="tabs" :class="{ shadow: headerShadow }" class="tab-items" @change="updateView" show-arrows v-show="init && gradeListFlat.length > 0">
-                <v-tab v-for="(semester, i) in gradeListFiltered" :key="`tab-${i}`">{{ gradeList[i].name }}</v-tab>
+            <v-tabs
+                v-model="tabs"
+                :class="{ shadow: headerShadow }"
+                class="tab-items pt-1"
+                height="44"
+                @change="updateView"
+                show-arrows
+                v-show="init && gradeListFlat.length > 0"
+            >
+                <v-tab v-for="(semester, i) in gradeListFiltered" :key="`tab-${locale}-${i}`">{{ $t(gradeList[i].name) }}</v-tab>
             </v-tabs>
 
             <v-tabs-items v-model="tabs">
@@ -60,7 +71,7 @@
                                 class="mx-auto rounded grade-item"
                                 outlined
                                 v-for="(subject, index) in gradeListFiltered[i]"
-                                :key="index"
+                                :key="`${subject.subject}-${index}`"
                                 :ref="`subject-${subject.subject}-${i}`"
                             >
                                 <div class="subject-summary">
@@ -68,11 +79,11 @@
                                         :rotate="-90"
                                         :size="49"
                                         :width="3"
-                                        :value="subject.weightedGrade"
+                                        :value="subject.summary.overall"
                                         color="primary"
                                         class="float-right ml-3"
                                     >
-                                        {{ subject.weightedGrade }}<span class="text-caption">%</span>
+                                        <span :class="{ 'text-body-2': `${parseFloat(parseFloat(subject.summary.overall).toFixed(1))}`.length > 3 }">{{ parseFloat(parseFloat(subject.summary.overall).toFixed(1)) }}</span><span class="text-caption">%</span>
                                     </v-progress-circular>
                                     <div class="text-truncate">{{ subjectNameMap(subject.subject) === subject.subject ? subject.name : subjectNameMap(subject.subject) }}</div>
                                     <span class="text--disabled text-body-2">
@@ -86,30 +97,52 @@
                                         <v-list-item-content>
                                             <v-list-item-title><v-icon class="mr-1" dense :title="$t('formative')" v-if="!item.summative">mdi-bookmark-off-outline</v-icon>{{ item.name }}</v-list-item-title>
                                             <v-list-item-subtitle>
-                                                <span>
+                                                <span class="mr-2">
                                                     <v-icon small>
                                                         mdi-clock-outline
                                                     </v-icon>
-                                                    {{ getDate(new Date(item.time.replace(' ', 'T'))) }}
+                                                    {{ item.time > -1 ? getDate(new Date(item.time)) : $t('na') }}
                                                 </span>
-                                                <span class="orange--text ml-2" v-if="item.late">LATE</span>
+                                                <v-tooltip top>
+                                                    <template v-slot:activator="{ on, attrs }">
+                                                        <v-icon
+                                                            x-small
+                                                            class="mr-2 copy-icon"
+                                                            v-if="item.tag"
+                                                            v-on="on"
+                                                            v-bind="attrs"
+                                                            @click="copyingIndex = `copy-1-${gradeIndex}`"
+                                                            v-clipboard:copy="item.tag"
+                                                            v-clipboard:success="onCopy"
+                                                            :color="copySuccess && copyingIndex === `copy-1-${gradeIndex}` ? 'success' : ''"
+                                                            :class="{ 'copy-success-icon': copySuccess && copyingIndex === `copy-1-${gradeIndex}` }"
+                                                        >
+                                                            mdi-{{ copySuccess && copyingIndex === `copy-1-${gradeIndex}` ? 'check' : 'tag-outline' }}
+                                                        </v-icon>
+                                                    </template>
+                                                    <span>Git Tag: {{ item.tag }}<br><span class="text--disabled text-caption d-block text-center">{{ $t('copy') }}</span></span>
+                                                </v-tooltip>
+                                                <span class="orange--text" v-if="item.status === 'late' || item.status === 'penalty'">LATE</span>
                                             </v-list-item-subtitle>
                                         </v-list-item-content>
 
-                                        <v-list-item-action class="grade">
+                                        <v-list-item-action class="grade" v-if="item.grade !== '🤞' && item.status !== 'late'">
                                             {{ item.grade }}<span class="text--disabled">/{{ item.gradeAll }}</span>
                                             <v-progress-circular
                                                 :rotate="-90"
                                                 :size="17"
                                                 :width="2.3"
-                                                :value="(parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100"
-                                                :color="getColorByGrade((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100)"
-                                                :title="`${parseFloat(((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100).toFixed(2))}%`"
+                                                :value="item.gradeAll === '0' ? 0 : (parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100"
+                                                :color="getColorByGrade(item.gradeAll === '0' ? 0 : (parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100)"
+                                                :title="item.gradeAll === '0' ? '0%' : `${parseFloat(((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100).toFixed(2))}%`"
                                                 class="ml-2"
                                             ></v-progress-circular>
                                         </v-list-item-action>
+                                        <v-list-item-action class="grade" v-else>
+                                            <span class="text--disabled">{{ $t('waiting') }}</span>
+                                        </v-list-item-action>
                                     </v-list-item>
-                                    <v-list-item class="more-info" @click="(e) => openDetail(index, tabs, e)">
+                                    <v-list-item class="more-info" @click="(e) => openDetail(index, tabs, selectedGradeList, e)">
                                         <v-list-item-content>
                                             <v-list-item-title>{{ $t('more_info') }}</v-list-item-title>
                                         </v-list-item-content>
@@ -143,7 +176,7 @@
                                                 :rotate="-90"
                                                 :size="49"
                                                 :width="3"
-                                                :value="subject.weightedGrade"
+                                                :value="subject.summary.overall"
                                                 color="grey"
                                                 class="float-right ml-3"
                                             >
@@ -176,6 +209,7 @@
                     :width="3"
                     :class="{ 'show-chart': showMainChart }"
                     :value="allGradeNumbers(gradeListFiltered[openedTab][gradeExpended].detail)"
+                    :empty="$t('empty')"
                     :key="`chart-${gradeExpended}-${$vuetify.theme.dark + 1}`"
                 ></chart>
                 <div
@@ -187,11 +221,11 @@
                         :rotate="-90"
                         :size="49"
                         :width="3"
-                        :value="gradeListFiltered[openedTab][gradeExpended].weightedGrade"
+                        :value="gradeListFiltered[openedTab][gradeExpended].summary.overall"
                         color="primary"
                         class="float-right ml-3"
                     >
-                        {{ gradeListFiltered[openedTab][gradeExpended].weightedGrade }}<span class="text-caption">%</span>
+                        <span :class="{ 'text-body-2': `${parseFloat(parseFloat(gradeListFiltered[openedTab][gradeExpended].summary.overall).toFixed(1))}`.length > 3 }">{{ parseFloat(parseFloat(gradeListFiltered[openedTab][gradeExpended].summary.overall).toFixed(1)) }}</span><span class="text-caption">%</span>
                     </v-progress-circular>
                     <div class="text-truncate">{{ subjectNameMap(gradeListFiltered[openedTab][gradeExpended].subject) === gradeListFiltered[openedTab][gradeExpended].subject ? gradeListFiltered[openedTab][gradeExpended].name : subjectNameMap(gradeListFiltered[openedTab][gradeExpended].subject) }}</div>
                     <span class="text--disabled text-body-2">
@@ -213,27 +247,49 @@
                             <v-list-item-content>
                                 <v-list-item-title><v-icon class="mr-1" dense :title="$t('formative')" v-if="!item.summative">mdi-bookmark-off-outline</v-icon>{{ item.name }}</v-list-item-title>
                                 <v-list-item-subtitle>
-                                    <span>
+                                    <span class="mr-2">
                                         <v-icon small>
                                             mdi-clock-outline
                                         </v-icon>
-                                        {{ getDate(new Date(item.time.replace(' ', 'T'))) }}
+                                        {{ item.time > -1 ? getDate(new Date(item.time)) : $t('na') }}
                                     </span>
-                                    <span class="orange--text ml-2" v-if="item.late">LATE</span>
+                                    <v-tooltip top>
+                                        <template v-slot:activator="{ on, attrs }">
+                                            <v-icon
+                                                x-small
+                                                class="mr-2 copy-icon"
+                                                v-if="item.tag"
+                                                v-on="on"
+                                                v-bind="attrs"
+                                                @click="copyingIndex = `copy-2-${gradeIndex}`"
+                                                v-clipboard:copy="item.tag"
+                                                v-clipboard:success="onCopy"
+                                                :color="copySuccess && copyingIndex === `copy-2-${gradeIndex}` ? 'success' : ''"
+                                                :class="{ 'copy-success-icon': copySuccess && copyingIndex === `copy-2-${gradeIndex}` }"
+                                            >
+                                                mdi-{{ copySuccess && copyingIndex === `copy-2-${gradeIndex}` ? 'check' : 'tag-outline' }}
+                                            </v-icon>
+                                        </template>
+                                        <span>Git Tag: {{ item.tag }}<br><span class="text--disabled text-caption d-block text-center">{{ $t('copy') }}</span></span>
+                                    </v-tooltip>
+                                    <span class="orange--text" v-if="item.status === 'late' || item.status === 'penalty'">LATE</span>
                                 </v-list-item-subtitle>
                             </v-list-item-content>
 
-                            <v-list-item-action class="grade">
+                            <v-list-item-action class="grade" v-if="item.grade !== '🤞' && item.status !== 'late'">
                                 {{ item.grade }}<span class="text--disabled">/{{ item.gradeAll }}</span>
                                 <v-progress-circular
                                     :rotate="-90"
                                     :size="17"
                                     :width="2.3"
-                                    :value="(parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100"
-                                    :color="getColorByGrade((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100)"
-                                    :title="`${parseFloat(((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100).toFixed(2))}%`"
+                                    :value="item.gradeAll === '0' ? 0 : (parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100"
+                                    :color="getColorByGrade(item.gradeAll === '0' ? 0 : (parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100)"
+                                    :title="item.gradeAll === '0' ? '0%' : `${parseFloat(((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100).toFixed(2))}%`"
                                     class="ml-2"
                                 ></v-progress-circular>
+                            </v-list-item-action>
+                            <v-list-item-action class="grade" v-else>
+                                <span class="text--disabled">{{ $t('waiting') }}</span>
                             </v-list-item-action>
                         </div>
 
@@ -274,27 +330,49 @@
                                         <v-list-item-content>
                                             <v-list-item-title><v-icon class="mr-1" dense :title="$t('formative')" v-if="!gradeItem.summative">mdi-bookmark-off-outline</v-icon>{{ gradeItem.name }}</v-list-item-title>
                                             <v-list-item-subtitle>
-                                                <span>
+                                                <span class="mr-2">
                                                     <v-icon small>
                                                         mdi-clock-outline
                                                     </v-icon>
-                                                    {{ getDate(new Date(gradeItem.time.replace(' ', 'T'))) }}
+                                                    {{ gradeItem.time > -1 ? getDate(new Date(gradeItem.time)) : $t('na') }}
                                                 </span>
-                                                <span class="orange--text ml-2" v-if="gradeItem.late">LATE</span>
+                                                <v-tooltip top>
+                                                    <template v-slot:activator="{ on, attrs }">
+                                                        <v-icon
+                                                            x-small
+                                                            class="mr-2 copy-icon"
+                                                            v-if="gradeItem.tag"
+                                                            v-on="on"
+                                                            v-bind="attrs"
+                                                            @click="copyingIndex = `copy-3-${gradeItemIndex}`"
+                                                            v-clipboard:copy="gradeItem.tag"
+                                                            v-clipboard:success="onCopy"
+                                                            :color="copySuccess && copyingIndex === `copy-3-${gradeItemIndex}` ? 'success' : ''"
+                                                            :class="{ 'copy-success-icon': copySuccess && copyingIndex === `copy-3-${gradeItemIndex}` }"
+                                                        >
+                                                            mdi-{{ copySuccess && copyingIndex === `copy-3-${gradeItemIndex}` ? 'check' : 'tag-outline' }}
+                                                        </v-icon>
+                                                    </template>
+                                                    <span>Git Tag: {{ gradeItem.tag }}<br><span class="text--disabled text-caption d-block text-center">{{ $t('copy') }}</span></span>
+                                                </v-tooltip>
+                                                <span class="orange--text" v-if="gradeItem.status === 'late' || gradeItem.status === 'penalty'">LATE</span>
                                             </v-list-item-subtitle>
                                         </v-list-item-content>
 
-                                        <v-list-item-action class="grade">
+                                        <v-list-item-action class="grade" v-if="gradeItem.grade !== '🤞' && item.status !== 'late'">
                                             {{ gradeItem.grade }}<span class="text--disabled">/{{ gradeItem.gradeAll }}</span>
                                             <v-progress-circular
                                                 :rotate="-90"
                                                 :size="17"
                                                 :width="2.3"
-                                                :value="(parseFloat(gradeItem.grade) / parseFloat(gradeItem.gradeAll)) * 100"
-                                                :color="getColorByGrade((parseFloat(gradeItem.grade) / parseFloat(gradeItem.gradeAll)) * 100)"
-                                                :title="`${parseFloat(((parseFloat(gradeItem.grade) / parseFloat(gradeItem.gradeAll)) * 100).toFixed(2))}%`"
+                                                :value="gradeItem.gradeAll === '0' ? 0 : (parseFloat(gradeItem.grade) / parseFloat(gradeItem.gradeAll)) * 100"
+                                                :color="getColorByGrade(gradeItem.gradeAll === '0' ? 0 : (parseFloat(gradeItem.grade) / parseFloat(gradeItem.gradeAll)) * 100)"
+                                                :title="gradeItem.gradeAll === '0' ? '0%' : `${parseFloat(((parseFloat(gradeItem.grade) / parseFloat(gradeItem.gradeAll)) * 100).toFixed(2))}%`"
                                                 class="ml-2"
                                             ></v-progress-circular>
+                                        </v-list-item-action>
+                                        <v-list-item-action class="grade" v-else>
+                                            <span class="text--disabled">{{ $t('waiting') }}</span>
                                         </v-list-item-action>
                                     </div>
                                 </v-list-item>
@@ -314,9 +392,10 @@ import chart from '@/components/chart.vue';
 
 import checkResponse from '@/mixins/checkResponse';
 import scroll from '@/mixins/scroll';
+import clipboard from '@/mixins/clipboard';
 
 import betterFetch from '@/tools/betterFetch';
-import formatDate from '@/tools/formatDate';
+import formatDateTime from '@/tools/formatDateTime';
 
 export default {
     name: 'grade',
@@ -326,15 +405,15 @@ export default {
     props: {
         searchid: Number,
     },
-    mixins: [checkResponse, scroll],
+    mixins: [checkResponse, scroll, clipboard],
     data() {
         return {
             loading: false,
             init: false,
             timer: null,
-            gradeList: [],
+            allGrades: [],
+            selectedGradeList: '',
             moreShown: [],
-            yearList: [],
             gradeExpended: -1,
             openedTab: -1,
             tabs: 0,
@@ -355,6 +434,7 @@ export default {
             listOverflow: false,
             expendingSubTree: [],
             subRefreshKey: 0,
+            blackboardUpdated: 0,
         };
     },
     methods: {
@@ -363,13 +443,12 @@ export default {
          */
         async updateGrade(tryCount = 1) {
             if (!this.backend.url || !this.account.username || !this.account.password) {
-                this.$store.commit('setAttendance', false);
                 return;
             }
             this.loading = true;
             let requestFailed = false;
             // Send request
-            const response = await betterFetch(`https://${this.backend.url}/grade_attendance/`, {
+            const response = await betterFetch(`https://${this.backend.url}/grade/`, {
                 method: 'POST',
                 body: JSON.stringify({
                     username: this.account.username,
@@ -385,7 +464,6 @@ export default {
                 } else {
                     // Network error
                     this.loading = false;
-                    this.$store.commit('setAttendance', false);
                     this.$store.commit('addError', {
                         title: this.$t('network_error'),
                         content: this.$t('network_error_body'),
@@ -402,11 +480,10 @@ export default {
             // Check response
             if (!this.checkResponse(response)) {
                 this.loading = false;
-                this.$store.commit('setAttendance', false);
                 return;
             }
 
-            if (!response.data.grade) {
+            if (!response.data.blackboardUpdated || !response.data.data) {
                 // Not a valid UoM Assistant backend
                 if (this.backendStatus) {
                     this.$store.commit('addError', {
@@ -417,26 +494,15 @@ export default {
                     this.$store.commit('setBackendStatus', false);
                 }
                 this.loading = false;
-                this.$store.commit('setAttendance', false);
-                return;
-            }
-
-            if (response.data.attendance === false) {
-                // Cannnot login
-                this.$store.commit('addError', {
-                    title: this.$t('request_error'),
-                    content: 'Unable to login',
-                    type: 'error',
-                });
-                this.loading = false;
-                this.$store.commit('setAttendance', false);
                 return;
             }
 
             // Update data
             this.$store.commit('setBackendStatus', true);
             this.loading = false;
-            this.gradeList = response.data.grade;
+            this.blackboardUpdated = response.data.blackboardUpdated;
+            this.allGrades = response.data.data;
+            this.selectedGradeList = this.selectedGradeList === '' ? response.data.data[response.data.data.length - 1].year : this.selectedGradeList;
 
             if (!this.init) {
                 // Find the last item with non-empty courses
@@ -450,7 +516,6 @@ export default {
 
             this.init = true;
 
-            this.$store.commit('setAttendance', response.data.attendance);
             this.$nextTick(() => {
                 this.relocate();
             });
@@ -522,7 +587,7 @@ export default {
          * @returns {string} formatted a date string
          */
         getDate(dateObj) {
-            return formatDate(dateObj, this.locale, window.uomaTimeFormatters, false);
+            return formatDateTime(dateObj, this.locale, window.uomaTimeFormatters, false);
         },
         /**
          * Update layout after animation
@@ -538,7 +603,7 @@ export default {
          * @returns {array} a grade list that conatins latest 2 grade items
          */
         latestTwo(grades) {
-            const sortedList = grades.flat().sort((a, b) => ((new Date(b.time.replace(' ', 'T')).valueOf() - new Date(a.time.replace(' ', 'T')).valueOf()) <= 0 ? -1 : 1));
+            const sortedList = grades.flat().filter((grade) => grade.status !== 'upcoming').sort((a, b) => a.time - b.time).reverse();
             if (sortedList.length <= 2) {
                 return sortedList;
             }
@@ -550,7 +615,7 @@ export default {
          * @returns {array} a grade list that conatins latest 2 grade items
          */
         allGradeNumbers(grades) {
-            return grades.flat().map((item) => (parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100);
+            return grades.flat().filter((grade) => (grade.status === 'past' || grade.status === 'penalty') && grade.grade !== '🤞').sort((a, b) => a.time - b.time).map((item) => (parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100);
         },
         /**
          * Fet grade color by grade
@@ -570,10 +635,15 @@ export default {
          * Open a layer to show details of a subject
          * @param {number} index subject index
          * @param {number} tab tab index
+         * @param {string} year year name
          * @param {Event} e click event
          */
-        openDetail(index, tab, e, selected = false) {
+        async openDetail(index, tab, year, e, selected = false) {
             // Set size for detail layer
+            if (this.selectedGradeList !== year) {
+                this.selectedGradeList = year;
+                await this.$nextTick();
+            }
             const ele = selected ? e[0].$el : e.target.closest('.grade-item') || e.target;
             this.detailLayer.top = ele.offsetTop - this.$refs[`list${tab}`][0].scrollTop + 95;
             this.detailLayer.left = 20;
@@ -617,9 +687,9 @@ export default {
          * @param {number} tab tab index
          * @param {string} subject course ID
          */
-        openDetailFromSearch(index, tab, subject) {
+        openDetailFromSearch(index, tab, year, subject) {
             if (tab === this.tabs) {
-                this.openDetail(index, tab, this.$refs[`subject-${subject}-${tab}`], true);
+                this.openDetail(index, tab, year, this.$refs[`subject-${subject}-${tab}`], true);
             } else {
                 // Different tab
                 if (this.listOverflow) {
@@ -629,7 +699,7 @@ export default {
                         this.tabs = tab;
                         this.$nextTick(() => {
                             setTimeout(() => {
-                                this.openDetail(index, tab, this.$refs[`subject-${subject}-${tab}`], true);
+                                this.openDetail(index, tab, year, this.$refs[`subject-${subject}-${tab}`], true);
                             }, 300);
                         });
                     }, 600);
@@ -637,7 +707,7 @@ export default {
                     this.tabs = tab;
                     this.$nextTick(() => {
                         setTimeout(() => {
-                            this.openDetail(index, tab, this.$refs[`subject-${subject}-${tab}`], true);
+                            this.openDetail(index, tab, year, this.$refs[`subject-${subject}-${tab}`], true);
                         }, 300);
                     });
                 }
@@ -688,7 +758,7 @@ export default {
             }
 
             // Sort by date
-            return newList.sort((a, b) => {
+            return newList.filter((grade) => grade.status !== 'upcoming' || Array.isArray(grade)).sort((a, b) => {
                 let targetA = a;
                 let targetB = b;
                 if (Array.isArray(a)) {
@@ -697,8 +767,8 @@ export default {
                 if (Array.isArray(b)) {
                     targetB = b[b.length - 1];
                 }
-                return (new Date(targetB.time.replace(' ', 'T')).valueOf() - new Date(targetA.time.replace(' ', 'T')).valueOf()) <= 0 ? -1 : 1;
-            });
+                return targetA.time - targetB.time;
+            }).reverse();
         },
         /**
          * Expend a subtree in detail layer by index
@@ -718,9 +788,11 @@ export default {
         },
         init() {
             // Layout
-            this.$nextTick(() => {
-                this.packery.shiftLayout();
-            });
+            this.relocate();
+        },
+        selectedGradeList() {
+            this.moreShown = [];
+            this.relocate();
         },
         moreShown() {
             // Layout
@@ -734,7 +806,7 @@ export default {
                 this.relocate();
             }, 600);
         },
-        gradeList() {
+        allGrades() {
             // Commit search index
             this.$store.commit('setSearchIndex', {
                 id: this.searchid,
@@ -749,7 +821,7 @@ export default {
         searchNotification() {
             // Handle search actions
             if (this.searchNotification.target === 'grade') {
-                this.openDetailFromSearch(this.searchNotification.payload.index, this.searchNotification.payload.tab, this.searchNotification.payload.subject);
+                this.openDetailFromSearch(this.searchNotification.payload.index, this.searchNotification.payload.tab, this.searchNotification.payload.year, this.searchNotification.payload.subject);
             }
         },
     },
@@ -763,11 +835,17 @@ export default {
             subjects: (state) => state.subjects,
             searchNotification: (state) => state.searchNotification,
         }),
+        yearList() {
+            return this.allGrades.map((year) => year.year);
+        },
+        gradeList() {
+            return (this.allGrades.find((item) => item.year === this.selectedGradeList) || { grade: [] }).grade;
+        },
         gradeListFiltered() {
             // Filter out empty subjects
             const result = [];
             for (const semester of this.gradeList) {
-                result.push(semester.data.filter((item) => (item.weightedGrade !== '0' || item.detail.length !== 0)));
+                result.push(semester.data.filter((item) => ((item.summary !== false && item.summary.overall !== '0') || item.detail.flat().filter((grade) => grade.status !== 'upcoming').length !== 0)));
             }
             return result;
         },
@@ -783,49 +861,61 @@ export default {
             // Filter out non-empty subjects
             const result = [];
             for (const semester of this.gradeList) {
-                result.push(semester.data.filter((item) => (item.weightedGrade === '0' && item.detail.length === 0)));
+                result.push(semester.data.filter((item) => ((item.summary === false || item.summary.overall === '0') && item.detail.flat().filter((grade) => grade.status !== 'upcoming').length === 0)));
             }
             return result;
         },
         searchIndexMap() {
             // Build subject index
-            const flatedList = [];
-            for (let i = 0; i < this.gradeListFiltered.length; i += 1) {
-                let index = 0;
-                for (const item of this.gradeListFiltered[i]) {
-                    const itemCopy = { ...item };
-                    itemCopy.indexName = this.gradeList[i].name;
-                    itemCopy.tabIndex = i;
-                    itemCopy.rawIndex = index;
-                    flatedList.push(itemCopy);
-                    index += 1;
+            let result = [];
+            for (const year of this.allGrades) {
+                const flatedList = [];
+                const gradeList = year.grade;
+                const gradeListFiltered = [];
+                for (const semester of gradeList) {
+                    gradeListFiltered.push(semester.data.filter((item) => ((item.summary !== false && item.summary.overall !== '0') || item.detail.flat().filter((grade) => grade.status !== 'upcoming').length !== 0)));
                 }
-            }
 
-            let newList = [];
-            for (let i = 0; i < flatedList.length; i += 1) {
-                newList.push(flatedList[i]);
-                newList[i].searchType = 'subject';
-                newList[i].searchId = `subject-${newList[i].name}${i}-${newList[i].indexName}`;
-            }
-
-            // Build coursework grade index
-            let courseworks = [];
-            for (const subject of newList) {
-                const newDetailList = subject.detail.flat().sort((a, b) => ((new Date(b.time.replace(' ', 'T')).valueOf() - new Date(a.time.replace(' ', 'T')).valueOf()) <= 0 ? -1 : 1));
-                let index = 0;
-                for (const item of newDetailList) {
-                    item.searchType = 'grade';
-                    item.indexName = subject.indexName;
-                    item.subject = subject.subject;
-                    item.searchId = `coursework-${item.name}${index}-${subject.indexName}`;
-                    index += 1;
+                for (let i = 0; i < gradeListFiltered.length; i += 1) {
+                    let index = 0;
+                    for (const item of gradeListFiltered[i]) {
+                        const itemCopy = { ...item };
+                        itemCopy.indexName = gradeList[i].name;
+                        itemCopy.tabIndex = i;
+                        itemCopy.year = year.year;
+                        itemCopy.rawIndex = index;
+                        flatedList.push(itemCopy);
+                        index += 1;
+                    }
                 }
-                courseworks = courseworks.concat(newDetailList);
-            }
 
-            newList = newList.concat(courseworks);
-            return newList;
+                let newList = [];
+                for (let i = 0; i < flatedList.length; i += 1) {
+                    newList.push(flatedList[i]);
+                    newList[i].searchType = 'subject';
+                    newList[i].searchId = `subject-${newList[i].name}${i}-${newList[i].indexName}`;
+                }
+
+                // Build coursework grade index
+                let courseworks = [];
+                for (const subject of newList) {
+                    const newDetailList = subject.detail.flat().filter((grade) => grade.status !== 'upcoming').sort((a, b) => a.time - b.time).reverse();
+                    let index = 0;
+                    for (const item of newDetailList) {
+                        item.searchType = 'grade';
+                        item.indexName = subject.indexName;
+                        item.year = year.year;
+                        item.subject = subject.subject;
+                        item.searchId = `coursework-${item.name}${index}-${subject.indexName}`;
+                        index += 1;
+                    }
+                    courseworks = courseworks.concat(newDetailList);
+                }
+
+                newList = newList.concat(courseworks);
+                result = result.concat(newList);
+            }
+            return result;
         },
     },
     mounted() {
@@ -864,6 +954,9 @@ export default {
         top: 22px;
         right: 110px;
         z-index: 10;
+        &.corner {
+            right: 22px;
+        }
     }
     h2 {
         position: relative;
@@ -976,6 +1069,15 @@ export default {
         .v-list-item__action {
             margin: 6px 16px 6px 0;
         }
+        .copy-icon {
+            transition: none;
+        }
+        .copy-success-icon {
+            margin-left: 3px;
+            margin-right: 5px!important;
+            transform: translateX(-3px);
+            transition: margin-left .2s, margin-right .2s;
+        }
         .grade {
             margin: 0 0 0 5px;
             justify-content: end;
@@ -1069,7 +1171,8 @@ export default {
             }
         }
         .main-chart {
-            margin-top: calc(-32.2% + 13px);
+            margin-top: calc(-32.2% + 5px);
+            margin-bottom: 8px;
             transition: all .5s .1s cubic-bezier(0.77, 0, 0.175, 1);
             &.show-chart {
                 margin-top: 50px;
@@ -1213,51 +1316,77 @@ export default {
     "en": {
         "grade": "Grade Summary",
         "nothing": "No grade data yet",
-        "network_error_body": "Cannot fetch latest grade and attendance data from backend",
+        "network_error_body": "Cannot fetch latest grade data from backend",
         "cannot_fetch": "Unable to obtain grade data, the backend information might not be properly configured or the backend does not allow this.",
         "learn_more": "Learn more",
         "empty_subject": "Course unit with no grade data",
         "more_info": "More",
         "etc": "etc.",
         "total": "{0} total",
-        "formative": "Formative"
+        "formative": "Formative",
+        "Semester 1": "Semester 1",
+        "Semester 2": "Semester 2",
+        "All Year": "All Year",
+        "waiting": "Marking",
+        "na": "N/A",
+        "empty": "No data",
+        "copy": "Click to copy"
     },
     "zh": {
         "grade": "成绩概览",
         "nothing": "还没有成绩信息",
-        "network_error_body": "无法从后端获取最新成绩和出勤信息",
+        "network_error_body": "无法从后端获取最新成绩信息",
         "cannot_fetch": "无法获取成绩信息，可能是没有正确配置后端信息或后端不允许。",
         "learn_more": "了解更多",
         "empty_subject": "暂无成绩信息的课程",
         "more_info": "更多",
         "etc": "等",
         "total": "共 {0} 项",
-        "formative": "不计入总分"
+        "formative": "不计分作业",
+        "Semester 1": "第一学期",
+        "Semester 2": "第二学期",
+        "All Year": "全年",
+        "waiting": "待评分",
+        "na": "未知",
+        "empty": "无数据",
+        "copy": "点按以复制"
     },
     "es": {
         "grade": "Resumen de notas",
         "nothing": "No hay nada todavía",
-        "network_error_body": "No ha sido posible obtener las últimas notas y datos de asistencias desde el servidor back-end",
+        "network_error_body": "",
         "cannot_fetch": "No ha sido posible obtener los datos de las notas, puede ser debido a que los datos de back-end no estén correctamente configurado o por falta de permisión.",
         "learn_more": "Saber más",
         "empty_subject": "Asignatura sin calificaciones todavía",
         "more_info": "Más",
         "etc": "etc.",
         "total": "{0} en total",
-        "formative": "Formativa"
+        "formative": "Formativa",
+        "Semester 1": "",
+        "Semester 2": "",
+        "All Year": "",
+        "waiting": "",
+        "na": "N/A",
+        "empty": ""
     },
     "ja":
     {
         "grade": "成績概要",
         "nothing": "まだ成績情報がありません",
-        "network_error_body": "バックエンドから最新成績情報と出席情報を取得できません。",
+        "network_error_body": "",
         "cannot_fetch": "成績情報を取得できません。バックエンドの情報が正しく設定されていないか、バックエンドが許可していない可能性があります。",
         "learn_more": "もっと詳しく",
         "empty_subject": "まだ成績情報がありない科目",
         "more_info": "詳細",
         "etc": "等々",
         "total": "合計 {0} 件",
-        "formative": "最終の総得点に計上されません"
+        "formative": "",
+        "Semester 1": "",
+        "Semester 2": "",
+        "All Year": "",
+        "waiting": "",
+        "na": "",
+        "empty": ""
     }
 }
 </i18n>

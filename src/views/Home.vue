@@ -395,7 +395,7 @@ export default {
          * Check whether the event needs to be checked in
          */
         needsCheckin(eventName, courseName) {
-            if (!eventName.includes('/') || eventName.includes('/LAB')) {
+            if (!eventName.includes('/')) {
                 return null;
             }
             return {

@@ -1072,6 +1072,7 @@ export default {
 .event-card-container {
     overflow-x: auto;
     background-color: white;
+    min-width: fit-content!important;
     .event-card {
         width: fit-content;
         max-width: fit-content;
@@ -1130,6 +1131,7 @@ export default {
         }
         .v-card__text {
             width: fit-content;
+            min-width: 350px;
             pre {
                 font-family: Roboto, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif;
             }

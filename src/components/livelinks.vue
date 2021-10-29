@@ -13,7 +13,7 @@
         ></v-progress-circular>
         <div class="livelinks-outer">
             <h2 class="handle">{{ $t('live_links') }}</h2>
-            <v-tabs @change="relocate" show-arrows v-if="shownSubjects.length > 0">
+            <v-tabs @change="relocate" show-arrows class="pt-1" height="44" v-if="shownSubjects.length > 0">
                 <v-tab
                     v-for="(item, index) in shownSubjects"
                     :key="`${index}`"

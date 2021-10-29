@@ -40,7 +40,7 @@ if (UOMA_RATE_LIMIT) {
         $rateLimiter = new RedisRateLimiter($redis);
 
         $apiKey = 'get-mail-translatior-'.$data['email'];
-    
+
         try {
             $rateLimiter->limit($apiKey, Rate::custom(30, 30));
         } catch (LimitExceeded $exception) {
@@ -58,7 +58,7 @@ if (!isset($data['email']) || !validate_data('email', $data['email'])) {
 
 $translator = false;
 
-if (!UOMA_CONFIG['allow_mail_translator'] || !UOMA_CONFIG['mail_translator_config'] || (UOMA_CONFIG['mail_translator_config']['service'] !== 'deepl' && UOMA_CONFIG['mail_translator_config']['service'] !== 'azure' && UOMA_CONFIG['mail_translator_config']['service'] !== 'google') || (UOMA_CONFIG['mail_translator_config']['service'] === 'azure' && UOMA_CONFIG['mail_translator_config']['service'] === 'region') || UOMA_CONFIG['mail_translator_config']['gateway'] === '' || UOMA_CONFIG['mail_translator_config']['token'] === '') {
+if (!UOMA_CONFIG['allow_mail_translator'] || !UOMA_CONFIG['mail_translator_config'] || (UOMA_CONFIG['mail_translator_config']['service'] !== 'deepl' && UOMA_CONFIG['mail_translator_config']['service'] !== 'azure' && UOMA_CONFIG['mail_translator_config']['service'] !== 'google') || (UOMA_CONFIG['mail_translator_config']['service'] === 'azure' && UOMA_CONFIG['mail_translator_config']['region'] === '') || UOMA_CONFIG['mail_translator_config']['gateway'] === '' || UOMA_CONFIG['mail_translator_config']['token'] === '') {
     $translator = false;
 } else {
     $translator = UOMA_CONFIG['mail_translator_config']['service'];

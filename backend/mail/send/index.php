@@ -48,7 +48,7 @@ if (UOMA_RATE_LIMIT) {
         $rateLimiter = new RedisRateLimiter($redis);
 
         $apiKey = 'send-mail-'.$user['email'];
-    
+
         try {
             $rateLimiter->limit($apiKey, Rate::custom(2, 30));
         } catch (LimitExceeded $exception) {

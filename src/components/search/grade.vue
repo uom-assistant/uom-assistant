@@ -11,16 +11,16 @@
                     :rotate="-90"
                     :size="49"
                     :width="3"
-                    :value="subject.weightedGrade"
+                    :value="subject.summary.overall"
                     color="primary"
                     class="float-right ml-3"
                 >
-                    {{ subject.weightedGrade }}<span class="text-caption">%</span>
+                    <span :class="{ 'text-body-2': `${parseFloat(parseFloat(subject.summary.overall).toFixed(1))}`.length > 3 }">{{ parseFloat(parseFloat(subject.summary.overall).toFixed(1)) }}</span><span class="text-caption">%</span>
                 </v-progress-circular>
                 <div class="text-truncate">{{ subjectLongNameMap(subject.subject) === subject.subject ? subject.name : subjectLongNameMap(subject.subject) }}</div>
                 <span class="text--disabled text-body-2">
                     <span :class="subjectColor(subject.subject)" class="subject-color-samll" v-if="subjectLongNameMap(subject.subject) !== subject.subject"></span>
-                    {{ subject.subject }} <span class="d-inline-block mx-1">•</span> {{ subject.indexName }}
+                    {{ subject.subject }} <span class="d-inline-block mx-1">•</span> {{ subject.year }} {{ $t(subject.indexName) }}
                 </span>
             </div>
             <v-divider class="mb-2"></v-divider>
@@ -29,30 +29,52 @@
                     <v-list-item-content>
                         <v-list-item-title><v-icon class="mr-1" dense :title="$t('formative')" v-if="!item.summative">mdi-bookmark-off-outline</v-icon>{{ item.name }}</v-list-item-title>
                         <v-list-item-subtitle>
-                            <span>
+                            <span class="mr-2">
                                 <v-icon small>
                                     mdi-clock-outline
                                 </v-icon>
-                                {{ getDate(new Date(item.time.replace(' ', 'T'))) }}
+                                {{ item.time > -1 ? getDate(new Date(item.time)) : $t('na') }}
                             </span>
-                            <span class="orange--text ml-2" v-if="item.late">LATE</span>
+                            <v-tooltip top>
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-icon
+                                        x-small
+                                        class="mr-2 copy-icon"
+                                        v-if="item.tag"
+                                        v-on="on"
+                                        v-bind="attrs"
+                                        @click="copyingIndex = `copy-1-${gradeIndex}`"
+                                        v-clipboard:copy="item.tag"
+                                        v-clipboard:success="onCopy"
+                                        :color="copySuccess && copyingIndex === `copy-1-${gradeIndex}` ? 'success' : ''"
+                                        :class="{ 'copy-success-icon': copySuccess && copyingIndex === `copy-1-${gradeIndex}` }"
+                                    >
+                                        mdi-{{ copySuccess && copyingIndex === `copy-1-${gradeIndex}` ? 'check' : 'tag-outline' }}
+                                    </v-icon>
+                                </template>
+                                <span>Git Tag: {{ item.tag }}<br><span class="text--disabled text-caption d-block text-center">{{ $t('copy') }}</span></span>
+                            </v-tooltip>
+                            <span class="orange--text" v-if="item.status === 'late' || item.status === 'penalty'">LATE</span>
                         </v-list-item-subtitle>
                     </v-list-item-content>
 
-                    <v-list-item-action class="grade">
+                    <v-list-item-action class="grade" v-if="item.grade !== '🤞' && item.status !== 'late'">
                         {{ item.grade }}<span class="text--disabled">/{{ item.gradeAll }}</span>
                         <v-progress-circular
                             :rotate="-90"
                             :size="17"
                             :width="2.3"
-                            :value="(parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100"
-                            :color="getColorByGrade((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100)"
-                            :title="`${parseFloat(((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100).toFixed(2))}%`"
+                            :value="item.gradeAll === '0' ? 0 : (parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100"
+                            :color="getColorByGrade(item.gradeAll === '0' ? 0 : (parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100)"
+                            :title="item.gradeAll === '0' ? 0 : `${parseFloat(((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100).toFixed(2))}%`"
                             class="ml-2"
                         ></v-progress-circular>
                     </v-list-item-action>
+                    <v-list-item-action class="grade" v-else>
+                        <span class="text--disabled">{{ $t('waiting') }}</span>
+                    </v-list-item-action>
                 </v-list-item>
-                <v-list-item class="more-info" @click="openSubject(subject.rawIndex, subject.tabIndex, subject.subject)">
+                <v-list-item class="more-info" @click="openSubject(subject.rawIndex, subject.tabIndex, subject.year, subject.subject)">
                     <v-list-item-content>
                         <v-list-item-title>{{ $t('more_info') }}</v-list-item-title>
                     </v-list-item-content>
@@ -79,27 +101,49 @@
                                 <v-icon small>
                                     mdi-clock-outline
                                 </v-icon>
-                                {{ getDate(new Date(item.time.replace(' ', 'T'))) }}
+                                {{ item.time > -1 ? getDate(new Date(item.time)) : $t('na') }}
                             </span>
-                            <span>
+                            <v-tooltip top>
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-icon
+                                        x-small
+                                        class="mr-2 copy-icon"
+                                        v-if="item.tag"
+                                        v-on="on"
+                                        v-bind="attrs"
+                                        @click="copyingIndex = `copy-1-${gradeIndex}`"
+                                        v-clipboard:copy="item.tag"
+                                        v-clipboard:success="onCopy"
+                                        :color="copySuccess && copyingIndex === `copy-1-${gradeIndex}` ? 'success' : ''"
+                                        :class="{ 'copy-success-icon': copySuccess && copyingIndex === `copy-1-${gradeIndex}` }"
+                                    >
+                                        mdi-{{ copySuccess && copyingIndex === `copy-1-${gradeIndex}` ? 'check' : 'tag-outline' }}
+                                    </v-icon>
+                                </template>
+                                <span>Git Tag: {{ item.tag }}<br><span class="text--disabled text-caption d-block text-center">{{ $t('copy') }}</span></span>
+                            </v-tooltip>
+                            <span class="mr-2">
                                 <span :class="subjectColor(item.subject)" class="subject-color-samll" v-if="subjectNameMap(item.subject) !== item.subject"></span>
-                                {{ subjectNameMap(item.subject) }} <span class="d-inline-block mx-1">•</span> {{ item.indexName }}
+                                {{ subjectNameMap(item.subject) }} <span class="d-inline-block mx-1">•</span> {{ item.year }} {{ $t(item.indexName) }}
                             </span>
-                            <span class="orange--text ml-2" v-if="item.late">LATE</span>
+                            <span class="orange--text" v-if="item.status === 'late' || item.status === 'penalty'">LATE</span>
                         </v-list-item-subtitle>
                     </v-list-item-content>
 
-                    <v-list-item-action class="grade">
+                    <v-list-item-action class="grade" v-if="item.grade !== '🤞' && item.status !== 'late'">
                         {{ item.grade }}<span class="text--disabled">/{{ item.gradeAll }}</span>
                         <v-progress-circular
                             :rotate="-90"
                             :size="17"
                             :width="2.3"
-                            :value="(parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100"
-                            :color="getColorByGrade((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100)"
-                            :title="`${parseFloat(((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100).toFixed(2))}%`"
+                            :value="item.gradeAll === '0' ? 0 : (parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100"
+                            :color="getColorByGrade(item.gradeAll === '0' ? 0 : (parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100)"
+                            :title="item.gradeAll === '0' ? 0 : `${parseFloat(((parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100).toFixed(2))}%`"
                             class="ml-2"
                         ></v-progress-circular>
+                    </v-list-item-action>
+                    <v-list-item-action class="grade" v-else>
+                        <span class="text--disabled">{{ $t('waiting') }}</span>
                     </v-list-item-action>
                 </v-list-item>
             </v-list>
@@ -110,6 +154,8 @@
 <script>
 import { mapState } from 'vuex';
 
+import clipboard from '@/mixins/clipboard';
+
 import formatDate from '@/tools/formatDate';
 
 export default {
@@ -117,6 +163,7 @@ export default {
     props: {
         grades: Array,
     },
+    mixins: [clipboard],
     methods: {
         /**
          * Map from subject ID to subject color
@@ -182,7 +229,7 @@ export default {
          * @returns {array} a grade list that conatins latest 2 grade items
          */
         latestTwo(grades) {
-            const sortedList = grades.flat().sort((a, b) => ((new Date(b.time.replace(' ', 'T')).valueOf() - new Date(a.time.replace(' ', 'T')).valueOf()) <= 0 ? -1 : 1));
+            const sortedList = grades.flat().filter((grade) => grade.status === 'past' || grade.status === 'late' || grade.status === 'penalty').sort((a, b) => a.time - b.time).reverse();
             if (sortedList.length <= 2) {
                 return sortedList;
             }
@@ -208,10 +255,15 @@ export default {
          * @param {number} tab tab index
          * @param {string} subject subject ID
          */
-        openSubject(index, tab, subject) {
+        openSubject(index, tab, year, subject) {
             this.$store.commit('setSearchNotification', {
                 target: 'grade',
-                payload: { index, tab, subject },
+                payload: {
+                    index,
+                    tab,
+                    year,
+                    subject,
+                },
             });
             this.$parent.$parent.searchOpened = false;
         },
@@ -271,6 +323,15 @@ export default {
         padding-top: 0;
         padding-bottom: 0;
         background-color: transparent!important;
+        .copy-icon {
+            transition: none;
+        }
+        .copy-success-icon {
+            margin-left: 3px;
+            margin-right: 5px!important;
+            transform: translateX(-3px);
+            transition: margin-left .2s, margin-right .2s;
+        }
         .v-list-item__action {
             margin: 6px 16px 6px 0;
         }
@@ -352,19 +413,43 @@ export default {
 {
     "en": {
         "more_info": "View course unit",
-        "formative": "Formative"
+        "formative": "Formative",
+        "Semester 1": "Semester 1",
+        "Semester 2": "Semester 2",
+        "All Year": "All Year",
+        "waiting": "Marking",
+        "na": "N/A",
+        "copy": "Click to copy"
     },
     "zh": {
         "more_info": "查看科目",
-        "formative": "不计入总分"
+        "formative": "不计分作业",
+        "Semester 1": "第一学期",
+        "Semester 2": "第二学期",
+        "All Year": "全年",
+        "waiting": "待评分",
+        "na": "未知",
+        "copy": "点按以复制"
     },
     "es": {
         "more_info": "Ver asignatura",
-        "formative": "Formativo"
+        "formative": "Formativo",
+        "Semester 1": "",
+        "Semester 2": "",
+        "All Year": "",
+        "waiting": "",
+        "na": "N/A",
+        "copy": ""
     },
     "ja": {
         "more_info": "この科目を表示",
-        "formative": "最終の総得点に計上されません"
+        "formative": "",
+        "Semester 1": "",
+        "Semester 2": "",
+        "All Year": "",
+        "waiting": "",
+        "na": "",
+        "copy": ""
     }
 }
 </i18n>

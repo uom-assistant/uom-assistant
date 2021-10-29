@@ -3,7 +3,7 @@
  * UoM Assistant Backend Project 0.1.0
  * By Axton and other contributors
  * Open sourced under GPL v3.0 license
- * 
+ *
  * Copyright 2021 Axton
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -48,9 +48,6 @@ define('UOMA_DATABASE', array(
 define('UOMA_CONFIG', array(
     // If true, users can access to widgets like grade overview, attendance and mail which need an UoM account
     'allow_account' => false,
-
-    // If true, users can sync settings and data between devices through this backend instance using their UoM accounts (which means this backend instance will store UoM account informations except UoM passwords)
-    'allow_sync' => false,
 
     // Allow all users to connect to this backend instance even they don't hava a valid token
     'allow_unauthenticated' => false,

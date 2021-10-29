@@ -15,7 +15,7 @@ if (UOMA_RATE_LIMIT) {
         $rateLimiter = new RedisRateLimiter($redis);
 
         $apiKey = 'general-'.$user_ip;
-    
+
         try {
             $rateLimiter->limit($apiKey, Rate::perMinute(40));
         } catch (LimitExceeded $exception) {

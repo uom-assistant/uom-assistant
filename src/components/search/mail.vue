@@ -239,24 +239,6 @@ export default {
         timerMin() {
             this.keyMin = `key-min-${new Date().valueOf()}`;
         },
-        searchNotification() {
-            // Handle search actions
-            if (this.searchNotification.target === 'mailSearch') {
-                const targetMail = this.mailsCopy.findIndex((mail) => mail.id === this.searchNotification.payload.id);
-                if (targetMail === -1) {
-                    return;
-                }
-                if (this.searchNotification.payload.action === 'seen') {
-                    this.mailsCopy[targetMail].unseen = false;
-                }
-                if (this.searchNotification.payload.action === 'flag') {
-                    this.mailsCopy[targetMail].flagged = true;
-                }
-                if (this.searchNotification.payload.action === 'unflag') {
-                    this.mailsCopy[targetMail].flagged = false;
-                }
-            }
-        },
         mails() {
             this.mailsCopy = this.mails;
         },

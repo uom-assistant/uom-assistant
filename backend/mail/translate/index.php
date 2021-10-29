@@ -32,7 +32,7 @@ if (!UOMA_CONFIG['allow_unauthenticated']) {
 } else if (!UOMA_CONFIG['allow_mail_translator']) {
     // Don't allow
     rest_die('Feature not allowed.', $conn);
-} else if (!UOMA_CONFIG['mail_translator_config'] || (UOMA_CONFIG['mail_translator_config']['service'] !== 'deepl' && UOMA_CONFIG['mail_translator_config']['service'] !== 'azure' && UOMA_CONFIG['mail_translator_config']['service'] !== 'google') || (UOMA_CONFIG['mail_translator_config']['service'] === 'azure' && UOMA_CONFIG['mail_translator_config']['service'] === 'region') || UOMA_CONFIG['mail_translator_config']['gateway'] === '' || UOMA_CONFIG['mail_translator_config']['token'] === '') {
+} else if (!UOMA_CONFIG['mail_translator_config'] || (UOMA_CONFIG['mail_translator_config']['service'] !== 'deepl' && UOMA_CONFIG['mail_translator_config']['service'] !== 'azure' && UOMA_CONFIG['mail_translator_config']['service'] !== 'google') || (UOMA_CONFIG['mail_translator_config']['service'] === 'azure' && UOMA_CONFIG['mail_translator_config']['region'] === '') || UOMA_CONFIG['mail_translator_config']['gateway'] === '' || UOMA_CONFIG['mail_translator_config']['token'] === '') {
     // Don't allow
     rest_die('Feature not allowed.', $conn);
 }
@@ -46,7 +46,7 @@ if (UOMA_RATE_LIMIT) {
         $rateLimiter = new RedisRateLimiter($redis);
 
         $apiKey = 'get-mail-translation-'.$data['email'];
-    
+
         try {
             $rateLimiter->limit($apiKey, Rate::custom(1, 5));
         } catch (LimitExceeded $exception) {
@@ -117,7 +117,7 @@ try {
             'format' => 'html',
             'q' => $data['body']
         ));
-        
+
         if ($data['subject'] !== '') {
             $query .= '&'.http_build_query(array(
                 'q' => $data['subject'],

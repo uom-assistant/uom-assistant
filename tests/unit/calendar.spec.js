@@ -83,8 +83,8 @@ describe('calendar.vue', () => {
     test('format date', () => {
         const wrapper = getShallowWapper(Calendar, { searchid: 6 });
 
-        expect(wrapper.vm.getDate(new Date('2021-09-27T01:00:30'))).toMatch('27/9/2021 01:00:30');
-        expect(wrapper.vm.getDate(new Date('2021-09-27T01:00:30'), false)).toMatch('27/9/2021 01:00');
+        expect(wrapper.vm.getDate(new Date('2021-09-27T01:00:30'))).toMatch(new Date().getFullYear() === 2021 ? '27/9 01:00:30' : '27/9/2021 01:00:30');
+        expect(wrapper.vm.getDate(new Date('2021-09-27T01:00:30'), false)).toMatch(new Date().getFullYear() === 2021 ? '27/9 01:00' : '27/9/2021 01:00');
     });
 
     test('calculate event progress percentage', () => {

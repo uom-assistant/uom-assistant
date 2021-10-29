@@ -373,7 +373,7 @@
                             <div class="mail-time-line mt-1">
                                 <span class="text-body-2 mt-2">
                                     <v-icon class="mr-2" :title="$t('time')">mdi-clock-outline</v-icon>
-                                    {{ getDate(new Date(viewer.date * 1000)) }}
+                                    {{ getDate(new Date(viewer.date * 1000), true) }}
                                 </span>
                             </div>
                             <div class="mail-time-line" v-show="trustedSender(viewer.fromAddress)">
@@ -1665,6 +1665,7 @@ export default {
                 'email.teams.microsoft.com',
                 'piazza.com',
                 'microsoft.com',
+                'manchesterstudentsunion.com',
             ],
             cmOption: {
                 tabSize: 4,
@@ -1836,6 +1837,11 @@ export default {
                 return;
             }
 
+            const mailIndex = this.mails.findIndex((item) => item.id === mailId);
+            if (mailIndex === -1 && action !== 'allread') {
+                return;
+            }
+
             this.loading = true;
             let requestFailed = false;
             // Send request
@@ -1953,13 +1959,9 @@ export default {
                     return;
                 }
                 this.mails[targetMail].flagged = !this.mails[targetMail].flagged;
-                this.$store.commit('setSearchNotification', {
-                    target: 'mailSearch',
-                    payload: {
-                        action,
-                        id: this.mails[targetMail].id,
-                    },
-                });
+                requestIdleCallback(() => {
+                    this.buildSearchIndex();
+                }, { timeout: 100 });
                 if (mailId === this.viewing) {
                     this.viewer.flagged = this.mails[targetMail].flagged;
                 }
@@ -2204,13 +2206,9 @@ export default {
                 }
                 if (mail.unseen) {
                     this.mails[targetMail].unseen = false;
-                    this.$store.commit('setSearchNotification', {
-                        target: 'mailSearch',
-                        payload: {
-                            action: 'seen',
-                            id: this.mails[targetMail].id,
-                        },
-                    });
+                    requestIdleCallback(() => {
+                        this.buildSearchIndex();
+                    }, { timeout: 200 });
                 }
                 this.doAction(id, 'body');
             } else {
@@ -2227,13 +2225,9 @@ export default {
                 if (mail.unseen) {
                     this.mails[targetMail].unseen = false;
                     this.doAction(id, 'seen');
-                    this.$store.commit('setSearchNotification', {
-                        target: 'mailSearch',
-                        payload: {
-                            action: 'seen',
-                            id: this.mails[targetMail].id,
-                        },
-                    });
+                    requestIdleCallback(() => {
+                        this.buildSearchIndex();
+                    }, { timeout: 200 });
                 }
                 this.$nextTick(() => {
                     // Set mail body
@@ -3300,10 +3294,11 @@ export default {
         /**
          * Format a date object to a string based on locale
          * @param {Date} dateObj Date object
+         * @param {boolean} year whether to force display year
          * @returns {string} formatted a date string
          */
-        getDate(dateObj) {
-            return formatDateTime(dateObj, this.locale, window.uomaTimeFormatters, false);
+        getDate(dateObj, year = false) {
+            return formatDateTime(dateObj, this.locale, window.uomaTimeFormatters, false, year);
         },
         /**
          * Build search index
@@ -4666,7 +4661,7 @@ export default {
         "attachment": "附件",
         "reply_forward": "回复与转发",
         "not_reply_forward": "这不是一封回复或转发的邮件",
-        "add_attachment": "点击或拖拽以添加附件",
+        "add_attachment": "点按或拖拽以添加附件",
         "too_many_attachments": "太多附件了",
         "too_many_attachments_body": "你可以添加最多 10 个或总大小不超过 15MB 的附件。",
         "ok": "好",
