@@ -14,7 +14,7 @@
         <div class="attendance-outer">
             <h2 class="mr-5 handle">
                 {{ $t('attendance') }}
-                <v-btn icon small class="attendance-goto" href="https://studentnet.cs.manchester.ac.uk/ugt/attendance/" target="_blank" rel="noopener nofollow">
+                <v-btn icon small class="attendance-goto" href="https://my.manchester.ac.uk/MyCheckIn" target="_blank" rel="noopener nofollow">
                     <v-icon>mdi-chevron-right</v-icon>
                 </v-btn>
                 <span class="float-right text-overline clickable" :class="{ 'text--disabled': view === 'annual' }" @click="view = 'lastMonth'">
