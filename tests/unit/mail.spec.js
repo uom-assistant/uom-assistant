@@ -24,6 +24,8 @@ describe('mail.vue', () => {
         vuetify = new Vuetify();
         store = new Vuex.Store(storeConfig);
 
+        localStorage.clear();
+
         window.uomaTimeFormatters = {
             month: new Intl.DateTimeFormat('en', {
                 month: 'short',

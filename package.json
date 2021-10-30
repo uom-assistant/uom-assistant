@@ -56,6 +56,7 @@
   "devDependencies": {
     "@formatjs/intl-displaynames": "^5.2.4",
     "@intlify/vue-i18n-loader": "^1.1.0",
+    "@shopify/jest-dom-mocks": "^3.0.7",
     "@vue/cli-plugin-babel": "~4.5.13",
     "@vue/cli-plugin-eslint": "~4.5.13",
     "@vue/cli-plugin-pwa": "~4.5.13",
@@ -77,6 +78,7 @@
     "html-minifier": "^4.0.0",
     "identity-obj-proxy": "^3.0.0",
     "ignore-loader": "^0.1.2",
+    "jest-localstorage-mock": "^2.4.18",
     "less": "^4.1.2",
     "less-loader": "^7.3.0",
     "node-fetch": "^2.6.1",

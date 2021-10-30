@@ -1,4 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { requestIdleCallback } from '@shopify/jest-dom-mocks';
 import Vue from 'vue';
 import Vuetify from 'vuetify';
 import Vuex from 'vuex';
@@ -24,9 +25,18 @@ describe('clock.vue', () => {
         vuetify = new Vuetify();
         store = new Vuex.Store(storeConfig);
 
+        requestIdleCallback.mock();
+
+        localStorage.clear();
+
         window.displayFormatters = {
             region: new Intl.DisplayNames(['en'], { type: 'region' }),
         };
+    });
+
+    afterEach(() => {
+        requestIdleCallback.cancelIdleCallbacks();
+        requestIdleCallback.restore();
     });
 
     const getShallowWapper = (component, propsData) => shallowMount(component, {
@@ -39,6 +49,10 @@ describe('clock.vue', () => {
             $tc: (key) => key,
             $i18n: locales[0],
         },
+    });
+
+    it('should always be UTC', () => {
+        expect(new Date().getTimezoneOffset()).toBe(0);
     });
 
     it('should return a city name related to the given timezone', () => {
@@ -56,11 +70,16 @@ describe('clock.vue', () => {
         expect(wrapper.vm.getCity).toMatch('Shanghai');
     });
 
-    test('convert timezone', () => {
+    test('convert timezone', (done) => {
         const wrapper = getShallowWapper(Clock, { searchid: 0 });
 
-        expect(wrapper.vm.convertTimeZone(new Date('2021-09-27T01:00:00Z'), 'GMT') - wrapper.vm.convertTimeZone(new Date('2021-09-27T01:00:00Z'), 'Asia/Shanghai')).toEqual(-28800000);
-        expect(wrapper.vm.convertTimeZone('2021-09-27T01:00:00Z', 'GMT') - wrapper.vm.convertTimeZone('2021-09-27T01:00:00Z', 'Europe/London')).toEqual(-3600000);
-        expect(wrapper.vm.convertTimeZone(new Date('2021-11-27T01:00:00Z'), 'GMT') - wrapper.vm.convertTimeZone(new Date('2021-11-27T01:00:00Z'), 'Europe/London')).toEqual(0);
+        expect(new Date().getTimezoneOffset()).toBe(0);
+
+        wrapper.vm.timeZone = 'Europe/London';
+        setTimeout(() => {
+            expect(wrapper.vm.convertTimeZone(new Date('2021-09-27T01:00:00Z')) - new Date('2021-09-27T01:00:00Z')).toEqual(3600000);
+            expect(wrapper.vm.convertTimeZone(new Date('2021-11-27T01:00:00Z')) - new Date('2021-11-27T01:00:00Z')).toEqual(0);
+            done();
+        }, 0);
     });
 });

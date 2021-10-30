@@ -127,6 +127,7 @@ export default {
             base: 0,
             adjust: false,
             timer: null,
+            idelTimer: null,
             localNight: false,
             remoteNight: false,
             inputRefreshKey: 0,
@@ -353,7 +354,8 @@ export default {
             this.timer = setInterval(this.updateView, 1000);
 
             // Make second accurate
-            requestIdleCallback(() => {
+            this.idelTimer = requestIdleCallback(() => {
+                this.idelTimer = null;
                 if (this.timer !== null) {
                     clearInterval(this.timer);
                 }
@@ -368,6 +370,9 @@ export default {
     },
     beforeDestroy() {
         clearInterval(this.timer);
+        if (this.idelTimer !== null) {
+            cancelIdleCallback(this.idelTimer);
+        }
     },
 };
 </script>

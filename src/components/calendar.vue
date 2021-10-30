@@ -332,6 +332,16 @@ import clipboard from '@/mixins/clipboard';
 import formatDateTime from '@/tools/formatDateTime';
 import betterFetch from '@/tools/betterFetch';
 
+const timezoneConverter = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZone: 'Europe/London',
+});
+
 export default {
     name: 'calendar',
     mixins: [checkResponse, liveLinks, clipboard],
@@ -694,22 +704,21 @@ export default {
         },
         /**
          * Convert a Date object to a specified time zone
-         * @param {Date | string} date Date object or date string
-         * @param {string} tzString timezone name
+         * @param {Date} date Date object
          * @returns {Date} a new Date object that has converted to the specified time zone
          */
-        convertTimeZone(date, tzString) {
-            return new Date((typeof date === 'string' ? new Date(date) : date).toLocaleString('en-US', { timeZone: tzString }));
+        convertTimeZone(date) {
+            return new Date(timezoneConverter.format(date));
         },
         /**
          * Update and broadcast today's events
          */
         updateTodayEvents() {
             const eventList = [];
-            const nowTime = this.convertTimeZone(new Date(), 'Europe/London');
+            const nowTime = this.convertTimeZone(new Date());
             for (const event of this.events) {
                 if (event.details !== 'Coursework Deadline') {
-                    const eventTime = this.convertTimeZone(event.start, 'Europe/London');
+                    const eventTime = this.convertTimeZone(event.start);
                     if (eventTime.getMonth() === nowTime.getMonth() && eventTime.getDate() === nowTime.getDate()) {
                         eventList.push(event);
                     }
@@ -722,10 +731,10 @@ export default {
          */
         updateNextDayFirstEvent() {
             const eventList = [];
-            const nowTime = this.convertTimeZone(new Date(new Date().valueOf() + 86400000), 'Europe/London');
+            const nowTime = this.convertTimeZone(new Date(new Date().valueOf() + 86400000));
             for (const event of this.events) {
                 if (event.details !== 'Coursework Deadline') {
-                    const eventTime = this.convertTimeZone(event.start, 'Europe/London');
+                    const eventTime = this.convertTimeZone(event.start);
                     if (eventTime.getMonth() === nowTime.getMonth() && eventTime.getDate() === nowTime.getDate()) {
                         eventList.push(event);
                     }
