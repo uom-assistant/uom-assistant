@@ -1531,6 +1531,9 @@ html::-webkit-scrollbar {
         cursor: pointer;
     }
 }
+.dark-text-secondary {
+    color: rgba(255, 255, 255, .6);
+}
 .daynight {
     .v-list-item__icon {
         margin: 12px 16px 12px 0;

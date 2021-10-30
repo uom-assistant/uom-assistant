@@ -120,17 +120,70 @@
                             ></div>
                         </template>
                         <template v-slot:day-label="{ date, day, present }">
+                            <v-badge
+                                overlap
+                                dot
+                                bordered
+                                offset-x="10"
+                                offset-y="10"
+                                v-if="new Date(date).getTimezoneOffset() != new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset()"
+                            >
+                                <v-tooltip top max-width="200">
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-btn
+                                            fab
+                                            small
+                                            depressed
+                                            :color="present ? 'primary' : 'transparent'"
+                                            @click="viewDay({ date })"
+                                            v-on="on"
+                                            v-bind="attrs"
+                                        >
+                                            {{ dateText(date, day) }}
+                                        </v-btn>
+                                    </template>
+                                    <span>{{ $t((new Date(date).getTimezoneOffset() - new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset() > 0 ? 'clock_change_pos' : 'clock_change_neg'), [Math.abs(new Date(date).getTimezoneOffset() - new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset())]) }}</span>
+                                </v-tooltip>
+                            </v-badge>
                             <v-btn
                                 fab
                                 small
                                 depressed
                                 :color="present ? 'primary' : 'transparent'"
                                 @click="viewDay({ date })"
+                                v-else
                             >
                                 {{ dateText(date, day) }}
                             </v-btn>
                         </template>
                         <template v-slot:day-label-header="{ date, day, present }">
+                            <v-badge
+                                overlap
+                                dot
+                                bordered
+                                offset-x="12"
+                                offset-y="12"
+                                v-if="new Date(date).getTimezoneOffset() != new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset()"
+                            >
+                                <v-tooltip top max-width="200">
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-btn
+                                            fab
+                                            :x-small="$vuetify.breakpoint.xs"
+                                            :small="!$vuetify.breakpoint.xs"
+                                            class="my-1"
+                                            depressed
+                                            :color="present ? 'primary' : 'transparent'"
+                                            @click="viewDay({ date })"
+                                            v-on="on"
+                                            v-bind="attrs"
+                                        >
+                                            {{ dateText(date, day) }}
+                                        </v-btn>
+                                    </template>
+                                    <span>{{ $t((new Date(date).getTimezoneOffset() - new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset() > 0 ? 'clock_change_pos' : 'clock_change_neg'), [Math.abs(new Date(date).getTimezoneOffset() - new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset())]) }}</span>
+                                </v-tooltip>
+                            </v-badge>
                             <v-btn
                                 fab
                                 :x-small="$vuetify.breakpoint.xs"
@@ -139,6 +192,7 @@
                                 depressed
                                 :color="present ? 'primary' : 'transparent'"
                                 @click="viewDay({ date })"
+                                v-else
                             >
                                 {{ dateText(date, day) }}
                             </v-btn>
@@ -1203,6 +1257,9 @@ export default {
     .theme--dark.v-toolbar.v-sheet {
         background-color: #1E1E1E;
     }
+    .v-badge__badge::after {
+        border-color: #303030;
+    }
 }
 </style>
 
@@ -1226,7 +1283,9 @@ export default {
         "error_at": "{0} at {1}",
         "first_day_settings": "First day of weeks",
         "cancel": "Cancel",
-        "save": "Save"
+        "save": "Save",
+        "clock_change_pos": "Clock changes on this day. Go forward {0} minutes.",
+        "clock_change_neg": "Clock changes on this day. Go back {0} minutes."
     },
     "zh": {
         "today": "今天",
@@ -1245,7 +1304,9 @@ export default {
         "error_at": "{0} 于 {1}",
         "first_day_settings": "每周第一天",
         "cancel": "取消",
-        "save": "保存"
+        "save": "保存",
+        "clock_change_pos": "当日有时钟变更。前进 {0} 分钟。",
+        "clock_change_neg": "当日有时钟变更。后退 {0} 分钟。"
     },
     "es": {
         "today": "Hoy",
@@ -1264,7 +1325,9 @@ export default {
         "error_at": "{0} en {1}",
         "first_day_settings": "",
         "cancel": "",
-        "save": ""
+        "save": "",
+        "clock_change_pos": "",
+        "clock_change_neg": ""
     },
     "ja": {
         "today": "今日",
@@ -1283,7 +1346,9 @@ export default {
         "error_at": "{1} に {0} 発生",
         "first_day_settings": "毎週の初日",
         "cancel": "キャンセル",
-        "save": "保存"
+        "save": "保存",
+        "clock_change_pos": "",
+        "clock_change_neg": ""
     }
 }
 </i18n>

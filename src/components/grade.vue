@@ -120,7 +120,7 @@
                                                             mdi-{{ copySuccess && copyingIndex === `copy-1-${gradeIndex}` ? 'check' : 'tag-outline' }}
                                                         </v-icon>
                                                     </template>
-                                                    <span>Git Tag: {{ item.tag }}<br><span class="text--disabled text-caption d-block text-center">{{ $t('copy') }}</span></span>
+                                                    <span>Git Tag: {{ item.tag }}<br><span class="dark-text-secondary text-caption d-block text-center">{{ $t('copy') }}</span></span>
                                                 </v-tooltip>
                                                 <span class="orange--text" v-if="item.status === 'late' || item.status === 'penalty'">LATE</span>
                                             </v-list-item-subtitle>
@@ -270,7 +270,7 @@
                                                 mdi-{{ copySuccess && copyingIndex === `copy-2-${gradeIndex}` ? 'check' : 'tag-outline' }}
                                             </v-icon>
                                         </template>
-                                        <span>Git Tag: {{ item.tag }}<br><span class="text--disabled text-caption d-block text-center">{{ $t('copy') }}</span></span>
+                                        <span>Git Tag: {{ item.tag }}<br><span class="dark-text-secondary text-caption d-block text-center">{{ $t('copy') }}</span></span>
                                     </v-tooltip>
                                     <span class="orange--text" v-if="item.status === 'late' || item.status === 'penalty'">LATE</span>
                                 </v-list-item-subtitle>
@@ -353,7 +353,7 @@
                                                             mdi-{{ copySuccess && copyingIndex === `copy-3-${gradeItemIndex}` ? 'check' : 'tag-outline' }}
                                                         </v-icon>
                                                     </template>
-                                                    <span>Git Tag: {{ gradeItem.tag }}<br><span class="text--disabled text-caption d-block text-center">{{ $t('copy') }}</span></span>
+                                                    <span>Git Tag: {{ gradeItem.tag }}<br><span class="dark-text-secondary text-caption d-block text-center">{{ $t('copy') }}</span></span>
                                                 </v-tooltip>
                                                 <span class="orange--text" v-if="gradeItem.status === 'late' || gradeItem.status === 'penalty'">LATE</span>
                                             </v-list-item-subtitle>
