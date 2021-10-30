@@ -26,6 +26,8 @@ let hourRemote = '';
 let minRemote = '';
 let sec = '';
 
+let timezoneConverter = null;
+
 export default {
     name: 'clockSearch',
     props: {
@@ -42,11 +44,10 @@ export default {
         /**
          * Convert a Date object to a specified time zone
          * @param {Date} date Date object
-         * @param {string} tzString timezone name
          * @returns {Date} a new Date object that has converted to the specified time zone
          */
-        convertTimeZone(date, tzString) {
-            return new Date((typeof date === 'string' ? new Date(date) : date).toLocaleString('en-US', { timeZone: tzString }));
+        convertTimeZone(date) {
+            return new Date(timezoneConverter.format(date));
         },
         /**
          * Update time difference between remote and local
@@ -54,7 +55,7 @@ export default {
          */
         updateRemoteDiff(now) {
             const secNow = now - now.getMilliseconds();
-            remoteDiff = this.convertTimeZone(new Date(secNow), this.timeZone) - secNow;
+            remoteDiff = this.convertTimeZone(new Date(secNow)) - secNow;
         },
         /**
          * Update time
@@ -73,6 +74,8 @@ export default {
                 this.$refs.secRemote.textContent = sec;
 
                 const minLocal = now.getMinutes();
+
+                // Update time difference
                 if ((minLocal === 0 || minLocal === 15 || minLocal === 30 || minLocal === 45) && sec === '00') {
                     this.updateRemoteDiff(now);
                 }
@@ -106,6 +109,16 @@ export default {
             this.$i18n.locale = this.locale;
         },
         timezone() {
+            timezoneConverter = new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: this.timeZone,
+            });
+
             this.updateRemoteDiff(new Date());
             this.updateTime();
         },
@@ -123,6 +136,16 @@ export default {
     },
     mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
+
+        timezoneConverter = new Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            timeZone: this.timeZone,
+        });
 
         this.updateRemoteDiff(new Date());
 

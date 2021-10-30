@@ -674,8 +674,8 @@
                     color="primary"
                     fixed-tabs
                 >
-                    <v-tab>{{ $t('attachment') }}</v-tab>
-                    <v-tab>{{ $t('reply_forward') }}</v-tab>
+                    <v-tab :key="`mail-send-tabs-1-${rerender}`">{{ $t('attachment') }}</v-tab>
+                    <v-tab :key="`mail-send-tabs-2-${rerender}`">{{ $t('reply_forward') }}</v-tab>
                 </v-tabs>
                 <v-tabs-items v-model="expandTab">
                     <v-tab-item class="expand-tab-item pa-5" :class="{ 'drag-over': isDragOver }" @dragover="isDragOver = true">
@@ -3495,6 +3495,7 @@ export default {
             timerMin: (state) => state.timerMin,
             darkMode: (state) => state.darkMode,
             searchNotification: (state) => state.searchNotification,
+            rerender: (state) => state.rerender,
         }),
         mailUnseen() {
             // Filter out unread mails

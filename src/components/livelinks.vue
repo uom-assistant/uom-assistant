@@ -16,7 +16,7 @@
             <v-tabs @change="relocate" show-arrows class="pt-1" height="44" v-if="shownSubjects.length > 0">
                 <v-tab
                     v-for="(item, index) in shownSubjects"
-                    :key="`${index}`"
+                    :key="`${index}-${rerender}`"
                 >
                     <span><span :class="item.color" class="subject-color-samll"></span> {{ item.shortName }}</span>
                 </v-tab>
@@ -136,6 +136,7 @@ export default {
             locale: (state) => state.locale,
             packery: (state) => state.packery,
             subjects: (state) => state.subjects,
+            rerender: (state) => state.rerender,
         }),
         shownSubjects() {
             // Filter out hidden subjects

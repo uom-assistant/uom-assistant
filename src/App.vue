@@ -196,7 +196,9 @@
         </v-navigation-drawer>
         <v-main>
             <v-container fluid>
-                <router-view ref="view" :key="`router-${routerRefreshKey}`"></router-view>
+                <keep-alive include="Home">
+                    <router-view ref="view" :key="`router-${routerRefreshKey}`"></router-view>
+                </keep-alive>
             </v-container>
         </v-main>
         <v-dialog
@@ -1072,6 +1074,10 @@ export default {
          * Search result from search index based on input
          */
         searchResult() {
+            if (!this.searching) {
+                this.searchIndexFiltered = [];
+                return;
+            }
             const result = [];
             for (let i = 0; i < this.searchIndex.length; i += 1) {
                 const item = this.searchIndex[i];

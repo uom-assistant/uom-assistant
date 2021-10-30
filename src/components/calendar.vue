@@ -102,7 +102,7 @@
                         :type="type"
                         :locale="calendarLocale"
                         :weekdays="weekDays"
-                        :key="`calendar-${refreshId}`"
+                        :key="`calendar-${refreshId}-${rerender}`"
                         :interval-height="40"
                         @click:event="showEvent"
                         @click:more="viewDay"
@@ -357,6 +357,7 @@ export default {
             setttingsDialog: false,
             firstDay: 0,
             editingFirstDay: 0,
+            nowDate: new Date().getDate(),
         };
     },
     methods: {
@@ -880,15 +881,20 @@ export default {
         },
         timerMin() {
             // Check event change every minute
-            this.$refs.calendar.updateTimes();
-            this.$refs.calendar.checkChange();
+            if (this.timerMin !== '00') {
+                requestIdleCallback(() => {
+                    this.$refs.calendar.updateTimes();
+                    this.$refs.calendar.checkChange();
+                }, { timeout: 3000 });
+            }
         },
         timerHour() {
             // Update upcoming events every hour and refresh at 00:00
             this.updateTodayEvents();
             this.updateNextDayFirstEvent();
 
-            if (this.timerHour.substr(0, 2) === '00') {
+            if (this.timerHour.substr(0, 2) === '00' || new Date().getDate() !== this.nowDate) {
+                this.nowDate = new Date().getDate();
                 this.refreshId = new Date().valueOf();
                 this.updateCurrentDate();
                 this.updateTime();
@@ -917,6 +923,7 @@ export default {
             backend: (state) => state.backend,
             backendStatus: (state) => state.backendStatus,
             account: (state) => state.account,
+            rerender: (state) => state.rerender,
         }),
         /**
          * Get ISO locale for calendar

@@ -111,6 +111,8 @@ let minRemote = '';
 
 let sec = '';
 
+let timezoneConverter = null;
+
 export default {
     name: 'clock',
     props: {
@@ -120,7 +122,7 @@ export default {
         return {
             loading: false,
             settings: false,
-            timeZone: 'Europe/London',
+            timeZone: '',
             timeZoneList: [],
             base: 0,
             adjust: false,
@@ -168,7 +170,7 @@ export default {
          */
         updateRemoteDiff(now) {
             const secNow = now - now.getMilliseconds();
-            remoteDiff = this.convertTimeZone(new Date(secNow), this.timeZone) - secNow;
+            remoteDiff = this.convertTimeZone(new Date(secNow)) - secNow;
         },
         /**
          * Update clock UI
@@ -194,6 +196,7 @@ export default {
                 this.$refs.secLocal.textContent = sec;
                 this.$refs.secRemote.textContent = sec;
 
+                // Update time difference
                 if ((minLocal === '00' || minLocal === '15' || minLocal === '30' || minLocal === '45') && sec === '00') {
                     this.updateRemoteDiff(now);
                 }
@@ -250,11 +253,10 @@ export default {
         /**
          * Convert a Date object to a specified time zone
          * @param {Date} date Date object
-         * @param {string} tzString timezone name
          * @returns {Date} a new Date object that has converted to the specified time zone
          */
-        convertTimeZone(date, tzString) {
-            return new Date((typeof date === 'string' ? new Date(date) : date).toLocaleString('en-US', { timeZone: tzString }));
+        convertTimeZone(date) {
+            return new Date(timezoneConverter.format(date));
         },
     },
     watch: {
@@ -269,6 +271,15 @@ export default {
             } else {
                 this.store();
             }
+            timezoneConverter = new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: this.timeZone,
+            });
             this.updateRemoteDiff(new Date(new Date().valueOf() + this.base * 3600000));
         },
         base() {
@@ -334,14 +345,25 @@ export default {
             });
         }
 
-        this.updateRemoteDiff(new Date(new Date().valueOf() + this.base * 3600000));
+        this.$nextTick(() => {
+            this.updateRemoteDiff(new Date(new Date().valueOf() + this.base * 3600000));
 
-        // Update time every 1 second
-        this.updateView(true);
-        setTimeout(() => {
-            this.updateView();
+            // Update time every 1 second
+            this.updateView(true);
             this.timer = setInterval(this.updateView, 1000);
-        }, 1000 - new Date().getMilliseconds());
+
+            // Make second accurate
+            requestIdleCallback(() => {
+                if (this.timer !== null) {
+                    clearInterval(this.timer);
+                }
+                setTimeout(() => {
+                    this.updateView();
+                    this.timer = setInterval(this.updateView, 1000);
+                }, 1000 - new Date().getMilliseconds());
+            });
+        });
+
         this.updateList();
     },
     beforeDestroy() {

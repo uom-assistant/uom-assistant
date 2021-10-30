@@ -57,7 +57,7 @@
                 show-arrows
                 v-show="init && gradeListFlat.length > 0"
             >
-                <v-tab v-for="(semester, i) in gradeListFiltered" :key="`tab-${locale}-${i}`">{{ $t(gradeList[i].name) }}</v-tab>
+                <v-tab v-for="(semester, i) in gradeListFiltered" :key="`tab-${locale}-${rerender}-${i}`">{{ $t(gradeList[i].name) }}</v-tab>
             </v-tabs>
 
             <v-tabs-items v-model="tabs">
@@ -834,6 +834,7 @@ export default {
             packery: (state) => state.packery,
             subjects: (state) => state.subjects,
             searchNotification: (state) => state.searchNotification,
+            rerender: (state) => state.rerender,
         }),
         yearList() {
             return this.allGrades.map((year) => year.year);

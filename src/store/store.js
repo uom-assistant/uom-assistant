@@ -25,6 +25,7 @@ export default {
         darkMode: false,
         classBell: true,
         layoutLock: false,
+        rerender: 0,
     },
     mutations: {
         setLocale(state, language) {
@@ -96,6 +97,9 @@ export default {
         },
         setLayoutLock(state, layoutLock) {
             state.layoutLock = layoutLock;
+        },
+        setRerender(state, rerender) {
+            state.rerender = rerender;
         },
     },
     actions: {},

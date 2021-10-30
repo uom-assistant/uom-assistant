@@ -173,6 +173,7 @@
                     <v-tabs
                         v-model="tab"
                         show-arrows
+                        :key="`tabs-${rerender}`"
                     >
                         <v-tab
                             v-for="(tab, index) in tabs"
@@ -964,6 +965,7 @@ export default {
         ...mapState({
             locale: (state) => state.locale,
             packery: (state) => state.packery,
+            rerender: (state) => state.rerender,
         }),
     },
     mounted() {

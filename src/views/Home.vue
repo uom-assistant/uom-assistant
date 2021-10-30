@@ -222,6 +222,7 @@ export default {
             checkinDialog: false,
             checkinCourses: [],
             widgetList: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            init: false,
         };
     },
     watch: {
@@ -513,6 +514,8 @@ export default {
         // Initialize language
         this.$i18n.locale = localStorage.getItem('language') || 'en';
 
+        this.init = true;
+
         // Initialize plugin widget width
         this.pluginExpanded = (localStorage.getItem('plugin_expanded') || 'false') === 'true';
 
@@ -568,6 +571,16 @@ export default {
             this.$nextTick(() => {
                 this.lockLayout(this.layoutLock);
             });
+        });
+    },
+    beforeRouteEnter(to, from, next) {
+        next((vm) => {
+            if (vm.init) {
+                vm.$nextTick(() => {
+                    vm.packery.layout();
+                    vm.$store.commit('setRerender', new Date().valueOf());
+                });
+            }
         });
     },
 };
