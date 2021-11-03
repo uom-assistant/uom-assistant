@@ -126,7 +126,7 @@
                                             </v-list-item-subtitle>
                                         </v-list-item-content>
 
-                                        <v-list-item-action class="grade" v-if="item.grade !== '🤞' && item.status !== 'late'">
+                                        <v-list-item-action class="grade" v-if="item.grade !== '🤞' && item.grade !== '🔒' && item.status !== 'late'">
                                             {{ item.grade }}<span class="text--disabled">/{{ item.gradeAll }}</span>
                                             <v-progress-circular
                                                 :rotate="-90"
@@ -276,7 +276,7 @@
                                 </v-list-item-subtitle>
                             </v-list-item-content>
 
-                            <v-list-item-action class="grade" v-if="item.grade !== '🤞' && item.status !== 'late'">
+                            <v-list-item-action class="grade" v-if="item.grade !== '🤞' && item.grade !== '🔒' && item.status !== 'late'">
                                 {{ item.grade }}<span class="text--disabled">/{{ item.gradeAll }}</span>
                                 <v-progress-circular
                                     :rotate="-90"
@@ -359,7 +359,7 @@
                                             </v-list-item-subtitle>
                                         </v-list-item-content>
 
-                                        <v-list-item-action class="grade" v-if="gradeItem.grade !== '🤞' && item.status !== 'late'">
+                                        <v-list-item-action class="grade" v-if="gradeItem.grade !== '🤞' && gradeItem.grade !== '🔒' && gradeItem.status !== 'late'">
                                             {{ gradeItem.grade }}<span class="text--disabled">/{{ gradeItem.gradeAll }}</span>
                                             <v-progress-circular
                                                 :rotate="-90"
@@ -615,7 +615,7 @@ export default {
          * @returns {array} a grade list that conatins latest 2 grade items
          */
         allGradeNumbers(grades) {
-            return grades.flat().filter((grade) => (grade.status === 'past' || grade.status === 'penalty') && grade.grade !== '🤞').sort((a, b) => a.time - b.time).map((item) => (parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100);
+            return grades.flat().filter((grade) => (grade.status === 'past' || grade.status === 'penalty') && grade.grade !== '🤞' && grade.grade !== '🔒').sort((a, b) => a.time - b.time).map((item) => (parseFloat(item.grade) / parseFloat(item.gradeAll)) * 100);
         },
         /**
          * Fet grade color by grade

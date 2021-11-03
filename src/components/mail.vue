@@ -84,60 +84,70 @@
                 type="list-item-avatar-three-line@4"
                 v-if="!init && loading"
             ></v-skeleton-loader>
-            <div class="scroll" v-if="mails.length > 0" @scroll.passive="scrollHandler" ref="scrollTarget">
-                <v-list flat class="list">
-                    <v-list-item v-for="(mail, index) in mails" :key="mail.id" @click.stop="openMail(mail.id)" :class="{ flaged: mail.flagged, unseen: mail.unseen }" @contextmenu.prevent="(e) => showListMenu(e, mail.id)">
-                        <v-list-item-avatar :color="(mail.flagged || mail.unseen) ? 'uomthemelight' : ($vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2')" v-if="getSubjectId(mail.subject, mail.from) === false" :class="{ 'black--text': ((mail.flagged || mail.unseen) && $vuetify.theme.dark) }">
-                            <span v-if="getMailAvatar(mail.subject, mail.from, mail.fromAddress) === false">{{ getTwoLetterSenderName(mail.from ? mail.from : mail.fromAddress) }}</span>
-                            <v-img v-else :src="require(`@/assets/img/mail-avatars/${getMailAvatar(mail.subject, mail.from, mail.fromAddress)}`)"></v-img>
-                        </v-list-item-avatar>
+            <v-list flat class="list p-0" v-if="mails.length > 0">
+                <v-virtual-scroll
+                    :bench="3"
+                    :items="mails"
+                    height="500"
+                    item-height="78"
+                    @scroll.passive="scrollHandler"
+                    ref="scrollTarget"
+                >
+                    <template v-slot:default="{ item: mail, index }">
+                        <v-list-item :key="mail.id" @click.stop="openMail(mail.id)" :class="{ flaged: mail.flagged, unseen: mail.unseen }" @contextmenu.prevent="(e) => showListMenu(e, mail.id)">
+                            <v-list-item-avatar :color="(mail.flagged || mail.unseen) ? 'uomthemelight' : ($vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2')" v-if="getSubjectId(mail.subject, mail.from) === false" :class="{ 'black--text': ((mail.flagged || mail.unseen) && $vuetify.theme.dark) }">
+                                <span v-if="getMailAvatar(mail.subject, mail.from, mail.fromAddress) === false">{{ getTwoLetterSenderName(mail.from ? mail.from : mail.fromAddress) }}</span>
+                                <img v-else :src="require(`@/assets/img/mail-avatars/${getMailAvatar(mail.subject, mail.from, mail.fromAddress)}`)">
+                            </v-list-item-avatar>
 
-                        <v-list-item-avatar :color="subjectColor(getSubjectId(mail.subject, mail.from))" v-else>
-                            <v-icon color="white" v-if="getMailAvatar(mail.subject, mail.from, mail.fromAddress) === false">mdi-book-outline</v-icon><v-img v-else :src="require(`@/assets/img/mail-avatars/${getMailAvatar(mail.subject, mail.from, mail.fromAddress)}`)"></v-img>
-                        </v-list-item-avatar>
+                            <v-list-item-avatar :color="subjectColor(getSubjectId(mail.subject, mail.from))" v-else>
+                                <v-icon color="white" v-if="getMailAvatar(mail.subject, mail.from, mail.fromAddress) === false">mdi-book-outline</v-icon>
+                                <img v-else :src="require(`@/assets/img/mail-avatars/${getMailAvatar(mail.subject, mail.from, mail.fromAddress)}`)">
+                            </v-list-item-avatar>
 
-                        <v-list-item-content>
-                            <v-list-item-title :class="{ 'primary--text': mail.unseen }"><span v-if="mail.subject" :title="mail.subject">{{ mail.subject }}</span><em v-else>{{ $t('no_subject') }}</em></v-list-item-title>
-                            <v-list-item-subtitle>
-                                <span class="d-block text-truncate from">
+                            <v-list-item-content>
+                                <v-list-item-title :class="{ 'primary--text': mail.unseen }"><span v-if="mail.subject" :title="mail.subject">{{ mail.subject }}</span><em v-else>{{ $t('no_subject') }}</em></v-list-item-title>
+                                <v-list-item-subtitle>
+                                    <span class="d-block text-truncate from">
+                                        <v-icon
+                                            small
+                                            class="person-icon mr-1"
+                                        >
+                                            mdi-account-arrow-right
+                                        </v-icon>
+                                        <span :title="mail.fromAddress">{{ mail.from ? getShortSenderName(mail.from) : mail.fromAddress }}</span>
+                                    </span>
                                     <v-icon
                                         small
-                                        class="person-icon mr-1"
+                                        class="time-icon mr-1"
                                     >
-                                        mdi-account-arrow-right
+                                        mdi-clock-outline
                                     </v-icon>
-                                    <span :title="mail.fromAddress">{{ mail.from ? getShortSenderName(mail.from) : mail.fromAddress }}</span>
-                                </span>
-                                <v-icon
-                                    small
-                                    class="time-icon mr-1"
-                                >
-                                    mdi-clock-outline
-                                </v-icon>
-                                <span :title="getDate(new Date(mail.date * 1000))" :key="timeUpdate(mail.date * 1000) ? `${keyMin}-${index}` : `mail-key-${index}`" class="relative-time">{{ displayDate(new Date(mail.date * 1000)) }}</span>
-                                <v-icon
-                                    small
-                                    color="primary"
-                                    class="time-icon ml-2"
-                                    :title="$t('flagged')"
-                                    v-if="mail.flagged"
-                                >
-                                    mdi-flag
-                                </v-icon>
-                                <span v-if="getSubjectId(mail.subject, mail.from) !== false" class="ml-3">
-                                    <span :class="subjectColor(getSubjectId(mail.subject, mail.from))" class="subject-color-samll"></span>
-                                    {{ subjectNameMap(getSubjectId(mail.subject, mail.from)) }}
-                                </span>
-                            </v-list-item-subtitle>
-                        </v-list-item-content>
-                    </v-list-item>
-                </v-list>
-                <div class="more-mail px-4 pb-3 text-body-2 text--secondary" v-show="mails.length > 7">
-                    <i18n path="more_mail" tag="span">
-                        <span><a href="https://outlook.com/student.manchester.ac.uk" target="_blank" rel="noopener nofollow">Outlook</a><a href="https://outlook.com/student.manchester.ac.uk" target="_blank" rel="noopener nofollow" class="no-underline-link"><v-icon x-small color="primary">mdi-open-in-new</v-icon></a></span>
-                    </i18n>
-                </div>
-            </div>
+                                    <span :title="getDate(new Date(mail.date * 1000))" :key="timeUpdate(mail.date * 1000) ? `${keyMin}-${index}` : `mail-key-${index}`" class="relative-time">{{ displayDate(new Date(mail.date * 1000)) }}</span>
+                                    <v-icon
+                                        small
+                                        color="primary"
+                                        class="time-icon ml-2"
+                                        :title="$t('flagged')"
+                                        v-if="mail.flagged"
+                                    >
+                                        mdi-flag
+                                    </v-icon>
+                                    <span v-if="getSubjectId(mail.subject, mail.from) !== false" class="ml-3">
+                                        <span :class="subjectColor(getSubjectId(mail.subject, mail.from))" class="subject-color-samll"></span>
+                                        {{ subjectNameMap(getSubjectId(mail.subject, mail.from)) }}
+                                    </span>
+                                </v-list-item-subtitle>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <div class="more-mail px-4 pb-3 text-body-2 text--secondary" v-if="mails.length > 7 && index === mails.length - 1">
+                            <i18n path="more_mail" tag="span">
+                                <span><a href="https://outlook.com/student.manchester.ac.uk" target="_blank" rel="noopener nofollow">Outlook</a><a href="https://outlook.com/student.manchester.ac.uk" target="_blank" rel="noopener nofollow" class="no-underline-link"><v-icon x-small color="primary">mdi-open-in-new</v-icon></a></span>
+                            </i18n>
+                        </div>
+                    </template>
+                </v-virtual-scroll>
+            </v-list>
             <div class="empty" v-if="mails.length === 0 && init && !loading">
                 {{ $t('nothing') }}
             </div>
@@ -1834,11 +1844,6 @@ export default {
          */
         async doAction(mailId, action) {
             if (!this.backend.url || !this.account.username || !this.account.password || !this.account.email) {
-                return;
-            }
-
-            const mailIndex = this.mails.findIndex((item) => item.id === mailId);
-            if (mailIndex === -1 && action !== 'allread') {
                 return;
             }
 
@@ -4226,7 +4231,6 @@ export default {
         }
     }
     .more-mail {
-        margin-top: -8px;
         padding-top: 14px;
         font-family: Roboto, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif!important;
         background-color: rgba(0, 0, 0, .02);

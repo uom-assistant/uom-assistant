@@ -58,7 +58,7 @@
                         </v-list-item-subtitle>
                     </v-list-item-content>
 
-                    <v-list-item-action class="grade" v-if="item.grade !== '🤞' && item.status !== 'late'">
+                    <v-list-item-action class="grade" v-if="item.grade !== '🤞' && item.grade !== '🔒' && item.status !== 'late'">
                         {{ item.grade }}<span class="text--disabled">/{{ item.gradeAll }}</span>
                         <v-progress-circular
                             :rotate="-90"
@@ -130,7 +130,7 @@
                         </v-list-item-subtitle>
                     </v-list-item-content>
 
-                    <v-list-item-action class="grade" v-if="item.grade !== '🤞' && item.status !== 'late'">
+                    <v-list-item-action class="grade" v-if="item.grade !== '🤞' && item.grade !== '🔒' && item.status !== 'late'">
                         {{ item.grade }}<span class="text--disabled">/{{ item.gradeAll }}</span>
                         <v-progress-circular
                             :rotate="-90"

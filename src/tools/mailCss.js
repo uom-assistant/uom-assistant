@@ -20,7 +20,7 @@ body {
 }
 img {
     max-width: 100%;
-    height: auto;
+    height: auto!important;
 }
 a {
     color: #660099;

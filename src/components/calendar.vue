@@ -266,11 +266,23 @@
                                 </v-btn>
                             </v-toolbar>
                             <v-card-text>
-                                <span v-if="selectedEvent.details !== 'Coursework Deadline'">
-                                    {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(selectedEvent.end, false) : '' }}<br>
+                                <span v-if="currentTimeZone === 'Europe/London'">
+                                    <span v-if="selectedEvent.details !== 'Coursework Deadline'">
+                                        {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(selectedEvent.end, false) : '' }}<br>
+                                    </span>
+                                    <span v-else>
+                                        {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}<br>
+                                    </span>
                                 </span>
                                 <span v-else>
-                                    {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}
+                                    <span v-if="selectedEvent.details !== 'Coursework Deadline'">
+                                        {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(selectedEvent.end, false) : '' }}{{ $t('local_time') }}<br>
+                                        {{ selectedEvent.start ? getDate(convertTimeZone(selectedEvent.start), false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(convertTimeZone(selectedEvent.end), false) : '' }}{{ $t('uk_time') }}<br>
+                                    </span>
+                                    <span v-else>
+                                        {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ $t('local_time') }}<br>
+                                        {{ selectedEvent.start ? getDate(convertTimeZone(selectedEvent.start), false) : '' }}{{ $t('uk_time') }}<br>
+                                    </span>
                                 </span>
                                 <br>
                                 <v-list flat class="list" v-if="selectedEvent.details !== 'Coursework Deadline' && selectedEvent.subjectId !== '' && subjectLinks(selectedEvent.subjectId).sessionLinks.length > 0">
@@ -422,6 +434,7 @@ export default {
             firstDay: 0,
             editingFirstDay: 0,
             nowDate: new Date().getDate(),
+            currentTimeZone: 'Europe/London',
         };
     },
     methods: {
@@ -1025,6 +1038,9 @@ export default {
             });
         }
 
+        // Check current timezone
+        this.currentTimeZone = window.uomaTimeFormatters.date.resolvedOptions().timeZone;
+
         // Update events every 6 hours
         this.updateTimer = setInterval(() => {
             this.checkUpdate();
@@ -1285,7 +1301,9 @@ export default {
         "cancel": "Cancel",
         "save": "Save",
         "clock_change_pos": "Clock changes on this day. Go forward {0} minutes.",
-        "clock_change_neg": "Clock changes on this day. Go back {0} minutes."
+        "clock_change_neg": "Clock changes on this day. Go back {0} minutes.",
+        "local_time": " (local)",
+        "uk_time": " (UK)"
     },
     "zh": {
         "today": "今天",
@@ -1306,7 +1324,9 @@ export default {
         "cancel": "取消",
         "save": "保存",
         "clock_change_pos": "当日有时钟变更。前进 {0} 分钟。",
-        "clock_change_neg": "当日有时钟变更。后退 {0} 分钟。"
+        "clock_change_neg": "当日有时钟变更。后退 {0} 分钟。",
+        "local_time": "（本地）",
+        "uk_time": "（英国）"
     },
     "es": {
         "today": "Hoy",
@@ -1327,7 +1347,9 @@ export default {
         "cancel": "",
         "save": "",
         "clock_change_pos": "",
-        "clock_change_neg": ""
+        "clock_change_neg": "",
+        "local_time": "",
+        "uk_time": ""
     },
     "ja": {
         "today": "今日",
@@ -1348,7 +1370,9 @@ export default {
         "cancel": "キャンセル",
         "save": "保存",
         "clock_change_pos": "",
-        "clock_change_neg": ""
+        "clock_change_neg": "",
+        "local_time": "",
+        "uk_time": ""
     }
 }
 </i18n>
