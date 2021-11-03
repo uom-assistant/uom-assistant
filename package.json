@@ -81,7 +81,7 @@
     "jest-localstorage-mock": "^2.4.18",
     "less": "^4.1.2",
     "less-loader": "^7.3.0",
-    "node-fetch": "^3.0.0",
+    "node-fetch": "^2.6.6",
     "rimraf": "^3.0.2",
     "sass": "^1.32.11",
     "sass-loader": "^10.1.1",
