@@ -70,7 +70,7 @@ tr#planyourdayheaderview table {
 tr#planyourdayheaderview table td.planyourdayheaderhello p, tr#planyourdayheaderview table td.planyourdayheadergreeting p {
     color: white!important;
 }
-td.planYourDayTaskSection, td.planYourDaySectionHeader, tr#feedbackview td.planyourdayfooterbackground, tr#feedbackview td.planyourdayfooterbackground table, tr#feedbackview td.planyourdayfooterbackground table td.planyourdayfooterbackground, tr#planyourdayfooterview td.planyourdayfooterbackground, table.tableFlushedV2 td.header, table.tableFlushedV2 td.header table.planYourDayIntroHeaderInnerTable, tr#email-task-slot > td.task-slot, tr#email-task-slot > td.task-slot table.combined-task-table-inner {
+td.planYourDayTaskSection, td.planYourDaySectionHeader, tr#feedbackview td.planyourdayfooterbackground, tr#feedbackview td.planyourdayfooterbackground table, tr#feedbackview td.planyourdayfooterbackground table td.planyourdayfooterbackground, tr#planyourdayfooterview td.planyourdayfooterbackground, table.tableFlushedV2 td.header, table.tableFlushedV2 td.header table.planYourDayIntroHeaderInnerTable, tr#email-task-slot > td.task-slot, tr#email-task-slot > td.task-slot table.combined-task-table-inner, tr.sectionheaderv2view table tr td.sectionheadercell, td.planyourdaybrandingattributioncontent.planyourdayattributionoutercell {
     background-color: #2b2b2b!important;
 }
 tr#email-task-slot > td.task-slot table.combined-task-table-inner p.descriptionText {

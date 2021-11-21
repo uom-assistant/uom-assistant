@@ -75,7 +75,9 @@ if ($data['action'] === 'junk') {
     imap_delete($imap, strval(imap_msgno($imap, (int)$data['mailId'])));
 } else if ($data['action'] === 'allread') {
     $all = imap_search($imap, 'UNDELETED UNSEEN ALL');
-    imap_setflag_full($imap, implode(',', $all), '\\Seen');
+    if ($all) {
+        imap_setflag_full($imap, implode(',', $all), '\\Seen');
+    }
 }
 
 rest_response([]);

@@ -959,7 +959,7 @@ export default {
             // Check event change every minute
             if (this.timerMin !== '00') {
                 requestIdleCallback(() => {
-                    this.$refs.calendar.updateTimes();
+                    this.updateTime();
                     this.$refs.calendar.checkChange();
                 }, { timeout: 3000 });
             }

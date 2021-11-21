@@ -20,6 +20,8 @@
                         v-bind="attrs"
                         v-on="on"
                         v-show="$route.path === '/'"
+                        v-shortkey="['ctrl', 'm']"
+                        @shortkey="toggleDark"
                     >
                         <v-icon>mdi-tune</v-icon>
                     </v-btn>
@@ -619,6 +621,11 @@ window.displayFormatters = {
 
 let timeFormattersInited = false;
 
+// requestIdleCallback fallbck for Safari
+if (!requestIdleCallback) {
+    window.requestIdleCallback = (cb, { timeout }) => setTimeout(cb, timeout / 2);
+}
+
 export default {
     name: 'App',
     components: {
@@ -1042,7 +1049,7 @@ export default {
         toggleSearch() {
             if (this.searchOpened) {
                 this.closeSearch();
-            } else {
+            } else if (this.$route.path === '/') {
                 this.openSearch();
             }
         },
@@ -1359,6 +1366,9 @@ export default {
         });
         this.$router.afterEach(() => {
             this.checkWelcome();
+            if (this.$route.path !== '/' && this.searchOpened) {
+                this.closeSearch();
+            }
         });
     },
     beforeDestroy() {
