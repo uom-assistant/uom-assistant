@@ -89,7 +89,7 @@
                     :bench="3"
                     :items="mails"
                     height="500"
-                    item-height="78"
+                    item-height="80"
                     @scroll.passive="scrollHandler"
                     ref="scrollTarget"
                 >

@@ -622,8 +622,11 @@ window.displayFormatters = {
 let timeFormattersInited = false;
 
 // requestIdleCallback fallbck for Safari
-if (!requestIdleCallback) {
+if (!window.requestIdleCallback) {
     window.requestIdleCallback = (cb, { timeout }) => setTimeout(cb, timeout / 2);
+}
+if (!window.cancelIdleCallback) {
+    window.cancelIdleCallback = (cbId) => clearTimeout(cbId);
 }
 
 export default {
