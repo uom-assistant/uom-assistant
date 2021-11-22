@@ -623,7 +623,7 @@ let timeFormattersInited = false;
 
 // requestIdleCallback fallbck for Safari
 if (!window.requestIdleCallback) {
-    window.requestIdleCallback = (cb, { timeout }) => setTimeout(cb, timeout / 2);
+    window.requestIdleCallback = (cb, config) => setTimeout(cb, config ? config.timeout / 2 : 3000);
 }
 if (!window.cancelIdleCallback) {
     window.cancelIdleCallback = (cbId) => clearTimeout(cbId);

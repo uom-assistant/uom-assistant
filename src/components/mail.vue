@@ -89,7 +89,7 @@
                     :bench="3"
                     :items="mails"
                     height="500"
-                    item-height="80"
+                    item-height="78"
                     @scroll.passive="scrollHandler"
                     ref="scrollTarget"
                 >
@@ -4208,6 +4208,9 @@ export default {
             .from {
                 margin-bottom: 3px;
             }
+        }
+        .v-virtual-scroll__container .v-list-item {
+            height: 78px;
         }
         .time-icon {
             vertical-align: text-top;
