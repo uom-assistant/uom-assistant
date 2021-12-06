@@ -111,13 +111,13 @@
                                                             v-if="item.tag"
                                                             v-on="on"
                                                             v-bind="attrs"
-                                                            @click="copyingIndex = `copy-1-${gradeIndex}`"
+                                                            @click="copyingIndex = `copy-1-${index}-${i}-${gradeIndex}`"
                                                             v-clipboard:copy="item.tag"
                                                             v-clipboard:success="onCopy"
-                                                            :color="copySuccess && copyingIndex === `copy-1-${gradeIndex}` ? 'success' : ''"
-                                                            :class="{ 'copy-success-icon': copySuccess && copyingIndex === `copy-1-${gradeIndex}` }"
+                                                            :color="copySuccess && copyingIndex === `copy-1-${index}-${i}-${gradeIndex}` ? 'success' : ''"
+                                                            :class="{ 'copy-success-icon': copySuccess && copyingIndex === `copy-1-${index}-${i}-${gradeIndex}` }"
                                                         >
-                                                            mdi-{{ copySuccess && copyingIndex === `copy-1-${gradeIndex}` ? 'check' : 'tag-outline' }}
+                                                            mdi-{{ copySuccess && copyingIndex === `copy-1-${index}-${i}-${gradeIndex}` ? 'check' : 'tag-outline' }}
                                                         </v-icon>
                                                     </template>
                                                     <span>Git Tag: {{ item.tag }}<br><span class="dark-text-secondary text-caption d-block text-center">{{ $t('copy') }}</span></span>

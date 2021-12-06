@@ -198,9 +198,11 @@
         </v-navigation-drawer>
         <v-main>
             <v-container fluid>
-                <keep-alive include="Home">
-                    <router-view ref="view" :key="`router-${routerRefreshKey}`"></router-view>
-                </keep-alive>
+                <v-slide-y-reverse-transition leave-absolute>
+                    <keep-alive include="Home">
+                            <router-view ref="view" :key="`router-${routerRefreshKey}`"></router-view>
+                    </keep-alive>
+                </v-slide-y-reverse-transition>
             </v-container>
         </v-main>
         <v-dialog
@@ -260,16 +262,23 @@
                     >
                         {{ $t('continue') }}
                     </v-btn>
-                    <div>
-                        <v-btn
-                            depressed
-                            small
-                            class="second-btn"
-                            @click="skip"
-                        >
-                            {{ $t('import') }}
-                        </v-btn>
-                    </div>
+                    <v-btn
+                        depressed
+                        small
+                        class="second-btn mb-1"
+                        @click="a11ySettings = true"
+                    >
+                        <v-icon x-samll class="mr-1 a11y-icon">mdi-human</v-icon>
+                        {{ $t('a11y_settings') }}
+                    </v-btn>
+                    <v-btn
+                        depressed
+                        small
+                        class="second-btn"
+                        @click="skip"
+                    >
+                        {{ $t('import') }}
+                    </v-btn>
                 </v-card-text>
                 <v-card-text class="same-height" :class="{ 'show-1': stage === -1 }">
                     <div class="intro">
@@ -498,6 +507,29 @@
             </v-card>
         </v-dialog>
         <v-dialog
+            v-model="a11ySettings"
+            max-width="500"
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('a11y_settings_title') }}
+                </v-card-title>
+                <v-card-text>
+                    <a11y></a11y>
+                </v-card-text>
+                <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                    color="primary"
+                    text
+                    @click="a11ySettings = false"
+                >
+                    {{ $t('done') }}
+                </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog
             v-model="updating"
             max-width="400"
             persistent
@@ -570,6 +602,7 @@ import { mapState } from 'vuex';
 import semVerCmp from 'semver-compare';
 import * as JsSearch from 'js-search';
 
+import a11y from '@/components/a11y.vue';
 import settings from '@/components/settings.vue';
 import noteSearch from '@/components/search/note.vue';
 import taskSearch from '@/components/search/task.vue';
@@ -616,7 +649,7 @@ window.uomaTimeFormatters = {
     relative: new Intl.RelativeTimeFormat(langIso, { numeric: 'auto' }),
 };
 window.displayFormatters = {
-    region: new Intl.DisplayNames([langIso], { type: 'region' }),
+    region: Intl.DisplayNames ? new Intl.DisplayNames([langIso], { type: 'region' }) : { of: (name) => name },
 };
 
 let timeFormattersInited = false;
@@ -632,6 +665,7 @@ if (!window.cancelIdleCallback) {
 export default {
     name: 'App',
     components: {
+        a11y,
         settings,
         noteSearch,
         taskSearch,
@@ -667,6 +701,7 @@ export default {
         loginError: false,
         loginErrorText: '',
         privacyPolicy: false,
+        a11ySettings: false,
         rulesUrl: [
             (value) => !!value || '',
             (value) => /^[\w-]+(\.[\w-]+)+([\w.,@^=%:/~+-]*)?$/i.test(value) || '',
@@ -729,16 +764,18 @@ export default {
                 payload: { action: 'initGuide', index: this.locale },
             });
 
-            // Set default translation language
-            this.$store.commit('setSearchNotification', {
-                target: 'mail',
-                payload: {
-                    action: 'initTranslationSettings',
-                    data: {
-                        language: this.localeDetail.iso3,
-                        locale: this.locale,
+            this.$nextTick(() => {
+                // Set default translation language
+                this.$store.commit('setSearchNotification', {
+                    target: 'mail',
+                    payload: {
+                        action: 'initTranslationSettings',
+                        data: {
+                            language: this.localeDetail.iso3,
+                            locale: this.locale,
+                        },
                     },
-                },
+                });
             });
         },
         /**
@@ -1255,7 +1292,7 @@ export default {
                     relative: new Intl.RelativeTimeFormat(this.localeDetail.iso, { numeric: 'auto' }),
                 };
                 window.displayFormatters = {
-                    region: new Intl.DisplayNames([this.localeDetail.iso], { type: 'region' }),
+                    region: Intl.DisplayNames ? new Intl.DisplayNames([this.localeDetail.iso], { type: 'region' }) : { of: (name) => name },
                 };
             } else {
                 timeFormattersInited = true;
@@ -1519,6 +1556,9 @@ html::-webkit-scrollbar {
         overflow: hidden;
     }
 }
+.v-dialog {
+    width: 100%;
+}
 .gray-container, .v-window-item > .container, .v-main__wrap > .container {
     background-color: #F5F5F5;
 }
@@ -1687,6 +1727,9 @@ html::-webkit-scrollbar {
 .welcome-dialog .welcome-dialog-card {
     border-radius: 8px;
     overflow: hidden;
+    .a11y-icon {
+        font-size: 16px;
+    }
     .stepper {
         position: absolute;
         top: 30px;
@@ -2058,17 +2101,18 @@ code, kbd, pre, samp {
         "backend_reconnect": "Backend is up",
         "backend_reconnect_body": "We have just reconnected to the backend",
         "search": "Search…",
+        "a11y_settings": "A11y Settings…",
         "welcome": "Hi there!",
         "not_yet": "Seems like you haven't set up your UoM Assistant yet",
         "press_to_settings": "Press \"Continue\" to set up your own dashboard",
         "continue": "Continue",
         "next": "Next",
-        "import": "Import",
+        "import": "Import…",
         "skip": "Skip",
         "value_privacy": "We value your privacy",
         "privacy_policy": "We understand how important your UoM account is to you. All your private data will be stored locally in your browser and will not be shared with any third party without your consent.",
         "read_privacy_policy": "Check out our {0}.",
-        "privacy_policy_link": "privacy policy",
+        "privacy_policy_link": "Privacy policy",
         "student_lead": "A student-led project",
         "not_offical": "UoM Assistant is not a product developed or published by the University of Manchester. ",
         "lead_by": "This project was designed and developed by a team of UoM students and is not an official representation of UoM.",
@@ -2108,7 +2152,8 @@ code, kbd, pre, samp {
         "mail": "Inbox",
         "grade": "Grade Summary",
         "plugins": "Plug-ins",
-        "new_course_sound": "Check-in Bell"
+        "new_course_sound": "Check-in Bell",
+        "a11y_settings_title": "Accessibility settings"
     },
     "zh": {
         "title": "曼大助手",
@@ -2127,12 +2172,13 @@ code, kbd, pre, samp {
         "backend_reconnect": "后端已恢复",
         "backend_reconnect_body": "已经成功连接到后端",
         "search": "搜索…",
+        "a11y_settings": "可访问性设置…",
         "welcome": "欢迎！",
         "not_yet": "看起来你还没有配置你的曼大助手",
         "press_to_settings": "点按“开始设置”来配置你的个人仪表板",
         "continue": "开始设置",
         "next": "下一步",
-        "import": "导入",
+        "import": "导入…",
         "skip": "跳过",
         "value_privacy": "我们尊重你的隐私",
         "privacy_policy": "我们深知你的曼大账号对你的重要性。你的所有私密数据均会被保存于浏览器本地，且在你授权之前曼大助手不会将你的私密数据分享给第三方。",
@@ -2177,7 +2223,8 @@ code, kbd, pre, samp {
         "mail": "收件箱",
         "grade": "成绩概览",
         "plugins": "插件",
-        "new_course_sound": "签到铃"
+        "new_course_sound": "签到铃",
+        "a11y_settings_title": "可访问性设置"
     },
     "es": {
         "title": "UoM Assistant",

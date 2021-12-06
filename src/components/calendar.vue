@@ -959,6 +959,7 @@ export default {
             // Check event change every minute
             if (this.timerMin !== '00') {
                 requestIdleCallback(() => {
+                    this.updateCurrentDate();
                     this.updateTime();
                     this.$refs.calendar.checkChange();
                 }, { timeout: 3000 });
@@ -972,7 +973,6 @@ export default {
             if (this.timerHour.substr(0, 2) === '00' || new Date().getDate() !== this.nowDate) {
                 this.nowDate = new Date().getDate();
                 this.refreshId = new Date().valueOf();
-                this.updateCurrentDate();
                 this.updateTime();
             }
         },
@@ -1344,8 +1344,8 @@ export default {
         "ical_error": "Error al analizar el archivo de calendario",
         "error_at": "{0} en {1}",
         "first_day_settings": "",
-        "cancel": "",
-        "save": "",
+        "cancel": "Cancelar",
+        "save": "Guardar",
         "clock_change_pos": "",
         "clock_change_neg": "",
         "local_time": "",
