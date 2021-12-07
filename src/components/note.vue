@@ -1869,7 +1869,7 @@ export default {
         "editing_toc": "Tabla de contenidos no es visible cuando en edición",
         "switch_to_view": "Cambiar a modo vista",
         "switch_to_edit": "Cambiar a modo edición",
-        "uoma_guide": "",
+        "uoma_guide": "Visita rápida UoM Assistant",
         "markdown_guide": "📎 Apuntes Rápidos Markdown: Guía de sintaxis extendida"
     },
     "ja": {
