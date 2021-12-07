@@ -74,8 +74,14 @@ export default {
         "color_blind_assistance_text": "激活色彩辅助可使难以辨别红/绿色谱的用户更轻松地辨认颜色。"
     },
     "es": {
-        "color_blind_assistance": "Color Asistencia",
-        "color_blind_assistance_text": "Activando Color Asistencia ayuda a usuarios quien tengan dificultades en distinguir rojo/verde del espectro a reconocer colores más facilmente."
+        "color_blind_assistance": "Color asistencia",
+        "color_blind_assistance_text": "Activando color asistencia ayuda a usuarios quien tengan dificultades en distinguir rojo/verde del espectro a reconocer colores más facilmente.",
+        "change_live_announcement": "Anuncio de cambios en vivo",
+        "change_live_announcement_text": "Anuncia cambios de contenido a los usuarios de lectores de pantalla cuando se actualicen las páginas.",
+        "reduce_motion": "Reducir movimiento",
+        "reduce_motion_text": "Reduce algunos efectos de animación para reducir posibles incomodidades.",
+        "dyslexic_type": "Fuente fácil de leer",
+        "dyslexic_type_text": "Intentando usar la fuente OpenDyslexic para aliviar la dislexia."
     },
     "ja": {
         "color_blind_assistance": "",
