@@ -1170,6 +1170,9 @@ export default {
             if (this.$route.path === '/' && localStorage.getItem('setup') !== 'true') {
                 this.welcome = true;
             }
+            if (this.$route.path === '/settings' && localStorage.getItem('setup') !== 'true') {
+                this.$router.replace('/');
+            }
         },
     },
     computed: {
@@ -1401,6 +1404,15 @@ export default {
             }, 7200000);
         }
 
+        // Apply a11y settings
+        const data = JSON.parse(localStorage.getItem('misc_settings')) || {};
+        if (data.reduceMotion) {
+            document.documentElement.classList.add('reduce-motion');
+        }
+        if (data.easyRead) {
+            document.documentElement.classList.add('easy-read');
+        }
+
         this.$router.onReady(() => {
             this.checkWelcome();
         });
@@ -1531,8 +1543,52 @@ export default {
     }
 }
 
+@font-face {
+    font-family: 'OpenDyslexic';
+    font-weight: normal;
+    src: url("/fonts/OpenDyslexic3-Regular.woff2") format("woff2"),
+         url("/fonts/OpenDyslexic3-Regular.woff") format("woff"),
+         url("/fonts/OpenDyslexic3-Regular.ttf") format("truetype"),
+}
+@font-face {
+    font-family: 'OpenDyslexic';
+    font-weight: bold;
+    src: url("/fonts/OpenDyslexic3-Bold.woff2") format("woff2"),
+         url("/fonts/OpenDyslexic3-Bold.woff") format("woff"),
+         url("/fonts/OpenDyslexic3-Bold.ttf") format("truetype"),
+}
+@font-face {
+    font-family: 'OpenDyslexicMono';
+    font-weight: bold;
+    src: url("/fonts/OpenDyslexicMono-Regular.woff2") format("woff2"),
+         url("/fonts/OpenDyslexicMono-Regular.woff") format("woff"),
+         url("/fonts/OpenDyslexicMono-Regular.otf") format("opentype"),
+}
+
 html::-webkit-scrollbar {
     width: 0;
+}
+html.reduce-motion *:not(.block) {
+    transition: none!important;
+}
+html.easy-read {
+    .v-application, .v-application * {
+        font-family: OpenDyslexic, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif!important;
+    }
+    .v-application {
+        code, kbd, pre, samp {
+            font-family: OpenDyslexicMono, Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace!important;
+        }
+        .v-list-item__subtitle {
+            font-size: 14px;
+        }
+        .note-container .list .time-icon, .note-search-container .list .time-icon, .mail-container .list .person-icon, .mail-container .list .time-icon, .mail-search-container .list .person-icon, .mail-search-container .list .time-icon, .search-grade-container .list .v-list-item__subtitle > span > i {
+            vertical-align: initial;
+        }
+        .text-h1, .overline, .title, .mail-view-subject > span, .mail-detail .text-body-2, .mail-translation .text-body-2 {
+            font-family: OpenDyslexic, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif!important;
+        }
+    }
 }
 .v-application {
     font-family: Roboto, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif;
@@ -1956,7 +2012,7 @@ html::-webkit-scrollbar {
     top: -100%;
 }
 code, kbd, pre, samp {
-    font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
+    font-family: "Roboto Mono", Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
 }
 @media (max-width: 960px) {
     .global-search-input {
@@ -2175,7 +2231,7 @@ code, kbd, pre, samp {
         "a11y_settings": "可访问性设置…",
         "welcome": "欢迎！",
         "not_yet": "看起来你还没有配置你的曼大助手",
-        "press_to_settings": "点按“开始设置”来配置你的个人仪表板",
+        "press_to_settings": "点按「开始设置」来配置你的个人仪表板",
         "continue": "开始设置",
         "next": "下一步",
         "import": "导入…",
@@ -2202,7 +2258,7 @@ code, kbd, pre, samp {
         "account_notice_title": "未设置账户信息",
         "account_notice_body": "你没有设置曼大账户信息，这将会导致成绩概览、出勤统计及邮箱组件不可用。确定要继续吗？",
         "cancel": "取消",
-        "setup_done": "<p>恭喜！你的曼大助手仪表板已经设置完毕，可以使用了。</p><p>现在你可以在“快速笔记”组件中找到名为《曼大助手漫游指南》的笔记。这篇笔记简单介绍了曼大助手的各项功能，你可以通过这篇笔记快速熟悉曼大助手的使用。</p><p>多亏了曼大助手社区志愿者的帮助，你现在可以通过“插件”组件中的 \"Course Info Importer\" 插件尝试寻找并快速导入对应年级的课程数据而无需手动填写课程数据。</p><p>要了解更多有关曼大助手的信息，欢迎访问我们的 <a href=\"https://github.com/uom-assistant/uom-assistant\" target=\"_blank\" rel=\"noopener nofollow\">GitHub</a>。",
+        "setup_done": "<p>恭喜！你的曼大助手仪表板已经设置完毕，可以使用了。</p><p>现在你可以在「快速笔记」组件中找到名为《曼大助手漫游指南》的笔记。这篇笔记简单介绍了曼大助手的各项功能，你可以通过这篇笔记快速熟悉曼大助手的使用。</p><p>多亏了曼大助手社区志愿者的帮助，你现在可以通过「插件」组件中的 \"Course Info Importer\" 插件尝试寻找并快速导入对应年级的课程数据而无需手动填写课程数据。</p><p>要了解更多有关曼大助手的信息，欢迎访问我们的 <a href=\"https://github.com/uom-assistant/uom-assistant\" target=\"_blank\" rel=\"noopener nofollow\">GitHub</a>。",
         "network_error": "网络错误，无法验证你的曼大账户信息，请稍后重试。",
         "backend_error": "后端错误，无法验证你的曼大账户信息，请稍后重试。",
         "backend_maintenance": "后端正在维护，无法验证你的曼大账户信息，请稍后重试。",

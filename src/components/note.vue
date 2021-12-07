@@ -1434,7 +1434,7 @@ export default {
             .CodeMirror {
                 height: 500px;
                 padding: 0;
-                font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
+                font-family: "Roboto Mono", Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
                 line-height: 22px;
                 overscroll-behavior: contain;
                 pre.CodeMirror-line, pre.CodeMirror-line-like {
@@ -1815,7 +1815,7 @@ export default {
         "cancel": "取消",
         "ok": "好",
         "want_remove": "你确定要删除选中的 {0} 个笔记吗？ | 你确定要删除选中的 {0} 个笔记吗？",
-        "want_remove_single": "你确定要删除笔记“{0}”吗？",
+        "want_remove_single": "你确定要删除笔记「{0}」吗？",
         "remove_all": "你确定要删除所有笔记吗？",
         "too_many_title": "太多笔记了",
         "too_many_body": "这不是一个错误。你正在创建超过 50 个笔记，这不是一个好主意。请考虑将它们移动到笔记管理应用等更合适的地方。无论如何，你仍然可以继续使用快速笔记。",

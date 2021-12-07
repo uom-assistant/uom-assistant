@@ -513,6 +513,10 @@ p {
         }
     }
 }
+.easy-read .time-label {
+    font-size: 28px;
+    line-height: 35px;
+}
 #app.theme--dark .gray-container {
     background-color: #1E1E1E;
     .settings-bg {

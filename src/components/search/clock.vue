@@ -202,6 +202,9 @@ p {
     border-radius: 6px;
     contain: layout paint;
 }
+.easy-read .clock-outer {
+    font-size: 28px;
+}
 #app.theme--dark .gray-container {
     background-color: #272727;
 }

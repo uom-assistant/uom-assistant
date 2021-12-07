@@ -59,7 +59,7 @@
                     <v-list-item class="pa-0" :ripple="false">
                         <template v-slot:default="{ active }">
                             <v-list-item-content class="ui-list-item">
-                                <v-list-item-title class="mt-1 d-flex align-center">{{ $t('network_proxy') }}</v-list-item-title>
+                                <v-list-item-title class="mt-1 d-flex align-center switch-list-title">{{ $t('network_proxy') }}</v-list-item-title>
                             </v-list-item-content>
                             <v-list-item-action>
                                 <v-switch :input-value="active"></v-switch>
@@ -118,7 +118,7 @@
                     <v-list-item class="pa-0" :ripple="false">
                         <template v-slot:default="{ active }">
                             <v-list-item-content class="ui-list-item">
-                                <v-list-item-title class="mt-1 d-flex align-center">{{ $t('auto_dark_mode') }}</v-list-item-title>
+                                <v-list-item-title class="mt-1 d-flex align-center switch-list-title">{{ $t('auto_dark_mode') }}</v-list-item-title>
                                 <v-list-item-subtitle class="mt-1">{{ $t('auto_dark_mode_text') }}</v-list-item-subtitle>
                             </v-list-item-content>
                             <v-list-item-action>
@@ -296,6 +296,12 @@ export default {
             line-height: 1.2;
             color: rgba(0, 0, 0, .6);
             margin: 0 0 20px 0;
+        }
+        .switch-list-title {
+            height: 25px;
+        }
+        .v-list-item {
+            min-height: 0;
         }
     }
     hr {

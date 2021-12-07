@@ -12,6 +12,7 @@
     "update:timezone": "node ./scripts/update_timezone.js"
   },
   "dependencies": {
+    "@vue-a11y/announcer": "^2.1.0",
     "codemirror": "^5.63.1",
     "core-js": "^3.18.2",
     "csvtojson": "^2.0.10",
