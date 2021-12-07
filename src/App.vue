@@ -2311,6 +2311,7 @@ code, kbd, pre, samp {
         "backend_reconnect": "バックエンドは今正常に戻りました",
         "backend_reconnect_body": "バックエンドへの接続に成功しました",
         "search": "検索…",
+        "a11y_settings": "ユーザー補助設定…",
         "welcome": "ようこそ！",
         "not_yet": "まだUoMアシスタントを設定されないようです..",
         "press_to_settings": "『セットアップ』をクリックして、あなたのダッシュボードを設定してください。",
@@ -2339,10 +2340,10 @@ code, kbd, pre, samp {
         "clock": "時計",
         "bblinks": "クイックリンク",
         "livelinks": "オンライン授業リンク",
-        "done": "",
+        "done": "完成",
         "account_notice_title": "",
         "account_notice_body": "",
-        "cancel": "",
+        "cancel": "キャンセル",
         "setup_done": "",
         "network_error": "",
         "backend_error": "",
@@ -2351,8 +2352,8 @@ code, kbd, pre, samp {
         "login_error": "",
         "login_error_title": "",
         "privacy_policy_text": "",
-        "lock_layout": "",
-        "unlock_layout": "",
+        "lock_layout": "レイアウトをロックする",
+        "unlock_layout": "レイアウトをロック解除する",
         "subjects": "科目管理",
         "attendance": "出席統計",
         "calendar": "カレンダー",
@@ -2361,7 +2362,8 @@ code, kbd, pre, samp {
         "mail": "受信トレイ",
         "grade": "成績概要",
         "plugins": "プラグイン",
-        "new_course_sound": ""
+        "new_course_sound": "チェクイン通知音",
+        "a11y_settings_title": "ユーザー補助設定"
     }
 }
 </i18n>

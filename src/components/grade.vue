@@ -1377,7 +1377,7 @@ export default {
         "network_error_body": "",
         "cannot_fetch": "成績情報を取得できません。バックエンドの情報が正しく設定されていないか、バックエンドが許可していない可能性があります。",
         "learn_more": "もっと詳しく",
-        "empty_subject": "まだ成績情報がありない科目",
+        "empty_subject": "まだ成績情報なし科目",
         "more_info": "詳細",
         "etc": "等々",
         "total": "合計 {0} 件",
