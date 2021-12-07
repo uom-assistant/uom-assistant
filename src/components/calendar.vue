@@ -1343,13 +1343,13 @@ export default {
         "self_study": " (Autoestudio)",
         "ical_error": "Error al analizar el archivo de calendario",
         "error_at": "{0} en {1}",
-        "first_day_settings": "",
+        "first_day_settings": "Primer día de la semana",
         "cancel": "Cancelar",
         "save": "Guardar",
-        "clock_change_pos": "",
-        "clock_change_neg": "",
-        "local_time": "",
-        "uk_time": ""
+        "clock_change_pos": "Cambio de hora en este día. Avanza {0} minutos.",
+        "clock_change_neg": "Cambio de hora en este día. Retrocede {0} minutos.",
+        "local_time": " (local)",
+        "uk_time": " (Reino Unido)"
     },
     "ja": {
         "today": "今日",
