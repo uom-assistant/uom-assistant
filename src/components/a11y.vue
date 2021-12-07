@@ -78,8 +78,14 @@ export default {
         "color_blind_assistance_text": ""
     },
     "ja": {
-        "color_blind_assistance": "",
-        "color_blind_assistance_text": ""
+        "color_blind_assistance": "色輔助",
+        "color_blind_assistance_text": "色輔助を有効にすると、色覚に障害があるユーザーが色をより簡単に識別できるようになります。",
+        "change_live_announcement": "ページの変更をライブに発知",
+        "change_live_announcement_text": "ページの変更をライブに発知することで、画面リーダーを利用するユーザーにページの変更を知らせます。",
+        "reduce_motion": "動画モーションを減らす",
+        "reduce_motion_text": "動画モーションを減らすことで、不快な感覚をちょっと緩和することができます。",
+        "dyslexic_type": "自然読みのためのフォント",
+        "dyslexic_type_text": "OpenDyslexicフォントを使用してみて、失読症（ディスレクシア）を軽減することができます。"
     }
 }
 </i18n>
