@@ -362,7 +362,7 @@ export default {
     "es": {
         "no_subject": "No asignaturas",
         "just_now": "Ahora mismo",
-        "flagged": "Marcado",
+        "flagged": "Marcado"
     },
     "ja": {
         "no_subject": "件名無し",
