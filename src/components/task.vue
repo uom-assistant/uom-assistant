@@ -816,8 +816,8 @@ export default {
         "remain_hour": "{0} hora | {0} horas",
         "remain_min": "{0} minuto | {0} minutos",
         "expired": "Atrasado",
-        "quick_add": "",
-        "coursework_list": "",
+        "quick_add": "Adición rápida de trabajo de asignatura",
+        "coursework_list": "List de trabajos de asignaturas",
         "close": "Cerrar"
     },
     "ja": {
