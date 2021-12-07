@@ -1363,12 +1363,13 @@ export default {
         "etc": "etc.",
         "total": "{0} en total",
         "formative": "Formativa",
-        "Semester 1": "",
-        "Semester 2": "",
-        "All Year": "",
-        "waiting": "",
+        "Semester 1": "Semestre 1",
+        "Semester 2": "Semestre 2",
+        "All Year": "Todo el año",
+        "waiting": "En espera",
         "na": "N/A",
-        "empty": ""
+        "empty": "No hay datos",
+        "copy": "Clic para copiar"
     },
     "ja":
     {
