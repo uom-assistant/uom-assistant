@@ -74,8 +74,8 @@ export default {
         "color_blind_assistance_text": "激活色彩辅助可使难以辨别红/绿色谱的用户更轻松地辨认颜色。"
     },
     "es": {
-        "color_blind_assistance": "",
-        "color_blind_assistance_text": ""
+        "color_blind_assistance": "Color Asistencia",
+        "color_blind_assistance_text": "Activando Color Asistencia ayuda a usuarios quien tengan dificultades en distinguir rojo/verde del espectro a reconocer colores más facilmente."
     },
     "ja": {
         "color_blind_assistance": "",
