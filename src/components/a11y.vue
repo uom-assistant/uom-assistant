@@ -151,8 +151,14 @@ export default {
         "dyslexic_type_text": "尝试使用 OpenDyslexic 字体缓解阅读障碍。"
     },
     "es": {
-        "color_blind_assistance": "",
-        "color_blind_assistance_text": ""
+        "color_blind_assistance": "Color asistencia",
+        "color_blind_assistance_text": "Activando color asistencia ayuda a usuarios quien tengan dificultades en distinguir rojo/verde del espectro a reconocer colores más facilmente.",
+        "change_live_announcement": "Anuncio de cambios en vivo",
+        "change_live_announcement_text": "Anuncia cambios de contenido a los usuarios de lectores de pantalla cuando se actualicen las páginas.",
+        "reduce_motion": "Reducir movimiento",
+        "reduce_motion_text": "Reduce algunos efectos de animación para reducir posibles incomodidades.",
+        "dyslexic_type": "Fuente fácil de leer",
+        "dyslexic_type_text": "Intentando usar la fuente OpenDyslexic para aliviar la dislexia."
     },
     "ja": {
         "color_blind_assistance": "",
