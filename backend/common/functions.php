@@ -14,7 +14,7 @@ require(dirname(__FILE__).'/read_config.php');
 
 /**
  * Parse POST data from JSON to array
- * 
+ *
  * @return array Post data as an array
  */
 function get_post_data(): array {
@@ -27,7 +27,7 @@ function get_post_data(): array {
 
 /**
  * Print error message and end request
- * 
+ *
  * @param string $reason The reason of the error
  * @param mysqli $conn Database connecter, if given, the connection will be closed before die
  * @return void
@@ -55,7 +55,7 @@ function rest_die(string $reason, $conn = null): void {
 
 /**
  * Print REST response
- * 
+ *
  * @param mixed $data Response data
  * @return void
  */
@@ -75,7 +75,7 @@ function rest_response($data): void {
 
 /**
  * Global handler for exceptions
- * 
+ *
  * @param mixed $exception Exception instance
  * @return void
  */
@@ -85,7 +85,7 @@ function exception_handler($exception): void {
 
 /**
  * Connect to database
- * 
+ *
  * @return mysqli Database connection object if connection is established
  */
 function connect_to_database(): mysqli {
@@ -102,7 +102,7 @@ function connect_to_database(): mysqli {
 
 /**
  * Validate data
- * 
+ *
  * @param string $type Data type
  * @param string $data Data to be validated
  * @return bool If the given data is validated
@@ -121,7 +121,7 @@ function validate_data(string $type, string $data): bool {
 
 /**
  * Get user info from post data
- * 
+ *
  * @param mysql $conn Database connecter, if given, the connection will be closed if there is any error
  * @return array User info
  */
@@ -152,7 +152,7 @@ function get_user($conn = null): array {
 
 /**
  * Connect to database
- * 
+ *
  * @param mysqli $conn Database connection object if connection is established
  * @return mixed Token ability or false
  */

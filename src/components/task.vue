@@ -15,6 +15,9 @@
             <h2 class="handle">
                 {{ $t('task') }}
                 <span class="num-badge" v-show="(tasks.length - ifTasks.length) > 0">{{ tasks.length - ifTasks.length }}</span>
+                <v-btn icon small class="float-right mr-4" :title="$t('quick_add')" @click="courseworkList = true">
+                    <v-icon>mdi-playlist-plus</v-icon>
+                </v-btn>
             </h2>
             <v-text-field
                 :label="$t('add_task')"
@@ -174,6 +177,27 @@
                 <v-icon color="grey" x-large>mdi-check-all</v-icon>
             </div>
         </div>
+        <v-dialog
+            v-model="courseworkList"
+            max-width="500"
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('coursework_list') }}
+                </v-card-title>
+                <v-card-text></v-card-text>
+                <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                    color="primary"
+                    text
+                    @click="courseworkList = false"
+                >
+                    {{ $t('close') }}
+                </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-card>
 </template>
 
@@ -199,6 +223,7 @@ export default {
             addingSubject: '',
             updateListKey: '',
             updateDatePickerKey: 0,
+            courseworkList: false,
             timer: null,
         };
     },
@@ -452,7 +477,7 @@ export default {
          * @returns {string} formatted a date string
          */
         getDate(dateObj) {
-            return formatDateTime(dateObj, this.locale, false);
+            return formatDateTime(dateObj, this.locale, window.uomaTimeFormatters, false);
         },
         /**
          * Build search index
@@ -760,7 +785,10 @@ export default {
         "remain_day": "{0} day | {0} days",
         "remain_hour": "{0} hour | {0} hours",
         "remain_min": "{0} min | {0} mins",
-        "expired": "Overdue"
+        "expired": "Overdue",
+        "quick_add": "Coursework quick adding",
+        "coursework_list": "Coursework list",
+        "close": "Close"
     },
     "zh": {
         "task": "任务",
@@ -772,7 +800,10 @@ export default {
         "remain_day": "{0} 天 | {0} 天",
         "remain_hour": "{0} 小时 | {0} 小时",
         "remain_min": "{0} 分钟 | {0} 分钟",
-        "expired": "已过期"
+        "expired": "已过期",
+        "quick_add": "快速添加作业",
+        "coursework_list": "作业列表",
+        "close": "关闭"
     },
     "es": {
         "task": "Tarea",
@@ -784,7 +815,10 @@ export default {
         "remain_day": "{0} día | {0} días",
         "remain_hour": "{0} hora | {0} horas",
         "remain_min": "{0} minuto | {0} minutos",
-        "expired": "Atrasado"
+        "expired": "Atrasado",
+        "quick_add": "",
+        "coursework_list": "",
+        "close": "Cerrar"
     },
     "ja": {
         "task": "タスク",
@@ -796,7 +830,10 @@ export default {
         "remain_day": "{0} 日 | {0} 日",
         "remain_hour": "{0} 時間 | {0} 時間",
         "remain_min": "{0} 分 | {0} 分",
-        "expired": "期限切れた"
+        "expired": "期限切れた",
+        "quick_add": "",
+        "coursework_list": "",
+        "close": "閉じる"
     }
 }
 </i18n>

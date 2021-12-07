@@ -130,7 +130,7 @@ export default {
             refreshKey: 0,
             icaHelper: false,
             rulesUrl: [
-                (value) => (value === '' || /^((https):\/\/)[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*(\.ics))$/i.test(value)) || '',
+                (value) => (value === '' || /^(https:\/\/scientia-eu-v3-3-0-api-d3-02.azurewebsites.net\/api\/ical\/)([a-z]|\d|-)+\/([a-z]|\d|-)+(\/timetable\.ics)$/i.test(value)) || '',
             ],
             rulesUsername: [
                 (value) => (value === '' || /^[a-z]\d{5}[a-z]{2}$/i.test(value.toLowerCase())) || '',
@@ -243,11 +243,11 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.inline-icon {
-    vertical-align: baseline!important;
-    margin-left: 5px;
-    font-size: 22px!important;
-}
+// .inline-icon {
+//     vertical-align: baseline!important;
+//     margin-left: 5px;
+//     font-size: 22px!important;
+// }
 .help-icon {
     vertical-align: text-top!important;
 }
@@ -255,6 +255,11 @@ export default {
     user-select: none;
     display: inline-block;
     cursor: pointer;
+    font-size: 14px;
+    color: rgba(0, 0, 0, .6);
+}
+#app.theme--dark .clickable {
+    color: rgba(255, 255, 255, .7);
 }
 </style>
 

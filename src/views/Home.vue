@@ -222,13 +222,14 @@ export default {
             checkinDialog: false,
             checkinCourses: [],
             widgetList: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            init: false,
         };
     },
     watch: {
         locale() {
             // Responding to language changes and update time format
             this.$i18n.locale = this.locale;
-            this.nowDate = formatDate(new Date(), this.locale);
+            this.nowDate = formatDate(new Date(), this.locale, window.uomaTimeFormatters);
         },
         widgets() {
             // Update layout
@@ -271,6 +272,7 @@ export default {
             subjects: (state) => state.subjects,
             classBell: (state) => state.classBell,
             layoutLock: (state) => state.layoutLock,
+            timeFormatters: (state) => state.timeFormatters,
         }),
     },
     methods: {
@@ -278,7 +280,7 @@ export default {
          * Update date
          */
         getDate() {
-            this.nowDate = formatDate(new Date(), this.locale);
+            this.nowDate = formatDate(new Date(), this.locale, window.uomaTimeFormatters);
         },
         /**
          * Update upcoming events
@@ -360,7 +362,7 @@ export default {
                     this.checkinCourses = [this.checkinCourses[this.checkinCourses.length - 1]];
                 }
 
-                if (oldName !== nextEvent.rawTitle && course === null && this.checkinCourses.length === 1) {
+                if (oldName !== nextEvent.rawTitle && course === null && this.checkinCourses.length === 1 && this.minAfter <= 10) {
                     this.checkinCourses = [];
                     this.showCheckInNotice = false;
                     this.hasCheckedIn = false;
@@ -394,7 +396,7 @@ export default {
          * Check whether the event needs to be checked in
          */
         needsCheckin(eventName, courseName) {
-            if (!eventName.includes('/') || eventName.includes('/LAB')) {
+            if (!eventName.includes('/')) {
                 return null;
             }
             return {
@@ -512,6 +514,8 @@ export default {
         // Initialize language
         this.$i18n.locale = localStorage.getItem('language') || 'en';
 
+        this.init = true;
+
         // Initialize plugin widget width
         this.pluginExpanded = (localStorage.getItem('plugin_expanded') || 'false') === 'true';
 
@@ -521,7 +525,7 @@ export default {
             currentTimeZone = localStorage.getItem('current_timezone');
         }
 
-        const clientTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const clientTimeZone = window.uomaTimeFormatters.date.resolvedOptions().timeZone;
         if (currentTimeZone !== clientTimeZone) {
             if (currentTimeZone !== '') {
                 this.timezoneChanged = true;
@@ -567,6 +571,16 @@ export default {
             this.$nextTick(() => {
                 this.lockLayout(this.layoutLock);
             });
+        });
+    },
+    beforeRouteEnter(to, from, next) {
+        next((vm) => {
+            if (vm.init) {
+                vm.$nextTick(() => {
+                    vm.packery.layout();
+                    vm.$store.commit('setRerender', new Date().valueOf());
+                });
+            }
         });
     },
 };
@@ -631,13 +645,16 @@ export default {
             height: 100%;
             z-index: 0;
             opacity: .15;
-            transition: height .3s;
+            transition: height .3s, border-radius 0s .3s;
             border-radius: 7px!important;
             &.bw {
                 filter: grayscale(1);
             }
             &.has-checkin {
                 height: calc(100% - 50px);
+                border-bottom-left-radius: 0!important;
+                border-bottom-right-radius: 0!important;
+                transition: height .3s, border-radius 0s;
             }
         }
         &.higher {
@@ -800,7 +817,7 @@ export default {
     @media (min-width: 800px) {
         max-width: calc(100% / 2 - 8px);
     }
-    @media (min-width: 1200px) {
+    @media (min-width: 1190px) {
         max-width: calc(100% / 3 - 10.5px);
     }
     @media (min-width: 1600px) {
@@ -827,7 +844,7 @@ export default {
     @media (min-width: 800px) {
         max-width: calc(100% - 2px);
     }
-    @media (min-width: 1200px) {
+    @media (min-width: 1190px) {
         max-width: calc(200% / 3 - 6px);
     }
     @media (min-width: 1600px) {

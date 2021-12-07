@@ -411,7 +411,7 @@ export default {
          * @returns {string} formatted a date string
          */
         getDate(dateObj) {
-            return formatDateTime(dateObj, this.locale);
+            return formatDateTime(dateObj, this.locale, window.uomaTimeFormatters);
         },
     },
     computed: {
@@ -533,6 +533,7 @@ export default {
 <style lang="less">
 .preview-dialog {
     .preview-card {
+        contain: layout paint;
         height: 100%;
         & > div {
             height: 100%;

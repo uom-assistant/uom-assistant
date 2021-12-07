@@ -84,60 +84,70 @@
                 type="list-item-avatar-three-line@4"
                 v-if="!init && loading"
             ></v-skeleton-loader>
-            <div class="scroll" v-if="mails.length > 0" @scroll.passive="scrollHandler" ref="scrollTarget">
-                <v-list flat class="list">
-                    <v-list-item v-for="(mail, index) in mails" :key="mail.id" @click.stop="openMail(mail.id)" :class="{ flaged: mail.flagged, unseen: mail.unseen }" @contextmenu.prevent="(e) => showListMenu(e, mail.id)">
-                        <v-list-item-avatar :color="(mail.flagged || mail.unseen) ? 'uomthemelight' : ($vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2')" v-if="getSubjectId(mail.subject, mail.from) === false" :class="{ 'black--text': ((mail.flagged || mail.unseen) && $vuetify.theme.dark) }">
-                            <span v-if="getMailAvatar(mail.subject, mail.from, mail.fromAddress) === false">{{ getTwoLetterSenderName(mail.from ? mail.from : mail.fromAddress) }}</span>
-                            <v-img v-else :src="require(`@/assets/img/mail-avatars/${getMailAvatar(mail.subject, mail.from, mail.fromAddress)}`)"></v-img>
-                        </v-list-item-avatar>
+            <v-list flat class="list p-0" v-if="mails.length > 0">
+                <v-virtual-scroll
+                    :bench="3"
+                    :items="mails"
+                    height="500"
+                    item-height="78"
+                    @scroll.passive="scrollHandler"
+                    ref="scrollTarget"
+                >
+                    <template v-slot:default="{ item: mail, index }">
+                        <v-list-item :key="mail.id" @click.stop="openMail(mail.id)" :class="{ flaged: mail.flagged, unseen: mail.unseen }" @contextmenu.prevent="(e) => showListMenu(e, mail.id)">
+                            <v-list-item-avatar :color="(mail.flagged || mail.unseen) ? 'uomthemelight' : ($vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2')" v-if="getSubjectId(mail.subject, mail.from) === false" :class="{ 'black--text': ((mail.flagged || mail.unseen) && $vuetify.theme.dark) }">
+                                <span v-if="getMailAvatar(mail.subject, mail.from, mail.fromAddress) === false">{{ getTwoLetterSenderName(mail.from ? mail.from : mail.fromAddress) }}</span>
+                                <img v-else :src="require(`@/assets/img/mail-avatars/${getMailAvatar(mail.subject, mail.from, mail.fromAddress)}`)">
+                            </v-list-item-avatar>
 
-                        <v-list-item-avatar :color="subjectColor(getSubjectId(mail.subject, mail.from))" v-else>
-                            <v-icon color="white" v-if="getMailAvatar(mail.subject, mail.from, mail.fromAddress) === false">mdi-book-outline</v-icon><v-img v-else :src="require(`@/assets/img/mail-avatars/${getMailAvatar(mail.subject, mail.from, mail.fromAddress)}`)"></v-img>
-                        </v-list-item-avatar>
+                            <v-list-item-avatar :color="subjectColor(getSubjectId(mail.subject, mail.from))" v-else>
+                                <v-icon color="white" v-if="getMailAvatar(mail.subject, mail.from, mail.fromAddress) === false">mdi-book-outline</v-icon>
+                                <img v-else :src="require(`@/assets/img/mail-avatars/${getMailAvatar(mail.subject, mail.from, mail.fromAddress)}`)">
+                            </v-list-item-avatar>
 
-                        <v-list-item-content>
-                            <v-list-item-title :class="{ 'primary--text': mail.unseen }"><span v-if="mail.subject" :title="mail.subject">{{ mail.subject }}</span><em v-else>{{ $t('no_subject') }}</em></v-list-item-title>
-                            <v-list-item-subtitle>
-                                <span class="d-block text-truncate from">
+                            <v-list-item-content>
+                                <v-list-item-title :class="{ 'primary--text': mail.unseen }"><span v-if="mail.subject" :title="mail.subject">{{ mail.subject }}</span><em v-else>{{ $t('no_subject') }}</em></v-list-item-title>
+                                <v-list-item-subtitle>
+                                    <span class="d-block text-truncate from">
+                                        <v-icon
+                                            small
+                                            class="person-icon mr-1"
+                                        >
+                                            mdi-account-arrow-right
+                                        </v-icon>
+                                        <span :title="mail.fromAddress">{{ mail.from ? getShortSenderName(mail.from) : mail.fromAddress }}</span>
+                                    </span>
                                     <v-icon
                                         small
-                                        class="person-icon mr-1"
+                                        class="time-icon mr-1"
                                     >
-                                        mdi-account-arrow-right
+                                        mdi-clock-outline
                                     </v-icon>
-                                    <span :title="mail.fromAddress">{{ mail.from ? getShortSenderName(mail.from) : mail.fromAddress }}</span>
-                                </span>
-                                <v-icon
-                                    small
-                                    class="time-icon mr-1"
-                                >
-                                    mdi-clock-outline
-                                </v-icon>
-                                <span :title="getDate(new Date(mail.date * 1000))" :key="timeUpdate(mail.date * 1000) ? `${keyMin}-${index}` : `mail-key-${index}`">{{ displayDate(new Date(mail.date * 1000)) }}</span>
-                                <v-icon
-                                    small
-                                    color="primary"
-                                    class="time-icon ml-2"
-                                    :title="$t('flagged')"
-                                    v-if="mail.flagged"
-                                >
-                                    mdi-flag
-                                </v-icon>
-                                <span v-if="getSubjectId(mail.subject, mail.from) !== false" class="ml-3">
-                                    <span :class="subjectColor(getSubjectId(mail.subject, mail.from))" class="subject-color-samll"></span>
-                                    {{ subjectNameMap(getSubjectId(mail.subject, mail.from)) }}
-                                </span>
-                            </v-list-item-subtitle>
-                        </v-list-item-content>
-                    </v-list-item>
-                </v-list>
-                <div class="more-mail px-4 pb-3 text-body-2 text--secondary" v-show="mails.length > 7">
-                    <i18n path="more_mail" tag="span">
-                        <span><a href="https://outlook.com/student.manchester.ac.uk" target="_blank" rel="noopener nofollow">Outlook</a><a href="https://outlook.com/student.manchester.ac.uk" target="_blank" rel="noopener nofollow" class="no-underline-link"><v-icon x-small color="primary">mdi-open-in-new</v-icon></a></span>
-                    </i18n>
-                </div>
-            </div>
+                                    <span :title="getDate(new Date(mail.date * 1000))" :key="timeUpdate(mail.date * 1000) ? `${keyMin}-${index}` : `mail-key-${index}`" class="relative-time">{{ displayDate(new Date(mail.date * 1000)) }}</span>
+                                    <v-icon
+                                        small
+                                        color="primary"
+                                        class="time-icon ml-2"
+                                        :title="$t('flagged')"
+                                        v-if="mail.flagged"
+                                    >
+                                        mdi-flag
+                                    </v-icon>
+                                    <span v-if="getSubjectId(mail.subject, mail.from) !== false" class="ml-3">
+                                        <span :class="subjectColor(getSubjectId(mail.subject, mail.from))" class="subject-color-samll"></span>
+                                        {{ subjectNameMap(getSubjectId(mail.subject, mail.from)) }}
+                                    </span>
+                                </v-list-item-subtitle>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <div class="more-mail px-4 pb-3 text-body-2 text--secondary" v-if="mails.length > 7 && index === mails.length - 1">
+                            <i18n path="more_mail" tag="span">
+                                <span><a href="https://outlook.com/student.manchester.ac.uk" target="_blank" rel="noopener nofollow">Outlook</a><a href="https://outlook.com/student.manchester.ac.uk" target="_blank" rel="noopener nofollow" class="no-underline-link"><v-icon x-small color="primary">mdi-open-in-new</v-icon></a></span>
+                            </i18n>
+                        </div>
+                    </template>
+                </v-virtual-scroll>
+            </v-list>
             <div class="empty" v-if="mails.length === 0 && init && !loading">
                 {{ $t('nothing') }}
             </div>
@@ -199,10 +209,10 @@
                         </v-list-item>
                         <v-list-item @click="deleteMail(viewing)" :disabled="loading || loadingFlag.length > 0 || downloading !== '' || loadingPreview != ''">
                             <v-list-item-icon>
-                                <v-icon>mdi-delete-outline</v-icon>
+                                <v-icon color="red">mdi-delete-outline</v-icon>
                             </v-list-item-icon>
                             <v-list-item-content>
-                                <v-list-item-title>{{ $t('delete') }}</v-list-item-title>
+                                <v-list-item-title class="red--text">{{ $t('delete') }}</v-list-item-title>
                             </v-list-item-content>
                         </v-list-item>
                     </v-list>
@@ -293,16 +303,27 @@
                                                         :class="(copySuccess && copyingIndex === index) ? 'copied' : ''"
                                                         :title="$t('copy_passcode')"
                                                     >
+                                                        <div class="showing">
+                                                            <v-icon
+                                                                left
+                                                                dark
+                                                                small
+                                                                :color="(copySuccess && copyingIndex === index) ? 'green' : 'gray'"
+                                                                :class="(copySuccess && copyingIndex === index) ? 'mr-0' : ''"
+                                                            >
+                                                                {{ (copySuccess && copyingIndex === index) ? 'mdi-check' : 'mdi-content-copy' }}
+                                                            </v-icon>
+                                                            {{ (copySuccess && copyingIndex === index) ? '' : link.passcode }}
+                                                        </div>
                                                         <v-icon
                                                             left
                                                             dark
                                                             small
-                                                            :color="(copySuccess && copyingIndex === index) ? 'green' : 'gray'"
-                                                            :class="(copySuccess && copyingIndex === index) ? 'mr-0' : ''"
+                                                            color="transparent"
                                                         >
-                                                            {{ (copySuccess && copyingIndex === index) ? 'mdi-check' : 'mdi-content-copy' }}
+                                                            mdi-content-copy
                                                         </v-icon>
-                                                        {{ (copySuccess && copyingIndex === index) ? '' : link.passcode }}
+                                                        <span class="transparent--text">{{ link.passcode }}</span>
                                                     </v-btn>
                                                 </v-list-item-action>
                                             </template>
@@ -362,7 +383,7 @@
                             <div class="mail-time-line mt-1">
                                 <span class="text-body-2 mt-2">
                                     <v-icon class="mr-2" :title="$t('time')">mdi-clock-outline</v-icon>
-                                    {{ getDate(new Date(viewer.date * 1000)) }}
+                                    {{ getDate(new Date(viewer.date * 1000), true) }}
                                 </span>
                             </div>
                             <div class="mail-time-line" v-show="trustedSender(viewer.fromAddress)">
@@ -446,7 +467,7 @@
                 <div class="mail-translation mx-5 pa-3 pr-2 mt-2" v-if="translateEnabled && viewer.translator && viewer.textContent !== '' && viewer.sourceLang !== 'und' && languageMap[viewer.sourceLang] && viewer.sourceLang !== preferredTranslateTo[0] && preferredTranslateTo[1][viewer.translator] !== false && !(!loadingBody && (!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML && viewer.bodyRawHTML !== '')">
                     <div class="translation-notice">
                         <v-icon class="mr-2">mdi-translate</v-icon>
-                        <span class="text-body-2">{{ $t('in_language', [Array.isArray(languageMap[viewer.sourceLang]) ? $t(`lang_${viewer.sourceLang}`) : $t(`lang_${languageMap[viewer.sourceLang].locale}`)]) }}</span>
+                        <span class="text-body-2">{{ $t('in_language', [Array.isArray(languageMap[viewer.sourceLang]) ? $t(`lang_${viewer.sourceLang}`) : getLanguageName(languageMap[viewer.sourceLang])]) }}</span>
                         <v-btn icon @click.stop="viewTranslationExpanded = !viewTranslationExpanded" small class="float-right expand-btn" :title="$t('more')">
                             <v-icon :class="{ 'detail-expanded': viewTranslationExpanded }">mdi-chevron-down</v-icon>
                         </v-btn>
@@ -485,7 +506,7 @@
                                     hide-details
                                     :readonly="viewer.translateState === 'source'"
                                     :disabled="viewer.translateState !== 'source'"
-                                    :value="this.$t(`lang_${preferredTranslateTo[1].locale}`)"
+                                    :value="getLanguageName(preferredTranslateTo[1])"
                                     :label="$t('translate_to')"
                                 ></v-text-field>
                             </div>
@@ -663,8 +684,8 @@
                     color="primary"
                     fixed-tabs
                 >
-                    <v-tab>{{ $t('attachment') }}</v-tab>
-                    <v-tab>{{ $t('reply_forward') }}</v-tab>
+                    <v-tab :key="`mail-send-tabs-1-${rerender}`">{{ $t('attachment') }}</v-tab>
+                    <v-tab :key="`mail-send-tabs-2-${rerender}`">{{ $t('reply_forward') }}</v-tab>
                 </v-tabs>
                 <v-tabs-items v-model="expandTab">
                     <v-tab-item class="expand-tab-item pa-5" :class="{ 'drag-over': isDragOver }" @dragover="isDragOver = true">
@@ -763,10 +784,10 @@
                 </v-list-item>
                 <v-list-item @click="deleteMail(selectedId)" :disabled="loading || loadingFlag.length > 0 || downloading !== '' || loadingPreview != ''">
                     <v-list-item-icon>
-                        <v-icon>mdi-delete-outline</v-icon>
+                        <v-icon color="red">mdi-delete-outline</v-icon>
                     </v-list-item-icon>
                     <v-list-item-content>
-                        <v-list-item-title>{{ $t('delete') }}</v-list-item-title>
+                        <v-list-item-title class="red--text">{{ $t('delete') }}</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
             </v-list>
@@ -800,7 +821,6 @@
             v-model="translateSettingsDialog"
             max-width="500"
             content-class="translate-settings"
-            persistent
         >
             <v-card>
                 <v-card-title class="headline">
@@ -823,7 +843,7 @@
                         item-value="code"
                         item-text="name"
                         prepend-inner-icon="mdi-translate"
-                        :items="preferredLanguageList"
+                        :items="preferredLanguageList()"
                         :label="$t('translate_to_language')"
                         :no-data-text="$t('no_language')"
                         :key="`preferred-lang-to-${locale}`"
@@ -900,8 +920,301 @@ import { mailCss, mailDarkCss, mailTextCss } from '@/tools/mailCss';
 import 'codemirror/theme/xq-light.css';
 import 'codemirror/lib/codemirror.css';
 
+const fileIconMap = {
+    pdf: 'file-pdf-box',
+    zip: 'zip-box-outline',
+    rar: 'zip-box-outline',
+    '7z': 'zip-box-outline',
+    gz: 'zip-box-outline',
+    tar: 'zip-box-outline',
+    mp4: 'play-box-outline',
+    m4v: 'play-box-outline',
+    webm: 'play-box-outline',
+    flv: 'play-box-outline',
+    ogv: 'play-box-outline',
+    mpeg: 'play-box-outline',
+    avi: 'play-box-outline',
+    mov: 'play-box-outline',
+    mp3: 'music-note-outline',
+    wav: 'music-note-outline',
+    flac: 'music-note-outline',
+    ape: 'music-note-outline',
+    dsd: 'music-note-outline',
+    ogg: 'music-note-outline',
+    oga: 'music-note-outline',
+    aac: 'music-note-outline',
+    jpg: 'image',
+    jpeg: 'image',
+    png: 'image',
+    bmp: 'image',
+    gif: 'image',
+    webp: 'image',
+    nef: 'image',
+    raw: 'image',
+    ppt: 'microsoft-powerpoint',
+    pptx: 'microsoft-powerpoint',
+    pptm: 'microsoft-powerpoint',
+    pps: 'microsoft-powerpoint',
+    ppsx: 'microsoft-powerpoint',
+    ppsm: 'microsoft-powerpoint',
+    pot: 'microsoft-powerpoint',
+    potx: 'microsoft-powerpoint',
+    potm: 'microsoft-powerpoint',
+    doc: 'microsoft-word',
+    docx: 'microsoft-word',
+    docm: 'microsoft-word',
+    dot: 'microsoft-word',
+    dotx: 'microsoft-word',
+    dotm: 'microsoft-word',
+    xls: 'microsoft-excel',
+    xlsx: 'microsoft-excel',
+    xlsm: 'microsoft-excel',
+    xlsb: 'microsoft-excel',
+    xlt: 'microsoft-excel',
+    xltx: 'microsoft-excel',
+    xltm: 'microsoft-excel',
+    txt: 'file-document-outline',
+    py: 'language-python',
+    pyc: 'language-python',
+    java: 'language-java',
+    jar: 'language-java',
+    class: 'language-java',
+    js: 'language-javascript',
+    mjs: 'language-javascript',
+    ts: 'language-typescript',
+    jsx: 'react',
+    tsx: 'react',
+    json: 'code-json',
+    c: 'language-c',
+    h: 'language-c',
+    cpp: 'language-cpp',
+    hpp: 'language-cpp',
+    r: 'language-r',
+    rs: 'language-rust',
+    go: 'language-go',
+    hs: 'language-haskell',
+    lhs: 'language-haskell',
+    sass: 'sass',
+    scss: 'sass',
+    lua: 'language-lua',
+    rb: 'language-ruby',
+    erb: 'language-ruby',
+    gemfile: 'language-ruby',
+    html: 'language-html5',
+    htm: 'language-html5',
+    xml: 'xml',
+    md: 'language-markdown-outline',
+    php: 'language-php',
+    css: 'language-css3',
+    vue: 'vuejs',
+    dockerfile: 'docker',
+    dockerignore: 'docker',
+    gitignore: 'git',
+    npmignore: 'npm',
+    psd: 'drawing-box',
+    svg: 'svg',
+    woff: 'format-size',
+    woff2: 'format-size',
+    ttf: 'format-size',
+    otf: 'format-size',
+    vsix: 'microsoft-visual-studio-code',
+    csv: 'file-table-outline',
+    sql: 'database-search',
+    ipynb: 'notebook-outline',
+    yml: 'file-cog-outline',
+    yaml: 'file-cog-outline',
+    conf: 'file-cog-outline',
+    exe: 'console-line',
+    apk: 'android',
+    dmg: 'package-down',
+    deb: 'debian',
+    ics: 'calendar-month-outline',
+    c4d: 'cube-outline',
+    fbx: 'cube-outline',
+    tex: 'format-text',
+    dtx: 'format-text',
+    ins: 'format-text',
+    sty: 'format-text',
+};
+const previewMap = {
+    png: 'image',
+    jpg: 'image',
+    jpeg: 'image',
+    bmp: 'image',
+    gif: 'image',
+    webp: 'image',
+    svg: 'svg',
+    mp3: 'audio',
+    wav: 'audio',
+    ogg: 'audio',
+    oga: 'audio',
+    aac: 'audio',
+    flac: 'audio',
+    mp4: 'video',
+    m4v: 'video',
+    ogv: 'video',
+    webm: 'video',
+    pdf: 'pdf',
+    csv: 'csv',
+    txt: 'text',
+    dockerignore: 'text',
+    gitignore: 'text',
+    npmignore: 'text',
+    md: 'markdown',
+    dockerfile: 'code',
+    js: 'code',
+    py: 'code',
+    php: 'code',
+    sh: 'code',
+    c: 'code',
+    cpp: 'code',
+    css: 'code',
+    go: 'code',
+    html: 'code',
+    htm: 'code',
+    xml: 'code',
+    vue: 'code',
+    hs: 'code',
+    json: 'code',
+    java: 'code',
+    tex: 'code',
+    dtx: 'code',
+    ins: 'code',
+    sty: 'code',
+    lisp: 'code',
+    lua: 'code',
+    rs: 'code',
+    ts: 'code',
+    v: 'code',
+    rb: 'code',
+    sql: 'code',
+    less: 'code',
+    scss: 'code',
+    yml: 'code',
+    yaml: 'code',
+};
+const untrustedKeyWords = {
+    tokenlized: [
+        [
+            [
+                'nootropics',
+                'turnitin',
+                'smartdrug',
+                'smart drug',
+                'cognitive enhancer',
+                'price',
+                'sale',
+                'discount',
+            ], 0.5,
+        ],
+        [
+            [
+                'qq',
+                'wechat',
+                'brain performance',
+                'bio-hackers',
+                'bio hackers',
+                'dissertation',
+            ], 0.4,
+        ],
+        [
+            [
+                'exam',
+                'coursework',
+                'report',
+                'drug',
+                'dissertation',
+                'assignment',
+                'degree',
+            ], 0.3,
+        ],
+        [
+            [
+                'project',
+                'groupwork',
+                'assignment',
+                'writer',
+                'proofreading',
+                'service',
+            ], 0.2,
+        ],
+    ],
+    untokenlized: [
+        [
+            [
+                '代写',
+                '代考',
+                '导师',
+                '高分',
+                '润色',
+                '报价',
+                '写手',
+                '优惠',
+                '立减',
+                '企鹅',
+                '客服',
+                '订单',
+                '保分',
+                '申诉',
+                '答疑',
+                '辅导',
+                '服务',
+                '通过率',
+                '及格率',
+                '得分点',
+            ], 0.5,
+        ],
+        [
+            [
+                '补考',
+                '客户',
+                '微信',
+                '评分',
+                '助你',
+                '交稿',
+            ], 0.4,
+        ],
+        [
+            [
+                '分数',
+                '定制',
+                '审核',
+                '科目',
+                '免费',
+                '预定',
+            ], 0.3,
+        ],
+        [
+            [
+                '考试',
+                '论文',
+                '批改',
+                '挂科',
+                '复习',
+                '学位',
+                '考场',
+                '答题',
+                '答疑',
+                '做题',
+                '选题',
+                '检测',
+            ], 0.2,
+        ],
+        [
+            [
+                '作者',
+                '学生',
+                '课堂',
+            ], 0.1,
+        ],
+    ],
+};
+
 export default {
     name: 'mail',
+    props: {
+        searchid: Number,
+    },
     components: {
         codemirror,
         previewer,
@@ -963,179 +1276,6 @@ export default {
             preferredTranslateTo: null,
             editingTranslateEnabled: true,
             editingPreferredTranslateTo: null,
-            fileIconMap: {
-                pdf: 'file-pdf-box',
-                zip: 'zip-box-outline',
-                rar: 'zip-box-outline',
-                '7z': 'zip-box-outline',
-                gz: 'zip-box-outline',
-                tar: 'zip-box-outline',
-                mp4: 'play-box-outline',
-                m4v: 'play-box-outline',
-                webm: 'play-box-outline',
-                flv: 'play-box-outline',
-                ogv: 'play-box-outline',
-                mpeg: 'play-box-outline',
-                avi: 'play-box-outline',
-                mov: 'play-box-outline',
-                mp3: 'music-note-outline',
-                wav: 'music-note-outline',
-                flac: 'music-note-outline',
-                ape: 'music-note-outline',
-                dsd: 'music-note-outline',
-                ogg: 'music-note-outline',
-                oga: 'music-note-outline',
-                aac: 'music-note-outline',
-                jpg: 'image',
-                jpeg: 'image',
-                png: 'image',
-                bmp: 'image',
-                gif: 'image',
-                webp: 'image',
-                nef: 'image',
-                raw: 'image',
-                ppt: 'microsoft-powerpoint',
-                pptx: 'microsoft-powerpoint',
-                pptm: 'microsoft-powerpoint',
-                pps: 'microsoft-powerpoint',
-                ppsx: 'microsoft-powerpoint',
-                ppsm: 'microsoft-powerpoint',
-                pot: 'microsoft-powerpoint',
-                potx: 'microsoft-powerpoint',
-                potm: 'microsoft-powerpoint',
-                doc: 'microsoft-word',
-                docx: 'microsoft-word',
-                docm: 'microsoft-word',
-                dot: 'microsoft-word',
-                dotx: 'microsoft-word',
-                dotm: 'microsoft-word',
-                xls: 'microsoft-excel',
-                xlsx: 'microsoft-excel',
-                xlsm: 'microsoft-excel',
-                xlsb: 'microsoft-excel',
-                xlt: 'microsoft-excel',
-                xltx: 'microsoft-excel',
-                xltm: 'microsoft-excel',
-                txt: 'file-document-outline',
-                py: 'language-python',
-                pyc: 'language-python',
-                java: 'language-java',
-                jar: 'language-java',
-                class: 'language-java',
-                js: 'language-javascript',
-                mjs: 'language-javascript',
-                ts: 'language-typescript',
-                jsx: 'react',
-                tsx: 'react',
-                json: 'code-json',
-                c: 'language-c',
-                h: 'language-c',
-                cpp: 'language-cpp',
-                hpp: 'language-cpp',
-                r: 'language-r',
-                rs: 'language-rust',
-                go: 'language-go',
-                hs: 'language-haskell',
-                lhs: 'language-haskell',
-                sass: 'sass',
-                scss: 'sass',
-                lua: 'language-lua',
-                rb: 'language-ruby',
-                erb: 'language-ruby',
-                gemfile: 'language-ruby',
-                html: 'language-html5',
-                htm: 'language-html5',
-                xml: 'xml',
-                md: 'language-markdown-outline',
-                php: 'language-php',
-                css: 'language-css3',
-                vue: 'vuejs',
-                dockerfile: 'docker',
-                dockerignore: 'docker',
-                gitignore: 'git',
-                npmignore: 'npm',
-                psd: 'drawing-box',
-                svg: 'svg',
-                woff: 'format-size',
-                woff2: 'format-size',
-                ttf: 'format-size',
-                otf: 'format-size',
-                vsix: 'microsoft-visual-studio-code',
-                csv: 'file-table-outline',
-                sql: 'database-search',
-                ipynb: 'notebook-outline',
-                yml: 'file-cog-outline',
-                yaml: 'file-cog-outline',
-                conf: 'file-cog-outline',
-                exe: 'console-line',
-                apk: 'android',
-                dmg: 'package-down',
-                deb: 'debian',
-                ics: 'calendar-month-outline',
-                c4d: 'cube-outline',
-                fbx: 'cube-outline',
-                tex: 'format-text',
-                dtx: 'format-text',
-                ins: 'format-text',
-                sty: 'format-text',
-            },
-            previewMap: {
-                png: 'image',
-                jpg: 'image',
-                jpeg: 'image',
-                bmp: 'image',
-                gif: 'image',
-                webp: 'image',
-                svg: 'svg',
-                mp3: 'audio',
-                wav: 'audio',
-                ogg: 'audio',
-                oga: 'audio',
-                aac: 'audio',
-                flac: 'audio',
-                mp4: 'video',
-                m4v: 'video',
-                ogv: 'video',
-                webm: 'video',
-                pdf: 'pdf',
-                csv: 'csv',
-                txt: 'text',
-                dockerignore: 'text',
-                gitignore: 'text',
-                npmignore: 'text',
-                md: 'markdown',
-                dockerfile: 'code',
-                js: 'code',
-                py: 'code',
-                php: 'code',
-                sh: 'code',
-                c: 'code',
-                cpp: 'code',
-                css: 'code',
-                go: 'code',
-                html: 'code',
-                htm: 'code',
-                xml: 'code',
-                vue: 'code',
-                hs: 'code',
-                json: 'code',
-                java: 'code',
-                tex: 'code',
-                dtx: 'code',
-                ins: 'code',
-                sty: 'code',
-                lisp: 'code',
-                lua: 'code',
-                rs: 'code',
-                ts: 'code',
-                v: 'code',
-                rb: 'code',
-                sql: 'code',
-                less: 'code',
-                scss: 'code',
-                yml: 'code',
-                yaml: 'code',
-            },
             viewer: {
                 subject: '',
                 from: false,
@@ -1535,6 +1675,7 @@ export default {
                 'email.teams.microsoft.com',
                 'piazza.com',
                 'microsoft.com',
+                'manchesterstudentsunion.com',
             ],
             cmOption: {
                 tabSize: 4,
@@ -1565,122 +1706,6 @@ export default {
                         }
                     },
                 },
-            },
-            untrustedKeyWords: {
-                tokenlized: [
-                    [
-                        [
-                            'nootropics',
-                            'turnitin',
-                            'smartdrug',
-                            'smart drug',
-                            'cognitive enhancer',
-                            'price',
-                            'sale',
-                            'discount',
-                        ], 0.5,
-                    ],
-                    [
-                        [
-                            'qq',
-                            'wechat',
-                            'brain performance',
-                            'bio-hackers',
-                            'bio hackers',
-                            'dissertation',
-                        ], 0.4,
-                    ],
-                    [
-                        [
-                            'exam',
-                            'coursework',
-                            'report',
-                            'drug',
-                            'dissertation',
-                            'assignment',
-                            'degree',
-                        ], 0.3,
-                    ],
-                    [
-                        [
-                            'project',
-                            'groupwork',
-                            'assignment',
-                            'writer',
-                            'proofreading',
-                            'service',
-                        ], 0.2,
-                    ],
-                ],
-                untokenlized: [
-                    [
-                        [
-                            '代写',
-                            '代考',
-                            '导师',
-                            '高分',
-                            '润色',
-                            '报价',
-                            '写手',
-                            '优惠',
-                            '立减',
-                            '企鹅',
-                            '客服',
-                            '订单',
-                            '保分',
-                            '申诉',
-                            '答疑',
-                            '辅导',
-                            '服务',
-                            '通过率',
-                            '及格率',
-                            '得分点',
-                        ], 0.5,
-                    ],
-                    [
-                        [
-                            '补考',
-                            '客户',
-                            '微信',
-                            '评分',
-                            '助你',
-                            '交稿',
-                        ], 0.4,
-                    ],
-                    [
-                        [
-                            '分数',
-                            '定制',
-                            '审核',
-                            '科目',
-                            '免费',
-                            '预定',
-                        ], 0.3,
-                    ],
-                    [
-                        [
-                            '考试',
-                            '论文',
-                            '批改',
-                            '挂科',
-                            '复习',
-                            '学位',
-                            '考场',
-                            '答题',
-                            '答疑',
-                            '做题',
-                            '选题',
-                            '检测',
-                        ], 0.2,
-                    ],
-                    [
-                        [
-                            '作者',
-                            '学生',
-                            '课堂',
-                        ], 0.1,
-                    ],
-                ],
             },
             sandboxCss: mailCss,
             sandboxCssDark: mailDarkCss,
@@ -1726,7 +1751,7 @@ export default {
                     password: this.account.password,
                     email: this.account.email,
                     token: this.backend.token ? this.backend.token : '',
-                }),
+                }, true),
             }).catch(() => {
                 if (tryCount < 2) {
                     // Retry
@@ -1768,6 +1793,7 @@ export default {
                 // Is not updating, skip checking new mails
                 this.init = true;
                 this.mails = response.data.sort((a, b) => (b.date - a.date));
+                this.buildSearchIndex();
                 this.$nextTick(() => {
                     if (this.$refs.scrollTarget) {
                         this.scrollHandler({ target: this.$refs.scrollTarget });
@@ -1790,6 +1816,7 @@ export default {
                 // Update list
                 this.mails = response.data.sort((a, b) => (b.date - a.date));
                 this.refreshLoding = false;
+                this.buildSearchIndex();
                 this.$nextTick(() => {
                     if (this.$refs.scrollTarget) {
                         this.scrollHandler({ target: this.$refs.scrollTarget });
@@ -1842,7 +1869,7 @@ export default {
                     action,
                     mailId,
                     token: this.backend.token ? this.backend.token : '',
-                }),
+                }, true),
             }).catch(() => {
                 // Network error
                 this.loading = false;
@@ -1937,6 +1964,9 @@ export default {
                     return;
                 }
                 this.mails[targetMail].flagged = !this.mails[targetMail].flagged;
+                requestIdleCallback(() => {
+                    this.buildSearchIndex();
+                }, { timeout: 100 });
                 if (mailId === this.viewing) {
                     this.viewer.flagged = this.mails[targetMail].flagged;
                 }
@@ -2035,7 +2065,7 @@ export default {
                 // Preview
                 const fileNameSplited = fileName.split('.');
                 this.previewerConfig.blob = URL.createObjectURL(response);
-                this.previewerConfig.type = this.previewMap[fileNameSplited[fileNameSplited.length - 1].toLowerCase()];
+                this.previewerConfig.type = previewMap[fileNameSplited[fileNameSplited.length - 1].toLowerCase()];
                 if (this.previewerConfig.type === 'text' || this.previewerConfig.type === 'csv' || this.previewerConfig.type === 'svg' || this.previewerConfig.type === 'markdown' || this.previewerConfig.type === 'code') {
                     this.previewerConfig.content = await response.text();
                 } else {
@@ -2133,9 +2163,9 @@ export default {
          * @param {number} id mail ID
          */
         openMail(id) {
-            // Mail not found
             const mail = this.mails.find((item) => item.id === id);
             if (!mail) {
+                // Mail not found
                 return;
             }
             // Reset viewer
@@ -2179,7 +2209,12 @@ export default {
                 if (targetMail === -1) {
                     return;
                 }
-                this.mails[targetMail].unseen = false;
+                if (mail.unseen) {
+                    this.mails[targetMail].unseen = false;
+                    requestIdleCallback(() => {
+                        this.buildSearchIndex();
+                    }, { timeout: 200 });
+                }
                 this.doAction(id, 'body');
             } else {
                 // Cached, recover from cache
@@ -2188,14 +2223,17 @@ export default {
                 this.viewer.bodyText = '';
                 this.viewer.textContent = '';
                 this.sandboxHeight = 0;
-                if (mail.unseen) {
-                    this.doAction(id, 'seen');
-                }
                 const targetMail = this.mails.findIndex((item) => item.id === id);
                 if (targetMail === -1) {
                     return;
                 }
-                this.mails[targetMail].unseen = false;
+                if (mail.unseen) {
+                    this.mails[targetMail].unseen = false;
+                    this.doAction(id, 'seen');
+                    requestIdleCallback(() => {
+                        this.buildSearchIndex();
+                    }, { timeout: 200 });
+                }
                 this.$nextTick(() => {
                     // Set mail body
                     if (cachedMail.content === '') {
@@ -2283,6 +2321,7 @@ export default {
             for (let i = 0; i < this.mails.length; i += 1) {
                 this.mails[i].unseen = false;
             }
+            this.buildSearchIndex();
         },
         /**
          * Mark a mail as read by mail ID
@@ -2295,6 +2334,7 @@ export default {
             }
             this.mails[mail].unseen = false;
             this.doAction(id, 'seen');
+            this.buildSearchIndex();
         },
         /**
          * Mark a mail as junk
@@ -2308,6 +2348,7 @@ export default {
             }
             this.mails.splice(mail, 1);
             this.doAction(id, 'junk');
+            this.buildSearchIndex();
             this.$nextTick(() => {
                 if (this.$refs.scrollTarget) {
                     this.scrollHandler({ target: this.$refs.scrollTarget });
@@ -2326,6 +2367,7 @@ export default {
             }
             this.mails.splice(mail, 1);
             this.doAction(id, 'delete');
+            this.buildSearchIndex();
             this.$nextTick(() => {
                 if (this.$refs.scrollTarget) {
                     this.scrollHandler({ target: this.$refs.scrollTarget });
@@ -2377,7 +2419,7 @@ export default {
                         body: minBody,
                         from: this.viewer.translateFrom,
                         to: this.preferredTranslateTo[1][this.viewer.translator],
-                    }),
+                    }, true),
                 }).catch(() => {
                     // Network error
                     this.loading = false;
@@ -2480,7 +2522,7 @@ export default {
                 body: JSON.stringify({
                     token: this.backend.token ? this.backend.token : '',
                     email: this.account.email,
-                }),
+                }, true),
             }).catch(() => {
                 // Network error
                 this.loading = false;
@@ -2630,6 +2672,15 @@ export default {
             localStorage.setItem('mail_preferred_language', JSON.stringify(this.preferredTranslateTo));
         },
         /**
+         * Initialize the translation settings
+         * @param {string} language language ISO 639-3 code
+         * @param {string} locale locale BCP47 code
+         */
+        initTranslationSettings({ language, locale }) {
+            this.preferredTranslateTo = [language, Array.isArray(this.languageMap[language]) ? this.languageMap[language].find((item) => item.locale === locale) : this.languageMap[language]];
+            localStorage.setItem('mail_preferred_language', JSON.stringify(this.preferredTranslateTo));
+        },
+        /**
          * Update the height of the sandbox
          */
         updateSandboxHeight() {
@@ -2660,13 +2711,13 @@ export default {
 
             // Check untokenlized keywords, remove all spaces in the content
             const noSpaceConetnt = content.replace(/ /g, '').replace(/\n/g, '').replace(/\t/g, '').replace(/\r/g, '');
-            for (const keyword of this.untrustedKeyWords.untokenlized) {
+            for (const keyword of untrustedKeyWords.untokenlized) {
                 weight += (noSpaceConetnt.match(new RegExp(`(${keyword[0].join('|')})`, 'g')) || []).length * keyword[1];
             }
 
             // Check tokenlized keywords, turn the content into lower case
             const lowerConetnt = content.toLowerCase();
-            for (const keyword of this.untrustedKeyWords.tokenlized) {
+            for (const keyword of untrustedKeyWords.tokenlized) {
                 weight += (lowerConetnt.match(new RegExp(`(${keyword[0].join('|')})`, 'g')) || []).length * keyword[1];
             }
 
@@ -2824,7 +2875,7 @@ export default {
          */
         getFileIcon(name) {
             const fileName = name.split('.');
-            return this.fileIconMap[fileName[fileName.length - 1].toLowerCase()] || 'file-outline';
+            return fileIconMap[fileName[fileName.length - 1].toLowerCase()] || 'file-outline';
         },
         /**
          * Check whether the file can be previewed
@@ -2834,7 +2885,7 @@ export default {
          */
         canPreview(name, size) {
             const fileName = name.split('.');
-            return this.previewMap[fileName[fileName.length - 1].toLowerCase()] !== undefined && size <= 5242880;
+            return previewMap[fileName[fileName.length - 1].toLowerCase()] !== undefined && size <= 5242880;
         },
         /**
          * Format bytes to file size unit
@@ -3221,23 +3272,23 @@ export default {
                 return this.getDate(date);
             }
             // More than 1 week
-            if (now - mail < 864000000 && now - mail >= 604800000) {
-                return this.$t('remain_week', [1]);
+            if (now - mail >= 604800000) {
+                return window.uomaTimeFormatters.relative.format(-1, 'week');
             }
             // More than 1 day
             if (now - mail >= 86400000) {
                 const day = Math.floor((now - mail) / 86400000);
-                return this.$tc('remain_day', day, [day]);
+                return window.uomaTimeFormatters.relative.format(0 - day, 'day');
             }
             // More than 1 hour
             if (now - mail < 86400000 && now - mail > 3600000) {
                 const hour = Math.round((now - mail) / 3600000);
-                return this.$tc('remain_hour', hour, [hour]);
+                return window.uomaTimeFormatters.relative.format(0 - hour, 'hour');
             }
             // Less than 1 hour
             if (now - mail < 3600000 && now - mail > 120000) {
                 const mins = Math.round((now - mail) / 60000);
-                return this.$tc('remain_min', mins, [mins]);
+                return window.uomaTimeFormatters.relative.format(0 - mins, 'minute');
             }
             // Less than 2 mins
             if (now - mail < 120000 && now - mail > 0) {
@@ -3248,10 +3299,76 @@ export default {
         /**
          * Format a date object to a string based on locale
          * @param {Date} dateObj Date object
+         * @param {boolean} year whether to force display year
          * @returns {string} formatted a date string
          */
-        getDate(dateObj) {
-            return formatDateTime(dateObj, this.locale, false);
+        getDate(dateObj, year = false) {
+            return formatDateTime(dateObj, this.locale, window.uomaTimeFormatters, false, year);
+        },
+        /**
+         * Build search index
+         */
+        buildSearchIndex() {
+            this.$store.commit('setSearchIndex', {
+                id: this.searchid,
+                payload: {
+                    name: 'mail',
+                    key: 'id',
+                    indexes: ['subject', 'from', 'fromAddress', 'course', 'courseName'],
+                    data: this.getSearchIndexArray(),
+                },
+            });
+        },
+        /**
+         * Get search index array
+         * @returns {array} search index
+         */
+        getSearchIndexArray() {
+            const searchIndex = [];
+            for (const mail of this.mails) {
+                const courseId = this.getSubjectId(mail.subject, mail.from);
+                searchIndex.push({
+                    date: mail.date,
+                    flagged: mail.flagged,
+                    from: mail.from,
+                    fromAddress: mail.fromAddress,
+                    subject: mail.subject,
+                    course: courseId,
+                    courseName: courseId === false ? [] : [this.subjectNameMap(courseId), this.subjectLongNameMap(courseId)],
+                    unseen: mail.unseen,
+                    id: mail.id,
+                    avatar: this.getMailAvatar(mail.subject, mail.from, mail.fromAddress),
+                });
+            }
+            return searchIndex;
+        },
+        /**
+         * Flat and translate language list
+         * @returns {array} language list
+         */
+        preferredLanguageList() {
+            const result = Object.entries(this.languageMap).map((item) => {
+                if (Array.isArray(item[1])) {
+                    // If the language have variants
+                    return item[1].map((lang) => ({
+                        name: this.$t(`lang_${lang.locale}`),
+                        code: [item[0], lang],
+                    }));
+                }
+                return {
+                    name: this.$t(`lang_${item[1].locale}`),
+                    code: [item[0], item[1]],
+                };
+            }).flat();
+            return result;
+        },
+        /**
+         * Get translated language name
+         * @param {string} language language
+         * @returns {string} translated language name
+         */
+        getLanguageName(language) {
+            return this.$t(`lang_${language.locale}`);
         },
     },
     watch: {
@@ -3366,6 +3483,12 @@ export default {
                 }
             }
         },
+        searchNotification() {
+            // Handle search actions
+            if (this.searchNotification.target === 'mail') {
+                this[this.searchNotification.payload.action](this.searchNotification.payload.data);
+            }
+        },
     },
     computed: {
         ...mapState({
@@ -3376,26 +3499,12 @@ export default {
             subjects: (state) => state.subjects,
             timerMin: (state) => state.timerMin,
             darkMode: (state) => state.darkMode,
+            searchNotification: (state) => state.searchNotification,
+            rerender: (state) => state.rerender,
         }),
         mailUnseen() {
             // Filter out unread mails
-            return this.mails.filter((item) => (item.unseen));
-        },
-        preferredLanguageList() {
-            const result = Object.entries(this.languageMap).map((item) => {
-                if (Array.isArray(item[1])) {
-                    // If the language have variants
-                    return item[1].map((lang) => ({
-                        name: this.$t(`lang_${lang.locale}`),
-                        code: [item[0], lang],
-                    }));
-                }
-                return {
-                    name: this.$t(`lang_${item[1].locale}`),
-                    code: [item[0], item[1]],
-                };
-            }).flat();
-            return result;
+            return this.mails.filter((item) => item.unseen);
         },
     },
     async mounted() {
@@ -3413,7 +3522,7 @@ export default {
             this.preferredTranslateTo = JSON.parse(localStorage.getItem('mail_preferred_language'));
         } else {
             this.preferredTranslateTo = ['eng', this.languageMap.eng];
-            localStorage.setItem('mail_preferred_language', JSON.stringify(['eng', this.languageMap.eng]));
+            localStorage.setItem('mail_preferred_language', JSON.stringify(this.preferredTranslateTo));
         }
 
         // Render note
@@ -3465,6 +3574,8 @@ export default {
 
         // Restore cache
         this.cachedMails = await localForage.getItem('mail_cache') || [];
+
+        this.buildSearchIndex();
     },
     beforeDestroy() {
         clearInterval(this.timer);
@@ -4098,8 +4209,17 @@ export default {
                 margin-bottom: 3px;
             }
         }
+        .v-virtual-scroll__container .v-list-item {
+            height: 78px;
+        }
         .time-icon {
             vertical-align: text-top;
+        }
+        .relative-time {
+            display: inline-block;
+            &::first-letter {
+                text-transform: capitalize;
+            }
         }
         .person-icon {
             vertical-align: text-top;
@@ -4114,7 +4234,6 @@ export default {
         }
     }
     .more-mail {
-        margin-top: -8px;
         padding-top: 14px;
         font-family: Roboto, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif!important;
         background-color: rgba(0, 0, 0, .02);
@@ -4183,6 +4302,7 @@ export default {
         margin-bottom: 0;
         background-color: #f3f3f3;
         border-radius: 6px;
+        max-width: 500px;
         .v-list-item {
             cursor: default;
             min-height: 32px;
@@ -4206,10 +4326,20 @@ export default {
             margin-left: 8px!important;
             .v-btn {
                 font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
-                width: 90px;
                 margin-right: -4px;
+                position: relative;
                 .v-icon--left {
                     margin-right: 4px;
+                }
+                .showing {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    flex: 1 0 auto;
+                    justify-content: inherit;
                 }
             }
         }
@@ -4381,10 +4511,6 @@ export default {
         "sound_notification": "New email sound notification",
         "no_subject": "No Subject",
         "mail_view": "Email",
-        "remain_week": "{0} week ago",
-        "remain_day": "{0} day ago | {0} days ago",
-        "remain_hour": "{0} hour ago | {0} hours ago",
-        "remain_min": "{0} min ago | {0} mins ago",
         "just_now": "Just now",
         "flagged": "Flagged",
         "flag": "Flag",
@@ -4511,10 +4637,6 @@ export default {
         "sound_notification": "新邮件通知音",
         "no_subject": "无主题",
         "mail_view": "邮件",
-        "remain_week": "{0} 周前",
-        "remain_day": "{0} 天前 | {0} 天前",
-        "remain_hour": "{0} 小时前 | {0} 小时前",
-        "remain_min": "{0} 分钟前 | {0} 分钟前",
         "just_now": "刚刚",
         "flagged": "已旗标",
         "flag": "旗标",
@@ -4547,7 +4669,7 @@ export default {
         "attachment": "附件",
         "reply_forward": "回复与转发",
         "not_reply_forward": "这不是一封回复或转发的邮件",
-        "add_attachment": "点击或拖拽以添加附件",
+        "add_attachment": "点按或拖拽以添加附件",
         "too_many_attachments": "太多附件了",
         "too_many_attachments_body": "你可以添加最多 10 个或总大小不超过 15MB 的附件。",
         "ok": "好",
@@ -4563,7 +4685,7 @@ export default {
         "enable_translate": "启用邮件翻译",
         "translate": "翻译",
         "source": "原文",
-        "in_language": "此邮件似乎使用了{0}",
+        "in_language": "此邮件可能由{0}撰写",
         "translate_from": "源语言",
         "translate_to": "目标语言",
         "translate_to_language": "目标语言",
@@ -4641,10 +4763,6 @@ export default {
         "sound_notification": "Sonido de notificacion de un correo nuevo",
         "no_subject": "No asignaturas",
         "mail_view": "Correos",
-        "remain_week": "Hace {0} semanas",
-        "remain_day": "Hace {0} día | Hace {0} días",
-        "remain_hour": "Hace {0} hora | Hace {0} horas",
-        "remain_min": "Hace {0} minuto | Hace {0} minutos",
         "just_now": "Ahora mismo",
         "flagged": "Marcado",
         "flag": "Marcar",

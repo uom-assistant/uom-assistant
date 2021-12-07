@@ -102,7 +102,7 @@
                         :type="type"
                         :locale="calendarLocale"
                         :weekdays="weekDays"
-                        :key="`calendar-${refreshId}`"
+                        :key="`calendar-${refreshId}-${rerender}`"
                         :interval-height="40"
                         @click:event="showEvent"
                         @click:more="viewDay"
@@ -112,22 +112,78 @@
                         <template v-slot:day-body="{ date, week }">
                             <div
                             class="v-current-time"
-                            :class="{ first: date === week[0].date }"
+                            :class="{
+                                first: (date === week[0].date && type === 'day') || (date === currentDate && type === 'week'),
+                                week: date !== currentDate && type === 'week',
+                            }"
                             :style="{ top: nowY }"
                             ></div>
                         </template>
                         <template v-slot:day-label="{ date, day, present }">
+                            <v-badge
+                                overlap
+                                dot
+                                bordered
+                                offset-x="10"
+                                offset-y="10"
+                                v-if="new Date(date).getTimezoneOffset() != new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset()"
+                            >
+                                <v-tooltip top max-width="200">
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-btn
+                                            fab
+                                            small
+                                            depressed
+                                            :color="present ? 'primary' : 'transparent'"
+                                            @click="viewDay({ date })"
+                                            v-on="on"
+                                            v-bind="attrs"
+                                        >
+                                            {{ dateText(date, day) }}
+                                        </v-btn>
+                                    </template>
+                                    <span>{{ $t((new Date(date).getTimezoneOffset() - new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset() > 0 ? 'clock_change_pos' : 'clock_change_neg'), [Math.abs(new Date(date).getTimezoneOffset() - new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset())]) }}</span>
+                                </v-tooltip>
+                            </v-badge>
                             <v-btn
                                 fab
                                 small
                                 depressed
                                 :color="present ? 'primary' : 'transparent'"
                                 @click="viewDay({ date })"
+                                v-else
                             >
-                                {{ localeDetail ? (new Intl.DateTimeFormat(localeDetail.iso, day === 1 ? { day: 'numeric', month: 'short' } : { day: 'numeric' }).format(new Date(date))) : day }}
+                                {{ dateText(date, day) }}
                             </v-btn>
                         </template>
                         <template v-slot:day-label-header="{ date, day, present }">
+                            <v-badge
+                                overlap
+                                dot
+                                bordered
+                                offset-x="12"
+                                offset-y="12"
+                                v-if="new Date(date).getTimezoneOffset() != new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset()"
+                            >
+                                <v-tooltip top max-width="200">
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-btn
+                                            fab
+                                            :x-small="$vuetify.breakpoint.xs"
+                                            :small="!$vuetify.breakpoint.xs"
+                                            class="my-1"
+                                            depressed
+                                            :color="present ? 'primary' : 'transparent'"
+                                            @click="viewDay({ date })"
+                                            v-on="on"
+                                            v-bind="attrs"
+                                        >
+                                            {{ dateText(date, day) }}
+                                        </v-btn>
+                                    </template>
+                                    <span>{{ $t((new Date(date).getTimezoneOffset() - new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset() > 0 ? 'clock_change_pos' : 'clock_change_neg'), [Math.abs(new Date(date).getTimezoneOffset() - new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset())]) }}</span>
+                                </v-tooltip>
+                            </v-badge>
                             <v-btn
                                 fab
                                 :x-small="$vuetify.breakpoint.xs"
@@ -136,8 +192,9 @@
                                 depressed
                                 :color="present ? 'primary' : 'transparent'"
                                 @click="viewDay({ date })"
+                                v-else
                             >
-                                {{ localeDetail ? (new Intl.DateTimeFormat(localeDetail.iso, day === 1 && type !== 'day' ? { day: 'numeric', month: 'short' } : { day: 'numeric' }).format(new Date(date))) : day }}
+                                {{ dateText(date, day) }}
                             </v-btn>
                         </template>
                         <template v-slot:event="{ eventSummary, event, day }">
@@ -209,11 +266,23 @@
                                 </v-btn>
                             </v-toolbar>
                             <v-card-text>
-                                <span v-if="selectedEvent.details !== 'Coursework Deadline'">
-                                    {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(selectedEvent.end, false) : '' }}<br>
+                                <span v-if="currentTimeZone === 'Europe/London'">
+                                    <span v-if="selectedEvent.details !== 'Coursework Deadline'">
+                                        {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(selectedEvent.end, false) : '' }}<br>
+                                    </span>
+                                    <span v-else>
+                                        {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}<br>
+                                    </span>
                                 </span>
                                 <span v-else>
-                                    {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}
+                                    <span v-if="selectedEvent.details !== 'Coursework Deadline'">
+                                        {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(selectedEvent.end, false) : '' }}{{ $t('local_time') }}<br>
+                                        {{ selectedEvent.start ? getDate(convertTimeZone(selectedEvent.start), false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(convertTimeZone(selectedEvent.end), false) : '' }}{{ $t('uk_time') }}<br>
+                                    </span>
+                                    <span v-else>
+                                        {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ $t('local_time') }}<br>
+                                        {{ selectedEvent.start ? getDate(convertTimeZone(selectedEvent.start), false) : '' }}{{ $t('uk_time') }}<br>
+                                    </span>
                                 </span>
                                 <br>
                                 <v-list flat class="list" v-if="selectedEvent.details !== 'Coursework Deadline' && selectedEvent.subjectId !== '' && subjectLinks(selectedEvent.subjectId).sessionLinks.length > 0">
@@ -243,16 +312,27 @@
                                                         :class="(copySuccess && copyingIndex === index) ? 'copied' : ''"
                                                         :title="$t('copy_passcode')"
                                                     >
+                                                        <div class="showing">
+                                                            <v-icon
+                                                                left
+                                                                dark
+                                                                small
+                                                                :color="(copySuccess && copyingIndex === index) ? 'green' : 'gray'"
+                                                                :class="(copySuccess && copyingIndex === index) ? 'mr-0' : ''"
+                                                            >
+                                                                {{ (copySuccess && copyingIndex === index) ? 'mdi-check' : 'mdi-content-copy' }}
+                                                            </v-icon>
+                                                            {{ (copySuccess && copyingIndex === index) ? '' : link.passcode }}
+                                                        </div>
                                                         <v-icon
                                                             left
                                                             dark
                                                             small
-                                                            :color="(copySuccess && copyingIndex === index) ? 'green' : 'gray'"
-                                                            :class="(copySuccess && copyingIndex === index) ? 'mr-0' : ''"
+                                                            color="transparent"
                                                         >
-                                                            {{ (copySuccess && copyingIndex === index) ? 'mdi-check' : 'mdi-content-copy' }}
+                                                            mdi-content-copy
                                                         </v-icon>
-                                                        {{ (copySuccess && copyingIndex === index) ? '' : link.passcode }}
+                                                        <span class="transparent--text">{{ link.passcode }}</span>
                                                     </v-btn>
                                                 </v-list-item-action>
                                             </template>
@@ -318,6 +398,16 @@ import clipboard from '@/mixins/clipboard';
 import formatDateTime from '@/tools/formatDateTime';
 import betterFetch from '@/tools/betterFetch';
 
+const timezoneConverter = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZone: 'Europe/London',
+});
+
 export default {
     name: 'calendar',
     mixins: [checkResponse, liveLinks, clipboard],
@@ -335,7 +425,7 @@ export default {
             currentDate: '',
             currentWeekStart: '',
             currentTimeStamp: 0,
-            refreshId: `${new Date().getDate()}`,
+            refreshId: 0,
             classEvents: [],
             courseworkEvents: [],
             updateTimer: null,
@@ -343,6 +433,8 @@ export default {
             setttingsDialog: false,
             firstDay: 0,
             editingFirstDay: 0,
+            nowDate: new Date().getDate(),
+            currentTimeZone: 'Europe/London',
         };
     },
     methods: {
@@ -533,7 +625,7 @@ export default {
                 body: JSON.stringify({
                     subid: this.account.calendar,
                     token: this.backend.token ? this.backend.token : '',
-                }),
+                }, true),
             }).catch(() => {
                 if (tryCount < 2) {
                     // Retry
@@ -550,7 +642,7 @@ export default {
                     this.loading = false;
                     this.updateTime();
                     this.$refs.calendar.checkChange();
-                    this.refreshId = `${new Date().valueOf()}`;
+                    this.refreshId = new Date().valueOf();
 
                     this.updateTodayEvents();
                     this.updateNextDayFirstEvent();
@@ -662,7 +754,7 @@ export default {
             if (this.$refs.calendar) {
                 this.$refs.calendar.checkChange();
             }
-            this.refreshId = `${new Date().valueOf()}`;
+            this.refreshId = new Date().valueOf();
 
             // Broadcast latest events
             this.updateTodayEvents();
@@ -675,26 +767,25 @@ export default {
          * @returns {string} formatted a date string
          */
         getDate(dateObj, seconds = true) {
-            return formatDateTime(dateObj, this.locale, seconds);
+            return formatDateTime(dateObj, this.locale, window.uomaTimeFormatters, seconds);
         },
         /**
          * Convert a Date object to a specified time zone
-         * @param {Date | string} date Date object or date string
-         * @param {string} tzString timezone name
+         * @param {Date} date Date object
          * @returns {Date} a new Date object that has converted to the specified time zone
          */
-        convertTimeZone(date, tzString) {
-            return new Date((typeof date === 'string' ? new Date(date) : date).toLocaleString('en-US', { timeZone: tzString }));
+        convertTimeZone(date) {
+            return new Date(timezoneConverter.format(date));
         },
         /**
          * Update and broadcast today's events
          */
         updateTodayEvents() {
             const eventList = [];
+            const nowTime = this.convertTimeZone(new Date());
             for (const event of this.events) {
                 if (event.details !== 'Coursework Deadline') {
-                    const eventTime = this.convertTimeZone(event.start, 'Europe/London');
-                    const nowTime = this.convertTimeZone(new Date(), 'Europe/London');
+                    const eventTime = this.convertTimeZone(event.start);
                     if (eventTime.getMonth() === nowTime.getMonth() && eventTime.getDate() === nowTime.getDate()) {
                         eventList.push(event);
                     }
@@ -707,10 +798,10 @@ export default {
          */
         updateNextDayFirstEvent() {
             const eventList = [];
+            const nowTime = this.convertTimeZone(new Date(new Date().valueOf() + 86400000));
             for (const event of this.events) {
                 if (event.details !== 'Coursework Deadline') {
-                    const eventTime = this.convertTimeZone(event.start, 'Europe/London');
-                    const nowTime = this.convertTimeZone(new Date(new Date().valueOf() + 86400000), 'Europe/London');
+                    const eventTime = this.convertTimeZone(event.start);
                     if (eventTime.getMonth() === nowTime.getMonth() && eventTime.getDate() === nowTime.getDate()) {
                         eventList.push(event);
                     }
@@ -783,15 +874,11 @@ export default {
             this.store();
             this.updateCurrentDate();
         },
-        /**
-         * Generate week days list for selector
-         * @returns {{ text: string, value: number }[]} week days list
-         */
-        weekDaysItems() {
-            return [0, 1, 2, 3, 4, 5, 6].map((item) => ({
-                text: new Intl.DateTimeFormat(this.localeDetail ? this.localeDetail.iso : 'en', { weekday: 'long' }).format(new Date(3600000 * 24 * (-4 + item))),
-                value: item,
-            }));
+        dateText(date, day) {
+            if (this.localeDetail) {
+                return day === 1 ? window.uomaTimeFormatters.month.format(new Date(date)) : window.uomaTimeFormatters.day.format(new Date(date));
+            }
+            return day;
         },
         /**
          * Store settings
@@ -800,6 +887,17 @@ export default {
             localStorage.setItem('calendar', JSON.stringify({
                 firstDay: this.firstDay,
                 type: this.type,
+            }));
+        },
+        /**
+         * Generate week days list for selector
+         * @returns {{ text: string, value: number }[]} week days list
+         */
+        weekDaysItems() {
+            const base = new Date(1970, 0, 1).valueOf();
+            return [0, 1, 2, 3, 4, 5, 6].map((item) => ({
+                text: window.uomaTimeFormatters.date.formatToParts(new Date(base + 3600000 * 24 * (-4 + item))).find((part) => part.type === 'weekday').value,
+                value: item,
             }));
         },
     },
@@ -859,17 +957,22 @@ export default {
         },
         timerMin() {
             // Check event change every minute
-            this.$refs.calendar.updateTimes();
-            this.$refs.calendar.checkChange();
+            if (this.timerMin !== '00') {
+                requestIdleCallback(() => {
+                    this.updateCurrentDate();
+                    this.updateTime();
+                    this.$refs.calendar.checkChange();
+                }, { timeout: 3000 });
+            }
         },
         timerHour() {
             // Update upcoming events every hour and refresh at 00:00
             this.updateTodayEvents();
             this.updateNextDayFirstEvent();
 
-            if (this.timerHour.substr(0, 2) === '00') {
-                this.refreshId = `${new Date().valueOf()}`;
-                this.updateCurrentDate();
+            if (this.timerHour.substr(0, 2) === '00' || new Date().getDate() !== this.nowDate) {
+                this.nowDate = new Date().getDate();
+                this.refreshId = new Date().valueOf();
                 this.updateTime();
             }
         },
@@ -878,7 +981,7 @@ export default {
             this.courseworkEvents = this.courseworks ? this.courseworks : [];
             this.events = this.classEvents.concat(this.courseworkEvents);
             this.$refs.calendar.checkChange();
-            this.refreshId = `${new Date().valueOf()}`;
+            this.refreshId = new Date().valueOf();
         },
         type() {
             // Store changes
@@ -896,6 +999,7 @@ export default {
             backend: (state) => state.backend,
             backendStatus: (state) => state.backendStatus,
             account: (state) => state.account,
+            rerender: (state) => state.rerender,
         }),
         /**
          * Get ISO locale for calendar
@@ -934,6 +1038,9 @@ export default {
             });
         }
 
+        // Check current timezone
+        this.currentTimeZone = window.uomaTimeFormatters.date.resolvedOptions().timeZone;
+
         // Update events every 6 hours
         this.updateTimer = setInterval(() => {
             this.checkUpdate();
@@ -950,7 +1057,7 @@ export default {
 
         // Force refresh
         setTimeout(() => {
-            this.refreshId = `${new Date().valueOf()}`;
+            this.refreshId = new Date().valueOf();
         }, 1000);
     },
     beforeDestroy() {
@@ -1015,6 +1122,7 @@ export default {
         position: absolute;
         left: -1px;
         right: 0;
+        margin-top: -1px;
         pointer-events: none;
         &.first::before {
             content: '';
@@ -1025,6 +1133,9 @@ export default {
             border-radius: 50%;
             margin-top: -5px;
             margin-left: -6.5px;
+        }
+        &.week {
+            opacity: .3;
         }
     }
     .v-calendar-daily__interval-text {
@@ -1047,12 +1158,13 @@ export default {
 .event-card-container {
     overflow-x: auto;
     background-color: white;
+    min-width: fit-content!important;
     .event-card {
         width: fit-content;
         max-width: fit-content;
         .calendar-selected-name {
             line-height: 17px;
-            margin-top: 3px;
+            padding-top: 3px;
             .calendar-smaller-font {
                 font-size: 0.875rem;
             }
@@ -1061,6 +1173,7 @@ export default {
             margin-bottom: 20px;
             background-color: #f3f3f3;
             border-radius: 6px;
+            max-width: 800px;
             .v-list-item {
                 cursor: default;
                 min-height: 28px;
@@ -1084,16 +1197,27 @@ export default {
                 margin-left: 8px!important;
                 .v-btn {
                     font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
-                    width: 90px;
                     margin-right: -4px;
+                    position: relative;
                     .v-icon--left {
                         margin-right: 4px;
+                    }
+                    .showing {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        flex: 1 0 auto;
+                        justify-content: inherit;
                     }
                 }
             }
         }
         .v-card__text {
             width: fit-content;
+            min-width: 350px;
             pre {
                 font-family: Roboto, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif;
             }
@@ -1149,6 +1273,9 @@ export default {
     .theme--dark.v-toolbar.v-sheet {
         background-color: #1E1E1E;
     }
+    .v-badge__badge::after {
+        border-color: #303030;
+    }
 }
 </style>
 
@@ -1172,7 +1299,11 @@ export default {
         "error_at": "{0} at {1}",
         "first_day_settings": "First day of weeks",
         "cancel": "Cancel",
-        "save": "Save"
+        "save": "Save",
+        "clock_change_pos": "Clock changes on this day. Go forward {0} minutes.",
+        "clock_change_neg": "Clock changes on this day. Go back {0} minutes.",
+        "local_time": " (local)",
+        "uk_time": " (UK)"
     },
     "zh": {
         "today": "今天",
@@ -1191,7 +1322,11 @@ export default {
         "error_at": "{0} 于 {1}",
         "first_day_settings": "每周第一天",
         "cancel": "取消",
-        "save": "保存"
+        "save": "保存",
+        "clock_change_pos": "当日有时钟变更。前进 {0} 分钟。",
+        "clock_change_neg": "当日有时钟变更。后退 {0} 分钟。",
+        "local_time": "（本地）",
+        "uk_time": "（英国）"
     },
     "es": {
         "today": "Hoy",
@@ -1209,8 +1344,12 @@ export default {
         "ical_error": "Error al analizar el archivo de calendario",
         "error_at": "{0} en {1}",
         "first_day_settings": "",
-        "cancel": "",
-        "save": ""
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "clock_change_pos": "",
+        "clock_change_neg": "",
+        "local_time": "",
+        "uk_time": ""
     },
     "ja": {
         "today": "今日",
@@ -1229,7 +1368,11 @@ export default {
         "error_at": "{1} に {0} 発生",
         "first_day_settings": "毎週の初日",
         "cancel": "キャンセル",
-        "save": "保存"
+        "save": "保存",
+        "clock_change_pos": "",
+        "clock_change_neg": "",
+        "local_time": "",
+        "uk_time": ""
     }
 }
 </i18n>

@@ -12,7 +12,7 @@ require(dirname(__FILE__).'/../config.php');
 
 /**
  * Get HTTP Referer header value or ''
- * 
+ *
  * @return string Referer header value
  */
 function get_referer(): string {
@@ -21,7 +21,7 @@ function get_referer(): string {
 
 /**
  * Get host (host name + port) for an given URL
- * 
+ *
  * @param string $url URL
  * @return mixed Host of the given URL of false on failure
  */
@@ -41,7 +41,7 @@ function get_url_host(string $url) {
 
 /**
  * Get HTTP Access Control Allow Origin header as a string
- * 
+ *
  * @return string Access Control Allow Origin value
  */
 function get_access_control_allow_origin_header(): string {

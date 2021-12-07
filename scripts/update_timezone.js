@@ -8,7 +8,7 @@ const tzList = [];
 for (const item of rawTimeZones) {
     tzList.push({
         name: item.name,
-        countryName: item.countryName,
+        countryCode: item.countryCode,
         mainCity: item.mainCities[0],
     });
 }

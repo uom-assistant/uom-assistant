@@ -207,6 +207,7 @@ export default {
                 this.selected = `${cat}-${index}`;
                 this.selectedType = 'pre-defined';
                 this.selectedPosition = position;
+                this.sliderPosition = 50;
                 this.clearCustom(false);
                 this.$emit('change', {
                     image: `https://cdn.jsdelivr.net/gh/uom-assistant/uoma-wallpapers/images/${this.selected}.jpg`,
@@ -217,6 +218,7 @@ export default {
                 this.selected = '';
                 this.selectedType = '';
                 this.selectedPosition = 0;
+                this.sliderPosition = 50;
                 this.$emit('change', {
                     image: '',
                     position: 50,
@@ -583,7 +585,7 @@ export default {
     "zh": {
         "customise": "自定义",
         "description": "设置一张背景图像以个性化你的仪表板。",
-        "upload": "点击或拖拽以选择图像",
+        "upload": "点按或拖拽以选择图像",
         "clear": "清除",
         "Learning": "学习",
         "Manchester": "曼彻斯特",

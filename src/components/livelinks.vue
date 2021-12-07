@@ -13,10 +13,10 @@
         ></v-progress-circular>
         <div class="livelinks-outer">
             <h2 class="handle">{{ $t('live_links') }}</h2>
-            <v-tabs @change="relocate" show-arrows v-if="shownSubjects.length > 0">
+            <v-tabs @change="relocate" show-arrows class="pt-1" height="44" v-if="shownSubjects.length > 0">
                 <v-tab
                     v-for="(item, index) in shownSubjects"
-                    :key="`${index}`"
+                    :key="`${index}-${rerender}`"
                 >
                     <span><span :class="item.color" class="subject-color-samll"></span> {{ item.shortName }}</span>
                 </v-tab>
@@ -53,16 +53,27 @@
                                                 :class="(copySuccess && copyingIndex === index) ? 'copied' : ''"
                                                 :title="$t('copy_passcode')"
                                             >
+                                                <div class="showing">
+                                                    <v-icon
+                                                        left
+                                                        dark
+                                                        small
+                                                        :color="(copySuccess && copyingIndex === index) ? 'green' : 'gray'"
+                                                        :class="(copySuccess && copyingIndex === index) ? 'mr-0' : ''"
+                                                    >
+                                                        {{ (copySuccess && copyingIndex === index) ? 'mdi-check' : 'mdi-content-copy' }}
+                                                    </v-icon>
+                                                    {{ (copySuccess && copyingIndex === index) ? '' : link.passcode }}
+                                                </div>
                                                 <v-icon
                                                     left
                                                     dark
                                                     small
-                                                    :color="(copySuccess && copyingIndex === index) ? 'green' : 'gray'"
-                                                    :class="(copySuccess && copyingIndex === index) ? 'mr-0' : ''"
+                                                    color="transparent"
                                                 >
-                                                    {{ (copySuccess && copyingIndex === index) ? 'mdi-check' : 'mdi-content-copy' }}
+                                                    mdi-content-copy
                                                 </v-icon>
-                                                {{ (copySuccess && copyingIndex === index) ? '' : link.passcode }}
+                                                <span class="transparent--text">{{ link.passcode }}</span>
                                             </v-btn>
                                         </v-list-item-action>
                                     </template>
@@ -125,6 +136,7 @@ export default {
             locale: (state) => state.locale,
             packery: (state) => state.packery,
             subjects: (state) => state.subjects,
+            rerender: (state) => state.rerender,
         }),
         shownSubjects() {
             // Filter out hidden subjects
@@ -196,10 +208,20 @@ export default {
             margin-left: 8px!important;
             .v-btn {
                 font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
-                width: 90px;
                 margin-right: -4px;
+                position: relative;
                 .v-icon--left {
                     margin-right: 4px;
+                }
+                .showing {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    flex: 1 0 auto;
+                    justify-content: inherit;
                 }
             }
         }

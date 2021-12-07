@@ -21,6 +21,29 @@ describe('calendar.vue', () => {
     beforeEach(() => {
         vuetify = new Vuetify();
         store = new Vuex.Store(storeConfig);
+
+        localStorage.clear();
+
+        window.uomaTimeFormatters = {
+            month: new Intl.DateTimeFormat('en', {
+                month: 'short',
+                day: 'numeric',
+            }),
+            day: new Intl.DateTimeFormat('en', {
+                day: 'numeric',
+            }),
+            date: new Intl.DateTimeFormat('en', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                weekday: 'long',
+            }),
+            time: new Intl.DateTimeFormat('en', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+            }),
+        };
     });
 
     const getShallowWapper = (component, propsData) => shallowMount(component, {
@@ -33,6 +56,10 @@ describe('calendar.vue', () => {
             $tc: (key) => key,
             $i18n: locales[0],
         },
+    });
+
+    it('should always be UTC', () => {
+        expect(new Date().getTimezoneOffset()).toBe(0);
     });
 
     it('should update the current date and the start date of current week when called', () => {
@@ -54,16 +81,16 @@ describe('calendar.vue', () => {
     test('convert timezone', () => {
         const wrapper = getShallowWapper(Calendar, { searchid: 6 });
 
-        expect(wrapper.vm.convertTimeZone(new Date('2021-09-27T01:00:00Z'), 'GMT') - wrapper.vm.convertTimeZone(new Date('2021-09-27T01:00:00Z'), 'Asia/Shanghai')).toEqual(-28800000);
-        expect(wrapper.vm.convertTimeZone('2021-09-27T01:00:00Z', 'GMT') - wrapper.vm.convertTimeZone('2021-09-27T01:00:00Z', 'Europe/London')).toEqual(-3600000);
-        expect(wrapper.vm.convertTimeZone(new Date('2021-11-27T01:00:00Z'), 'GMT') - wrapper.vm.convertTimeZone(new Date('2021-11-27T01:00:00Z'), 'Europe/London')).toEqual(0);
+        expect(new Date().getTimezoneOffset()).toBe(0);
+        expect(wrapper.vm.convertTimeZone(new Date('2021-09-27T01:00:00Z')) - new Date('2021-09-27T01:00:00Z')).toEqual(3600000);
+        expect(wrapper.vm.convertTimeZone(new Date('2021-11-27T01:00:00Z')) - new Date('2021-11-27T01:00:00Z')).toEqual(0);
     });
 
     test('format date', () => {
         const wrapper = getShallowWapper(Calendar, { searchid: 6 });
 
-        expect(wrapper.vm.getDate(new Date('2021-09-27T01:00:30'))).toMatch('27/9/2021 01:00:30');
-        expect(wrapper.vm.getDate(new Date('2021-09-27T01:00:30'), false)).toMatch('27/9/2021 01:00');
+        expect(wrapper.vm.getDate(new Date('2021-09-27T01:00:30'))).toMatch(new Date().getFullYear() === 2021 ? '27/9 01:00:30' : '27/9/2021 01:00:30');
+        expect(wrapper.vm.getDate(new Date('2021-09-27T01:00:30'), false)).toMatch(new Date().getFullYear() === 2021 ? '27/9 01:00' : '27/9/2021 01:00');
     });
 
     test('calculate event progress percentage', () => {

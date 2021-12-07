@@ -56,7 +56,7 @@ export default {
          * @returns {string} formatted a date string
          */
         getDate(dateObj) {
-            return formatDateTime(dateObj, this.locale);
+            return formatDateTime(dateObj, this.locale, window.uomaTimeFormatters);
         },
         /**
          * Open a note in widget

@@ -24,6 +24,7 @@ module.exports = {
         'newline-per-chained-call': 'off',
         'prefer-destructuring': 'off',
         'no-loop-func': 'off',
+        'no-underscore-dangle': ['error', { allow: ['__UOMA_ELECTRON__', '__UOMA_ELECTRON_BRIDGE__'] }],
         'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
         'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     },

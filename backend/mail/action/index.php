@@ -41,7 +41,7 @@ if (UOMA_RATE_LIMIT) {
         $rateLimiter = new RedisRateLimiter($redis);
 
         $apiKey = 'mail-action-'.$user['email'];
-    
+
         try {
             $rateLimiter->limit($apiKey, Rate::custom(2, 5));
         } catch (LimitExceeded $exception) {
@@ -75,7 +75,9 @@ if ($data['action'] === 'junk') {
     imap_delete($imap, strval(imap_msgno($imap, (int)$data['mailId'])));
 } else if ($data['action'] === 'allread') {
     $all = imap_search($imap, 'UNDELETED UNSEEN ALL');
-    imap_setflag_full($imap, implode(',', $all), '\\Seen');
+    if ($all) {
+        imap_setflag_full($imap, implode(',', $all), '\\Seen');
+    }
 }
 
 rest_response([]);

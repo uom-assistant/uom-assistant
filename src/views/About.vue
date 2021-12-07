@@ -159,7 +159,7 @@ export default {
                 this.backendVersion = 'null';
                 return;
             }
-            this.backendVersion = (await betterFetch(`https://${this.backend.url}/check_ability/`).catch(() => ({ uomabVersion: 'unknown' }))).uomabVersion || 'unknown';
+            this.backendVersion = (await betterFetch(`https://${this.backend.url}/check_ability/`, {}, true).catch(() => ({ uomabVersion: 'unknown' }))).uomabVersion || 'unknown';
         },
         /**
          * Load latest backend version online

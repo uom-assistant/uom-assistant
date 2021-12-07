@@ -20,6 +20,8 @@
                         v-bind="attrs"
                         v-on="on"
                         v-show="$route.path === '/'"
+                        v-shortkey="['ctrl', 'm']"
+                        @shortkey="toggleDark"
                     >
                         <v-icon>mdi-tune</v-icon>
                     </v-btn>
@@ -130,6 +132,10 @@
                     {{ $t('task') }}
                 </div>
                 <taskSearch :tasks="searchIndexFiltered[5]" v-if="searchIndexFiltered[5] && searchIndexFiltered[5].length > 0"></taskSearch>
+                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[8] && searchIndexFiltered[8].length > 0">
+                    {{ $t('mail') }}
+                </div>
+                <mailSearch :mails="searchIndexFiltered[8]" v-if="searchIndexFiltered[8] && searchIndexFiltered[8].length > 0"></mailSearch>
                 <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[9] && searchIndexFiltered[9].length > 0">
                     {{ $t('grade') }}
                 </div>
@@ -192,7 +198,11 @@
         </v-navigation-drawer>
         <v-main>
             <v-container fluid>
-                <router-view ref="view" :key="`router-${routerRefreshKey}`"></router-view>
+                <v-slide-y-reverse-transition leave-absolute>
+                    <keep-alive include="Home">
+                            <router-view ref="view" :key="`router-${routerRefreshKey}`"></router-view>
+                    </keep-alive>
+                </v-slide-y-reverse-transition>
             </v-container>
         </v-main>
         <v-dialog
@@ -252,16 +262,23 @@
                     >
                         {{ $t('continue') }}
                     </v-btn>
-                    <div>
-                        <v-btn
-                            depressed
-                            small
-                            class="second-btn"
-                            @click="skip"
-                        >
-                            {{ $t('import') }}
-                        </v-btn>
-                    </div>
+                    <v-btn
+                        depressed
+                        small
+                        class="second-btn mb-1"
+                        @click="a11ySettings = true"
+                    >
+                        <v-icon x-samll class="mr-1 a11y-icon">mdi-human</v-icon>
+                        {{ $t('a11y_settings') }}
+                    </v-btn>
+                    <v-btn
+                        depressed
+                        small
+                        class="second-btn"
+                        @click="skip"
+                    >
+                        {{ $t('import') }}
+                    </v-btn>
                 </v-card-text>
                 <v-card-text class="same-height" :class="{ 'show-1': stage === -1 }">
                     <div class="intro">
@@ -490,6 +507,29 @@
             </v-card>
         </v-dialog>
         <v-dialog
+            v-model="a11ySettings"
+            max-width="500"
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('a11y_settings_title') }}
+                </v-card-title>
+                <v-card-text>
+                    <a11y></a11y>
+                </v-card-text>
+                <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                    color="primary"
+                    text
+                    @click="a11ySettings = false"
+                >
+                    {{ $t('done') }}
+                </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog
             v-model="updating"
             max-width="400"
             persistent
@@ -562,9 +602,11 @@ import { mapState } from 'vuex';
 import semVerCmp from 'semver-compare';
 import * as JsSearch from 'js-search';
 
+import a11y from '@/components/a11y.vue';
 import settings from '@/components/settings.vue';
 import noteSearch from '@/components/search/note.vue';
 import taskSearch from '@/components/search/task.vue';
+import mailSearch from '@/components/search/mail.vue';
 import gradeSearch from '@/components/search/grade.vue';
 import clockSearch from '@/components/search/clock.vue';
 
@@ -581,12 +623,53 @@ let checkInBellTimer = -1;
 let layoytLockTimer = -1;
 let backendToken = '';
 
+// Set shared time formatters
+// Intl.DateTimeFormat is expensive, see https://bugs.chromium.org/p/v8/issues/detail?id=6528
+const initLang = localStorage.getItem('language') || 'en';
+const langIso = localeList.find((item) => item.locale === initLang).iso;
+window.uomaTimeFormatters = {
+    month: new Intl.DateTimeFormat(langIso, {
+        month: 'short',
+        day: 'numeric',
+    }),
+    day: new Intl.DateTimeFormat(langIso, {
+        day: 'numeric',
+    }),
+    date: new Intl.DateTimeFormat(langIso, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        weekday: 'long',
+    }),
+    time: new Intl.DateTimeFormat(langIso, {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+    }),
+    relative: new Intl.RelativeTimeFormat(langIso, { numeric: 'auto' }),
+};
+window.displayFormatters = {
+    region: Intl.DisplayNames ? new Intl.DisplayNames([langIso], { type: 'region' }) : { of: (name) => name },
+};
+
+let timeFormattersInited = false;
+
+// requestIdleCallback fallbck for Safari
+if (!window.requestIdleCallback) {
+    window.requestIdleCallback = (cb, config) => setTimeout(cb, config ? config.timeout / 2 : 3000);
+}
+if (!window.cancelIdleCallback) {
+    window.cancelIdleCallback = (cbId) => clearTimeout(cbId);
+}
+
 export default {
     name: 'App',
     components: {
+        a11y,
         settings,
         noteSearch,
         taskSearch,
+        mailSearch,
         gradeSearch,
         clockSearch,
     },
@@ -607,7 +690,7 @@ export default {
         welcomeMessage: '',
         welcomeMessageDialog: false,
         darkMode: false,
-        locale: 'en',
+        locale: '',
         localeDetail: null,
         backend: {},
         account: {},
@@ -618,6 +701,7 @@ export default {
         loginError: false,
         loginErrorText: '',
         privacyPolicy: false,
+        a11ySettings: false,
         rulesUrl: [
             (value) => !!value || '',
             (value) => /^[\w-]+(\.[\w-]+)+([\w.,@^=%:/~+-]*)?$/i.test(value) || '',
@@ -654,7 +738,6 @@ export default {
          */
         toggleLocale(language) {
             this.locale = language;
-            this.localeDetail = this.languageList.find((item) => item.locale === language);
         },
         /**
          * Dismiss an error
@@ -679,6 +762,20 @@ export default {
             this.$store.commit('setSearchNotification', {
                 target: 'note',
                 payload: { action: 'initGuide', index: this.locale },
+            });
+
+            this.$nextTick(() => {
+                // Set default translation language
+                this.$store.commit('setSearchNotification', {
+                    target: 'mail',
+                    payload: {
+                        action: 'initTranslationSettings',
+                        data: {
+                            language: this.localeDetail.iso3,
+                            locale: this.locale,
+                        },
+                    },
+                });
             });
         },
         /**
@@ -844,7 +941,7 @@ export default {
                         username: this.$refs.settingsField.username,
                         password: this.$refs.settingsField.password,
                         token: backendToken || '',
-                    }),
+                    }, true),
                 }).catch(() => {
                     // Network error
                     this.loading = false;
@@ -960,6 +1057,10 @@ export default {
             localStorage.setItem('dark', this.$vuetify.theme.dark ? 'true' : 'false');
 
             document.querySelector('meta[name="theme-color"]').setAttribute('content', this.$vuetify.theme.dark ? '#272727' : '#F5F5F5');
+
+            if (window.__UOMA_ELECTRON__ && window.__UOMA_ELECTRON_BRIDGE__) {
+                window.__UOMA_ELECTRON_BRIDGE__.setAttr('theme', this.$vuetify.theme.dark ? 'dark' : 'light');
+            }
         },
         /**
          * Open search bar and focus on it
@@ -988,7 +1089,7 @@ export default {
         toggleSearch() {
             if (this.searchOpened) {
                 this.closeSearch();
-            } else {
+            } else if (this.$route.path === '/') {
                 this.openSearch();
             }
         },
@@ -1020,6 +1121,10 @@ export default {
          * Search result from search index based on input
          */
         searchResult() {
+            if (!this.searching) {
+                this.searchIndexFiltered = [];
+                return;
+            }
             const result = [];
             for (let i = 0; i < this.searchIndex.length; i += 1) {
                 const item = this.searchIndex[i];
@@ -1062,7 +1167,7 @@ export default {
          * Check whether to show the welcome dialog
          */
         checkWelcome() {
-            if ((this.$route.path === '/' || this.$route.path === '/settings') && localStorage.getItem('setup') !== 'true') {
+            if (this.$route.path === '/' && localStorage.getItem('setup') !== 'true') {
                 this.welcome = true;
             }
         },
@@ -1159,6 +1264,40 @@ export default {
             this.$store.commit('setLocale', this.locale);
             this.$store.commit('setLocaleDetail', this.localeDetail);
 
+            if (window.__UOMA_ELECTRON__ && window.__UOMA_ELECTRON_BRIDGE__) {
+                window.__UOMA_ELECTRON_BRIDGE__.setAttr('language', this.locale);
+            }
+
+            if (timeFormattersInited) {
+                // Set shared time formatters
+                window.uomaTimeFormatters = {
+                    month: new Intl.DateTimeFormat(this.localeDetail.iso, {
+                        month: 'short',
+                        day: 'numeric',
+                    }),
+                    day: new Intl.DateTimeFormat(this.localeDetail.iso, {
+                        day: 'numeric',
+                    }),
+                    date: new Intl.DateTimeFormat(this.localeDetail.iso, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        weekday: 'long',
+                    }),
+                    time: new Intl.DateTimeFormat(this.localeDetail.iso, {
+                        year: 'numeric',
+                        month: 'numeric',
+                        day: 'numeric',
+                    }),
+                    relative: new Intl.RelativeTimeFormat(this.localeDetail.iso, { numeric: 'auto' }),
+                };
+                window.displayFormatters = {
+                    region: Intl.DisplayNames ? new Intl.DisplayNames([this.localeDetail.iso], { type: 'region' }) : { of: (name) => name },
+                };
+            } else {
+                timeFormattersInited = true;
+            }
+
             this.$nextTick(() => {
                 this.searchResult();
             });
@@ -1187,9 +1326,7 @@ export default {
         window.isUoma = true;
 
         // Initialize language
-        this.locale = localStorage.getItem('language') || 'en';
-        this.$i18n.locale = this.locale;
-        localStorage.setItem('language', this.$i18n.locale);
+        this.locale = initLang;
 
         // Set version
         updateStorage();
@@ -1233,6 +1370,10 @@ export default {
 
         document.querySelector('meta[name="theme-color"]').setAttribute('content', this.$vuetify.theme.dark ? '#272727' : '#F5F5F5');
 
+        if (window.__UOMA_ELECTRON__ && window.__UOMA_ELECTRON_BRIDGE__) {
+            window.__UOMA_ELECTRON_BRIDGE__.setAttr('theme', this.$vuetify.theme.dark ? 'dark' : 'light');
+        }
+
         // Initialize backend connection
         try {
             this.backend = JSON.parse(localStorage.getItem('backend')) || { status: true };
@@ -1265,6 +1406,9 @@ export default {
         });
         this.$router.afterEach(() => {
             this.checkWelcome();
+            if (this.$route.path !== '/' && this.searchOpened) {
+                this.closeSearch();
+            }
         });
     },
     beforeDestroy() {
@@ -1274,7 +1418,7 @@ export default {
         // Handle uncaught errors
         this.$store.commit('addError', {
             title: `${this.$t('unknown')} ${err.name}`,
-            content: this.$t('error_at', [err.message, formatDateTime(new Date(), this.locale)]),
+            content: this.$t('error_at', [err.message, formatDateTime(new Date(), this.locale ? this.locale : 'en', window.uomaTimeFormatters)]),
             type: 'error',
         });
         return true;
@@ -1394,7 +1538,7 @@ html::-webkit-scrollbar {
     font-family: Roboto, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif;
     -webkit-font-smoothing: antialiased;
     max-width: 100vw;
-    overflow-x: hidden;
+    overflow: hidden;
     #alert-space {
         width: calc(100% - 50px);
         right: 25px;
@@ -1411,6 +1555,9 @@ html::-webkit-scrollbar {
     .v-main {
         overflow: hidden;
     }
+}
+.v-dialog {
+    width: 100%;
 }
 .gray-container, .v-window-item > .container, .v-main__wrap > .container {
     background-color: #F5F5F5;
@@ -1436,6 +1583,9 @@ html::-webkit-scrollbar {
     &.pointer {
         cursor: pointer;
     }
+}
+.dark-text-secondary {
+    color: rgba(255, 255, 255, .6);
 }
 .daynight {
     .v-list-item__icon {
@@ -1561,6 +1711,13 @@ html::-webkit-scrollbar {
     left: -1000px;
     opacity: 0;
 }
+.welcome-dialog {
+    background-color: white;
+    border-radius: 8px;
+}
+.welcome-dialog.v-dialog--fullscreen {
+    border-radius: 0;
+}
 .welcome-dialog.welcome-overflow {
     overflow: hidden;
 }
@@ -1568,7 +1725,11 @@ html::-webkit-scrollbar {
     border-radius: 0;
 }
 .welcome-dialog .welcome-dialog-card {
+    border-radius: 8px;
     overflow: hidden;
+    .a11y-icon {
+        font-size: 16px;
+    }
     .stepper {
         position: absolute;
         top: 30px;
@@ -1823,6 +1984,9 @@ code, kbd, pre, samp {
             color: #424242;
         }
     }
+    .welcome-dialog {
+        background-color: #1E1E1E;
+    }
     .welcome-dialog .welcome-dialog-card .main-btn {
         color: black;
     }
@@ -1859,7 +2023,7 @@ code, kbd, pre, samp {
             border-color: #575757;
             &::after {
                 background: #575757;
-                background: linear-gradient(90deg, transparent, #575757);
+                background: linear-gradient(90deg, rgba(87, 87, 87, 0), rgb(87, 87, 87));
             }
         }
         .v-calendar-daily__interval {
@@ -1937,17 +2101,18 @@ code, kbd, pre, samp {
         "backend_reconnect": "Backend is up",
         "backend_reconnect_body": "We have just reconnected to the backend",
         "search": "Search…",
+        "a11y_settings": "A11y Settings…",
         "welcome": "Hi there!",
         "not_yet": "Seems like you haven't set up your UoM Assistant yet",
         "press_to_settings": "Press \"Continue\" to set up your own dashboard",
         "continue": "Continue",
         "next": "Next",
-        "import": "Import",
+        "import": "Import…",
         "skip": "Skip",
         "value_privacy": "We value your privacy",
         "privacy_policy": "We understand how important your UoM account is to you. All your private data will be stored locally in your browser and will not be shared with any third party without your consent.",
         "read_privacy_policy": "Check out our {0}.",
-        "privacy_policy_link": "privacy policy",
+        "privacy_policy_link": "Privacy policy",
         "student_lead": "A student-led project",
         "not_offical": "UoM Assistant is not a product developed or published by the University of Manchester. ",
         "lead_by": "This project was designed and developed by a team of UoM students and is not an official representation of UoM.",
@@ -1987,7 +2152,8 @@ code, kbd, pre, samp {
         "mail": "Inbox",
         "grade": "Grade Summary",
         "plugins": "Plug-ins",
-        "new_course_sound": "Check-in Bell"
+        "new_course_sound": "Check-in Bell",
+        "a11y_settings_title": "Accessibility settings"
     },
     "zh": {
         "title": "曼大助手",
@@ -2006,12 +2172,13 @@ code, kbd, pre, samp {
         "backend_reconnect": "后端已恢复",
         "backend_reconnect_body": "已经成功连接到后端",
         "search": "搜索…",
+        "a11y_settings": "可访问性设置…",
         "welcome": "欢迎！",
         "not_yet": "看起来你还没有配置你的曼大助手",
         "press_to_settings": "点按“开始设置”来配置你的个人仪表板",
         "continue": "开始设置",
         "next": "下一步",
-        "import": "导入",
+        "import": "导入…",
         "skip": "跳过",
         "value_privacy": "我们尊重你的隐私",
         "privacy_policy": "我们深知你的曼大账号对你的重要性。你的所有私密数据均会被保存于浏览器本地，且在你授权之前曼大助手不会将你的私密数据分享给第三方。",
@@ -2056,7 +2223,8 @@ code, kbd, pre, samp {
         "mail": "收件箱",
         "grade": "成绩概览",
         "plugins": "插件",
-        "new_course_sound": "签到铃"
+        "new_course_sound": "签到铃",
+        "a11y_settings_title": "可访问性设置"
     },
     "es": {
         "title": "UoM Assistant",

@@ -14,7 +14,7 @@
         <div class="attendance-outer">
             <h2 class="mr-5 handle">
                 {{ $t('attendance') }}
-                <v-btn icon small class="attendance-goto" href="https://studentnet.cs.manchester.ac.uk/ugt/attendance/" target="_blank" rel="noopener nofollow">
+                <v-btn icon small class="attendance-goto" href="https://my.manchester.ac.uk/MyCheckIn" target="_blank" rel="noopener nofollow">
                     <v-icon>mdi-chevron-right</v-icon>
                 </v-btn>
                 <span class="float-right text-overline clickable" :class="{ 'text--disabled': view === 'annual' }" @click="view = 'lastMonth'">
@@ -137,7 +137,7 @@ export default {
          * @returns {string} formatted a date string
          */
         getDate(dateObj) {
-            return formatDate(dateObj, this.locale, false);
+            return formatDate(dateObj, this.locale, window.uomaTimeFormatters, false);
         },
     },
     watch: {
@@ -156,32 +156,6 @@ export default {
                 this.packery.shiftLayout();
             });
         },
-        attendanceUpdated() {
-            // Update attendance
-            if (this.attendance) {
-                this.lastMonth = this.attendance.lastMonth;
-                this.annual = this.attendance.annual;
-                this.absentRecord = this.attendance.absentRecord;
-
-                // Update status
-                if (this.lastMonth === '-1') {
-                    this.statusLastMonth = 'unknown';
-                } else if (parseInt(this.lastMonth, 10) >= 95) {
-                    this.statusLastMonth = 'ok';
-                } else {
-                    this.statusLastMonth = 'warning';
-                }
-                if (this.annual === '-1') {
-                    this.statusAnnual = 'unknown';
-                } else if (parseInt(this.annual, 10) >= 95) {
-                    this.statusAnnual = 'ok';
-                } else {
-                    this.statusAnnual = 'warning';
-                }
-                this.init = true;
-            }
-            this.loading = false;
-        },
     },
     computed: {
         ...mapState({
@@ -191,16 +165,13 @@ export default {
             account: (state) => state.account,
             packery: (state) => state.packery,
             subjects: (state) => state.subjects,
-            attendance: (state) => state.attendance,
-            attendanceUpdated: (state) => state.attendanceUpdated,
+            timeFormatters: (state) => state.timeFormatters,
         }),
     },
     mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
 
-        if (!this.init) {
-            this.loading = true;
-        }
+        this.init = true;
     },
     beforeDestroy() {
         clearInterval(this.timer);

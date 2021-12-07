@@ -13,10 +13,10 @@
         ></v-progress-circular>
         <div class="bblinks-outer">
             <h2 class="handle">{{ $t('quick_links') }}</h2>
-            <v-tabs @change="relocate" show-arrows>
-                <v-tab :key="`${this.locale}1`">{{ $t('subjects') }}</v-tab>
-                <v-tab :key="`${this.locale}2`">{{ $t('portals') }}</v-tab>
-                <v-tab :key="`${this.locale}3`">{{ $t('custom') }}</v-tab>
+            <v-tabs @change="relocate" show-arrows class="pt-1" height="44">
+                <v-tab :key="`${locale}${rerender}1`">{{ $t('subjects') }}</v-tab>
+                <v-tab :key="`${locale}${rerender}2`">{{ $t('portals') }}</v-tab>
+                <v-tab :key="`${locale}${rerender}3`">{{ $t('custom') }}</v-tab>
 
                 <v-tab-item>
                     <v-container fluid>
@@ -137,18 +137,6 @@ export default {
                     link: 'https://studentadmin.manchester.ac.uk/psp/CSPROD/EMPLOYEE/SA/c/SA_LEARNER_SERVICES.SSS_STUDENT_CENTER.GBL',
                 },
                 {
-                    title: 'Spot',
-                    link: 'https://studentnet.cs.manchester.ac.uk/me/spot/',
-                },
-                {
-                    title: 'Attendance',
-                    link: 'https://studentnet.cs.manchester.ac.uk/ugt/attendance/',
-                },
-                {
-                    title: 'Email',
-                    link: 'https://outlook.com/student.manchester.ac.uk',
-                },
-                {
                     title: 'Timetable',
                     link: 'https://timetables.manchester.ac.uk/',
                 },
@@ -225,6 +213,7 @@ export default {
             locale: (state) => state.locale,
             packery: (state) => state.packery,
             subjects: (state) => state.subjects,
+            rerender: (state) => state.rerender,
         }),
         /**
          * Get shown subject
