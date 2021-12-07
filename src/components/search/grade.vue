@@ -434,12 +434,12 @@ export default {
     "es": {
         "more_info": "Ver asignatura",
         "formative": "Formativo",
-        "Semester 1": "",
-        "Semester 2": "",
-        "All Year": "",
-        "waiting": "",
+        "Semester 1": "Semestre 1",
+        "Semester 2": "Semestre 2",
+        "All Year": "Todo el año",
+        "waiting": "En espera",
         "na": "N/A",
-        "copy": ""
+        "copy": "Clic para copiar"
     },
     "ja": {
         "more_info": "この科目を表示",
