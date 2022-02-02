@@ -454,8 +454,8 @@ export default {
                     username: this.account.username,
                     password: this.account.password,
                     token: this.backend.token ? this.backend.token : '',
-                }, true),
-            }).catch(() => {
+                }),
+            }, true).catch(() => {
                 if (tryCount < 2) {
                     // Retry
                     setTimeout(() => {

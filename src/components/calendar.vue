@@ -625,8 +625,8 @@ export default {
                 body: JSON.stringify({
                     subid: this.account.calendar,
                     token: this.backend.token ? this.backend.token : '',
-                }, true),
-            }).catch(() => {
+                }),
+            }, true).catch(() => {
                 if (tryCount < 2) {
                     // Retry
                     setTimeout(() => {
@@ -823,7 +823,7 @@ export default {
             const lines = details.split('\n');
             for (const line of lines) {
                 const linePart = line.split(': ').map((item) => item.trim());
-                if (linePart[0] === 'Map Link' && linePart[1]) {
+                if (linePart[0].toLowerCase() === 'map link' && linePart[1]) {
                     // Parse URL
                     let urlQuery;
                     try {

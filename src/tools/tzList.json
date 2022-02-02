@@ -372,7 +372,7 @@
     {
         "name": "America/La_Paz",
         "countryCode": "BO",
-        "mainCity": "Santa Cruz de la Sierra"
+        "mainCity": "La Paz"
     },
     {
         "name": "America/Santiago",
@@ -445,9 +445,9 @@
         "mainCity": "Montevideo"
     },
     {
-        "name": "America/Godthab",
+        "name": "America/Nuuk",
         "countryCode": "GL",
-        "mainCity": "Godthab"
+        "mainCity": "Nuuk"
     },
     {
         "name": "America/Noronha",
@@ -850,6 +850,11 @@
         "mainCity": "Harare"
     },
     {
+        "name": "Africa/Juba",
+        "countryCode": "SS",
+        "mainCity": "Juba"
+    },
+    {
         "name": "Africa/Khartoum",
         "countryCode": "SD",
         "mainCity": "Khartoum"
@@ -878,11 +883,6 @@
         "name": "Africa/Maputo",
         "countryCode": "MZ",
         "mainCity": "Maputo"
-    },
-    {
-        "name": "Africa/Juba",
-        "countryCode": "SS",
-        "mainCity": "Juba"
     },
     {
         "name": "Asia/Damascus",
@@ -1083,6 +1083,11 @@
         "name": "Europe/Moscow",
         "countryCode": "RU",
         "mainCity": "Moscow"
+    },
+    {
+        "name": "Europe/Simferopol",
+        "countryCode": "UA",
+        "mainCity": "Sevastopol"
     },
     {
         "name": "Antarctica/Syowa",
@@ -1558,11 +1563,6 @@
         "name": "Pacific/Apia",
         "countryCode": "WS",
         "mainCity": "Apia"
-    },
-    {
-        "name": "Pacific/Enderbury",
-        "countryCode": "KI",
-        "mainCity": "Enderbury"
     },
     {
         "name": "Pacific/Fakaofo",

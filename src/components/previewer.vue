@@ -16,7 +16,7 @@
                     <v-btn icon small class="float-right mr-3" :title="$t('close')" @click="closePreview">
                         <v-icon>mdi-close</v-icon>
                     </v-btn>
-                    <v-btn icon small class="float-right mr-1 download-btn" :title="$t('download')" :href="blob" :download="name">
+                    <v-btn icon small class="float-right mr-1 download-btn" :title="$t('download')" :href="blob" :download="download || name">
                         <v-icon>mdi-arrow-collapse-down</v-icon>
                     </v-btn>
                     <span class="float-right mr-2 ml-0" :class="$vuetify.theme.dark ? 'grey--text text--darken-2' : 'grey--text text--lighten-2'" v-show="((type === 'svg' || type === 'markdown' || type === 'csv' || type === 'code' || type === 'text') && (rawView || !$vuetify.breakpoint.smAndDown)) || ((type === 'svg' || type === 'markdown' || type === 'csv') && $vuetify.breakpoint.smAndDown)">|</span>
@@ -205,6 +205,7 @@ export default {
         content: String,
         blob: String,
         type: String,
+        download: String,
         name: String,
         icon: String,
     },

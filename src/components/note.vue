@@ -134,6 +134,15 @@
                         <v-divider></v-divider>
                         <div
                             class="note-id"
+                            v-ripple
+                            @click="openExpand"
+                        >
+                            <span>{{ $t('expand_view') }}</span>
+                            <v-icon small class="copy-icon">mdi-arrow-expand</v-icon>
+                        </div>
+                        <v-divider></v-divider>
+                        <div
+                            class="note-id"
                             :class="{ 'copy-success': copySuccess }"
                             v-ripple
                             v-clipboard:copy="noteId"
@@ -172,6 +181,7 @@
             <codemirror v-model="code" :options="cmOption" class="md-editor" v-show="mode === 'edit'" :key="cmRefresh" ref="codemirror" @scroll.passive="onScroll"></codemirror>
             <div class="render-result" v-show="mode === 'view'" @scroll.passive="onScrollView" ref="renderScroll"><div ref="render" @click="checkNoteLink" @keypress.enter="checkNoteLink" id="note-render"></div></div>
         </div>
+        <previewer :content="previewerConfig.content" type="markdown" :blob="previewerConfig.blob" :name="previewerConfig.name" :download="previewerConfig.download" icon="file-document-edit-outline" ref="filePreviewer"></previewer>
         <v-menu
             v-model="listMenu"
             :position-x="listMenuX"
@@ -351,6 +361,8 @@ import 'codemirror/addon/selection/active-line';
 import 'codemirror/addon/edit/closebrackets';
 import 'codemirror/addon/edit/matchbrackets';
 
+import previewer from '@/components/previewer.vue';
+
 import scroll from '@/mixins/scroll';
 import clipboard from '@/mixins/clipboard';
 
@@ -413,6 +425,7 @@ export default {
     name: 'note',
     components: {
         codemirror,
+        previewer,
     },
     props: {
         searchid: Number,
@@ -447,6 +460,12 @@ export default {
             listMenu: false,
             listMenuX: -1,
             listMenuY: -1,
+            previewerConfig: {
+                content: '',
+                name: '',
+                blob: '',
+                download: '',
+            },
             cmOption: {
                 tabSize: 4,
                 indentUnit: 4,
@@ -1040,6 +1059,16 @@ export default {
             // Mark as downloaded
             localStorage.setItem('uoma_note_guide', 'true');
         },
+        openExpand() {
+            this.previewerConfig.blob = URL.createObjectURL(new Blob([this.notes[this.editing].content], { type: 'text/plain;charset=utf-8' }));
+            this.previewerConfig.content = this.notes[this.editing].content;
+            this.previewerConfig.name = this.notes[this.editing].title || this.$t('untitled');
+            this.previewerConfig.download = `${this.previewerConfig.name}.md`;
+
+            setTimeout(() => {
+                this.$refs.filePreviewer.openPreview();
+            }, 0);
+        },
     },
     watch: {
         locale() {
@@ -1246,7 +1275,6 @@ export default {
         padding-top: 18px;
         padding-bottom: 15px;
         margin-left: 20px;
-        height: 27px;
         .md-icon {
             padding-bottom: 2px;
         }
@@ -1326,7 +1354,8 @@ export default {
                     margin: 0;
                     font-weight: bold;
                     border-bottom: 1px solid #eaecef;
-                    padding-bottom: 2.2rem;
+                    opacity: 1;
+                    height: auto;
                 }
                 h3 {
                     font-size: 1.25em;
@@ -1564,9 +1593,13 @@ export default {
         padding-bottom: 2px;
         opacity: 0.8;
     }
+    .v-ripple__container {
+        opacity: 0.15!important;
+        transition: opacity .2s;
+    }
     .note-toc-container {
         padding-bottom: 10px;
-        max-height: 400px;
+        max-height: 390px;
         overflow: auto;
         overscroll-behavior-y: contain;
         ol {
@@ -1782,6 +1815,7 @@ export default {
         "hl_error": "Error when highlighting code",
         "error_at": "{0} at {1}",
         "toc": "Table of contents",
+        "expand_view": "Expand view",
         "note_id": "Note ID",
         "copy_note_id": "Copy note ID",
         "note_id_help": "Use <code>[Link name](:&lt;Note ID&gt;)</code> in other notes to link to this note, i.e. <code>[Link name](:{0})</code>",
@@ -1822,6 +1856,7 @@ export default {
         "hl_error": "在创建代码高亮时出错",
         "error_at": "{0} 于 {1}",
         "toc": "目录",
+        "expand_view": "展开视图",
         "note_id": "笔记 ID",
         "copy_note_id": "复制笔记 ID",
         "note_id_help": "在其他笔记中使用 <code>[链接名称](:&lt;笔记 ID&gt;)</code> 来链接到此笔记，即 <code>[链接名称](:{0})</code>。",
@@ -1862,6 +1897,7 @@ export default {
         "hl_error": "Error cuando intenta subrayar al código",
         "error_at": "{0} en {1}",
         "toc": "Tabla de contenidos",
+        "expand_view": "",
         "note_id": "Apunte ID",
         "copy_note_id": "Copiar apunte ID",
         "note_id_help": "Usa <code>[Nombre de enlace](:&lt;Apunte ID&gt;)</code> en otros apuntes para enlazar a este apunte, e.g. <code>[Nombre de enlace](:{0})</code>",
@@ -1902,6 +1938,7 @@ export default {
         "hl_error": "コードハイライトをするうちにエラー発生しました。",
         "error_at": "{1} に {0} 発生",
         "toc": "目録",
+        "expand_view": "",
         "note_id": "ノートID",
         "copy_note_id": "ノートIDをコピーする",
         "note_id_help": "他のメモアプリにこのノートにリンクするのため、このコード <code>[リンク名](:&lt;ノート ID&gt;)</code> を利用してください、つまり即 <code>[リンク名](:{0})</code>。",

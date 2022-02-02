@@ -941,8 +941,8 @@ export default {
                         username: this.$refs.settingsField.username,
                         password: this.$refs.settingsField.password,
                         token: backendToken || '',
-                    }, true),
-                }).catch(() => {
+                    }),
+                }, true).catch(() => {
                     // Network error
                     this.loading = false;
                     this.loginError = true;

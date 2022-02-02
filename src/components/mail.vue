@@ -792,7 +792,7 @@
                 </v-list-item>
             </v-list>
         </v-menu>
-        <previewer :content="previewerConfig.content" :blob="previewerConfig.blob" :type="previewerConfig.type" :name="previewerConfig.name" :icon="previewerConfig.icon" ref="filePreviewer"></previewer>
+        <previewer :content="previewerConfig.content" :blob="previewerConfig.blob" :type="previewerConfig.type" :name="previewerConfig.name" :download="previewerConfig.download" :icon="previewerConfig.icon" ref="filePreviewer"></previewer>
         <v-dialog
             v-model="tooManyAttachments"
             max-width="400"
@@ -1715,6 +1715,7 @@ export default {
                 blob: '',
                 type: '',
                 name: '',
+                download: '',
                 icon: '',
             },
             debouncedWheelEnd: debounce.debounce(function () {
@@ -1751,8 +1752,8 @@ export default {
                     password: this.account.password,
                     email: this.account.email,
                     token: this.backend.token ? this.backend.token : '',
-                }, true),
-            }).catch(() => {
+                }),
+            }, true).catch(() => {
                 if (tryCount < 2) {
                     // Retry
                     setTimeout(() => {
@@ -1869,8 +1870,8 @@ export default {
                     action,
                     mailId,
                     token: this.backend.token ? this.backend.token : '',
-                }, true),
-            }).catch(() => {
+                }),
+            }, true).catch(() => {
                 // Network error
                 this.loading = false;
                 if (action === 'body' && mailId === this.viewing) {
@@ -2072,6 +2073,7 @@ export default {
                     this.previewerConfig.content = '';
                 }
                 this.previewerConfig.name = fileName;
+                this.previewerConfig.download = fileName;
                 this.previewerConfig.icon = this.getFileIcon(fileName);
 
                 setTimeout(() => {
@@ -2419,8 +2421,8 @@ export default {
                         body: minBody,
                         from: this.viewer.translateFrom,
                         to: this.preferredTranslateTo[1][this.viewer.translator],
-                    }, true),
-                }).catch(() => {
+                    }),
+                }, true).catch(() => {
                     // Network error
                     this.loading = false;
                     this.viewer.translateState = 'source';
@@ -2522,8 +2524,8 @@ export default {
                 body: JSON.stringify({
                     token: this.backend.token ? this.backend.token : '',
                     email: this.account.email,
-                }, true),
-            }).catch(() => {
+                }),
+            }, true).catch(() => {
                 // Network error
                 this.loading = false;
                 this.viewer.translateState = 'source';
