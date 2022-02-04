@@ -104,6 +104,8 @@
                         :weekdays="weekDays"
                         :key="`calendar-${refreshId}-${rerender}`"
                         :interval-height="40"
+                        :interval-width="50"
+                        :interval-format="intervalFormat"
                         @click:event="showEvent"
                         @click:more="viewDay"
                         @click:date="viewDay"
@@ -111,12 +113,12 @@
                     >
                         <template v-slot:day-body="{ date, week }">
                             <div
-                            class="v-current-time"
-                            :class="{
-                                first: (date === week[0].date && type === 'day') || (date === currentDate && type === 'week'),
-                                week: date !== currentDate && type === 'week',
-                            }"
-                            :style="{ top: nowY }"
+                                class="v-current-time"
+                                :class="{
+                                    first: (date === week[0].date && type === 'day') || (date === currentDate && type === 'week'),
+                                    week: date !== currentDate && type === 'week',
+                                }"
+                                :style="{ top: nowY }"
                             ></div>
                         </template>
                         <template v-slot:day-label="{ date, day, present }">
@@ -978,6 +980,13 @@ export default {
                 value: item,
             }));
         },
+        /**
+         * Format calendar interval
+         * @returns {string} formatted interval
+         */
+        intervalFormat(interval) {
+            return `${interval.hour > 12 ? interval.hour - 12 : interval.hour} ${interval.hour >= 12 ? 'PM' : 'AM'}`;
+        },
     },
     watch: {
         locale() {
@@ -1218,13 +1227,13 @@ export default {
     }
     .v-calendar-daily__interval-text {
         top: -8px;
-        padding-right: 2px;
+        padding-right: 5px;
     }
     .v-calendar-daily__interval {
         padding-right: 3px;
     }
     .v-calendar-daily__interval::after {
-        width: 3px;
+        width: 4px;
     }
     .v-btn.v-btn--has-bg.v-btn--round.v-size--default.primary {
         height: 50px;

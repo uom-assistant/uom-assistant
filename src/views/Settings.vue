@@ -126,6 +126,17 @@
                             </v-list-item-action>
                         </template>
                     </v-list-item>
+                    <v-list-item class="pa-0" :ripple="false">
+                        <template v-slot:default="{ active }">
+                            <v-list-item-content class="ui-list-item">
+                                <v-list-item-title class="mt-1 d-flex align-center switch-list-title"><v-chip class="mr-2" small outlined color="primary">BETA</v-chip>{{ $t('blur_mode') }}</v-list-item-title>
+                                <v-list-item-subtitle class="mt-1">{{ $t('blur_mode_text') }}</v-list-item-subtitle>
+                            </v-list-item-content>
+                            <v-list-item-action>
+                                <v-switch :input-value="active"></v-switch>
+                            </v-list-item-action>
+                        </template>
+                    </v-list-item>
                 </v-list-item-group>
             </v-list>
 
@@ -217,26 +228,39 @@ export default {
             this.$i18n.locale = this.locale;
         },
         /**
-         * Toggle auto dark mode
+         * Toggle UI settings
          */
         uiSettings() {
             const data = JSON.parse(localStorage.getItem('misc_settings')) || {};
             data.autoDark = this.uiSettings.includes(0);
+            data.blur = this.uiSettings.includes(1);
             localStorage.setItem('misc_settings', JSON.stringify(data));
+            this.$store.commit('setAutoDark', data.autoDark);
+
+            if (data.blur) {
+                document.documentElement.classList.add('blur-style');
+            } else {
+                document.documentElement.classList.remove('blur-style');
+            }
         },
     },
     computed: {
         ...mapState({
             locale: (state) => state.locale,
             backend: (state) => state.backend,
+            theme: (state) => state.theme,
         }),
     },
     mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
 
-        // Read auto dark mode setting from localStorage
-        if ((JSON.parse(localStorage.getItem('misc_settings')) || {}).autoDark) {
+        // Read UI setting from localStorage
+        const uiConfig = (JSON.parse(localStorage.getItem('misc_settings')) || {});
+        if (uiConfig.autoDark) {
             this.uiSettings.push(0);
+        }
+        if (uiConfig.blur) {
+            this.uiSettings.push(1);
         }
 
         // Read backend info from localStorage
@@ -326,8 +350,8 @@ export default {
         "network_settings": "Network Settings",
         "a11y_settings": "Accessibility Settings",
         "data_settings": "Data Management",
-        "auto_dark_mode": "Auto Dark Mode",
-        "auto_dark_mode_text": "Make UoM Assistant's UI theme switch automatically according to the system settings.",
+        "auto_dark_mode": "Auto Dark Mode Support",
+        "auto_dark_mode_text": "Add an option to the config menu so that UoM Assistant's UI theme can switch automatically according to the system settings.",
         "save": "Save",
         "network_proxy": "Network Proxy",
         "proxy_address": "Proxy Address",
@@ -344,7 +368,9 @@ export default {
         "need_token": "You need a valid token to access this backend",
         "wrong_token": "This token is invalid",
         "message_from_backend": "Message from the backend",
-        "ok": "OK"
+        "ok": "OK",
+        "blur_mode": "Acrylic Style",
+        "blur_mode_text": "Enable acrylic style for all user interface."
     },
     "zh": {
         "backend_settings": "后端设置",
@@ -353,8 +379,8 @@ export default {
         "network_settings": "网络设置",
         "a11y_settings": "可访问性设置",
         "data_settings": "数据管理",
-        "auto_dark_mode": "自动暗色模式",
-        "auto_dark_mode_text": "使曼大助手的界面主题跟随系统设置自动切换。",
+        "auto_dark_mode": "自动暗色模式支持",
+        "auto_dark_mode_text": "在配置菜单中添加一个选项，使曼大助手的界面主题跟随系统设置自动切换。",
         "save": "保存",
         "network_proxy": "网络代理",
         "proxy_address": "代理地址",
@@ -371,7 +397,9 @@ export default {
         "need_token": "访问这个后端需要正确的令牌",
         "wrong_token": "此令牌无效",
         "message_from_backend": "来自后端的消息",
-        "ok": "好"
+        "ok": "好",
+        "blur_mode": "亚克力风格",
+        "blur_mode_text": "为界面启用亚克力风格。"
     },
     "es": {
         "backend_settings": "Configuración de back-end",
@@ -380,8 +408,8 @@ export default {
         "network_settings": "Configuración de la red",
         "a11y_settings": "Configuración de accesibilidad",
         "data_settings": "Gestión de datos",
-        "auto_dark_mode": "Modo Oscuro Automático",
-        "auto_dark_mode_text": "Que el tema de la interfaz de usuario de UoM Assistant cambie automáticamente de acuerdo con la configuración del sistema.",
+        "auto_dark_mode": "",
+        "auto_dark_mode_text": "",
         "save": "Guardar",
         "network_proxy": "Red Proxy",
         "proxy_address": "Dirección Proxy",
@@ -396,7 +424,9 @@ export default {
         "need_token": "Para acceder este back-end necesita un token válido",
         "wrong_token": "Token invalido",
         "message_from_backend": "Mensaje desde back-end",
-        "ok": "OK"
+        "ok": "OK",
+        "blur_mode": "",
+        "blur_mode_text": ""
     },
     "ja": {
         "backend_settings": "",
@@ -405,6 +435,8 @@ export default {
         "network_settings": "",
         "a11y_settings": "",
         "data_settings": "",
+        "auto_dark_mode": "",
+        "auto_dark_mode_text": "",
         "save": "保存",
         "network_proxy": "",
         "proxy_address": "",
@@ -419,7 +451,9 @@ export default {
         "need_token": "このバックエンドをアクセスために正しいトークンが必要です。",
         "wrong_token": "このトークンが無効です",
         "message_from_backend": "バックエンドからのメッセージ",
-        "ok": "はい"
+        "ok": "はい",
+        "blur_mode": "",
+        "blur_mode_text": ""
     }
 }
 </i18n>

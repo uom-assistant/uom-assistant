@@ -21,18 +21,18 @@
                         v-on="on"
                         v-show="$route.path === '/'"
                         v-shortkey="['ctrl', 'm']"
-                        @shortkey="toggleDark"
+                        @shortkey="toggleDark(true)"
                     >
                         <v-icon>mdi-tune</v-icon>
                     </v-btn>
                 </template>
                 <v-list flat class="shown-list">
-                    <v-list-item class="daynight" @click="toggleDark">
+                    <v-list-item class="daynight" @click="toggleDark(false)">
                         <v-list-item-icon>
-                            <v-icon>{{ $vuetify.theme.dark ? 'mdi-white-balance-sunny' : 'mdi-weather-night' }}</v-icon>
+                            <v-icon>{{ theme === 'dark' ? 'mdi-weather-night' : (theme === 'auto' ? 'mdi-theme-light-dark' : 'mdi-white-balance-sunny') }}</v-icon>
                         </v-list-item-icon>
                         <v-list-item-content>
-                            <v-list-item-title>{{ $vuetify.theme.dark ? $t('light_mode') : $t('dark_mode') }}</v-list-item-title>
+                            <v-list-item-title>{{ theme === 'dark' ? $t('theme_dark') : (theme === 'auto' ? $t('theme_auto') : $t('theme_light')) }}</v-list-item-title>
                         </v-list-item-content>
                     </v-list-item>
                     <v-list-item @click="layoutLock = !layoutLock" class="daynight">
@@ -74,9 +74,9 @@
             <v-btn
                 icon
                 v-show="$route.path !== '/'"
-                @click="toggleDark"
+                @click="toggleDark(false)"
             >
-                <v-icon>{{ $vuetify.theme.dark ? 'mdi-weather-night' : 'mdi-white-balance-sunny' }}</v-icon>
+                <v-icon>{{ theme === 'dark' ? 'mdi-weather-night' : (theme === 'auto' ? 'mdi-theme-light-dark' : 'mdi-white-balance-sunny') }}</v-icon>
             </v-btn>
             <v-menu
                 offset-y
@@ -594,6 +594,7 @@
                 </v-btn>
             </template>
         </v-snackbar>
+        <v-snackbar v-model="darkKeyBoardTip" timeout="2000" content-class="theme-tip-content">{{ darkKeyBoardTipText }}</v-snackbar>
     </v-app>
 </template>
 
@@ -689,7 +690,6 @@ export default {
         loading: false,
         welcomeMessage: '',
         welcomeMessageDialog: false,
-        darkMode: false,
         locale: '',
         localeDetail: null,
         backend: {},
@@ -730,6 +730,10 @@ export default {
         updating: false,
         newCourseSound: true,
         layoutLock: false,
+        darkKeyBoardTip: false,
+        darkKeyBoardTipText: '',
+        theme: 'light',
+        autoDarkVal: false,
     }),
     methods: {
         /**
@@ -1050,14 +1054,42 @@ export default {
         },
         /**
          * Toggle dark mode globally
+         * @param {Boolean} keyboard whether the toggle is triggered by the keyboard
          */
-        toggleDark() {
-            this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+        toggleDark(keyboard) {
+            let nextVal = false;
+            if (this.theme === 'light') {
+                nextVal = true;
+                this.theme = 'dark';
+            } else if (this.theme === 'dark') {
+                if (this.autoDark) {
+                    nextVal = this.autoDarkVal;
+                    this.theme = 'auto';
+                } else {
+                    nextVal = false;
+                    this.theme = 'light';
+                }
+            } else {
+                nextVal = false;
+                this.theme = 'light';
+            }
+
+            this.$vuetify.theme.dark = nextVal;
             this.$store.commit('setDarkMode', this.$vuetify.theme.dark);
-            localStorage.setItem('dark', this.$vuetify.theme.dark ? 'true' : 'false');
+            localStorage.setItem('uomaTheme', this.theme);
 
             document.querySelector('meta[name="theme-color"]').setAttribute('content', this.$vuetify.theme.dark ? '#272727' : '#F5F5F5');
 
+            // If the toggle is triggered by the keyboard, show a tip about current mode
+            if (keyboard) {
+                this.darkKeyBoardTip = false;
+                this.darkKeyBoardTipText = this.$t(`theme_${this.theme}`);
+                this.$nextTick(() => {
+                    this.darkKeyBoardTip = true;
+                });
+            }
+
+            // Update colour theme for Electron
             if (window.__UOMA_ELECTRON__ && window.__UOMA_ELECTRON_BRIDGE__) {
                 window.__UOMA_ELECTRON_BRIDGE__.setAttr('theme', this.$vuetify.theme.dark ? 'dark' : 'light');
             }
@@ -1181,6 +1213,7 @@ export default {
             backendStatus: (state) => state.backendStatus,
             searchIndex: (state) => state.searchIndex,
             searchIndexChecker: (state) => state.searchIndexChecker,
+            autoDark: (state) => state.autoDark,
         }),
         /**
          * Check if the URL field is valid
@@ -1207,6 +1240,15 @@ export default {
         },
     },
     watch: {
+        autoDark() {
+            // Check colour theme when auto dark mode support is changed
+            if (!this.autoDark && this.theme === 'auto') {
+                this.theme = 'light';
+                this.$vuetify.theme.dark = false;
+                this.$store.commit('setDarkMode', false);
+                localStorage.setItem('uomaTheme', this.theme);
+            }
+        },
         ifWidgets() {
             // Store widget status to local storage
             localStorage.setItem('if_widgets', JSON.stringify(this.ifWidgets));
@@ -1366,10 +1408,40 @@ export default {
         this.layoutLock = (localStorage.getItem('lock_layout') || 'false') === 'true';
         this.$store.commit('setLayoutLock', this.layoutLock);
 
-        // Initialize dark mode status
-        const darkMode = localStorage.getItem('dark');
-        this.$vuetify.theme.dark = darkMode ? (darkMode === 'true') : false;
-        this.$store.commit('setDarkMode', this.$vuetify.theme.dark);
+        // Initialize theme status
+        const mql = window.matchMedia('(prefers-color-scheme: dark)');
+        mql.addEventListener('change', (mqlResult) => {
+            this.autoDarkVal = mqlResult.matches;
+            if (this.theme === 'auto') {
+                this.$vuetify.theme.dark = mqlResult.matches;
+            }
+        });
+        this.autoDarkVal = mql.matches;
+
+        this.theme = localStorage.getItem('uomaTheme') || 'light';
+        let dark = this.theme === 'dark';
+        this.$nextTick(() => {
+            if (this.theme === 'auto') {
+                if (this.autoDark) {
+                    dark = this.autoDarkVal;
+                } else {
+                    dark = false;
+                    this.theme = 'light';
+                    localStorage.setItem('uomaTheme', 'light');
+                }
+            }
+            this.$vuetify.theme.dark = dark;
+            this.$store.commit('setDarkMode', dark);
+        });
+
+        // Read UI setting from localStorage
+        const uiConfig = (JSON.parse(localStorage.getItem('misc_settings')) || {});
+        if (uiConfig.blur) {
+            document.documentElement.classList.add('blur-style');
+        } else {
+            document.documentElement.classList.remove('blur-style');
+        }
+        this.$store.commit('setAutoDark', uiConfig.autoDark || false);
 
         document.querySelector('meta[name="theme-color"]').setAttribute('content', this.$vuetify.theme.dark ? '#272727' : '#F5F5F5');
 
@@ -1968,6 +2040,10 @@ html.easy-read {
         pointer-events: auto;
     }
 }
+.theme-tip-content {
+    margin-right: -8px!important;
+    text-align: center!important;
+}
 #search-result {
     position: absolute;
     top: 64px;
@@ -2136,14 +2212,95 @@ code, kbd, pre, samp {
         }
     }
 }
+.blur-style {
+    .v-menu__content {
+        background-color: transparent!important;
+        box-shadow: 0px 5px 5px -3px rgba(0, 0, 0, 0.15), 0px 8px 10px 1px rgba(0, 0, 0, 0.105), 0px 3px 14px 2px rgba(0, 0, 0, 0.09);
+        & > .v-sheet {
+            background-color: rgba(255, 255, 255, .72);
+            backdrop-filter: blur(25px);
+            & > header {
+                background-color: transparent!important;
+            }
+        }
+    }
+    .event-card .v-list {
+        background-color: rgba(213, 213, 213, .3)!important;
+    }
+    .v-picker.v-card {
+        background-color: transparent!important;
+        .v-picker__body {
+            background-color: rgba(255, 255, 255, .72)!important;
+            backdrop-filter: blur(25px);
+        }
+        .v-time-picker-clock {
+            background-color: rgba(184, 184, 184, .3);
+        }
+    }
+    #search-result {
+        background-color: rgba(248, 248, 248, .72)!important;
+        backdrop-filter: blur(25px);
+        box-shadow: 0px 3px 3px -2px rgba(0, 0, 0, .15%), 0px 3px 4px 0px rgba(0, 0, 0, .105), 0px 1px 8px 0px rgba(0, 0, 0, .09) !important;
+        & > div > .v-sheet {
+            background-color: rgba(255, 255, 255, .5)!important;
+            & > .v-sheet {
+                background-color: transparent;
+            }
+        }
+        & > div > .search-grade-container .grade-item {
+            background-color: rgba(255, 255, 255, .5)!important;
+        }
+    }
+    .note-toc-card .note-id {
+        background-color: rgba(210, 210, 210, .3)!important;
+        backdrop-filter: blur(25px);
+    }
+    .v-snack__wrapper {
+        background-color: rgba(21, 21, 21, .72)!important;
+        backdrop-filter: blur(25px);
+    }
+    #app.theme--dark {
+        .v-menu__content {
+            & > .v-sheet {
+                background-color: rgba(30, 30, 30, .72);
+                & > header {
+                    background-color: transparent!important;
+                }
+            }
+        }
+        .event-card .v-list {
+            background-color: rgba(74, 74, 74, .3)!important;
+        }
+        .v-picker.v-card {
+            background-color: transparent!important;
+            .v-picker__body {
+                background-color: rgba(66, 66, 66, .72)!important;
+            }
+            .v-time-picker-clock {
+                background-color: rgba(139, 139, 139, .3);
+            }
+        }
+        #search-result {
+            background-color: rgba(30, 30, 30, .72)!important;
+            & > div > .v-sheet {
+                background-color: rgba(49, 49, 49, .5)!important;
+            }
+            & > div > .search-grade-container .grade-item {
+                background-color: rgba(49, 49, 49, .5)!important;
+            }
+        }
+        .v-snack__wrapper {
+            background-color: rgba(51, 51, 51, .72)!important;
+            backdrop-filter: blur(25px);
+        }
+    }
+}
 </style>
 
 <i18n>
 {
     "en": {
         "title": "UoM Assistant",
-        "dark_mode": "Switch to dark mode",
-        "light_mode": "Switch to light mode",
         "front_end_update_ready": "New version of the frontend is now available",
         "front_end_update": "Update",
         "front_end_ignore": "Ignore",
@@ -2209,12 +2366,13 @@ code, kbd, pre, samp {
         "grade": "Grade Summary",
         "plugins": "Plug-ins",
         "new_course_sound": "Check-in Bell",
-        "a11y_settings_title": "Accessibility settings"
+        "a11y_settings_title": "Accessibility settings",
+        "theme_light": "Bright Theme",
+        "theme_dark": "Dark Theme",
+        "theme_auto": "Auto Colour Theme"
     },
     "zh": {
         "title": "曼大助手",
-        "dark_mode": "切换到暗色模式",
-        "light_mode": "切换到亮色模式",
         "front_end_update_ready": "新版本的前端已经可用",
         "front_end_update": "更新",
         "front_end_ignore": "忽略",
@@ -2280,12 +2438,13 @@ code, kbd, pre, samp {
         "grade": "成绩概览",
         "plugins": "插件",
         "new_course_sound": "签到铃",
-        "a11y_settings_title": "可访问性设置"
+        "a11y_settings_title": "可访问性设置",
+        "theme_light": "亮色主题",
+        "theme_dark": "深色主题",
+        "theme_auto": "自动颜色主题"
     },
     "es": {
         "title": "UoM Assistant",
-        "dark_mode": "Cambiar a modo oscuro",
-        "light_mode": "Cambiar a modo claro",
         "front_end_update_ready": "Nuava versión de front-end disponible",
         "front_end_update": "Actualizar",
         "front_end_ignore": "Ignorar",
@@ -2349,12 +2508,13 @@ code, kbd, pre, samp {
         "mail": "Correos",
         "grade": "Resumen de notas ",
         "plugins": "Complementos",
-        "new_course_sound": "Campana de clase"
+        "new_course_sound": "Campana de clase",
+        "theme_light": "",
+        "theme_dark": "",
+        "theme_auto": ""
     },
     "ja": {
         "title": "UoMアシスタント",
-        "dark_mode": "ダークモードに変更する",
-        "light_mode": "ライトモードに変更する",
         "front_end_update_ready": "新バージョンのフロントエンドが利用可能です",
         "front_end_update": "アップデート",
         "front_end_ignore": "無視する",
@@ -2417,7 +2577,10 @@ code, kbd, pre, samp {
         "mail": "受信トレイ",
         "grade": "成績概要",
         "plugins": "プラグイン",
-        "new_course_sound": ""
+        "new_course_sound": "",
+        "theme_light": "",
+        "theme_dark": "",
+        "theme_auto": ""
     }
 }
 </i18n>

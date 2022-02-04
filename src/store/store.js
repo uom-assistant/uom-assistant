@@ -23,6 +23,7 @@ export default {
         attendance: false,
         attendanceUpdated: 0,
         darkMode: false,
+        autoDark: false,
         classBell: true,
         layoutLock: false,
         rerender: 0,
@@ -91,6 +92,9 @@ export default {
         },
         setDarkMode(state, darkMode) {
             state.darkMode = darkMode;
+        },
+        setAutoDark(state, autoDark) {
+            state.autoDark = autoDark;
         },
         setClassBell(state, classBell) {
             state.classBell = classBell;
