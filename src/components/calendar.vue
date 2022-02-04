@@ -224,10 +224,12 @@
                     >
                         <v-card
                             class="event-card"
+                            :class="$vuetify.breakpoint.xs ? 'd-flex flex-column' : ''"
                             min-width="350px"
                             flat
                         >
                             <v-toolbar
+                                :class="$vuetify.breakpoint.xs ? 'flex-grow-0' : ''"
                                 color="#ffffff"
                                 height="64"
                                 flat
@@ -265,25 +267,37 @@
                                     <v-icon>mdi-chevron-down</v-icon>
                                 </v-btn>
                             </v-toolbar>
-                            <v-card-text>
-                                <span v-if="currentTimeZone === 'Europe/London'">
-                                    <span v-if="selectedEvent.details !== 'Coursework Deadline'">
-                                        {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(selectedEvent.end, false) : '' }}<br>
+                            <v-card-text :class="$vuetify.breakpoint.xs ? 'flex-grow-0' : ''">
+                                <div class="detail-flex">
+                                    <v-icon>mdi-clock-outline</v-icon>
+                                    <span v-if="currentTimeZone === 'Europe/London'">
+                                        <span v-if="selectedEvent.details !== 'Coursework Deadline'">
+                                            {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(selectedEvent.end, false) : '' }}<br>
+                                        </span>
+                                        <span v-else>
+                                            {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}<br>
+                                        </span>
                                     </span>
                                     <span v-else>
-                                        {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}<br>
+                                        <span v-if="selectedEvent.details !== 'Coursework Deadline'">
+                                            {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(selectedEvent.end, false) : '' }}{{ $t('local_time') }}<br>
+                                            {{ selectedEvent.start ? getDate(convertTimeZone(selectedEvent.start), false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(convertTimeZone(selectedEvent.end), false) : '' }}{{ $t('uk_time') }}<br>
+                                        </span>
+                                        <span v-else>
+                                            {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ $t('local_time') }}<br>
+                                            {{ selectedEvent.start ? getDate(convertTimeZone(selectedEvent.start), false) : '' }}{{ $t('uk_time') }}<br>
+                                        </span>
                                     </span>
-                                </span>
-                                <span v-else>
-                                    <span v-if="selectedEvent.details !== 'Coursework Deadline'">
-                                        {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(selectedEvent.end, false) : '' }}{{ $t('local_time') }}<br>
-                                        {{ selectedEvent.start ? getDate(convertTimeZone(selectedEvent.start), false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(convertTimeZone(selectedEvent.end), false) : '' }}{{ $t('uk_time') }}<br>
+                                </div>
+                                <div class="detail-flex mt-1" v-if="checkDetail('location', selectedEvent.details)">
+                                    <v-icon class="bigger">mdi-map-marker-outline</v-icon>
+                                    <span>
+                                        {{ showLocation(selectedEvent.details) }}
+                                        <span v-if="checkDetail('directions', selectedEvent.details)">
+                                            <br>{{ showDirections(selectedEvent.details) }}
+                                        </span>
                                     </span>
-                                    <span v-else>
-                                        {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ $t('local_time') }}<br>
-                                        {{ selectedEvent.start ? getDate(convertTimeZone(selectedEvent.start), false) : '' }}{{ $t('uk_time') }}<br>
-                                    </span>
-                                </span>
+                                </div>
                                 <br>
                                 <v-list flat class="list" v-if="selectedEvent.details !== 'Coursework Deadline' && selectedEvent.subjectId !== '' && subjectLinks(selectedEvent.subjectId).sessionLinks.length > 0">
                                     <v-list-item-group>
@@ -339,9 +353,12 @@
                                         </v-list-item>
                                     </v-list-item-group>
                                 </v-list>
-                                <pre v-html="selectedEvent.details === 'Coursework Deadline' ? $t('course_ddl') : linkify(selectedEvent.details)"></pre>
-                                <div v-html="selectedEvent.details ? showMap(selectedEvent.details) : ''" v-if="selectedEvent.details && selectedEvent.details !== 'Coursework Deadline'"></div>
+                                <div class="detail-flex">
+                                    <v-icon>mdi-calendar-text-outline</v-icon>
+                                    <pre v-html="selectedEvent.details === 'Coursework Deadline' ? $t('course_ddl') : linkify(selectedEvent.details)"></pre>
+                                </div>
                             </v-card-text>
+                            <div v-html="showMap(selectedEvent.details)" v-if="(!selectedEvent.details || selectedEvent.details !== 'Coursework Deadline') && checkDetail('map link', selectedEvent.details)" class="map-container flex-shrink-0" :class="$vuetify.breakpoint.xs ? 'flex-grow-1' : ''"></div>
                         </v-card>
                     </v-menu>
                 </v-sheet>
@@ -599,7 +616,7 @@ export default {
          * @returns {string} event details with links
          */
         linkify(text) {
-            return typeof text === 'string' ? linkifyStr(text, {
+            return typeof text === 'string' ? linkifyStr(text.trim(), {
                 rel: 'noopener nofollow',
                 target: '_blank',
                 format: (value, type) => {
@@ -818,6 +835,7 @@ export default {
         },
         /**
          * Check if there is a location link in the details of an event and show the Google map if needed
+         * @returns {string} map iframe string or empty string
          */
         showMap(details) {
             const lines = details.split('\n');
@@ -830,14 +848,74 @@ export default {
                         urlQuery = new URLSearchParams(new URL(linePart[1]).search);
                     } catch (e) { return ''; }
                     if (urlQuery.get('query_place_id') !== null) {
-                        return `<iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAn46nX_pMvKfKcp5_Nqc4C3GCKj8CHJ7M&amp;q=place_id:${urlQuery.get('query_place_id')}" width="100%" height="300" frameborder="0" style="border:0;" allowfullscreen></iframe>`;
+                        return `<iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAn46nX_pMvKfKcp5_Nqc4C3GCKj8CHJ7M&amp;q=place_id:${urlQuery.get('query_place_id')}" frameborder="0" style="border:0;" allowfullscreen></iframe>`;
                     }
                     if (urlQuery.get('query') !== null) {
-                        return `<iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAn46nX_pMvKfKcp5_Nqc4C3GCKj8CHJ7M&amp;q=${urlQuery.get('query')}" width="100%" height="300" frameborder="0" style="border:0;" allowfullscreen></iframe>`;
+                        return `<iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAn46nX_pMvKfKcp5_Nqc4C3GCKj8CHJ7M&amp;q=${urlQuery.get('query')}" frameborder="0" style="border:0;" allowfullscreen></iframe>`;
                     }
                 }
             }
             return '';
+        },
+        /**
+         * Check if there is a location string in the details of an event and show it
+         * @returns {string} location string or empty string
+         */
+        showLocation(details) {
+            const lines = details.split('\n');
+            for (const line of lines) {
+                const linePart = line.split(': ').map((item) => item.trim());
+                if (linePart[0].toLowerCase() === 'location' && linePart[1]) {
+                    let location = linePart[1];
+
+                    if (linePart[1].includes('_')) {
+                        const parts = linePart[1].split('_');
+                        const building = parts.shift();
+                        const room = parts.join('_');
+                        location = `${room}, ${building}`;
+                    }
+
+                    return location;
+                }
+            }
+            return '';
+        },
+        /**
+         * Check if there is a direction string in the details of an event and show it
+         * @returns {string} direction string or empty string
+         */
+        showDirections(details) {
+            const lines = details.split('\n');
+            for (const line of lines) {
+                const linePart = line.split(': ').map((item) => item.trim());
+                if (linePart[0].toLowerCase() === 'directions' && linePart[1]) {
+                    if (linePart[1].indexOf('.') === linePart[1].length - 1 || linePart[1].indexOf(',') === -1 || linePart[1].indexOf(';') === -1) {
+                        return linePart[1].slice(0, -1);
+                    }
+                    return linePart[1];
+                }
+            }
+            return '';
+        },
+        /**
+         * Check if there is a line of required attribute in the details of an event
+         * @returns {boolean} true if there is a line of required attribute
+         */
+        checkDetail(attr, details) {
+            if (typeof details !== 'string') {
+                return false;
+            }
+            if (details === 'Coursework Deadline') {
+                return false;
+            }
+            const lines = details.split('\n');
+            for (const line of lines) {
+                const linePart = line.split(': ').map((item) => item.trim());
+                if (linePart[0].toLowerCase() === attr && linePart[1]) {
+                    return true;
+                }
+            }
+            return false;
         },
         /**
          * Map from subject ID to subject links
@@ -1222,6 +1300,33 @@ export default {
                 font-family: Roboto, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif;
             }
         }
+        .map-container {
+            min-height: 300px;
+            line-height: 0;
+            margin-top: 3px;
+            background-color: rgba(127, 127, 127, .2);
+            position: relative;
+            iframe {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+            }
+        }
+        .detail-flex {
+            display: flex;
+            align-items: flex-start;
+            i {
+                margin-right: 8px;
+                font-size: 18px;
+                &.bigger {
+                    margin-left: -1px;
+                    margin-right: 7px;
+                    font-size: 20px;
+                }
+            }
+        }
     }
 }
 .v-menu__content.full-screen-menu {
@@ -1260,6 +1365,9 @@ export default {
         }
         .v-toolbar {
             background-color: #1E1E1E!important;
+        }
+        .map-container {
+            filter: brightness(0.85);
         }
     }
 }
