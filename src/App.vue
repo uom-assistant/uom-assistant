@@ -200,7 +200,7 @@
             <v-container fluid>
                 <v-slide-y-reverse-transition leave-absolute>
                     <keep-alive include="Home">
-                            <router-view ref="view" :key="`router-${routerRefreshKey}`"></router-view>
+                        <router-view ref="view" :key="`router-${routerRefreshKey}`"></router-view>
                     </keep-alive>
                 </v-slide-y-reverse-transition>
             </v-container>
@@ -1032,9 +1032,9 @@ export default {
             this.$store.commit('setBackendStatus', true);
             this.$store.commit('setAccount', JSON.parse(localStorage.getItem('account')) || {});
             this.welcome = false;
-            if (this.$route.path === '/') {
-                this.routerRefreshKey = new Date().valueOf();
-            }
+            setTimeout(() => {
+                window.location.reload();
+            }, 300);
         },
         /**
          * Dismiss welcome message dialog and go to account settings

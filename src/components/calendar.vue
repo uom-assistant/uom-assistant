@@ -1286,7 +1286,6 @@ export default {
             margin-bottom: 20px;
             background-color: #f3f3f3;
             border-radius: 6px;
-            max-width: 800px;
             .v-list-item {
                 cursor: default;
                 min-height: 28px;
