@@ -15,7 +15,7 @@
             <h2 class="handle">
                 {{ $t('task') }}
                 <span class="num-badge" v-show="(tasks.length - ifTasks.length) > 0">{{ tasks.length - ifTasks.length }}</span>
-                <v-btn icon small class="float-right mr-4" :title="$t('quick_add')" @click="courseworkList = true">
+                <v-btn icon small class="float-right mr-4" :title="$t('quick_add')" @click="openAhead">
                     <v-icon>mdi-playlist-plus</v-icon>
                 </v-btn>
             </h2>
@@ -146,7 +146,7 @@
                             </v-list-item-action>
 
                             <v-list-item-content>
-                                <v-list-item-title><span v-if="task.deadline !== false && displayRemain(task.deadline, index) !== ''" class="d-inline-block time-remain" :class="checkExpired(task.deadline, index)"><v-icon :class="checkUrgent(task.deadline, index)" class="mr-1 urgent-icon" dense>mdi-clock-alert-outline</v-icon>{{ displayRemain(task.deadline, index) }}</span>{{ task.title }}</v-list-item-title>
+                                <v-list-item-title :title="task.title"><span v-if="task.deadline !== false && displayRemain(task.deadline, index) !== ''" class="d-inline-block time-remain" :class="checkExpired(task.deadline, index)"><v-icon :class="checkUrgent(task.deadline, index)" class="mr-1 urgent-icon" dense>mdi-clock-alert-outline</v-icon>{{ displayRemain(task.deadline, index) }}</span>{{ task.title }}</v-list-item-title>
                                 <v-list-item-subtitle v-if="task.deadline !== false || task.subject !== false">
                                     <span v-if="task.deadline !== false" class="mr-2">
                                         <v-icon
@@ -158,7 +158,7 @@
                                         {{ getDate(new Date(task.deadline)) }}
                                     </span>
                                     <span v-if="task.subject !== false">
-                                        <span :class="subjectColor(task.subject)" class="subject-color-samll" v-if="task.subject !== false"></span>
+                                        <span :class="subjectColor(task.subject)" class="subject-color-samll" v-if="task.subject !== false && subjectColor(task.subject) !== ''"></span>
                                         {{ subjectNameMap(task.subject) }}
                                     </span>
                                 </v-list-item-subtitle>
@@ -179,22 +179,81 @@
         </div>
         <v-dialog
             v-model="courseworkList"
-            max-width="500"
+            max-width="600"
+            :fullscreen="$vuetify.breakpoint.xs"
+            :transition="$vuetify.breakpoint.xs ? 'slide-y-reverse-transition' : 'dialog-transition'"
         >
-            <v-card>
+            <v-card class="auto-add-dialog" :class="$vuetify.breakpoint.xs ? 'rounded-0' : ''">
                 <v-card-title class="headline">
                     {{ $t('coursework_list') }}
                 </v-card-title>
-                <v-card-text></v-card-text>
+                <v-card-text class="pb-2">
+                    <p>{{ $t('auto_add_text') }}</p>
+                    <v-select
+                        v-model="editingAhead"
+                        :items="aheadItems()"
+                        :label="$t('add_ahead')"
+                        hide-details
+                        dense
+                        outlined
+                    ></v-select>
+                </v-card-text>
                 <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
-                    color="primary"
-                    text
-                    @click="courseworkList = false"
-                >
-                    {{ $t('close') }}
-                </v-btn>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="saveAhead"
+                    >
+                        {{ $t('save') }}
+                    </v-btn>
+                </v-card-actions>
+                <v-card-text class="pb-1">
+                    <v-divider class="mt-1 mb-4"></v-divider>
+                    <p>{{ $t('man_add_text') }}</p>
+                    <v-simple-table class="coursework-table rounded-0">
+                        <template v-slot:default>
+                            <thead>
+                                <tr>
+                                    <th class="text-left pl-0" scope="col">
+                                        {{ $t('coursework') }}
+                                    </th>
+                                    <th class="text-left" scope="col">
+                                        {{ $t('deadline') }}
+                                    </th>
+                                    <th class="text-right pr-0" scope="col">
+                                        {{ $t('action') }}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    v-for="(item, index) in upcomingCourseworks"
+                                    :key="`${index}-cwk`"
+                                >
+                                    <td class="text-left pl-0">
+                                        <v-icon class="mr-1 formative" dense :title="$t('formative')" v-if="!item.summative">mdi-bookmark-off-outline</v-icon>{{ item.name }}<br><span v-if="subjectColor(item.course) !== ''" :class="subjectColor(item.course)" class="subject-color-samll mr-2"></span><span class="subject-id">{{ subjectNameMap(item.course) }}</span><v-icon x-small class="ml-2 mr-1" v-if="item.tag">mdi-tag-outline</v-icon><span class="subject-id" v-if="item.tag">{{ item.tag }}</span>
+                                    </td>
+                                    <td>{{ item.ddlTime === -1 ? $t('na') : getDate(new Date(item.ddlTime)) }}</td>
+                                    <td class="text-right pr-0">
+                                        <v-btn icon :title="$t('add')" @click="addCoursework(item, index)" :disabled="checkExist(item.name) || added.includes(index)">
+                                            <v-icon>{{ (checkExist(item.name) || added.includes(index)) ? 'mdi-check' : 'mdi-plus' }}</v-icon>
+                                        </v-btn>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </template>
+                    </v-simple-table>
+                    <div class="d-flex justify-center align-center no-coursework" v-if="upcomingCourseworks.length === 0">{{ $t('no_coursework') }}</div>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        text
+                        @click="courseworkList = false"
+                    >
+                        {{ $t('close') }}
+                    </v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -225,6 +284,9 @@ export default {
             updateDatePickerKey: 0,
             courseworkList: false,
             timer: null,
+            editingAhead: -1,
+            ahead: -1,
+            added: [],
         };
     },
     methods: {
@@ -313,7 +375,54 @@ export default {
             localStorage.setItem('tasks', JSON.stringify({
                 tasks: this.tasks,
                 ifTasks: this.ifTasks,
+                ahead: this.ahead,
             }));
+        },
+        /**
+         * Add a coursework to the task list
+         * @param {Object} courswork coursework object
+         * @param {number} index coursework index in the upcoming courseworks list
+         */
+        addCoursework(courswork, index) {
+            this.tasks.push({
+                title: courswork.name,
+                deadline: courswork.ddlTime === -1 ? false : courswork.ddlTime,
+                subject: courswork.course,
+            });
+            // Update layout
+            this.$nextTick(() => {
+                this.packery.shiftLayout();
+            });
+            this.added.push(index);
+        },
+        /**
+         * Open the coursework list dialog
+         */
+        openAhead() {
+            this.added = [];
+            this.editingAhead = this.ahead;
+            this.courseworkList = true;
+        },
+        /**
+         * Save audo-add option and close the coursework list dialog
+         */
+        saveAhead() {
+            this.ahead = this.editingAhead;
+            this.store();
+            this.courseworkList = false;
+        },
+        /**
+         * Check whether a task exists by its name
+         * @param {string} name task name
+         * @returns {boolean} whether the task exists
+         */
+        checkExist(name) {
+            for (const task of this.tasks) {
+                if (task.title === name) {
+                    return true;
+                }
+            }
+            return false;
         },
         /**
          * Map from subject ID to subject color
@@ -505,6 +614,45 @@ export default {
                 },
             });
         },
+        /**
+         * Build options for auto-add
+         * @returns {array} options list for auto-add
+         */
+        aheadItems() {
+            return [-1, 3, 4, 5, 6, 7, 14, 21, 30].map((item) => ({
+                text: item === -1 ? this.$t('dont_auto_add') : this.showDate(item),
+                value: item === -1 ? -1 : item * 24 * 3600 * 1000,
+            }));
+        },
+        /**
+         * Format the number of days to a string
+         * @param {number} days number of days
+         * @returns {string} formatted string
+         */
+        showDate(days) {
+            if (days < 7) {
+                return this.$tc('n_days', days, [days]);
+            }
+            if (days < 30) {
+                return this.$tc('n_weeks', days / 7, [days / 7]);
+            }
+            return this.$tc('n_months', 1, [1]);
+        },
+        /**
+         * Automatically add courseworks to task list
+         */
+        autoAdd() {
+            if (this.ahead !== -1) {
+                for (const coursework of this.upcomingCourseworks) {
+                    if (typeof coursework.ddlTime === 'number' && coursework.ddlTime > 0) {
+                        const dlt = coursework.ddlTime - new Date().valueOf();
+                        if (dlt < (this.ahead + 24 * 3600 * 1000) && !this.checkExist(coursework.name)) {
+                            this.addCoursework(coursework);
+                        }
+                    }
+                }
+            }
+        },
     },
     watch: {
         locale() {
@@ -527,6 +675,12 @@ export default {
         },
         timerHour() {
             this.updateDatePickerKey = new Date().valueOf();
+        },
+        upcomingCourseworks() {
+            this.autoAdd();
+        },
+        ahead() {
+            this.autoAdd();
         },
         searchNotification() {
             // Handle search actions
@@ -560,6 +714,7 @@ export default {
             timerMin: (state) => state.timerMin,
             timerHour: (state) => state.timerHour,
             searchNotification: (state) => state.searchNotification,
+            upcomingCourseworks: (state) => state.upcomingCourseworks,
         }),
         allSubjects() {
             if (!this.subjects) {
@@ -580,12 +735,16 @@ export default {
             const storagedTasks = JSON.parse(storaged);
             this.tasks = storagedTasks.tasks;
             this.ifTasks = storagedTasks.ifTasks;
+            this.ahead = storagedTasks.ahead;
+            this.editingAhead = storagedTasks.ahead;
         }
 
         this.buildSearchIndex();
     },
     beforeDestroy() {
-        clearInterval(this.timer);
+        if (this.timer !== null) {
+            clearInterval(this.timer);
+        }
     },
 };
 </script>
@@ -750,6 +909,35 @@ export default {
         min-height: 260px;
     }
 }
+.auto-add-dialog {
+    .subject-id {
+        opacity: .5;
+        font-size: 13px;
+    }
+    .subject-color-samll {
+        width: 10px;
+        height: 10px;
+        display: inline-block;
+        border-radius: 50%;
+        margin: 0;
+        margin-right: 2px;
+    }
+    .no-coursework {
+        opacity: .5;
+        font-size: 15px;
+        height: 100px;
+    }
+    .formative {
+        vertical-align: middle;
+        font-size: 16px;
+    }
+    tr {
+        background-color: transparent!important;
+        &:hover {
+            background-color: transparent!important;
+        }
+    }
+}
 #app.theme--dark .task-container {
     h2 {
         .num-badge {
@@ -787,7 +975,22 @@ export default {
         "remain_min": "{0} min | {0} mins",
         "expired": "Overdue",
         "quick_add": "Coursework quick adding",
-        "coursework_list": "Coursework list",
+        "coursework_list": "Add coursework",
+        "save": "Save",
+        "auto_add_text": "UoM Assistant can automatically add courseworks to the task list at a specified time before their due time. If an automatically added coursework is deleted, it will be automatically added again at the next sync until the coursework expires.",
+        "man_add_text": "You can also add courseworks manually. The list is synchronised from SPOT, please check the accuracy of the list yourself.",
+        "add_ahead": "Auto-add … in advance",
+        "dont_auto_add": "Don't auto-add",
+        "n_days": "{0} day | {0} days",
+        "n_weeks": "{0} week | {0} weeks",
+        "n_months": "{0} month | {0} months",
+        "coursework": "Coursework",
+        "deadline": "Deadline",
+        "action": "Action",
+        "na": "N/A",
+        "add": "Add to task list",
+        "no_coursework": "No upcoming coursework",
+        "formative": "Formative",
         "close": "Close"
     },
     "zh": {
@@ -802,7 +1005,22 @@ export default {
         "remain_min": "{0} 分钟 | {0} 分钟",
         "expired": "已过期",
         "quick_add": "快速添加作业",
-        "coursework_list": "作业列表",
+        "coursework_list": "添加作业",
+        "save": "保存",
+        "auto_add_text": "曼大助手可以在作业到期前指定时间时自动添加作业到任务列表。如果自动添加的作业任务被删除，它将在下次同步时被重新自动添加，直到作业过期。",
+        "man_add_text": "你也可以手动添加作业任务。作业列表同步自 SPOT，请自行确认信息准确性。",
+        "add_ahead": "提前…添加",
+        "dont_auto_add": "不要自动添加",
+        "n_days": "{0} 天 | {0} 天",
+        "n_weeks": "{0} 周 | {0} 周",
+        "n_months": "{0} 个月 | {0} 个月",
+        "coursework": "作业",
+        "deadline": "截止时间",
+        "action": "操作",
+        "na": "未知",
+        "add": "添加到任务列表",
+        "no_coursework": "没有即将到来的作业",
+        "formative": "不计分作业",
         "close": "关闭"
     },
     "es": {
@@ -817,7 +1035,22 @@ export default {
         "remain_min": "{0} minuto | {0} minutos",
         "expired": "Atrasado",
         "quick_add": "Adición rápida de trabajo de asignatura",
-        "coursework_list": "List de trabajos de asignaturas",
+        "coursework_list": "",
+        "save": "Guardar",
+        "auto_add_text": "",
+        "man_add_text": "",
+        "add_ahead": "",
+        "dont_auto_add": "",
+        "n_days": "",
+        "n_weeks": "",
+        "n_months": "",
+        "coursework": "",
+        "deadline": "",
+        "action": "",
+        "na": "",
+        "add": "",
+        "no_coursework": "",
+        "formative": "",
         "close": "Cerrar"
     },
     "ja": {
@@ -833,6 +1066,21 @@ export default {
         "expired": "期限切れた",
         "quick_add": "",
         "coursework_list": "",
+        "save": "保存",
+        "auto_add_text": "",
+        "man_add_text": "",
+        "add_ahead": "",
+        "dont_auto_add": "",
+        "n_days": "",
+        "n_weeks": "",
+        "n_months": "",
+        "coursework": "",
+        "deadline": "",
+        "action": "",
+        "na": "",
+        "add": "",
+        "no_coursework": "",
+        "formative": "",
         "close": "閉じる"
     }
 }

@@ -82,6 +82,9 @@
                                 <v-list-item @click="type = 'day'">
                                     <v-list-item-title>{{ $t('day') }}</v-list-item-title>
                                 </v-list-item>
+                                <v-list-item @click="type = 'custom-daily'">
+                                    <v-list-item-title>{{ $t('custom-daily') }}</v-list-item-title>
+                                </v-list-item>
                                 <v-list-item @click="type = 'week'">
                                     <v-list-item-title>{{ $t('week') }}</v-list-item-title>
                                 </v-list-item>
@@ -104,8 +107,10 @@
                         :weekdays="weekDays"
                         :key="`calendar-${refreshId}-${rerender}`"
                         :interval-height="40"
-                        :interval-width="50"
+                        :interval-width="48"
                         :interval-format="intervalFormat"
+                        :start="type === 'custom-daily' ? (customStart || undefined) : undefined"
+                        :end="type === 'custom-daily' ? (customEnd || undefined) : undefined"
                         @click:event="showEvent"
                         @click:more="viewDay"
                         @click:date="viewDay"
@@ -115,8 +120,8 @@
                             <div
                                 class="v-current-time"
                                 :class="{
-                                    first: (date === week[0].date && type === 'day') || (date === currentDate && type === 'week'),
-                                    week: date !== currentDate && type === 'week',
+                                    first: (date === week[0].date && type === 'day') || (date === currentDate && (type === 'week' || type === 'custom-daily')),
+                                    week: date !== currentDate && (type === 'week' || type === 'custom-daily'),
                                 }"
                                 :style="{ top: nowY }"
                             ></div>
@@ -209,7 +214,7 @@
                             <div
                                 class="event-block-overlay"
                                 :style="{
-                                    width: type === 'day' || type === 'week' ? '100%' : getEevntPercentage(event.start, event.end, day),
+                                    width: type === 'day' || type === 'week' || type === 'custom-daily' ? '100%' : getEevntPercentage(event.start, event.end, day),
                                     height: type === 'month' ? '100%' : getEevntPercentage(event.start, event.end, day),
                                 }"
                             ></div>
@@ -478,13 +483,21 @@ export default {
          * Move the calendar a page back
          */
         prev() {
-            this.$refs.calendar.prev();
+            if (this.type === 'custom-daily') {
+                this.focus = this.getISODate(new Date((this.focus ? new Date(this.focus) : new Date()).valueOf() - 24 * 3600 * 1000));
+            } else {
+                this.$refs.calendar.prev();
+            }
         },
         /**
          * Move the calendar a page forward
          */
         next() {
-            this.$refs.calendar.next();
+            if (this.type === 'custom-daily') {
+                this.focus = this.getISODate(new Date((this.focus ? new Date(this.focus) : new Date()).valueOf() + 24 * 3600 * 1000));
+            } else {
+                this.$refs.calendar.next();
+            }
         },
         /**
          * Show the detail card for an event
@@ -518,11 +531,11 @@ export default {
         updateRange(data) {
             this.today = data.start.date;
             this.$nextTick(() => {
-                if (this.type === 'day' || this.type === 'week') {
+                if (this.type === 'day' || this.type === 'week' || this.type === 'custom-daily') {
                     this.updateTime();
                     if (this.$refs.calendar) {
                         const todayObj = new Date();
-                        if ((this.type === 'day' && this.today === this.currentDate) || (this.type === 'week' && this.today === this.currentWeekStart)) {
+                        if ((this.type === 'day' && this.today === this.currentDate) || (this.type === 'week' && this.today === this.currentWeekStart) || (this.type === 'custom-daily' && (this.today === this.getISODate(new Date(todayObj.valueOf() - 2 * 24 * 3600 * 1000)) || this.today === this.getISODate(todayObj) || this.today === this.getISODate(new Date(todayObj.valueOf() - 24 * 3600 * 1000))))) {
                             let hour = todayObj.getHours();
                             let minute = todayObj.getMinutes();
                             if (hour < 6) {
@@ -562,6 +575,13 @@ export default {
                 } else {
                     this.nowY = '-10px';
                 }
+            } else if (this.type === 'custom-daily') {
+                const todayObj = new Date();
+                if ((this.today === this.getISODate(new Date(todayObj.valueOf() - 2 * 24 * 3600 * 1000)) || this.today === this.getISODate(todayObj) || this.today === this.getISODate(new Date(todayObj.valueOf() - 24 * 3600 * 1000))) && this.$refs.calendar && this.$refs.calendar.timeToY) {
+                    this.nowY = `${this.$refs.calendar.timeToY(this.$refs.calendar.times.now)}px`;
+                } else {
+                    this.nowY = '-10px';
+                }
             } else {
                 this.nowY = '-10px';
             }
@@ -572,16 +592,8 @@ export default {
          */
         updateCurrentDate(todayObj = new Date()) {
             const thisWeekStartFromObj = new Date(todayObj.valueOf() - (this.weekDays.indexOf(todayObj.getDay()) * 24 * 3600 * 1000));
-
-            const dd = String(todayObj.getDate()).padStart(2, '0');
-            const mm = String(todayObj.getMonth() + 1).padStart(2, '0');
-            const yyyy = todayObj.getFullYear();
-            const ddWeek = String(thisWeekStartFromObj.getDate()).padStart(2, '0');
-            const mmWeek = String(thisWeekStartFromObj.getMonth() + 1).padStart(2, '0');
-            const yyyyWeek = thisWeekStartFromObj.getFullYear();
-
-            this.currentDate = `${yyyy}-${mm}-${dd}`;
-            this.currentWeekStart = `${yyyyWeek}-${mmWeek}-${ddWeek}`;
+            this.currentDate = this.getISODate(todayObj);
+            this.currentWeekStart = this.getISODate(thisWeekStartFromObj);
         },
         /**
          * Get event percentage passed
@@ -783,10 +795,18 @@ export default {
          * Format a date object to a string based on locale
          * @param {Date} dateObj Date object
          * @param {boolean} seconds whether to show seconds
-         * @returns {string} formatted a date string
+         * @returns {string} formatted date string
          */
         getDate(dateObj, seconds = true) {
             return formatDateTime(dateObj, this.locale, window.uomaTimeFormatters, seconds);
+        },
+        /**
+         * Format a date object to a ISO date string
+         * @param {Date} dateObj Date object
+         * @returns {string} formatted date string
+         */
+        getISODate(dateObj) {
+            return `${dateObj.getFullYear()}-${`${dateObj.getMonth() + 1}`.padStart(2, '0')}-${`${dateObj.getDate()}`.padStart(2, '0')}`;
         },
         /**
          * Convert a Date object to a specified time zone
@@ -1102,6 +1122,12 @@ export default {
         weekDays() {
             return [...Array(7)].map((item, index) => (index + this.firstDay) % 7);
         },
+        customStart() {
+            return (this.focus ? new Date(this.focus).valueOf() : new Date().valueOf()) - 24 * 3600 * 1000;
+        },
+        customEnd() {
+            return this.customStart + 2 * 24 * 3600 * 1000;
+        },
     },
     async mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
@@ -1328,7 +1354,7 @@ export default {
             align-items: flex-start;
             i {
                 margin-right: 8px;
-                font-size: 18px;
+                font-size: 19px;
                 &.bigger {
                     margin-left: -1px;
                     margin-right: 7px;
@@ -1402,6 +1428,7 @@ export default {
     "en": {
         "today": "Today",
         "day": "Day",
+        "custom-daily": "3 Days",
         "week": "Week",
         "month": "Month",
         "course_ddl": "Coursework Deadline",
@@ -1425,6 +1452,7 @@ export default {
     "zh": {
         "today": "今天",
         "day": "日视图",
+        "custom-daily": "三日视图",
         "week": "周视图",
         "month": "月视图",
         "course_ddl": "作业到期",
@@ -1448,6 +1476,7 @@ export default {
     "es": {
         "today": "Hoy",
         "day": "Día",
+        "custom-daily": "",
         "week": "Semana",
         "month": "Mes",
         "course_ddl": "Fecha límite para trabajo de asignatura",
@@ -1471,6 +1500,7 @@ export default {
     "ja": {
         "today": "今日",
         "day": "日",
+        "custom-daily": "",
         "week": "周",
         "month": "月",
         "course_ddl": "課題の締め切り",

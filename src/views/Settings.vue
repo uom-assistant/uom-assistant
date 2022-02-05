@@ -112,6 +112,23 @@
 
             <v-divider class="mt-6 mb-8"></v-divider>
 
+            <h2 class="text-h5 d-flex align-center"><v-icon class="mr-3">mdi-autorenew</v-icon>{{ $t('sync_settings') }}</h2>
+            <v-list flat three-line class="sync-list">
+                <v-list-item-group>
+                    <v-list-item class="pa-0" :ripple="false">
+                        <v-list-item-content class="ui-list-item">
+                            <v-list-item-title class="mt-1 d-flex align-center switch-list-title">Todoist</v-list-item-title>
+                            <v-list-item-subtitle class="mt-1">{{ $t('sync_settings_text') }}</v-list-item-subtitle>
+                        </v-list-item-content>
+                        <v-list-item-action>
+                            <v-btn color="primary" depressed @click="todoistConfig = true">{{ $t('connect') }}</v-btn>
+                        </v-list-item-action>
+                    </v-list-item>
+                </v-list-item-group>
+            </v-list>
+
+            <v-divider class="mt-6 mb-8"></v-divider>
+
             <h2 class="text-h5 d-flex align-center"><v-icon class="mr-3">mdi-palette-outline</v-icon>{{ $t('ui_settings') }}</h2>
             <v-list flat three-line class="ui-list">
                 <v-list-item-group v-model="uiSettings" multiple>
@@ -178,6 +195,27 @@
             </v-btn>
             <p class="desc">{{ $t('clear_text') }}</p>
         </div>
+        <v-dialog
+            v-model="todoistConfig"
+            max-width="500"
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('connect_todoist') }}
+                </v-card-title>
+                <v-card-text class="privacy-policy-dialog-text" v-html="$t('todoist_tip')"></v-card-text>
+                <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                    color="primary"
+                    text
+                    @click="todoistConfig = false"
+                >
+                    {{ $t('ok') }}
+                </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -221,6 +259,7 @@ export default {
                 (value) => !!value || '',
                 (value) => /^[\w-]+(\.[\w-]+)+([\w.,@^=%:/~+-]*)?$/i.test(value) || '',
             ],
+            todoistConfig: false,
         };
     },
     watch: {
@@ -300,7 +339,7 @@ export default {
                 opacity: 1;
             }
         }
-        .ui-list, .network-list {
+        .ui-list, .network-list, .sync-list {
             background-color: transparent!important;
             .ui-list-item .v-list-item__subtitle {
                 -webkit-line-clamp: initial!important;
@@ -370,7 +409,14 @@ export default {
         "message_from_backend": "Message from the backend",
         "ok": "OK",
         "blur_mode": "Acrylic Style",
-        "blur_mode_text": "Enable acrylic style for all user interface."
+        "blur_mode_text": "Enable acrylic style for all user interface.",
+        "sync_settings": "Sync Settings",
+        "sync_settings_text": "UoM Assistant can sychronize your course list and task list crosss devices via Todoist API.",
+        "connected": "Connected",
+        "connect_todoist": "Connect with Todoist",
+        "connect": "Connect",
+        "disconnect": "Disconnect",
+        "todoist_tip": "<p>To use <a href=\"https://todoist.com/\" target=\"_blank\" rel=\"noopener nofollow\">Todoist</a> for synchronising your data, you need to register as a Todoist user and follow its <a href=\"https://doist.com/terms-of-service\" target=\"_blank\" rel=\"noopener nofollow\">ToS</a> and <a href=\"https://doist.com/privacy\" target=\"_blank\" rel=\"noopener nofollow\">privacy policy</a>.</p><p>Todoist is a third party service which created by <a href=\"https://doist.com/\" target=\"_blank\" rel=\"noopener nofollow\">Doist</a>, and is not affiliated with the UoM Assistant team or the University of Manchester. Your course list and task list will be transferred to Todoist and we cannot guarantee how your data will be used by Todoist. If you are unsure about Todoist's service, you can disconnect from Todoist at any time.</p>"
     },
     "zh": {
         "backend_settings": "后端设置",
@@ -399,7 +445,14 @@ export default {
         "message_from_backend": "来自后端的消息",
         "ok": "好",
         "blur_mode": "亚克力风格",
-        "blur_mode_text": "为界面启用亚克力风格。"
+        "blur_mode_text": "为界面启用亚克力风格。",
+        "sync_settings": "同步设置",
+        "sync_settings_text": "曼大助手可以通过 Todoist API 跨设备地同步你的课程列表和任务列表。",
+        "connected": "已连接",
+        "connect_todoist": "与 Todoist 连接",
+        "connect": "连接",
+        "disconnect": "断开连接",
+        "todoist_tip": "<p>要使用 <a href=\"https://todoist.com/\" target=\"_blank\" rel=\"noopener nofollow\">Todoist</a> 同步数据，你需要注册为 Todoist 用户并遵循其<a href=\"https://doist.com/terms-of-service\" target=\"_blank\" rel=\"noopener nofollow\">服务条款</a>和<a href=\"https://doist.com/privacy\" target=\"_blank\" rel=\"noopener nofollow\">隐私政策</a>。</p><p>Todoist 属于第三方服务，由 <a href=\"https://doist.com/\" target=\"_blank\" rel=\"noopener nofollow\">Doist</a> 创建，与曼大助手团队或曼彻斯特大学无关。你的课程列表和任务列表将会被传输至 Todoist，我们无法保证 Todoist 会如何使用你的数据。如果你对 Todoist 的服务感到疑虑，你可以随时断开与 Todoist 的连接。</p>"
     },
     "es": {
         "backend_settings": "Configuración de back-end",
@@ -426,7 +479,11 @@ export default {
         "message_from_backend": "Mensaje desde back-end",
         "ok": "OK",
         "blur_mode": "",
-        "blur_mode_text": ""
+        "blur_mode_text": "",
+        "sync_settings": "",
+        "sync_settings_text": "",
+        "connected": "",
+        "connect": ""
     },
     "ja": {
         "backend_settings": "",
@@ -453,7 +510,10 @@ export default {
         "message_from_backend": "バックエンドからのメッセージ",
         "ok": "はい",
         "blur_mode": "",
-        "blur_mode_text": ""
+        "blur_mode_text": "",
+        "sync_settings_text": "",
+        "connected": "",
+        "connect": ""
     }
 }
 </i18n>

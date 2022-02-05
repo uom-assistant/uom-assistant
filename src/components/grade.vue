@@ -499,6 +499,7 @@ export default {
 
             // Update data
             this.$store.commit('setBackendStatus', true);
+            this.$store.commit('setUpcomingCourseworks', this.buildUpcomingCourseworks(response.data.data));
             this.loading = false;
             this.blackboardUpdated = response.data.blackboardUpdated;
             this.allGrades = response.data.data;
@@ -519,6 +520,48 @@ export default {
             this.$nextTick(() => {
                 this.relocate();
             });
+        },
+        /**
+         * Build upcoming coursework list for task
+         * @returns {array} upcoming coursework list
+         */
+        buildUpcomingCourseworks(data) {
+            const upcomingCourseworks = [];
+            if (!data.length) {
+                return upcomingCourseworks;
+            }
+            for (const semester of data[data.length - 1].grade) {
+                for (const course of semester.data) {
+                    for (const cwk of course.detail) {
+                        if (Array.isArray(cwk)) {
+                            // Similiar coursework list
+                            for (const item of cwk) {
+                                if (item.ddlTime > Date.now().valueOf() || item.status === 'upcoming') {
+                                    upcomingCourseworks.push({
+                                        name: item.name,
+                                        course: course.subject,
+                                        summative: item.summative,
+                                        tag: item.tag,
+                                        ddlTime: item.ddlTime,
+                                    });
+                                }
+                            }
+                        } else {
+                            // Single coursework
+                            if (cwk.ddlTime > Date.now().valueOf() || cwk.status === 'upcoming') {
+                                upcomingCourseworks.push({
+                                    name: cwk.name,
+                                    course: course.subject,
+                                    summative: cwk.summative,
+                                    tag: cwk.tag,
+                                    ddlTime: cwk.ddlTime,
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            return upcomingCourseworks.sort((a, b) => a.ddlTime - b.ddlTime);
         },
         /**
          * Update view
@@ -1362,7 +1405,7 @@ export default {
         "more_info": "Más",
         "etc": "etc.",
         "total": "{0} en total",
-        "formative": "Formativa",
+        "formative": "",
         "Semester 1": "Semestre 1",
         "Semester 2": "Semestre 2",
         "All Year": "Todo el año",

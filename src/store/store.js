@@ -27,6 +27,7 @@ export default {
         classBell: true,
         layoutLock: false,
         rerender: 0,
+        upcomingCourseworks: [],
     },
     mutations: {
         setLocale(state, language) {
@@ -104,6 +105,9 @@ export default {
         },
         setRerender(state, rerender) {
             state.rerender = rerender;
+        },
+        setUpcomingCourseworks(state, upcomingCourseworks) {
+            state.upcomingCourseworks = upcomingCourseworks;
         },
     },
     actions: {},

@@ -2293,6 +2293,9 @@ code, kbd, pre, samp {
             background-color: rgba(51, 51, 51, .72)!important;
             backdrop-filter: blur(25px);
         }
+        .note-toc-card .note-id {
+            background-color: rgba(74, 74, 74, .3)!important;
+        }
     }
 }
 </style>

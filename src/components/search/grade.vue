@@ -431,7 +431,7 @@ export default {
     },
     "es": {
         "more_info": "Ver asignatura",
-        "formative": "Formativo",
+        "formative": "",
         "Semester 1": "Semestre 1",
         "Semester 2": "Semestre 2",
         "All Year": "Todo el año",

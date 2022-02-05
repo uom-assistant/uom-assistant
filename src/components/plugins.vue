@@ -722,7 +722,7 @@ export default {
         },
         /**
          * Parse and group permissions
-         * @param {Array} rawPermissions raw permission list
+         * @param {array} rawPermissions raw permission list
          * @param {boolean} background whether this plugin has any background scripts
          * @returns {boolean|Object} false on fail or parsed permission object
          */
