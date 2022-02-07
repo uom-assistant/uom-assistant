@@ -200,11 +200,36 @@
             <v-container fluid>
                 <v-slide-y-reverse-transition leave-absolute>
                     <keep-alive include="Home">
-                        <router-view ref="view" :key="`router-${routerRefreshKey}`"></router-view>
+                        <router-view ref="view"></router-view>
                     </keep-alive>
                 </v-slide-y-reverse-transition>
             </v-container>
         </v-main>
+        <div
+            id="quick-command"
+            :class="{ shown: showCommand }"
+            class="justify-center align-center"
+            v-shortkey="['ctrl', 'q']"
+            @shortkey="toggleCommand"
+        >
+            <div class="elevation-12">
+                <v-text-field
+                    solo
+                    :placeholder="$t('what_to_do')"
+                    v-click-outside="{
+                        handler: () => {
+                            showCommand = false;
+                        },
+                        closeConditional: showCommand,
+                    }"
+                    flat
+                    hide-details="auto"
+                    prepend-inner-icon="mdi-lightning-bolt"
+                    ref="commandInput"
+                ></v-text-field>
+                <ul></ul>
+            </div>
+        </div>
         <v-dialog
             v-model="welcome"
             persistent
@@ -344,6 +369,8 @@
                             outlined
                             :label="$t('backend_token')"
                             :class="{ shown: needToken }"
+                            :disabled="!needToken"
+                            :readonly="loading"
                             :hint="$t('need_token')"
                             :error="tokenError"
                             :error-messages="tokenError ? $t('wrong_token') : []"
@@ -546,6 +573,23 @@
                 </v-card-text>
             </v-card>
         </v-dialog>
+        <v-dialog
+            v-model="initing"
+            max-width="400"
+            persistent
+        >
+            <v-card>
+                <v-card-title class="headline text-center d-block">
+                    {{ $t('loading') }}
+                </v-card-title>
+                <v-card-text>
+                    <v-progress-linear
+                        indeterminate
+                        color="primary"
+                    ></v-progress-linear>
+                </v-card-text>
+            </v-card>
+        </v-dialog>
         <div id="alert-space" v-show="displayErrors.length > 0" :style="{ bottom: updateReady ? '135px' : '5px' }">
             <v-alert
                 v-for="(item, index) in displayErrors"
@@ -697,7 +741,6 @@ export default {
         searchOpened: false,
         settingsValid: false,
         accountNotice: false,
-        routerRefreshKey: 0,
         loginError: false,
         loginErrorText: '',
         privacyPolicy: false,
@@ -734,6 +777,8 @@ export default {
         darkKeyBoardTipText: '',
         theme: 'light',
         autoDarkVal: false,
+        initing: false,
+        showCommand: false,
     }),
     methods: {
         /**
@@ -1032,9 +1077,11 @@ export default {
             this.$store.commit('setBackendStatus', true);
             this.$store.commit('setAccount', JSON.parse(localStorage.getItem('account')) || {});
             this.welcome = false;
+            this.initing = true;
+
             setTimeout(() => {
                 window.location.reload();
-            }, 300);
+            }, 600);
         },
         /**
          * Dismiss welcome message dialog and go to account settings
@@ -1105,6 +1152,7 @@ export default {
             setTimeout(() => {
                 if (this.searchOpened) {
                     this.$refs.searchInput.focus();
+                    this.$refs.searchInput.$refs.input.select();
                 }
             }, 350);
         },
@@ -1123,6 +1171,15 @@ export default {
                 this.closeSearch();
             } else if (this.$route.path === '/') {
                 this.openSearch();
+            }
+        },
+        toggleCommand() {
+            this.showCommand = !this.showCommand;
+            if (this.showCommand) {
+                this.$nextTick(() => {
+                    this.$refs.commandInput.focus();
+                    this.$refs.commandInput.$refs.input.select();
+                });
             }
         },
         /**
@@ -1443,10 +1500,10 @@ export default {
         }
         this.$store.commit('setAutoDark', uiConfig.autoDark || false);
 
-        document.querySelector('meta[name="theme-color"]').setAttribute('content', this.$vuetify.theme.dark ? '#272727' : '#F5F5F5');
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#272727' : '#F5F5F5');
 
         if (window.__UOMA_ELECTRON__ && window.__UOMA_ELECTRON_BRIDGE__) {
-            window.__UOMA_ELECTRON_BRIDGE__.setAttr('theme', this.$vuetify.theme.dark ? 'dark' : 'light');
+            window.__UOMA_ELECTRON_BRIDGE__.setAttr('theme', dark ? 'dark' : 'light');
         }
 
         // Initialize backend connection
@@ -1981,9 +2038,11 @@ html.easy-read {
                 height: 0;
                 opacity: 0;
                 transition: height .2s, opacity .2s .2s;
+                pointer-events: none;
                 &.shown {
                     height: 87px;
                     opacity: 1;
+                    pointer-events: auto;
                 }
             }
         }
@@ -2089,6 +2148,25 @@ html.easy-read {
 }
 code, kbd, pre, samp {
     font-family: "Roboto Mono", Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
+}
+#quick-command {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .2);
+    z-index: 9999999;
+    display: none;
+    &.shown {
+        display: flex;
+    }
+    & > div {
+        width: 90%;
+        max-width: 600px;
+        border-radius: 6px;
+        overflow: hidden;
+    }
 }
 @media (max-width: 960px) {
     .global-search-input {
@@ -2372,7 +2450,9 @@ code, kbd, pre, samp {
         "a11y_settings_title": "Accessibility settings",
         "theme_light": "Bright Theme",
         "theme_dark": "Dark Theme",
-        "theme_auto": "Auto Colour Theme"
+        "theme_auto": "Auto Colour Theme",
+        "loading": "Loading…",
+        "what_to_do": "What would you like to do?"
     },
     "zh": {
         "title": "曼大助手",
@@ -2444,7 +2524,9 @@ code, kbd, pre, samp {
         "a11y_settings_title": "可访问性设置",
         "theme_light": "亮色主题",
         "theme_dark": "深色主题",
-        "theme_auto": "自动颜色主题"
+        "theme_auto": "自动颜色主题",
+        "loading": "正在载入",
+        "what_to_do": "你想做什么？"
     },
     "es": {
         "title": "UoM Assistant",
@@ -2514,7 +2596,9 @@ code, kbd, pre, samp {
         "new_course_sound": "Campana de clase",
         "theme_light": "",
         "theme_dark": "",
-        "theme_auto": ""
+        "theme_auto": "",
+        "loading": "",
+        "what_to_do": ""
     },
     "ja": {
         "title": "UoMアシスタント",
@@ -2583,7 +2667,9 @@ code, kbd, pre, samp {
         "new_course_sound": "",
         "theme_light": "",
         "theme_dark": "",
-        "theme_auto": ""
+        "theme_auto": "",
+        "loading": "",
+        "what_to_do": ""
     }
 }
 </i18n>

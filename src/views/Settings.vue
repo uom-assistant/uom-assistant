@@ -21,6 +21,8 @@
                 outlined
                 :label="$t('backend_token')"
                 :class="{ shown: needToken }"
+                :disabled="!needToken"
+                :readonly="loading"
                 :hint="$t('need_token')"
                 :error="tokenError"
                 :error-messages="tokenError ? $t('wrong_token') : []"
@@ -117,7 +119,7 @@
                 <v-list-item-group>
                     <v-list-item class="pa-0" :ripple="false">
                         <v-list-item-content class="ui-list-item">
-                            <v-list-item-title class="mt-1 d-flex align-center switch-list-title">Todoist</v-list-item-title>
+                            <v-list-item-title class="mt-1 d-flex align-center switch-list-title"><v-chip class="mr-2 beta-chip px-2 py-2" x-small outlined color="primary">BETA</v-chip>Todoist</v-list-item-title>
                             <v-list-item-subtitle class="mt-1">{{ $t('sync_settings_text') }}</v-list-item-subtitle>
                         </v-list-item-content>
                         <v-list-item-action>
@@ -146,7 +148,7 @@
                     <v-list-item class="pa-0" :ripple="false">
                         <template v-slot:default="{ active }">
                             <v-list-item-content class="ui-list-item">
-                                <v-list-item-title class="mt-1 d-flex align-center switch-list-title"><v-chip class="mr-2" small outlined color="primary">BETA</v-chip>{{ $t('blur_mode') }}</v-list-item-title>
+                                <v-list-item-title class="mt-1 d-flex align-center switch-list-title"><v-chip class="mr-2 beta-chip px-2 py-2" x-small outlined color="primary">BETA</v-chip>{{ $t('blur_mode') }}</v-list-item-title>
                                 <v-list-item-subtitle class="mt-1">{{ $t('blur_mode_text') }}</v-list-item-subtitle>
                             </v-list-item-content>
                             <v-list-item-action>
@@ -204,14 +206,28 @@
                     {{ $t('connect_todoist') }}
                 </v-card-title>
                 <v-card-text class="privacy-policy-dialog-text" v-html="$t('todoist_tip')"></v-card-text>
+                <v-card-text class="privacy-policy-dialog-text">
+                    <v-text-field
+                        v-model="todoistToken"
+                        outlined
+                        :label="$t('todoist_token')"
+                        prepend-inner-icon="mdi-shield-lock"
+                    ></v-text-field>
+                </v-card-text>
                 <v-card-actions>
                 <v-spacer></v-spacer>
+                <v-btn
+                    text
+                    @click="todoistConfig = false"
+                >
+                    {{ $t('cancel') }}
+                </v-btn>
                 <v-btn
                     color="primary"
                     text
                     @click="todoistConfig = false"
                 >
-                    {{ $t('ok') }}
+                    {{ $t('connect') }}
                 </v-btn>
                 </v-card-actions>
             </v-card>
@@ -259,6 +275,7 @@ export default {
                 (value) => !!value || '',
                 (value) => /^[\w-]+(\.[\w-]+)+([\w.,@^=%:/~+-]*)?$/i.test(value) || '',
             ],
+            todoistToken: '',
             todoistConfig: false,
         };
     },
@@ -334,9 +351,11 @@ export default {
             height: 0;
             opacity: 0;
             transition: height .2s, opacity .2s .2s;
+            pointer-events: none;
             &.shown {
                 height: 87px;
                 opacity: 1;
+                pointer-events: auto;
             }
         }
         .ui-list, .network-list, .sync-list {
@@ -361,7 +380,11 @@ export default {
             margin: 0 0 20px 0;
         }
         .switch-list-title {
-            height: 25px;
+            min-height: 25px;
+            white-space: normal;
+            .beta-chip {
+                flex-shrink: 0;
+            }
         }
         .v-list-item {
             min-height: 0;
@@ -416,7 +439,9 @@ export default {
         "connect_todoist": "Connect with Todoist",
         "connect": "Connect",
         "disconnect": "Disconnect",
-        "todoist_tip": "<p>To use <a href=\"https://todoist.com/\" target=\"_blank\" rel=\"noopener nofollow\">Todoist</a> for synchronising your data, you need to register as a Todoist user and follow its <a href=\"https://doist.com/terms-of-service\" target=\"_blank\" rel=\"noopener nofollow\">ToS</a> and <a href=\"https://doist.com/privacy\" target=\"_blank\" rel=\"noopener nofollow\">privacy policy</a>.</p><p>Todoist is a third party service which created by <a href=\"https://doist.com/\" target=\"_blank\" rel=\"noopener nofollow\">Doist</a>, and is not affiliated with the UoM Assistant team or the University of Manchester. Your course list and task list will be transferred to Todoist and we cannot guarantee how your data will be used by Todoist. If you are unsure about Todoist's service, you can disconnect from Todoist at any time.</p>"
+        "todoist_tip": "<p>To use <a href=\"https://todoist.com/\" target=\"_blank\" rel=\"noopener nofollow\">Todoist</a> for synchronising your data, you need to register as a Todoist user and follow its <a href=\"https://doist.com/terms-of-service\" target=\"_blank\" rel=\"noopener nofollow\">ToS</a> and <a href=\"https://doist.com/privacy\" target=\"_blank\" rel=\"noopener nofollow\">privacy policy</a>.</p><p>Todoist is a third party service which created by <a href=\"https://doist.com/\" target=\"_blank\" rel=\"noopener nofollow\">Doist</a>, and is not affiliated with the UoM Assistant team or the University of Manchester. Your course list and task list will be transferred to Todoist and we cannot guarantee how your data will be used by Todoist. If you are unsure about Todoist's service, you can disconnect from Todoist at any time.</p><p>Get the API Token from the settings page of Todoist and fill in the input box below.</p>",
+        "todoist_token": "Todoist Token",
+        "cancel": "Cancel"
     },
     "zh": {
         "backend_settings": "后端设置",
@@ -452,7 +477,9 @@ export default {
         "connect_todoist": "与 Todoist 连接",
         "connect": "连接",
         "disconnect": "断开连接",
-        "todoist_tip": "<p>要使用 <a href=\"https://todoist.com/\" target=\"_blank\" rel=\"noopener nofollow\">Todoist</a> 同步数据，你需要注册为 Todoist 用户并遵循其<a href=\"https://doist.com/terms-of-service\" target=\"_blank\" rel=\"noopener nofollow\">服务条款</a>和<a href=\"https://doist.com/privacy\" target=\"_blank\" rel=\"noopener nofollow\">隐私政策</a>。</p><p>Todoist 属于第三方服务，由 <a href=\"https://doist.com/\" target=\"_blank\" rel=\"noopener nofollow\">Doist</a> 创建，与曼大助手团队或曼彻斯特大学无关。你的课程列表和任务列表将会被传输至 Todoist，我们无法保证 Todoist 会如何使用你的数据。如果你对 Todoist 的服务感到疑虑，你可以随时断开与 Todoist 的连接。</p>"
+        "todoist_tip": "<p>要使用 <a href=\"https://todoist.com/\" target=\"_blank\" rel=\"noopener nofollow\">Todoist</a> 同步数据，你需要注册为 Todoist 用户并遵循其<a href=\"https://doist.com/terms-of-service\" target=\"_blank\" rel=\"noopener nofollow\">服务条款</a>和<a href=\"https://doist.com/privacy\" target=\"_blank\" rel=\"noopener nofollow\">隐私政策</a>。</p><p>Todoist 属于第三方服务，由 <a href=\"https://doist.com/\" target=\"_blank\" rel=\"noopener nofollow\">Doist</a> 创建，与曼大助手团队或曼彻斯特大学无关。你的课程列表和任务列表将会被传输至 Todoist，我们无法保证 Todoist 会如何使用你的数据。如果你对 Todoist 的服务感到疑虑，你可以随时断开与 Todoist 的连接。</p><p>从 Todoist 的设置页中获取 API Token，然后填入下方输入框。</p>",
+        "todoist_token": "Todoist 令牌",
+        "cancel": "取消"
     },
     "es": {
         "backend_settings": "Configuración de back-end",
@@ -483,7 +510,8 @@ export default {
         "sync_settings": "",
         "sync_settings_text": "",
         "connected": "",
-        "connect": ""
+        "connect": "",
+        "cancel": "Cancelar"
     },
     "ja": {
         "backend_settings": "",
@@ -513,7 +541,8 @@ export default {
         "blur_mode_text": "",
         "sync_settings_text": "",
         "connected": "",
-        "connect": ""
+        "connect": "",
+        "cancel": "キャンセル"
     }
 }
 </i18n>

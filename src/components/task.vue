@@ -164,7 +164,7 @@
                                 </v-list-item-subtitle>
                             </v-list-item-content>
 
-                            <v-list-item-action class="delete">
+                            <v-list-item-action class="delete" v-if="task.source !== 'auto' || ahead === -1 || checkExpiredBool(task.deadline)">
                                 <v-btn icon @click.stop="removeTask(index)">
                                     <v-icon color="grey">mdi-delete-outline</v-icon>
                                 </v-btn>
@@ -236,7 +236,7 @@
                                     </td>
                                     <td>{{ item.ddlTime === -1 ? $t('na') : getDate(new Date(item.ddlTime)) }}</td>
                                     <td class="text-right pr-0">
-                                        <v-btn icon :title="$t('add')" @click="addCoursework(item, index)" :disabled="checkExist(item.name) || added.includes(index)">
+                                        <v-btn icon :title="$t('add')" @click="addCoursework(item, index, 'manual')" :disabled="checkExist(item.name) || added.includes(index)">
                                             <v-icon>{{ (checkExist(item.name) || added.includes(index)) ? 'mdi-check' : 'mdi-plus' }}</v-icon>
                                         </v-btn>
                                     </td>
@@ -325,6 +325,7 @@ export default {
                     title: this.addText,
                     deadline,
                     subject: this.addingSubject === null || this.addingSubject.length === 0 ? false : this.addingSubject,
+                    source: 'manual',
                 });
                 // Clear inputs
                 this.addText = '';
@@ -382,12 +383,14 @@ export default {
          * Add a coursework to the task list
          * @param {Object} courswork coursework object
          * @param {number} index coursework index in the upcoming courseworks list
+         * @param { 'manual' | 'auto' } source coursework source
          */
-        addCoursework(courswork, index) {
+        addCoursework(courswork, index, source) {
             this.tasks.push({
                 title: courswork.name,
                 deadline: courswork.ddlTime === -1 ? false : courswork.ddlTime,
                 subject: courswork.course,
+                source,
             });
             // Update layout
             this.$nextTick(() => {
@@ -556,6 +559,18 @@ export default {
             return 'text--secondary';
         },
         /**
+         * Check if the task is expired
+         * @param {number} deadline deadline
+         * @returns {boolean} if the task is expired
+         */
+        checkExpiredBool(deadline) {
+            const now = new Date().valueOf();
+            if (deadline - now < 0) {
+                return true;
+            }
+            return false;
+        },
+        /**
          * Generate and broadcast task deadline tasks
          */
         storeTasks() {
@@ -646,8 +661,8 @@ export default {
                 for (const coursework of this.upcomingCourseworks) {
                     if (typeof coursework.ddlTime === 'number' && coursework.ddlTime > 0) {
                         const dlt = coursework.ddlTime - new Date().valueOf();
-                        if (dlt < (this.ahead + 24 * 3600 * 1000) && !this.checkExist(coursework.name)) {
-                            this.addCoursework(coursework);
+                        if (dlt >= 0 && dlt < (this.ahead + 24 * 3600 * 1000) && !this.checkExist(coursework.name)) {
+                            this.addCoursework(coursework, 'auto');
                         }
                     }
                 }
@@ -977,7 +992,7 @@ export default {
         "quick_add": "Coursework quick adding",
         "coursework_list": "Add coursework",
         "save": "Save",
-        "auto_add_text": "UoM Assistant can automatically add courseworks to the task list at a specified time before their due time. If an automatically added coursework is deleted, it will be automatically added again at the next sync until the coursework expires.",
+        "auto_add_text": "UoM Assistant can automatically add courseworks to the task list at a specified time before their due time. Automatically added courseworks cannot be deleted manually until the coursework expires or auto-add is turned off.",
         "man_add_text": "You can also add courseworks manually. The list is synchronised from SPOT, please check the accuracy of the list yourself.",
         "add_ahead": "Auto-add … in advance",
         "dont_auto_add": "Don't auto-add",
@@ -1007,9 +1022,9 @@ export default {
         "quick_add": "快速添加作业",
         "coursework_list": "添加作业",
         "save": "保存",
-        "auto_add_text": "曼大助手可以在作业到期前指定时间时自动添加作业到任务列表。如果自动添加的作业任务被删除，它将在下次同步时被重新自动添加，直到作业过期。",
+        "auto_add_text": "曼大助手可以在作业到期前指定时间时自动添加作业到任务列表。自动添加的作业无法被手动删除，直到作业到期或自动添加被关闭。",
         "man_add_text": "你也可以手动添加作业任务。作业列表同步自 SPOT，请自行确认信息准确性。",
-        "add_ahead": "提前…添加",
+        "add_ahead": "提前…自动添加",
         "dont_auto_add": "不要自动添加",
         "n_days": "{0} 天 | {0} 天",
         "n_weeks": "{0} 周 | {0} 周",

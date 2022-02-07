@@ -183,7 +183,7 @@
                         </v-btn>
                     </template>
                     <v-list class="mail-menu-list">
-                        <v-list-item @click="sendMail">
+                        <v-list-item @click="sendMailWithSubjectAndTarget(`RE: ${viewer.subject}`, viewer.fromAddress)">
                             <v-list-item-icon>
                                 <v-icon>mdi-reply-all-outline</v-icon>
                             </v-list-item-icon>
@@ -191,7 +191,7 @@
                                 <v-list-item-title>{{ $t('reply_all') }}</v-list-item-title>
                             </v-list-item-content>
                         </v-list-item>
-                        <v-list-item @click="sendMail">
+                        <v-list-item @click="sendMailWithSubjectAndTarget(`FWD: ${viewer.subject}`, false)">
                             <v-list-item-icon>
                                 <v-icon>mdi-share-outline</v-icon>
                             </v-list-item-icon>
@@ -222,7 +222,7 @@
                         {{ viewer.flagged ? 'mdi-flag' : 'mdi-flag-outline' }}
                     </v-icon>
                 </v-btn>
-                <v-btn icon @click.stop="sendMail" small class="float-right mr-2" :title="$t('reply')" v-show="!loadingBody">
+                <v-btn icon @click.stop="sendMailWithSubjectAndTarget(`RE: ${viewer.subject}`, viewer.fromAddress)" small class="float-right mr-2" :title="$t('reply')" v-show="!loadingBody">
                     <v-icon>mdi-reply-outline</v-icon>
                 </v-btn>
             </h2>
@@ -2159,6 +2159,18 @@ export default {
                     }
                 }, 500);
             });
+        },
+        /**
+         * Open mail edit layer with a specific subject and targeets
+         * @param {string} subject subject
+         * @param {string} to mail target
+         */
+        sendMailWithSubjectAndTarget(subject, to) {
+            this.editingSubject = subject;
+            if (to) {
+                this.editingTo = [to];
+            }
+            this.sendMail();
         },
         /**
          * Open viewer layer and show the mail by ID

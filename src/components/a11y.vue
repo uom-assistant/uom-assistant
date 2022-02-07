@@ -4,7 +4,7 @@
             <v-list-item class="pa-0" :ripple="false">
                 <template v-slot:default="{ active }">
                     <v-list-item-content class="a11y-list-item">
-                        <v-list-item-title class="mt-1 d-flex align-center a11y-title"><v-chip class="mr-2" small outlined color="primary">BETA</v-chip>{{ $t('color_blind_assistance') }}</v-list-item-title>
+                        <v-list-item-title class="mt-1 d-flex align-center a11y-title"><v-chip class="mr-2 beta-chip px-2 py-2" x-small outlined color="primary">BETA</v-chip>{{ $t('color_blind_assistance') }}</v-list-item-title>
                         <v-list-item-subtitle class="mt-1">{{ $t('color_blind_assistance_text') }}</v-list-item-subtitle>
                     </v-list-item-content>
                     <v-list-item-action>
@@ -15,7 +15,7 @@
             <v-list-item class="pa-0" :ripple="false">
                 <template v-slot:default="{ active }">
                     <v-list-item-content class="a11y-list-item">
-                        <v-list-item-title class="mt-1 d-flex align-center a11y-title"><v-chip class="mr-2" small outlined color="primary">BETA</v-chip>{{ $t('change_live_announcement') }}</v-list-item-title>
+                        <v-list-item-title class="mt-1 d-flex align-center a11y-title"><v-chip class="mr-2 beta-chip px-2 py-2" x-small outlined color="primary">BETA</v-chip>{{ $t('change_live_announcement') }}</v-list-item-title>
                         <v-list-item-subtitle class="mt-1">{{ $t('change_live_announcement_text') }}</v-list-item-subtitle>
                     </v-list-item-content>
                     <v-list-item-action>
@@ -120,7 +120,11 @@ export default {
         display: block!important;
     }
     .a11y-title {
-        height: 25px;
+        min-height: 25px;
+        white-space: normal;
+        .beta-chip {
+            flex-shrink: 0;
+        }
     }
     & /deep/ .v-list-item {
         min-height: 0;
@@ -134,7 +138,7 @@ export default {
         "color_blind_assistance": "Colour assistance",
         "color_blind_assistance_text": "Activating colour assistance makes users who have difficulty distinguishing the red/green spectrum to recognise colours easier.",
         "change_live_announcement": "Live announcement for changes",
-        "change_live_announcement_text": "Announce content changes to screen reader users when pages updated.",
+        "change_live_announcement_text": "Announce content changes to screen reader users when the page updates.",
         "reduce_motion": "Reduce motion",
         "reduce_motion_text": "Diminishe some animation effects to reduce possible discomfort.",
         "dyslexic_type": "Easy-to-read font",
@@ -144,7 +148,7 @@ export default {
         "color_blind_assistance": "色彩辅助",
         "color_blind_assistance_text": "激活色彩辅助可使难以辨别红/绿色谱的用户更轻松地辨认颜色。",
         "change_live_announcement": "页面更新实时宣告",
-        "change_live_announcement_text": "在页面内容变化时向屏幕阅读器用户宣告内容变化。",
+        "change_live_announcement_text": "在页面内容更新时向屏幕阅读器用户宣告变化的内容。",
         "reduce_motion": "减弱动画",
         "reduce_motion_text": "减弱部分动画效果以减轻可能的不适感。",
         "dyslexic_type": "易读字体",
