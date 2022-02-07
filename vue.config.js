@@ -27,7 +27,7 @@ module.exports = {
         workboxOptions: {
             skipWaiting: true,
             clientsClaim: true,
-            exclude: [/version\.json/, /\/plugins\//, /\.htaccess/],
+            exclude: [/version\.json/, /images\.json/, /\/plugins\//, /\.htaccess/],
             runtimeCaching: [
                 {
                     urlPattern: new RegExp('https://fonts.googleapis.com/'),

@@ -21,12 +21,12 @@
             <div v-else>
                 <div v-for="item in data" :key="item.cat">
                     <h1 class="text-h6">{{ $t(item.name) }}</h1>
-                    <h2 class="text-body-1 text--disabled" v-if="item.subtitle">{{ item.subtitle }}</h2>
+                    <h2 class="text-body-1 text--disabled mt-n1" v-if="item.subtitle">{{ item.subtitle }}</h2>
                     <div class="mb-5">
                         <v-btn
                             v-for="i in item.num"
                             :key="`${item.cat}-${i}`"
-                            :style="{ backgroundImage: `url(https://cdn.jsdelivr.net/gh/uom-assistant/uoma-wallpapers/images/thumbnails/${item.cat}-${i}.jpg)` }"
+                            :style="{ backgroundImage: `url(https://cdn.jsdelivr.net/gh/uom-assistant/uoma-wallpapers/images/thumbnails/${item.cat}-${i}.jpg)`, backgroundPosition: `50% ${item.positions[i - 1] }%` }"
                             :class="{ selected: selected === `${item.cat}-${i}`, bw }"
                             @click="changePreDefined(item.cat, i, item.positions[i - 1])"
                             class="mr-3 mt-2 bg-btn"

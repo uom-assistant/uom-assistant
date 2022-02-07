@@ -474,12 +474,18 @@ export default {
             });
 
             if (requestFailed) {
+                this.$nextTick(() => {
+                    this.relocate();
+                });
                 return;
             }
 
             // Check response
             if (!this.checkResponse(response)) {
                 this.loading = false;
+                this.$nextTick(() => {
+                    this.relocate();
+                });
                 return;
             }
 
@@ -494,6 +500,9 @@ export default {
                     this.$store.commit('setBackendStatus', false);
                 }
                 this.loading = false;
+                this.$nextTick(() => {
+                    this.relocate();
+                });
                 return;
             }
 

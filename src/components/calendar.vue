@@ -204,11 +204,11 @@
                                 {{ dateText(date, day) }}
                             </v-btn>
                         </template>
-                        <template v-slot:event="{ eventSummary, event, day }">
+                        <template v-slot:event="{ timeSummary, event, day }">
                             <div
                                 class="pl-1 event-block"
                                 :class="{ 'text--disabled': event.selfStudy }"
-                                v-html="eventSummary()"
+                                v-html="getEventSummary(timeSummary(), event)"
                             >
                             </div>
                             <div
@@ -243,7 +243,7 @@
                             >
                                 <v-toolbar-title :class="selectedEvent.titleColor ? `${selectedEvent.titleColor.split(' ')[0] === 'uomtheme' ? 'primary' : selectedEvent.titleColor.split(' ')[0]}--text${selectedEvent.titleColor.split(' ').length > 1 ? ` text--${selectedEvent.titleColor.split(' ')[1]}` : ''}` : ''" class="calendar-selected-name">
                                     {{ selectedEvent.details === 'Coursework Deadline' ? selectedEvent.name : (selectedEvent.subjectName === '' ? selectedEvent.name.split('/')[0] : selectedEvent.subjectName) }}<br>
-                                    <span class="text--disabled calendar-smaller-font">{{ selectedEvent.details === 'Coursework Deadline' ? (selectedEvent.subjectName === '' ? $t('coursework') : selectedEvent.subjectName) : selectedEvent.rawTitle }}{{ selectedEvent.selfStudy ? $t('self_study') : '' }}</span>
+                                    <span class="text--disabled calendar-smaller-font mt-1 d-inline-block"><span class="session-tag rounded" :class="selectedEvent.titleColor ? `${selectedEvent.titleColor.split(' ')[0] === 'uomtheme' ? 'primary' : selectedEvent.titleColor.split(' ')[0]}${selectedEvent.titleColor.split(' ').length > 1 ? ` ${selectedEvent.titleColor.split(' ')[1]}` : ''}` : ''" v-if="selectedEvent.selfStudy || selectedEvent.online || selectedEvent.lab || selectedEvent.team"><v-icon x-small v-if="selectedEvent.online || selectedEvent.lab || selectedEvent.team">mdi-{{ selectedEvent.online ? 'broadcast' : (selectedEvent.team ? 'account-multiple' : 'flask-empty-outline') }}</v-icon>{{ selectedEvent.selfStudy ? $t('self_study') : (selectedEvent.online ? $t('online') : (selectedEvent.team ? $t('team_study') : 'LAB')) }}</span>{{ selectedEvent.details === 'Coursework Deadline' ? (selectedEvent.subjectName === '' ? $t('coursework') : selectedEvent.subjectName) : selectedEvent.rawTitle }}</span>
                                 </v-toolbar-title>
                                 <v-spacer></v-spacer>
                                 <v-tooltip top v-if="selectedEvent.subjectId !== '' && subjectLinks(selectedEvent.subjectId).homeLink !== false">
@@ -421,6 +421,7 @@ import clipboard from '@/mixins/clipboard';
 
 import formatDateTime from '@/tools/formatDateTime';
 import betterFetch from '@/tools/betterFetch';
+import escapeHTML from '@/tools/escapeHTML';
 
 const timezoneConverter = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
@@ -504,7 +505,6 @@ export default {
          * @param {object} events click event and the selected event
          * @param {Event} events.nativeEvent event object
          * @param {object} events.event event object
-         * @returns {string} event color
          */
         showEvent({ nativeEvent, event }) {
             const open = () => {
@@ -770,6 +770,9 @@ export default {
                             subjectName: `${subjectLongMap[titleName] ? subjectLongMap[titleName] : ''}`,
                             subjectId: subjectIdList.includes(titleName) ? titleName : '',
                             selfStudy,
+                            online: item[1][0][3].toUpperCase().includes('EVENT TYPE: ONLINE LECTURE'),
+                            lab: item[1][0][3].toUpperCase().includes('EVENT TYPE: LABORATORY'),
+                            team: item[1][0][3].toUpperCase().includes('EVENT TYPE: TEAM STUDY'),
                         };
                         this.classEvents.push(event);
                     }
@@ -957,6 +960,22 @@ export default {
                 homeLink: false,
                 sessionLinks: [],
             };
+        },
+        /**
+         * Get the summary of an event
+         * @param {string} time event time string
+         * @param {object} event event object
+         * @returns {string} HTML summary
+         */
+        getEventSummary(time, event) {
+            const iconStr = `${event.online ? '<i class="v-icon notranslate mdi mdi-broadcast"></i>' : ''}${event.lab ? '<i class="v-icon notranslate mdi mdi-flask-empty-outline"></i>' : ''}${event.team ? '<i class="v-icon notranslate mdi mdi-account-multiple"></i>' : ''}`;
+            if (this.type === 'month') {
+                return `<span class="v-event-summary"><strong>${time.split('-')[0].trim()}</strong> ${iconStr}${escapeHTML(event.name)}</span>`;
+            }
+            if (event.end && event.end.valueOf() - event.start.valueOf() >= 3600 * 1000) {
+                return `<span class="v-event-summary">${iconStr}<strong>${escapeHTML(event.name)}</strong><br>${time}</span>`;
+            }
+            return `<span class="v-event-summary">${iconStr}<strong>${escapeHTML(event.name)}</strong>, ${time}</span>`;
         },
         /**
          * Open the settings to set the first day of the week
@@ -1208,6 +1227,13 @@ export default {
         background-color: white;
         pointer-events: none;
     }
+    .v-event-summary {
+        .v-icon {
+            font-size: 14px;
+            margin: 3px 4px 0 2px;
+            float: right;
+        }
+    }
     .v-calendar-weekly__week {
         button.v-btn.v-size--small {
             width: 35px;
@@ -1280,6 +1306,20 @@ export default {
             padding-top: 3px;
             .calendar-smaller-font {
                 font-size: 0.875rem;
+            }
+        }
+        .session-tag {
+            font-size: 12px;
+            padding: 1px 5px;
+            color: white;
+            margin-right: 4px;
+            margin-top: -1px;
+            display: inline-block;
+            transform: translateY(-0.5px);
+            .v-icon {
+            font-size: 12px;
+            margin: 2px 3px 0 0;
+            color: white;
             }
         }
         .list {
@@ -1437,7 +1477,9 @@ export default {
         "quick_zoom": "Zoom meeting quick start",
         "quick_teams": "Teams meeting quick start",
         "copy_passcode": "Copy passcode",
-        "self_study": " (Independent Study)",
+        "self_study": "Indep. Study",
+        "online": "Online",
+        "team_study": "Team Study",
         "ical_error": "Error when parsing the calendar file",
         "error_at": "{0} at {1}",
         "first_day_settings": "First day of weeks",
@@ -1461,7 +1503,9 @@ export default {
         "quick_zoom": "快速启动 Zoom 会议",
         "quick_teams": "快速启动 Teams 会议",
         "copy_passcode": "复制密码",
-        "self_study": "（自学）",
+        "self_study": "自学",
+        "online": "在线",
+        "team_study": "团队学习",
         "ical_error": "解析日历文件时发生错误",
         "error_at": "{0} 于 {1}",
         "first_day_settings": "每周第一天",
@@ -1485,7 +1529,9 @@ export default {
         "quick_zoom": "Acceder a Zoom",
         "quick_teams": "Acceder a Teams",
         "copy_passcode": "Copiar contraseña",
-        "self_study": " (Autoestudio)",
+        "self_study": "Autoestudio",
+        "online": "",
+        "team_study": "",
         "ical_error": "Error al analizar el archivo de calendario",
         "error_at": "{0} en {1}",
         "first_day_settings": "Primer día de la semana",
@@ -1509,7 +1555,9 @@ export default {
         "quick_zoom": "Zoomミーティングを起動する",
         "quick_teams": "Teamsミーティングを起動する",
         "copy_passcode": "パスワードをコピーする",
-        "self_study": "（独学）",
+        "self_study": "独学",
+        "online": "",
+        "team_study": "",
         "ical_error": "icalファイル解析不能",
         "error_at": "{1} に {0} 発生",
         "first_day_settings": "毎週の初日",
