@@ -243,7 +243,7 @@
                             >
                                 <v-toolbar-title :class="selectedEvent.titleColor ? `${selectedEvent.titleColor.split(' ')[0] === 'uomtheme' ? 'primary' : selectedEvent.titleColor.split(' ')[0]}--text${selectedEvent.titleColor.split(' ').length > 1 ? ` text--${selectedEvent.titleColor.split(' ')[1]}` : ''}` : ''" class="calendar-selected-name">
                                     {{ selectedEvent.details === 'Coursework Deadline' ? selectedEvent.name : (selectedEvent.subjectName === '' ? selectedEvent.name.split('/')[0] : selectedEvent.subjectName) }}<br>
-                                    <span class="text--disabled calendar-smaller-font mt-1 d-inline-block"><span class="session-tag rounded" :class="selectedEvent.titleColor ? `${selectedEvent.titleColor.split(' ')[0] === 'uomtheme' ? 'primary' : selectedEvent.titleColor.split(' ')[0]}${selectedEvent.titleColor.split(' ').length > 1 ? ` ${selectedEvent.titleColor.split(' ')[1]}` : ''}` : ''" v-if="selectedEvent.selfStudy || selectedEvent.online || selectedEvent.lab || selectedEvent.team"><v-icon x-small v-if="selectedEvent.online || selectedEvent.lab || selectedEvent.team">mdi-{{ selectedEvent.online ? 'broadcast' : (selectedEvent.team ? 'account-multiple' : 'flask-empty-outline') }}</v-icon>{{ selectedEvent.selfStudy ? $t('self_study') : (selectedEvent.online ? $t('online') : (selectedEvent.team ? $t('team_study') : 'LAB')) }}</span>{{ selectedEvent.details === 'Coursework Deadline' ? (selectedEvent.subjectName === '' ? $t('coursework') : selectedEvent.subjectName) : selectedEvent.rawTitle }}</span>
+                                    <span class="text--disabled calendar-smaller-font mt-1 d-inline-block"><span class="session-tag rounded" :class="selectedEvent.titleColor ? `${selectedEvent.titleColor.split(' ')[0] === 'uomtheme' ? 'primary' : selectedEvent.titleColor.split(' ')[0]}${selectedEvent.titleColor.split(' ').length > 1 ? ` ${selectedEvent.titleColor.split(' ')[1]}` : ''}` : ''" v-if="selectedEvent.selfStudy || selectedEvent.online || selectedEvent.lab || selectedEvent.team"><v-icon x-small v-if="selectedEvent.online || selectedEvent.lab || selectedEvent.team">mdi-{{ selectedEvent.online ? 'broadcast' : (selectedEvent.team ? 'account-multiple' : 'flask-empty-outline') }}</v-icon>{{ selectedEvent.selfStudy ? $t('self_study') : (selectedEvent.online ? $t('online') : (selectedEvent.team ? $t('team_study') : 'Lab')) }}</span>{{ selectedEvent.details === 'Coursework Deadline' ? (selectedEvent.subjectName === '' ? $t('coursework') : selectedEvent.subjectName) : selectedEvent.rawTitle }}</span>
                                 </v-toolbar-title>
                                 <v-spacer></v-spacer>
                                 <v-tooltip top v-if="selectedEvent.subjectId !== '' && subjectLinks(selectedEvent.subjectId).homeLink !== false">
@@ -1314,12 +1314,13 @@ export default {
             color: white;
             margin-right: 4px;
             margin-top: -1px;
-            display: inline-block;
-            transform: translateY(-0.5px);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             .v-icon {
-            font-size: 12px;
-            margin: 2px 3px 0 0;
-            color: white;
+                font-size: 12px;
+                margin-right: 3px;
+                color: white;
             }
         }
         .list {
