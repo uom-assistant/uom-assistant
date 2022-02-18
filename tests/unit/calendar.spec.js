@@ -3,6 +3,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vue from 'vue';
 import Vuetify from 'vuetify';
 import Vuex from 'vuex';
+import shortKey from 'vue-shortkey';
 
 import storeConfig from '@/store/store';
 import locales from '@/locales/localeList';
@@ -10,6 +11,7 @@ import locales from '@/locales/localeList';
 import Calendar from '@/components/calendar.vue';
 
 Vue.use(Vuetify);
+Vue.use(shortKey);
 
 describe('calendar.vue', () => {
     const localVue = createLocalVue();

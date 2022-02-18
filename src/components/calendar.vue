@@ -12,6 +12,8 @@
                             :class="$vuetify.breakpoint.xs ? 'mr-1' : 'mr-2'"
                             :color="$vuetify.theme.dark ? 'grey lighten-1' : 'grey darken-3'"
                             @click="focus = ''"
+                            v-shortkey="['alt', 'home']"
+                            @shortkey="$route.path === '/' ? (() => { focus = '' })() : null"
                         >
                             {{ $t('today') }}
                         </v-btn>
@@ -21,6 +23,8 @@
                             max-height="36"
                             class="mr-1"
                             @click="prev"
+                            v-shortkey="['alt', 'pageup']"
+                            @shortkey="$route.path === '/' ? prev() : null"
                         >
                             <v-icon>
                                 mdi-chevron-left
@@ -32,6 +36,8 @@
                             max-height="36"
                             class="mr-1"
                             @click="next"
+                            v-shortkey="['alt', 'pagedown']"
+                            @shortkey="$route.path === '/' ? next() : null"
                         >
                             <v-icon>
                                 mdi-chevron-right

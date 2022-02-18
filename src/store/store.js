@@ -28,6 +28,7 @@ export default {
         layoutLock: false,
         rerender: 0,
         upcomingCourseworks: [],
+        quickCommands: [],
     },
     mutations: {
         setLocale(state, language) {

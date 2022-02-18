@@ -67,7 +67,7 @@
                     <source src="@/assets/audios/new_mail.mp3" type="audio/mpeg">
                     <source src="@/assets/audios/new_mail.ogg" type="audio/ogg">
                 </audio>
-                <v-btn icon @click.stop="manualRefresh" small class="float-right mr-1" :title="$t('refresh')" :disabled="loading || loadingFlag.length > 0 || downloading !== '' || loadingPreview != ''" v-if="init" :loading="refreshLoding">
+                <v-btn icon @click.stop="manualRefresh" small class="float-right mr-1" :title="$t('refresh')" :disabled="loading || loadingFlag.length > 0 || downloading !== '' || loadingPreview != ''" v-if="init" :loading="refreshLoding" v-shortkey="['alt', 'r']" @shortkey="manualRefresh">
                     <v-icon>mdi-sync</v-icon>
                     <template v-slot:loader>
                         <span class="refresh-loading">
@@ -75,7 +75,7 @@
                         </span>
                     </template>
                 </v-btn>
-                <v-btn icon @click.stop="sendMail" small class="float-right mr-2" :title="$t('write')" v-if="init">
+                <v-btn icon @click.stop="sendMail" small class="float-right mr-2" :title="$t('write')" v-if="init" v-shortkey="['alt', 'm']" @shortkey="sendMail">
                     <v-icon>mdi-email-edit-outline</v-icon>
                 </v-btn>
             </h2>
@@ -2093,6 +2093,9 @@ export default {
          * Manually refresh the mail list
          */
         manualRefresh() {
+            if (this.$route.path !== '/' || this.refreshLoding) {
+                return;
+            }
             this.refreshLoding = true;
             this.updateMailList(true);
         },
@@ -2140,6 +2143,9 @@ export default {
          * Open mail edit layer
          */
         sendMail() {
+            if (this.$route.path !== '/' || this.layerOpened) {
+                return;
+            }
             this.code = '';
             this.mode = 'edit';
             this.expandTab = 0;

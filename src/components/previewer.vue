@@ -514,10 +514,13 @@ export default {
             rowspan: true,
             headerless: true,
         });
-        this.md.use(mdContainer, 'info');
-        this.md.use(mdContainer, 'success');
-        this.md.use(mdContainer, 'warning');
-        this.md.use(mdContainer, 'error');
+
+        const containerRender = (type) => (tokens, idx) => (tokens[idx].nesting === 1 ? `<div class="${type}"><div>\n` : '</div></div>\n');
+
+        this.md.use(mdContainer, 'info', { render: containerRender('info') });
+        this.md.use(mdContainer, 'success', { render: containerRender('success') });
+        this.md.use(mdContainer, 'warning', { render: containerRender('warning') });
+        this.md.use(mdContainer, 'error', { render: containerRender('error') });
     },
     beforeDestroy() {
         // Revoke blob URLs

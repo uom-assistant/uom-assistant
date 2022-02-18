@@ -16,7 +16,7 @@
                 <h2 class="handle" v-show="!multi">
                     {{ $t('note') }}
                     <v-icon class="ml-1 md-icon" :title="$t('md_support')">mdi-language-markdown</v-icon>
-                    <v-btn icon small class="float-right mr-4" :title="$t('new')" @click="addOne(false)">
+                    <v-btn icon small class="float-right mr-4" :title="$t('new')" @click="addOne(false)" v-shortkey="['alt', 'n']" @shortkey="addOne(false)">
                         <v-icon>mdi-plus</v-icon>
                     </v-btn>
                     <v-btn icon small class="float-right mr-2" :title="$t('select')" @click="multi = true" v-show="notes.length > 0">
@@ -515,6 +515,9 @@ export default {
          * @param {boolean} skip whether to skip the "too many" warning
          */
         addOne(skip) {
+            if (this.$route.path !== '/' || this.layerOpened) {
+                return;
+            }
             // Disable the button if just clicked
             if (this.disableNew) {
                 return;
@@ -1026,10 +1029,12 @@ export default {
                 response = await betterFetch('https://cdn.jsdelivr.net/gh/uom-assistant/uom-assistant/github_assets/markdown/en/markdown_guide.md').catch(() => false);
             }
 
+            const mdId = this.generateUniqueId();
+
             if (typeof response === 'string') {
                 // Add a note
                 this.notes.unshift({
-                    id: this.generateUniqueId(),
+                    id: mdId,
                     title: this.$t('markdown_guide'),
                     content: response,
                     update: new Date().valueOf(),
@@ -1050,7 +1055,7 @@ export default {
                 this.notes.unshift({
                     id: this.generateUniqueId(),
                     title: this.$t('uoma_guide'),
-                    content: response,
+                    content: response.replace(/\]\(:000000\)/g, `](:${mdId})`),
                     update: new Date().valueOf(),
                 });
                 this.previews.unshift(this.buildPreviews(0));
@@ -1221,10 +1226,13 @@ export default {
             rowspan: true,
             headerless: true,
         });
-        this.md.use(mdContainer, 'info');
-        this.md.use(mdContainer, 'success');
-        this.md.use(mdContainer, 'warning');
-        this.md.use(mdContainer, 'error');
+
+        const containerRender = (type) => (tokens, idx) => (tokens[idx].nesting === 1 ? `<div class="${type}"><div>\n` : '</div></div>\n');
+
+        this.md.use(mdContainer, 'info', { render: containerRender('info') });
+        this.md.use(mdContainer, 'success', { render: containerRender('success') });
+        this.md.use(mdContainer, 'warning', { render: containerRender('warning') });
+        this.md.use(mdContainer, 'error', { render: containerRender('error') });
 
         const slugify = (text) => encodeURIComponent(`uoma-note-${String(text).trim().toLowerCase().replace(/\s+/g, '-')}`);
 
@@ -1430,31 +1438,6 @@ export default {
                     &:hover {
                         filter: blur(0);
                     }
-                }
-                div.success, div.info, div.warning, div.error {
-                    display: flex;
-                    &:before {
-                        font-family: 'Material Design Icons';
-                        font-size: 20px;
-                        height: 20px;
-                        line-height: 20px;
-                    }
-                    & > p {
-                        margin-left: 10px;
-                        line-height: 20px;
-                    }
-                }
-                div.success:before {
-                    content: '\F05E1';
-                }
-                div.info:before {
-                    content: '\F02FD';
-                }
-                div.warning:before {
-                    content: '\F002A';
-                }
-                div.error:before {
-                    content: '\F05D6';
                 }
             }
         }

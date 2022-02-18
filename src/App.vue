@@ -20,8 +20,8 @@
                         v-bind="attrs"
                         v-on="on"
                         v-show="$route.path === '/'"
-                        v-shortkey="['ctrl', 'm']"
-                        @shortkey="toggleDark(true)"
+                        v-shortkey="{ theme: ['ctrl', 'm'], layout: ['ctrl', 'b'] }"
+                        @shortkey="toggleAttr"
                     >
                         <v-icon>mdi-tune</v-icon>
                     </v-btn>
@@ -1141,6 +1141,18 @@ export default {
                 window.__UOMA_ELECTRON_BRIDGE__.setAttr('theme', this.$vuetify.theme.dark ? 'dark' : 'light');
             }
         },
+        toggleAttr(event) {
+            if (event.srcKey === 'theme') {
+                this.toggleDark(true);
+            } else {
+                this.layoutLock = !this.layoutLock;
+                this.darkKeyBoardTip = false;
+                this.darkKeyBoardTipText = this.$t(`layout_${this.layoutLock ? 'on' : 'off'}`);
+                this.$nextTick(() => {
+                    this.darkKeyBoardTip = true;
+                });
+            }
+        },
         /**
          * Open search bar and focus on it
          */
@@ -1172,7 +1184,11 @@ export default {
             } else if (this.$route.path === '/') {
                 this.openSearch();
             }
+            this.showCommand = false;
         },
+        /**
+         * Toggle quick command bar
+         */
         toggleCommand() {
             this.showCommand = !this.showCommand;
             if (this.showCommand) {
@@ -2452,7 +2468,9 @@ code, kbd, pre, samp {
         "theme_dark": "Dark Theme",
         "theme_auto": "Auto Colour Theme",
         "loading": "Loading…",
-        "what_to_do": "What would you like to do?"
+        "what_to_do": "What would you like to do?",
+        "layout_on": "Layout locked",
+        "layout_off": "Layout unlocked"
     },
     "zh": {
         "title": "曼大助手",
@@ -2526,7 +2544,9 @@ code, kbd, pre, samp {
         "theme_dark": "深色主题",
         "theme_auto": "自动颜色主题",
         "loading": "正在载入",
-        "what_to_do": "你想做什么？"
+        "what_to_do": "你想做什么？",
+        "layout_on": "布局已锁定",
+        "layout_off": "布局已解锁"
     },
     "es": {
         "title": "UoM Assistant",

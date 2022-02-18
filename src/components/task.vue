@@ -11,7 +11,7 @@
             class="loading"
             v-show="loading"
         ></v-progress-circular>
-        <div class="task-outer">
+        <div class="task-outer" v-shortkey="['alt', 't']" @shortkey="focusInput">
             <h2 class="handle">
                 {{ $t('task') }}
                 <span class="num-badge" v-show="(tasks.length - ifTasks.length) > 0">{{ tasks.length - ifTasks.length }}</span>
@@ -27,6 +27,7 @@
                 clearable
                 v-model.trim="addText"
                 @keypress.enter="addOne"
+                ref="addInput"
             ></v-text-field>
             <div class="date-expend" :class="{ expended: addText && addText.length > 0 }">
                 <v-menu
@@ -385,18 +386,21 @@ export default {
          * @param {number} index coursework index in the upcoming courseworks list
          * @param { 'manual' | 'auto' } source coursework source
          */
-        addCoursework(courswork, index, source) {
+        addCoursework(courswork, index, source = 'manual') {
             this.tasks.push({
                 title: courswork.name,
                 deadline: courswork.ddlTime === -1 ? false : courswork.ddlTime,
                 subject: courswork.course,
                 source,
             });
+            if (index !== -1) {
+                this.added.push(index);
+            }
+
             // Update layout
             this.$nextTick(() => {
                 this.packery.shiftLayout();
             });
-            this.added.push(index);
         },
         /**
          * Open the coursework list dialog
@@ -662,11 +666,17 @@ export default {
                     if (typeof coursework.ddlTime === 'number' && coursework.ddlTime > 0) {
                         const dlt = coursework.ddlTime - new Date().valueOf();
                         if (dlt >= 0 && dlt < (this.ahead + 24 * 3600 * 1000) && !this.checkExist(coursework.name)) {
-                            this.addCoursework(coursework, 'auto');
+                            this.addCoursework(coursework, -1, 'auto');
                         }
                     }
                 }
             }
+        },
+        /**
+         * Focus the input
+         */
+        focusInput() {
+            this.$refs.addInput.focus();
         },
     },
     watch: {
