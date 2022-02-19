@@ -74,7 +74,7 @@
                         <v-text-field
                             v-model="time"
                             :label="$t('ddl_time')"
-                            prepend-inner-icon="mdi-clock-time-four-outline"
+                            prepend-inner-icon="mdi-clock-outline"
                             class="time-input"
                             readonly
                             v-bind="attrs"

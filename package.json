@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "node ./scripts/update_pdfjs.js && vue-cli-service build",
+    "build": "node ./scripts/update_pdfjs.js && node ./scripts/build_icon.js && vue-cli-service build",
     "prebuild": "npm run test:unit",
     "test:unit": "vue-cli-service test:unit --verbose",
     "lint": "vue-cli-service lint",
     "update:pdfjs": "node ./scripts/update_pdfjs.js",
-    "update:timezone": "node ./scripts/update_timezone.js"
+    "update:timezone": "node ./scripts/update_timezone.js",
+    "update:icon": "node ./scripts/build_icon.js"
   },
   "dependencies": {
     "@vue-a11y/announcer": "^2.1.0",
@@ -76,6 +77,7 @@
     "eslint-plugin-vue": "^6.2.2",
     "fetch-mock": "^9.11.0",
     "follow-redirects": "^1.14.0",
+    "fs-extra": "^10.0.0",
     "html-minifier": "^4.0.0",
     "identity-obj-proxy": "^3.0.0",
     "ignore-loader": "^0.1.2",
