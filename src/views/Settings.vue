@@ -167,6 +167,59 @@
             <v-divider class="mt-2 mb-8"></v-divider>
 
             <h2 class="text-h5 d-flex align-center mb-7"><v-icon class="mr-3">mdi-database-cog-outline</v-icon>{{ $t('data_settings') }}</h2>
+            <div class="d-flex justify-space-between" v-if="storageUsage">
+                <span>{{ $t('storage') }}</span>
+                <span>{{ parseFloat((storageUsage.usage / storageUsage.quota * 100).toFixed(3)) }}%</span>
+            </div>
+            <div class="progress my-1" v-if="storageUsage">
+                <div v-if="storageUsage.usage && !storageUsage.usageDetails" class="progress-bar primary" :style="{ width: `${(storageUsage.usage / storageUsage.quota * 100)}%` }"></div>
+                <div v-if="storageUsage.usageDetails && storageUsage.usageDetails.indexedDB" class="progress-bar blue darken-1" :style="{ width: `${(storageUsage.usageDetails.indexedDB / storageUsage.quota * 100)}%` }"></div>
+                <div v-if="storageUsage.usageDetails && storageUsage.usageDetails.caches" class="progress-bar pink" :style="{ width: `${(storageUsage.usageDetails.caches / storageUsage.quota * 100)}%`, left: `${(storageUsage.usageDetails.indexedDB / storageUsage.quota * 100)}%` }"></div>
+                <div v-if="storageUsage.usageDetails && storageUsage.usageDetails.serviceWorkerRegistrations" class="progress-bar orange" :style="{ width: `${(storageUsage.usageDetails.serviceWorkerRegistrations / storageUsage.quota * 100)}%`, left: `${(storageUsage.usageDetails.indexedDB / storageUsage.quota * 100) + (storageUsage.usageDetails.caches / storageUsage.quota * 100)}%` }"></div>
+            </div>
+            <div class="d-flex justify-space-between text-body-2 mb-1" v-if="storageUsage">
+                <span>{{ $t('used', [formatBytes(storageUsage.usage)]) }}</span>
+                <div>
+                    {{ $t('total', [formatBytes(storageUsage.quota)]) }}
+                    <v-btn icon x-small class="help-btn" @click="aboutStorage = true">
+                        <v-icon
+                            class="d-inline-block inline-icon"
+                            small
+                        >
+                            mdi-information-outline
+                        </v-icon>
+                    </v-btn>
+                </div>
+            </div>
+            <div class="mb-4 text-body-2" v-if="storageUsage.usageDetails">
+                <div v-if="storageUsage.usageDetails.indexedDB" class="d-flex justify-space-between"><span><span class="type-dot blue darken-1 mr-2"></span>{{ $t('db') }}</span><span v-if="storageUsage.usageDetails.indexedDB">{{ formatBytes(storageUsage.usageDetails.indexedDB) }}</span><span v-else>0 B</span></div>
+                <div class="d-flex justify-space-between"><span><span class="type-dot pink mr-2"></span>{{ $t('cache') }}</span><span v-if="storageUsage.usageDetails.caches">{{ formatBytes(storageUsage.usageDetails.caches) }}</span><span v-else>0 B</span></div>
+                <div class="d-flex justify-space-between"><span><span class="type-dot orange mr-2"></span>{{ $t('cache_manage') }}</span><span v-if="storageUsage.usageDetails.serviceWorkerRegistrations">{{ formatBytes(storageUsage.usageDetails.serviceWorkerRegistrations) }}</span><span v-else>0 B</span></div>
+            </div>
+            <div class="d-flex justify-space-between" v-if="storageUsage">
+                <span>{{ $t('localstorage') }}</span>
+                <span>{{ parseFloat((localStorageUsage.usage / (5 * 1024 * 1024) * 100).toFixed(3)) }}%</span>
+            </div>
+            <div class="progress my-1" v-if="localStorageUsage">
+                <div class="progress-bar primary" :style="{ width: (localStorageUsage.usage / (5 * 1024 * 1024) * 100) + '%' }"></div>
+            </div>
+            <div class="d-flex justify-space-between text-body-2" v-if="storageUsage">
+                <span>{{ $tc('used_item', localStorageUsage.items, [localStorageUsage.items, formatBytes(localStorageUsage.usage)]) }}</span>
+                <span>{{ $t('total', ['5 MB']) }}</span>
+            </div>
+            <v-list flat three-line class="storage-list mb-1">
+                <v-list-item-group>
+                    <v-list-item class="pt-0 mx-n8 px-8 pb-1" @click="persistStroageDialog = true" :class="{ persist }">
+                        <v-list-item-content class="ui-list-item">
+                            <v-list-item-title class="mt-1 d-flex align-center switch-list-title">{{ $t(persist ? 'persisted_stroage_on' : 'persisted_stroage_off') }}</v-list-item-title>
+                            <v-list-item-subtitle class="mt-1">{{ $t(persist ? 'persisted_stroage_text_on' : 'persisted_stroage_text') }}</v-list-item-subtitle>
+                        </v-list-item-content>
+                        <v-list-item-action class="align-self-center" v-if="!persist">
+                            <v-icon color="grey">mdi-chevron-right</v-icon>
+                        </v-list-item-action>
+                    </v-list-item>
+                </v-list-item-group>
+            </v-list>
             <div>
                 <v-btn
                     depressed
@@ -481,7 +534,6 @@
         <v-dialog
             v-model="addProjectError"
             max-width="400"
-            persistent
         >
             <v-card>
                 <v-card-title class="headline">
@@ -491,14 +543,81 @@
                     {{ $t('add_project_error_body') }}
                 </v-card-text>
                 <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
-                    color="primary"
-                    text
-                    @click="addProjectError = false"
-                >
-                    {{ $t('ok') }}
-                </v-btn>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="addProjectError = false"
+                    >
+                        {{ $t('ok') }}
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog
+            v-model="aboutStorage"
+            max-width="400"
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('about_storage') }}
+                </v-card-title>
+                    <v-card-text>
+                        {{ $t('about_storage_text') }}
+                    </v-card-text>
+                    <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="aboutStorage = false"
+                    >
+                        {{ $t('ok') }}
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog
+            v-model="persistStroageDialog"
+            max-width="500"
+            persistent
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('persist_stroage') }}
+                </v-card-title>
+                <v-card-text v-if="persistStorageSupport" class="pb-0" v-html="$t('persist_stroage_text')"></v-card-text>
+                <v-card-text v-else class="pb-0">
+                    <p>{{ $t('persist_stroage_unsupported') }}</p>
+                </v-card-text>
+                <v-card-actions v-if="persistStorageSupport">
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        :disabled="waitingPersist"
+                        text
+                        @click="persistStroageDialog = false"
+                    >
+                        {{ $t('cancel') }}
+                    </v-btn>
+                    <v-btn
+                        color="primary"
+                        :loading="waitingPersist"
+                        :disabled="waitingPersist"
+                        text
+                        @click="tryPersistStorage"
+                    >
+                        {{ $t('continue') }}
+                    </v-btn>
+                </v-card-actions>
+                <v-card-actions v-else>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="persistStroageDialog = false"
+                    >
+                        {{ $t('ok') }}
+                    </v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -569,9 +688,18 @@ export default {
             todoistConnected: false,
             syncDirection: '',
             todoistColorList: ['#b8256f', '#db4035', '#ff9933', '#fad000', '#afb83b', '#7ecc49', '#299438', '#6accbc', '#158fad', '#14aaf5', '#96c3eb', '#4073ff', '#884dff', '#af38eb', '#eb96eb', '#e05194', '#ff8d85', '#808080', '#b8b8b8', '#ccac93'],
+            storageUsage: false,
+            localStorageUsage: false,
+            aboutStorage: false,
+            persist: false,
+            persistStroageDialog: false,
+            waitingPersist: false,
         };
     },
     methods: {
+        /**
+         * Open the Todoist configuration dialog
+         */
         openTodoistConfig() {
             this.todoistStep = 1;
             this.todoistToken = '';
@@ -583,6 +711,9 @@ export default {
             this.projectName = '';
             this.todoistConfig = true;
         },
+        /**
+         * Try to connect to Todoist
+         */
         async connectTodoist() {
             if (!this.tokenValid || this.loadingTodoist) {
                 return;
@@ -596,6 +727,7 @@ export default {
                 },
             });
 
+            // Failed to connect
             if (data.status && data.status !== 200) {
                 this.todoistTokenError = true;
                 this.loadingTodoist = false;
@@ -603,6 +735,7 @@ export default {
                 return;
             }
 
+            // Success
             this.todoistList = data.filter((item) => !item.inbox_project && !item.shared).map((item) => ({
                 id: item.id,
                 name: item.name,
@@ -611,9 +744,16 @@ export default {
             this.loadingTodoist = false;
             this.todoistStep = 2;
         },
+        /**
+         * Check if a project is in the list by ID
+         * @param {number} id project ID
+         */
         findItem(id) {
             return this.todoistList.find((item) => item.id === id);
         },
+        /**
+         * Open the add project dialog
+         */
         addProjectOpen() {
             this.projectName = '';
             this.addProjectDialog = true;
@@ -621,6 +761,9 @@ export default {
                 this.$refs.addInput.focus();
             }, 300);
         },
+        /**
+         * Add a project to Todoist
+         */
         async addProject() {
             if (this.projectName === '' || this.projectName.length > 120 || this.addProjectLoading) {
                 return;
@@ -639,16 +782,23 @@ export default {
                 }),
             });
 
+            // Error
             if (data.status && data.status !== 200) {
                 this.addProjectError = true;
                 this.addProjectLoading = false;
                 return;
             }
 
+            // Success
             this.addProjectLoading = false;
             this.addProjectDialog = false;
+
+            // Refresh project list
             this.connectTodoist();
         },
+        /**
+         * Sync data
+         */
         async sync() {
             this.loadingSync = true;
             setTimeout(() => {
@@ -656,9 +806,98 @@ export default {
                 this.loadingSync = false;
             }, 1000);
         },
+        /**
+         * Finish Todoist configuration
+         */
         finishSync() {
             this.todoistConfig = false;
             this.todoistConnected = true;
+        },
+        /**
+         * Calculate localStorage usage
+         */
+        calcLocalStorage() {
+            let total = 0;
+            let count = 0;
+            const length = Object.keys(localStorage).length;
+            for (const key in localStorage) {
+                setTimeout(() => {
+                    total += new Blob([localStorage[key]]).size;
+                    count += 1;
+                    if (count === length) {
+                        this.localStorageUsage = {
+                            items: count,
+                            usage: total,
+                        };
+                    }
+                }, 0);
+            }
+        },
+        /**
+         * Get storage usage
+         */
+        calcStorage() {
+            if (navigator.storage && navigator.storage.estimate) {
+                navigator.storage.estimate().then((estimate) => {
+                    this.storageUsage = estimate;
+                    if (this.storageUsage.quota && this.storageUsage.quota > 10737418240) {
+                        this.storageUsage.quota = 10737418240; // 10 GB
+                    }
+                });
+            }
+        },
+        /**
+         * Check whether the storage is persistent
+         */
+        async checkPersist() {
+            this.persist = navigator.storage && navigator.storage.persisted ? (await navigator.storage.persisted()) : false;
+        },
+        /**
+         * Try to persist storage
+         */
+        async tryPersist() {
+            if (this.persistStorageSupport) {
+                if (navigator.permissions && navigator.permissions.query) {
+                    const permission = await navigator.permissions.query({
+                        name: 'persistent-storage',
+                    });
+                    if (permission.state === 'granted' || permission.state === 'prompt') {
+                        await navigator.storage.persist();
+                        this.checkPersist();
+                    }
+                } else {
+                    await navigator.storage.persist();
+                    this.checkPersist();
+                }
+            }
+        },
+        /**
+         * Try to persist storage when click the button
+         */
+        async tryPersistStorage() {
+            this.waitingPersist = true;
+            await this.tryPersist();
+            this.waitingPersist = false;
+            this.persistStroageDialog = false;
+        },
+        /**
+         * Format bytes to file size unit
+         * @param {number} bytes file byte length
+         * @param {number?} decimals file size decimal number
+         * @returns {string} formated string
+         */
+        formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) {
+                return '0 B';
+            }
+
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+            return `${parseFloat((bytes / k ** i).toFixed(dm))} ${sizes[i]}`;
         },
     },
     watch: {
@@ -701,6 +940,13 @@ export default {
             }
             return false;
         },
+        /**
+         * Check whether the browser supports persistent storage
+         * @returns {boolean} whether the browser supports persistent storage
+         */
+        persistStorageSupport() {
+            return navigator.storage && navigator.storage.persist;
+        },
     },
     mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
@@ -722,6 +968,10 @@ export default {
         }`);
 
         this.backendURL = backend.url;
+
+        this.calcLocalStorage();
+        this.calcStorage();
+        this.checkPersist();
     },
 };
 </script>
@@ -729,7 +979,7 @@ export default {
 <style lang="less" scoped>
 .settings {
     min-height: calc(100vh - 64px);
-    padding: 20px;
+    padding: 15px;
     padding-top: 100px;
     padding-bottom: 30px;
     margin: 0 auto;
@@ -753,7 +1003,7 @@ export default {
                 pointer-events: auto;
             }
         }
-        .ui-list, .network-list, .sync-list {
+        .ui-list, .network-list, .sync-list, .storage-list {
             background-color: transparent!important;
             .ui-list-item .v-list-item__subtitle {
                 -webkit-line-clamp: initial!important;
@@ -787,6 +1037,31 @@ export default {
     }
     hr {
         border-width: 2px 0 0 0;
+    }
+    .progress {
+        background-color: rgba(126, 126, 126, .3);
+        width: 100%;
+        height: 6px;
+        border-radius: 6px;
+        position: relative;
+        overflow: hidden;
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+        }
+    }
+    .type-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 7px;
+        display: inline-block;
+        margin-bottom: 1px;
+    }
+    .persist {
+        pointer-events: none;
     }
 }
 .stepper {
@@ -841,7 +1116,7 @@ export default {
         "import": "Import Settings",
         "reset": "Clear And Reset",
         "data_settings_text": "You can export the current settings and import them on another devices.",
-        "clear_text": "Clear all data saved in your browser and completely reset UoM Assistant.",
+        "clear_text": "Clear all data saved in your browser by UoM Assistant and completely reset UoM Assistant.",
         "backend_url": "Backend URL",
         "backend_maintenance": "The backend is under maintenance or backend version not supported",
         "wrong_url": "Cannot connect to this URL",
@@ -881,7 +1156,25 @@ export default {
         "sync_complete": "Congratulations! The first sync with Todoist is complete! After that, UoM Assistant will regularly sync your course unit and task lists with Todoist so that all devices connected to this Todoist account will have access to a consistent list of course units and tasks.",
         "finish": "Finsh",
         "add_project_error": "Failed to create new project",
-        "add_project_error_body": "Failed to create new project, Please check your input and make sure you have the correct Todoist token."
+        "add_project_error_body": "Failed to create new project, Please check your input and make sure you have the correct Todoist token.",
+        "storage": "Storage",
+        "localstorage": "Settings Storage",
+        "used": "{0} used",
+        "used_item": "{0} item, {1} used | {0} items, {1} used",
+        "total": "{0} avaliable",
+        "db": "Database",
+        "cache": "Offline Cache",
+        "cache_manage": "Cache Management",
+        "about_storage": "About available space",
+        "about_storage_text": "This value is an estimate of the amount of storage space available and is not exact, so the actual space available may vary.",
+        "persisted_stroage_on": "Persistent stroage enabled",
+        "persisted_stroage_off": "Persistent stroage not enabled",
+        "persisted_stroage_text": "The browser will not actively erase the data stored by UoM Assistant when enabled.",
+        "persisted_stroage_text_on": "The browser will not actively erase the data stored by UoM Assistant when out of space.",
+        "persist_stroage": "Persistent stroage",
+        "persist_stroage_text": "<p>With persistent storage enabled, the browser will not actively erase data stored by UoM Assistant when out of space. This will reduce the possibility of accidental loss of important data such as Quick Notes. </p><p>In Safari, your data may still be affected by the \"erasure after 7 days\" restriction. Please consider adding UoM Assistant to your home screen to avoid this restriction.</p><p>Not all browsers support this feature. Tap \"Continue\" to attempt to obtain a authorisation. The final outcome will be determined by the browser in conjunction with the site usage and there is no guarantee that persistent stroage will be authorized.</p>",
+        "continue": "Continue",
+        "persist_stroage_unsupported": "This browser does not support persistent storage."
     },
     "zh": {
         "backend_settings": "后端设置",
@@ -900,7 +1193,7 @@ export default {
         "import": "导入设置",
         "reset": "清除并重置",
         "data_settings_text": "你可以导出当前设置以便在另一个设备上导入。",
-        "clear_text": "清除浏览器中保存的所有数据并完全重置曼大助手。",
+        "clear_text": "清除浏览器中曼大助手保存的所有数据并完全重置曼大助手。",
         "backend_url": "后端 URL",
         "backend_maintenance": "不支持的后端版本或后端正在维护，暂时无法连接",
         "wrong_url": "无法连接到这个地址",
@@ -924,9 +1217,9 @@ export default {
         "init_sync_direction": "初始同步方向",
         "complete": "完成",
         "next": "下一步",
-        "coursework_project": "为“课程”指定 Todoist 项目",
-        "task_project": "为“任务”指定 Todoist 项目",
-        "select_project": "你需要为“课程”组件和“任务”组件的同步指定两个不同的 Todoist 项目。被选中的 Todoist 项目将会被完全用于曼大助手的同步，请尽可能不要手动修改。",
+        "coursework_project": "为「课程」指定 Todoist 项目",
+        "task_project": "为「任务」指定 Todoist 项目",
+        "select_project": "你需要为「课程」组件和「任务」组件的同步指定两个不同的 Todoist 项目。被选中的 Todoist 项目将会被完全用于曼大助手的同步，请尽可能不要手动修改。",
         "add_project": "添加项目",
         "refresh": "刷新项目列表",
         "project_name": "项目名称",
@@ -940,7 +1233,25 @@ export default {
         "sync_complete": "恭喜，第一次与 Todoist 的同步已完成！之后，曼大助手将会定期与 Todoist 同步你的课程和任务列表，这样所有连接到此 Todoist 账户的设备都将可以获得一致的课程和任务列表。",
         "finish": "完成",
         "add_project_error": "项目添加失败",
-        "add_project_error_body": "项目添加失败，请检查你的输入并确保你的 Todoist 令牌正确。"
+        "add_project_error_body": "项目添加失败，请检查你的输入并确保你的 Todoist 令牌正确。",
+        "storage": "存储",
+        "localstorage": "设置存储",
+        "used": "已使用 {0}",
+        "used_item": "{0} 个条目，已使用 {1} | {0} 个条目，已使用 {1}",
+        "total": "{0} 可用",
+        "db": "数据库",
+        "cache": "离线缓存",
+        "cache_manage": "缓存管理",
+        "about_storage": "关于可用空间",
+        "about_storage_text": "此数值为估计的可用存储空间大小，非精确值，因此实际可用空间可能有所不同。",
+        "persisted_stroage_on": "持续存储已启用",
+        "persisted_stroage_off": "持续存储未启用",
+        "persisted_stroage_text": "启用持续存储后浏览器将不会主动清除曼大助手存储的数据。",
+        "persisted_stroage_text_on": "在空间不足时浏览器将不会主动清除曼大助手存储的数据。",
+        "persist_stroage": "持续存储",
+        "persist_stroage_text": "<p>启用持续存储后，浏览器在可用空间不足时将不会主动清除曼大助手存储的数据。这将降低快速笔记等重要数据意外丢失的可能性。</p><p>在 Safari 中，你的数据可能仍然受 7 天清除限制的影响。请考虑将曼大助手添加到主屏幕以避开此限制。</p><p>并非所有浏览器都支持此特性。点按「继续」以尝试获取持续存储授权，最终授权结果将由浏览器结合网站使用状况决定，无法保证获得授权。</p>",
+        "continue": "继续",
+        "persist_stroage_unsupported": "此浏览器不支持持续存储。"
     },
     "es": {
         "backend_settings": "Configuración de back-end",
@@ -972,7 +1283,46 @@ export default {
         "sync_settings_text": "",
         "connected": "",
         "connect": "",
-        "cancel": "Cancelar"
+        "cancel": "Cancelar",
+        "choose_project": "",
+        "init_sync_direction": "",
+        "complete": "",
+        "next": "",
+        "coursework_project": "",
+        "task_project": "",
+        "select_project": "",
+        "add_project": "",
+        "refresh": "",
+        "project_name": "",
+        "add": "",
+        "from_todoist": "",
+        "from_todoist_text": "",
+        "from_local": "",
+        "from_local_text": "",
+        "select_direction": "",
+        "sync": "",
+        "sync_complete": "",
+        "finish": "",
+        "add_project_error": "",
+        "add_project_error_body": "",
+        "storage": "",
+        "localstorage": "",
+        "used": "",
+        "used_item": "",
+        "total": "",
+        "db": "",
+        "cache": "",
+        "cache_manage": "",
+        "about_storage": "",
+        "about_storage_text": "",
+        "persisted_stroage_on": "",
+        "persisted_stroage_off": "",
+        "persisted_stroage_text": "",
+        "persisted_stroage_text_on": "",
+        "persist_stroage": "",
+        "persist_stroage_text": "",
+        "continue": "",
+        "persist_stroage_unsupported": ""
     },
     "ja": {
         "backend_settings": "",
@@ -1003,7 +1353,46 @@ export default {
         "sync_settings_text": "",
         "connected": "",
         "connect": "",
-        "cancel": "キャンセル"
+        "cancel": "キャンセル",
+        "choose_project": "",
+        "init_sync_direction": "",
+        "complete": "",
+        "next": "",
+        "coursework_project": "",
+        "task_project": "",
+        "select_project": "",
+        "add_project": "",
+        "refresh": "",
+        "project_name": "",
+        "add": "",
+        "from_todoist": "",
+        "from_todoist_text": "",
+        "from_local": "",
+        "from_local_text": "",
+        "select_direction": "",
+        "sync": "",
+        "sync_complete": "",
+        "finish": "",
+        "add_project_error": "",
+        "add_project_error_body": "",
+        "storage": "",
+        "localstorage": "",
+        "used": "",
+        "used_item": "",
+        "total": "",
+        "db": "",
+        "cache": "",
+        "cache_manage": "",
+        "about_storage": "",
+        "about_storage_text": "",
+        "persisted_stroage_on": "",
+        "persisted_stroage_off": "",
+        "persisted_stroage_text": "",
+        "persisted_stroage_text_on": "",
+        "persist_stroage": "",
+        "persist_stroage_text": "",
+        "continue": "",
+        "persist_stroage_unsupported": ""
     }
 }
 </i18n>

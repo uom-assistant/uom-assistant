@@ -2915,12 +2915,12 @@ export default {
          */
         formatBytes(bytes, decimals = 2) {
             if (bytes === 0) {
-                return '0 Bytes';
+                return '0 B';
             }
 
             const k = 1024;
             const dm = decimals < 0 ? 0 : decimals;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const sizes = ['B', 'KB', 'MB', 'GB'];
 
             const i = Math.floor(Math.log(bytes) / Math.log(k));
 

@@ -349,6 +349,7 @@ import less from 'highlight.js/lib/languages/less';
 import scss from 'highlight.js/lib/languages/scss';
 import yaml from 'highlight.js/lib/languages/yaml';
 import docker from 'highlight.js/lib/languages/dockerfile';
+import csv from '@/tools/csvHighlight';
 
 import 'codemirror/mode/markdown/markdown';
 import 'codemirror/mode/python/python';
@@ -369,7 +370,6 @@ import clipboard from '@/mixins/clipboard';
 import betterFetch from '@/tools/betterFetch';
 import formatDateTime from '@/tools/formatDateTime';
 import debounce from '@/tools/debounce';
-import csv from '@/tools/csvHighlight';
 import SmoothScrollTo from '@/tools/smoothScrollTo';
 
 import 'codemirror/theme/xq-light.css';

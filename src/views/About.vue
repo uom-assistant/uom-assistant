@@ -190,7 +190,7 @@ export default {
 <style lang="less" scoped>
 .about {
     min-height: calc(100vh - 64px);
-    padding: 20px;
+    padding: 15px;
     padding-top: 100px;
     padding-bottom: 30px;
     margin: 0 auto;
