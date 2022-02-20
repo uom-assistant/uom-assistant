@@ -196,14 +196,14 @@
                 <div class="d-flex justify-space-between"><span><span class="type-dot pink mr-2"></span>{{ $t('cache') }}</span><span v-if="storageUsage.usageDetails.caches">{{ formatBytes(storageUsage.usageDetails.caches) }}</span><span v-else>0 B</span></div>
                 <div class="d-flex justify-space-between"><span><span class="type-dot orange mr-2"></span>{{ $t('cache_manage') }}</span><span v-if="storageUsage.usageDetails.serviceWorkerRegistrations">{{ formatBytes(storageUsage.usageDetails.serviceWorkerRegistrations) }}</span><span v-else>0 B</span></div>
             </div>
-            <div class="d-flex justify-space-between" v-if="storageUsage">
+            <div class="d-flex justify-space-between" v-if="localStorageUsage">
                 <span>{{ $t('localstorage') }}</span>
                 <span>{{ parseFloat((localStorageUsage.usage / (5 * 1024 * 1024) * 100).toFixed(3)) }}%</span>
             </div>
             <div class="progress my-1" v-if="localStorageUsage">
                 <div class="progress-bar primary" :style="{ width: (localStorageUsage.usage / (5 * 1024 * 1024) * 100) + '%' }"></div>
             </div>
-            <div class="d-flex justify-space-between text-body-2" v-if="storageUsage">
+            <div class="d-flex justify-space-between text-body-2" v-if="localStorageUsage">
                 <span>{{ $tc('used_item', localStorageUsage.items, [localStorageUsage.items, formatBytes(localStorageUsage.usage)]) }}</span>
                 <span>{{ $t('total', ['5 MB']) }}</span>
             </div>
@@ -980,13 +980,13 @@ export default {
 .settings {
     min-height: calc(100vh - 64px);
     padding: 15px;
-    padding-top: 100px;
+    padding-top: 50px;
     padding-bottom: 30px;
     margin: 0 auto;
     max-width: 1200px;
     &.small-screen {
         min-height: calc(100vh - 56px);
-        padding-top: 50px;
+        padding-top: 30px;
     }
     .settings-list {
         .text-h5 .v-icon {
