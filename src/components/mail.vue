@@ -82,7 +82,7 @@
             <v-skeleton-loader
                 class="mx-auto"
                 type="list-item-avatar-three-line@4"
-                v-if="!init && loading"
+                v-if="!init && loading && widgetShown"
             ></v-skeleton-loader>
             <v-list flat class="list p-0" v-if="mails.length > 0">
                 <v-virtual-scroll
@@ -818,6 +818,36 @@
             </v-card>
         </v-dialog>
         <v-dialog
+            v-model="deletingDialog"
+            max-width="400"
+            persistent
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('delete_mail') }}
+                </v-card-title>
+                <v-card-text>
+                    {{ $t('delete_mail_body') }}
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        text
+                        @click="deletingDialog = false"
+                    >
+                        {{ $t('cancel') }}
+                    </v-btn>
+                    <v-btn
+                        color="red"
+                        text
+                        @click="deleteMailConfirm"
+                    >
+                        {{ $t('delete_btn') }}
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog
             v-model="translateSettingsDialog"
             max-width="500"
             content-class="translate-settings"
@@ -1276,6 +1306,9 @@ export default {
             preferredTranslateTo: null,
             editingTranslateEnabled: true,
             editingPreferredTranslateTo: null,
+            lastUpdated: -1,
+            deletingDialog: false,
+            beingDeletedId: -1,
             viewer: {
                 subject: '',
                 from: false,
@@ -1729,7 +1762,7 @@ export default {
          * @param {boolean} update update or fetch
          */
         async updateMailList(update = false, tryCount = 1) {
-            if (!this.backend.url || !this.account.username || !this.account.password || !this.account.email) {
+            if (!this.widgetShown || !this.backend.url || !this.account.username || !this.account.password || !this.account.email) {
                 return;
             }
 
@@ -1784,6 +1817,7 @@ export default {
             // Update data
             this.$store.commit('setBackendStatus', true);
             this.loading = false;
+            this.lastUpdated = new Date().valueOf();
             this.justUpdated = true;
             // Do not load list again within 15 seconds
             setTimeout(() => {
@@ -1809,7 +1843,7 @@ export default {
                     }
                 }
                 // If sound is turned on, play sound
-                if (newMail && this.ifNotify.length === 1) {
+                if (this.widgetShown && newMail && this.ifNotify.length === 1) {
                     this.$refs.audio.currentTime = 0;
                     this.$refs.audio.volume = 0.3;
                     this.$refs.audio.play();
@@ -2376,23 +2410,37 @@ export default {
             });
         },
         /**
-         * Delete a mail by mail ID
+         * Open a dialog for deleting a mail
          * @param {number} id mail ID
          */
         deleteMail(id) {
+            this.beingDeletedId = id;
+            this.deletingDialog = true;
+        },
+        /**
+         * Delete a mail by mail ID
+         */
+        deleteMailConfirm() {
+            if (this.beingDeletedId === -1) {
+                return;
+            }
+            this.deletingDialog = false;
+
             this.closeMail();
-            const mail = this.mails.findIndex((item) => item.id === id);
+            const mail = this.mails.findIndex((item) => item.id === this.beingDeletedId);
             if (mail === -1) {
                 return;
             }
             this.mails.splice(mail, 1);
-            this.doAction(id, 'delete');
+            this.doAction(this.beingDeletedId, 'delete');
             this.buildSearchIndex();
             this.$nextTick(() => {
                 if (this.$refs.scrollTarget) {
                     this.scrollHandler({ target: this.$refs.scrollTarget });
                 }
             });
+
+            this.beingDeletedId = -1;
         },
         /**
          * Translate current mail
@@ -2705,10 +2753,10 @@ export default {
          */
         updateSandboxHeight() {
             if (this.$refs.sandbox && this.$refs.sandbox.contentWindow.document.body) {
-                this.sandboxHeight = this.$refs.sandbox.contentWindow.document.body.scrollHeight + 0.5;
+                this.sandboxHeight = this.$refs.sandbox.contentWindow.document.body.scrollHeight + 1;
                 setTimeout(() => {
                     if (this.$refs.sandbox && this.$refs.sandbox.contentWindow.document.body) {
-                        this.sandboxHeight = this.$refs.sandbox.contentWindow.document.body.scrollHeight + 0.5;
+                        this.sandboxHeight = this.$refs.sandbox.contentWindow.document.body.scrollHeight + 1;
                     }
                 }, 500);
             }
@@ -3509,6 +3557,12 @@ export default {
                 this[this.searchNotification.payload.action](this.searchNotification.payload.data);
             }
         },
+        widgetShown() {
+            // Update mail list if needed
+            if (this.widgetShown && !this.loading && new Date().valueOf() - this.lastUpdated > 600000) {
+                this.updateMailList(this.init);
+            }
+        },
     },
     computed: {
         ...mapState({
@@ -3521,7 +3575,15 @@ export default {
             darkMode: (state) => state.darkMode,
             searchNotification: (state) => state.searchNotification,
             rerender: (state) => state.rerender,
+            widgets: (state) => state.widgets,
         }),
+        /**
+         * Whether the widget is shown
+         * @returns {boolean} whether the widget is shown
+         */
+        widgetShown() {
+            return this.widgets ? this.widgets.includes(this.searchid) : true;
+        },
         mailUnseen() {
             // Filter out unread mails
             return this.mails.filter((item) => item.unseen);
@@ -4575,6 +4637,9 @@ export default {
         "language_tip": "The translation panel will only be displayed if the language of the email differs from the target language. Language detection of the email is done locally and automatically.",
         "cancel": "Cancel",
         "save": "Save",
+        "delete_mail": "Delete email",
+        "delete_mail_body": "Are you sure you want to delete this email? This action is unrecoverable.",
+        "delete_btn": "Delete",
         "powered_by": "Powered by {0}",
         "enable_translate": "Enable mail translation",
         "translate": "Translate",
@@ -4701,6 +4766,9 @@ export default {
         "language_tip": "只有当邮件语言与目标语言不同时，翻译面板才会显示。检测邮件语言是在本地自动进行的。",
         "cancel": "取消",
         "save": "保存",
+        "delete_mail": "删除邮件",
+        "delete_mail_body": "你确定要删除此邮件吗？邮件删除后将不可恢复。",
+        "delete_btn": "删除",
         "powered_by": "由 {0} 翻译",
         "enable_translate": "启用邮件翻译",
         "translate": "翻译",
@@ -4827,6 +4895,9 @@ export default {
         "language_tip": "El panel de traducción solo se mostrará si el idioma del correo es diferente al idioma de destino. La detección del idioma del correo se realiza de forma local y automática.",
         "cancel": "Cancelar",
         "save": "Guardar",
+        "delete_mail": "",
+        "delete_mail_body": "",
+        "delete_btn": "",
         "powered_by": "Proporcionada por {0}",
         "enable_translate": "Habilitar traducción de correos",
         "translate": "Traducir",
@@ -4957,6 +5028,9 @@ export default {
         "language_tip": "原文の言語と訳文の言語が違い時のみに、翻訳パネルが表示されます。メールの言語を検出することはローカルで自動的に実行します。",
         "cancel": "キャンセル",
         "save": "保存",
+        "delete_mail": "",
+        "delete_mail_body": "",
+        "delete_btn": "",
         "powered_by": "翻訳提供: {0}",
         "enable_translate": "翻訳機能を有効化",
         "translate": "翻訳",

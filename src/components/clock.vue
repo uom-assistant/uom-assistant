@@ -851,6 +851,7 @@ p {
         "Mata-Utu": "Mata-Utu",
         "Chatham": "Chatham",
         "Apia": "Apia",
+        "Kanton": "Kanton",
         "Fakaofo": "Fakaofo",
         "Nuku‘alofa": "Nuku‘alofa",
         "Kiritimati": "Kiritimati"
@@ -1174,6 +1175,7 @@ p {
         "Mata-Utu": "马塔乌图",
         "Chatham": "查塔姆",
         "Apia": "阿皮亚",
+        "Kanton": "坎顿",
         "Fakaofo": "法卡福",
         "Nuku‘alofa": "努库阿洛法",
         "Kiritimati": "基里蒂马蒂"
@@ -1566,7 +1568,8 @@ p {
         "Wake": "ウェイク",
         "Mata-Utu": "マタウチュ",
         "Chatham": "チャタム",
-        "Apia": "アピア"
+        "Apia": "アピア",
+        "Kanton": "カントン"
     }
 }
 </i18n>

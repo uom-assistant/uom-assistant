@@ -19,16 +19,18 @@
                     <v-icon>mdi-playlist-plus</v-icon>
                 </v-btn>
             </h2>
-            <v-text-field
-                :label="$t('add_task')"
-                outlined
-                class="input"
-                prepend-inner-icon="mdi-format-list-checks"
-                clearable
-                v-model.trim="addText"
-                @keypress.enter="addOne"
-                ref="addInput"
-            ></v-text-field>
+            <div class="input-container">
+                <v-text-field
+                    :label="$t('add_task')"
+                    outlined
+                    class="input"
+                    prepend-inner-icon="mdi-format-list-checks"
+                    clearable
+                    v-model.trim="addText"
+                    @keypress.enter="addOne"
+                    ref="addInput"
+                ></v-text-field>
+            </div>
             <div class="date-expend" :class="{ expended: addText && addText.length > 0 }">
                 <v-menu
                     v-model="dateMenu"
@@ -134,46 +136,49 @@
                     </v-icon>
                 </v-btn>
             </div>
-            <v-list flat class="list" :key="updateListKey">
-                <v-list-item-group
-                    v-model="ifTasks"
-                    multiple
-                    active-class="done"
-                >
-                    <v-list-item v-for="(task, index) in tasks" :key="index">
-                        <template v-slot:default="{ active }">
-                            <v-list-item-action>
-                                <v-checkbox :input-value="active"></v-checkbox>
-                            </v-list-item-action>
+            <div class="list-conatiner-head" :class="{ shadow: headerShadow }"></div>
+            <div class="list-conatiner" @scroll.passive="scrollHandler" ref="scrollTarget">
+                <v-list flat class="list" :key="updateListKey">
+                    <v-list-item-group
+                        v-model="ifTasks"
+                        multiple
+                        active-class="done"
+                    >
+                        <v-list-item v-for="(task, index) in tasks" :key="index">
+                            <template v-slot:default="{ active }">
+                                <v-list-item-action>
+                                    <v-checkbox :input-value="active"></v-checkbox>
+                                </v-list-item-action>
 
-                            <v-list-item-content>
-                                <v-list-item-title :title="task.title"><span v-if="task.deadline !== false && displayRemain(task.deadline, index) !== ''" class="d-inline-block time-remain" :class="checkExpired(task.deadline, index)"><v-icon :class="checkUrgent(task.deadline, index)" class="mr-1 urgent-icon" dense>mdi-clock-alert-outline</v-icon>{{ displayRemain(task.deadline, index) }}</span>{{ task.title }}</v-list-item-title>
-                                <v-list-item-subtitle v-if="task.deadline !== false || task.subject !== false">
-                                    <span v-if="task.deadline !== false" class="mr-2">
-                                        <v-icon
-                                            v-if="task.deadline !== false"
-                                            small
-                                        >
-                                            mdi-clock-outline
-                                        </v-icon>
-                                        {{ getDate(new Date(task.deadline)) }}
-                                    </span>
-                                    <span v-if="task.subject !== false">
-                                        <span :class="subjectColor(task.subject)" class="subject-color-samll" v-if="task.subject !== false && subjectColor(task.subject) !== ''"></span>
-                                        {{ subjectNameMap(task.subject) }}
-                                    </span>
-                                </v-list-item-subtitle>
-                            </v-list-item-content>
+                                <v-list-item-content>
+                                    <v-list-item-title :title="task.title"><span v-if="task.deadline !== false && displayRemain(task.deadline, index) !== ''" class="d-inline-block time-remain" :class="checkExpired(task.deadline, index)"><v-icon :class="checkUrgent(task.deadline, index)" class="mr-1 urgent-icon" dense>mdi-clock-alert-outline</v-icon>{{ displayRemain(task.deadline, index) }}</span>{{ task.title }}</v-list-item-title>
+                                    <v-list-item-subtitle v-if="task.deadline !== false || task.subject !== false">
+                                        <span v-if="task.deadline !== false" class="mr-2">
+                                            <v-icon
+                                                v-if="task.deadline !== false"
+                                                small
+                                            >
+                                                mdi-clock-outline
+                                            </v-icon>
+                                            {{ getDate(new Date(task.deadline)) }}
+                                        </span>
+                                        <span v-if="task.subject !== false">
+                                            <span :class="subjectColor(task.subject)" class="subject-color-samll" v-if="task.subject !== false && subjectColor(task.subject) !== ''"></span>
+                                            {{ subjectNameMap(task.subject) }}
+                                        </span>
+                                    </v-list-item-subtitle>
+                                </v-list-item-content>
 
-                            <v-list-item-action class="delete" v-if="task.source !== 'auto' || ahead === -1 || checkExpiredBool(task.deadline)">
-                                <v-btn icon @click.stop="removeTask(index)">
-                                    <v-icon color="grey">mdi-delete-outline</v-icon>
-                                </v-btn>
-                            </v-list-item-action>
-                        </template>
-                    </v-list-item>
-                </v-list-item-group>
-            </v-list>
+                                <v-list-item-action class="delete" v-if="task.source !== 'auto' || ahead === -1 || checkExpiredBool(task.deadline)">
+                                    <v-btn icon @click.stop="removeTask(index)">
+                                        <v-icon color="grey">mdi-delete-outline</v-icon>
+                                    </v-btn>
+                                </v-list-item-action>
+                            </template>
+                        </v-list-item>
+                    </v-list-item-group>
+                </v-list>
+            </div>
             <div class="empty" v-if="tasks.length === 0">
                 <v-icon color="grey" x-large>mdi-check-all</v-icon>
             </div>
@@ -263,6 +268,9 @@
 
 <script>
 import { mapState } from 'vuex';
+
+import scroll from '@/mixins/scroll';
+
 import formatDateTime from '@/tools/formatDateTime';
 
 export default {
@@ -270,6 +278,7 @@ export default {
     props: {
         searchid: Number,
     },
+    mixins: [scroll],
     data() {
         return {
             loading: false,
@@ -327,6 +336,8 @@ export default {
                     deadline,
                     subject: this.addingSubject === null || this.addingSubject.length === 0 ? false : this.addingSubject,
                     source: 'manual',
+                    synced: false,
+                    updated: new Date().valueOf(),
                 });
                 // Clear inputs
                 this.addText = '';
@@ -346,18 +357,18 @@ export default {
         removeTask(index) {
             // Create a copy to protect the original array
             const ifTasksCopy = [];
-            for (let i = 0; i < this.ifTasks.length; i += 1) {
-                ifTasksCopy.push(this.ifTasks[i]);
+            for (const idx of this.ifTasks) {
+                ifTasksCopy.push(idx);
             }
 
-            // Remove the index and update the remaining
+            // Update task status
+            const indexPosition = ifTasksCopy.indexOf(index);
+            if (indexPosition !== -1) {
+                ifTasksCopy.splice(indexPosition, 1);
+            }
             for (let i = 0; i < ifTasksCopy.length; i += 1) {
-                if (ifTasksCopy[i] === index) {
-                    ifTasksCopy.splice(i, 1);
-                } else {
-                    if (ifTasksCopy[i] > index) {
-                        ifTasksCopy[i] -= 1;
-                    }
+                if (ifTasksCopy[i] > index) {
+                    ifTasksCopy[i] -= 1;
                 }
             }
             this.ifTasks = ifTasksCopy;
@@ -392,6 +403,8 @@ export default {
                 deadline: courswork.ddlTime === -1 ? false : courswork.ddlTime,
                 subject: courswork.course,
                 source,
+                synced: false,
+                updated: new Date().valueOf(),
             });
             if (index !== -1) {
                 this.added.push(index);
@@ -689,8 +702,18 @@ export default {
             this.storeTasks();
             this.buildSearchIndex();
         },
-        ifTasks() {
-            // Store data when task state changed
+        ifTasks(newVal, oldVal) {
+            for (const item of newVal) {
+                if (!oldVal.includes(item) && this.tasks[item]) {
+                    this.tasks[item].updated = new Date().valueOf();
+                }
+            }
+            for (const item of oldVal) {
+                if (!newVal.includes(item) && this.tasks[item]) {
+                    this.tasks[item].updated = new Date().valueOf();
+                }
+            }
+            // Store data when task status changed
             this.store();
             this.storeTasks();
             this.buildSearchIndex();
@@ -740,13 +763,29 @@ export default {
             timerHour: (state) => state.timerHour,
             searchNotification: (state) => state.searchNotification,
             upcomingCourseworks: (state) => state.upcomingCourseworks,
+            widgets: (state) => state.widgets,
         }),
+        /**
+         * Whether the widget is shown
+         * @returns {boolean} whether the widget is shown
+         */
+        widgetShown() {
+            return this.widgets ? this.widgets.includes(this.searchid) : true;
+        },
+        /**
+         * Get all courses that not hidden
+         * @returns {array} all courses that not hidden
+         */
         allSubjects() {
             if (!this.subjects) {
                 return [];
             }
             return this.subjects.filter((subject) => !subject.hide);
         },
+        /**
+         * Get ISO locale name
+         * @returns {string} ISO locale name
+         */
         selectLocale() {
             return this.localeDetail === null ? 'en' : this.localeDetail.iso;
         },
@@ -802,19 +841,25 @@ export default {
             margin-left: 3px;
         }
     }
-    .input {
-        width: 92%;
-        margin-left: 4%!important;
-        margin-top: 15px!important;
-        margin-bottom: -20px!important;
+    .input-container {
+        position: relative;
+        z-index: 3;
+        background-color: white;
+        height: 58px;
+        .input {
+            width: 92%;
+            margin-left: 4%!important;
+            margin-top: 15px!important;
+            margin-bottom: -28px!important;
+        }
     }
     .date-expend {
         position: absolute;
-        top: 127px;
+        top: 126px;
         background-color: white;
         left: 0;
-        z-index: 2;
-        border-radius: 8px;
+        z-index: 4;
+        border-radius: 0 0 8px 8px;
         transform: scaleY(0);
         transform-origin: top;
         overflow: visible;
@@ -864,6 +909,22 @@ export default {
                 transition: opacity .3s .3s;
             }
         }
+    }
+    .list-conatiner-head {
+        width: 100%;
+        height: 12px;
+        position: relative;
+        z-index: 2;
+        transition: all .2s;
+        &.shadow {
+            box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 10%), 0px 4px 5px 0px rgba(0, 0, 0, 7%), 0px 1px 10px 0px rgba(0, 0, 0, 6%)!important;
+        }
+    }
+    .list-conatiner {
+        position: relative;
+        z-index: 1;
+        max-height: 430px;
+        overflow-y: auto;
     }
     .list {
         padding-top: 0;
@@ -968,6 +1029,9 @@ export default {
         .num-badge {
             background-color: #3E3E3E;
         }
+    }
+    .input-container {
+        background-color: #1E1E1E;
     }
     .v-list-item {
         &:hover, &:focus {

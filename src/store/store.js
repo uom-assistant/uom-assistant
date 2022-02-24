@@ -29,6 +29,7 @@ export default {
         rerender: 0,
         upcomingCourseworks: [],
         quickCommands: [],
+        visibility: true,
     },
     mutations: {
         setLocale(state, language) {
@@ -109,6 +110,9 @@ export default {
         },
         setUpcomingCourseworks(state, upcomingCourseworks) {
             state.upcomingCourseworks = upcomingCourseworks;
+        },
+        setVisibility(state, visibility) {
+            state.visibility = visibility;
         },
     },
     actions: {},

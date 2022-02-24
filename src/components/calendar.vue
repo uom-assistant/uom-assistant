@@ -1450,6 +1450,12 @@ export default {
         .map-container {
             filter: brightness(0.85);
         }
+        .session-tag.primary {
+            color: #1E1E1E;
+            i {
+                color: #1E1E1E;
+            }
+        }
     }
 }
 #app.theme--dark .v-calendar-events .v-event-more {

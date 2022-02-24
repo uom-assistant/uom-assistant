@@ -124,26 +124,26 @@
         </v-app-bar>
         <div id="search-result" class="elevation-3" :class="{ open: searchOpened }" v-show="searching !== '' && searching !== null && searchIndexFiltered.filter((item) => item).flat().length > 0">
             <div>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0">
+                <div class="overline mb-1 text--secondary" v-if="ifWidgets.includes(7) && searchIndexFiltered[7] && searchIndexFiltered[7].length > 0">
                     {{ $t('note') }}
                 </div>
-                <noteSearch :notes="searchIndexFiltered[7]" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0"></noteSearch>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[5] && searchIndexFiltered[5].length > 0">
+                <noteSearch :notes="searchIndexFiltered[7]" v-if="ifWidgets.includes(7) && searchIndexFiltered[7] && searchIndexFiltered[7].length > 0"></noteSearch>
+                <div class="overline mb-1 text--secondary" v-if="ifWidgets.includes(5) && searchIndexFiltered[5] && searchIndexFiltered[5].length > 0">
                     {{ $t('task') }}
                 </div>
-                <taskSearch :tasks="searchIndexFiltered[5]" v-if="searchIndexFiltered[5] && searchIndexFiltered[5].length > 0"></taskSearch>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[8] && searchIndexFiltered[8].length > 0">
+                <taskSearch :tasks="searchIndexFiltered[5]" v-if="ifWidgets.includes(5) && searchIndexFiltered[5] && searchIndexFiltered[5].length > 0"></taskSearch>
+                <div class="overline mb-1 text--secondary" v-if="ifWidgets.includes(8) && searchIndexFiltered[8] && searchIndexFiltered[8].length > 0">
                     {{ $t('mail') }}
                 </div>
-                <mailSearch :mails="searchIndexFiltered[8]" v-if="searchIndexFiltered[8] && searchIndexFiltered[8].length > 0"></mailSearch>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[9] && searchIndexFiltered[9].length > 0">
+                <mailSearch :mails="searchIndexFiltered[8]" v-if="ifWidgets.includes(8) && searchIndexFiltered[8] && searchIndexFiltered[8].length > 0"></mailSearch>
+                <div class="overline mb-1 text--secondary" v-if="ifWidgets.includes(9) && searchIndexFiltered[9] && searchIndexFiltered[9].length > 0">
                     {{ $t('grade') }}
                 </div>
-                <gradeSearch :grades="searchIndexFiltered[9]" v-if="searchIndexFiltered[9] && searchIndexFiltered[9].length > 0"></gradeSearch>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[0] && searchIndexFiltered[0].length > 0">
+                <gradeSearch :grades="searchIndexFiltered[9]" v-if="ifWidgets.includes(9) && searchIndexFiltered[9] && searchIndexFiltered[9].length > 0"></gradeSearch>
+                <div class="overline mb-1 text--secondary" v-if="ifWidgets.includes(0) && searchIndexFiltered[0] && searchIndexFiltered[0].length > 0">
                     {{ $t('clock') }}
                 </div>
-                <clockSearch v-if="searchIndexFiltered[0] && searchIndexFiltered[0].length > 0" :city="searchIndexFiltered[0][0].display" :timezone="searchIndexFiltered[0][0].code"></clockSearch>
+                <clockSearch :city="searchIndexFiltered[0][0].display" :timezone="searchIndexFiltered[0][0].code" v-if="ifWidgets.includes(0) && searchIndexFiltered[0] && searchIndexFiltered[0].length > 0"></clockSearch>
             </div>
         </div>
         <v-navigation-drawer
@@ -757,8 +757,8 @@ export default {
             'livelinks',
             'subjects',
             'attendance',
-            'calendar',
             'task',
+            'calendar',
             'note',
             'mail',
             'grade',
@@ -1566,6 +1566,13 @@ export default {
             if (this.$route.path !== '/' && this.searchOpened) {
                 this.closeSearch();
             }
+        });
+
+        const state = document.visibilityState;
+        this.$store.commit('setVisibility', state === 'visible' || state === 'prerender');
+        document.addEventListener('visibilitychange', () => {
+            const currentState = document.visibilityState;
+            this.$store.commit('setVisibility', currentState === 'visible' || currentState === 'prerender');
         });
     },
     beforeDestroy() {

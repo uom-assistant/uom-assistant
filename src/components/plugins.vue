@@ -22,7 +22,7 @@
             <v-skeleton-loader
                 class="mx-auto"
                 type="list-item-avatar-three-line@3"
-                v-if="!init && loading"
+                v-if="!init && loading && widgetShown"
             ></v-skeleton-loader>
             <div class="scroll" v-if="plugins.length > 0" @scroll.passive="scrollHandler" ref="scrollTarget">
                 <v-list flat class="list" three-line>
@@ -522,6 +522,7 @@ export default {
             },
             timer: null,
             widthChecker: null,
+            lastUpdated: -1,
         };
     },
     methods: {
@@ -543,6 +544,10 @@ export default {
          * Update plugin list
          */
         async updateList(tryCount = 1) {
+            if (!this.widgetShown) {
+                return;
+            }
+
             this.loading = true;
             let requestFailed = false;
             // Send request
@@ -581,6 +586,7 @@ export default {
             // Update data
             this.loading = false;
             this.init = true;
+            this.lastUpdated = new Date().valueOf();
             this.plugins = response.plugins.sort((a, b) => (a.name < b.name ? -1 : 1));
             this.$nextTick(() => {
                 if (this.$refs.scrollTarget) {
@@ -960,13 +966,27 @@ export default {
         locale() {
             this.$i18n.locale = this.locale;
         },
+        widgetShown() {
+            // Update plugin list if needed
+            if (this.widgetShown && !this.loading && new Date().valueOf() - this.lastUpdated > 86400000) {
+                this.updateList();
+            }
+        },
     },
     computed: {
         ...mapState({
             locale: (state) => state.locale,
             packery: (state) => state.packery,
             rerender: (state) => state.rerender,
+            widgets: (state) => state.widgets,
         }),
+        /**
+         * Whether the widget is shown
+         * @returns {boolean} whether the widget is shown
+         */
+        widgetShown() {
+            return this.widgets ? this.widgets.includes(this.searchid) : true;
+        },
     },
     mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
@@ -979,7 +999,9 @@ export default {
             this.updateList();
         }, 86400000);
 
-        this.updateList();
+        this.$nextTick(() => {
+            this.updateList();
+        });
 
         this.widthChecker = (e) => {
             if (e.currentTarget.innerWidth <= 670) {

@@ -66,6 +66,15 @@ module.exports = {
             .use('ignore-loader')
             .loader('ignore-loader')
             .end();
+        config.module
+            .rule('images')
+            .use('url-loader')
+            .loader('url-loader')
+            .tap((options) => {
+                const newOptions = options;
+                newOptions.limit = -1;
+                return newOptions;
+            });
         if (process.env.NODE_ENV !== 'development') {
             config.plugin('copy').tap(([options]) => {
                 options.push({

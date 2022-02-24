@@ -1565,6 +1565,11 @@
         "mainCity": "Apia"
     },
     {
+        "name": "Pacific/Kanton",
+        "countryCode": "KI",
+        "mainCity": "Kanton"
+    },
+    {
         "name": "Pacific/Fakaofo",
         "countryCode": "TK",
         "mainCity": "Fakaofo"

@@ -244,6 +244,7 @@
                 dark
                 color="red"
                 class="mb-3"
+                @click="resetDialog = true"
             >
                 <v-icon class="mr-2">mdi-autorenew</v-icon>
                 {{ $t('reset') }}
@@ -621,17 +622,52 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        <v-dialog
+            v-model="resetDialog"
+            max-width="400"
+            persistent
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('reset_dialog') }}
+                </v-card-title>
+                <v-card-text>
+                    {{ $t('reset_dialog_body') }}
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        text
+                        :disabled="reseting"
+                        @click="resetDialog = false"
+                    >
+                        {{ $t('cancel') }}
+                    </v-btn>
+                    <v-btn
+                        color="red"
+                        text
+                        :loading="reseting"
+                        :disabled="reseting"
+                        @click="reset"
+                    >
+                        {{ $t('reset') }}
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
 <script>
 import { mapState } from 'vuex';
 import { customAlphabet } from 'nanoid';
+import localForage from 'localforage';
 
 import a11y from '@/components/a11y.vue';
 import settings from '@/components/settings.vue';
 
 import betterFetch from '../tools/betterFetch';
+import * as localStorageUsage from '../tools/localstorageUsage.json';
 
 export default {
     name: 'Settings',
@@ -694,6 +730,8 @@ export default {
             persist: false,
             persistStroageDialog: false,
             waitingPersist: false,
+            resetDialog: false,
+            reseting: false,
         };
     },
     methods: {
@@ -898,6 +936,17 @@ export default {
             const i = Math.floor(Math.log(bytes) / Math.log(k));
 
             return `${parseFloat((bytes / k ** i).toFixed(dm))} ${sizes[i]}`;
+        },
+        /**
+         * Reset and reload UoM Assistant
+         */
+        async reset() {
+            this.reseting = true;
+            for (const item of localStorageUsage.default) {
+                localStorage.removeItem(item);
+            }
+            await localForage.clear();
+            window.location.reload(true);
         },
     },
     watch: {
@@ -1174,7 +1223,9 @@ export default {
         "persist_stroage": "Persistent stroage",
         "persist_stroage_text": "<p>With persistent storage enabled, the browser will not actively erase data stored by UoM Assistant when out of space. This will reduce the possibility of accidental loss of important data such as Quick Notes. </p><p>In Safari, your data may still be affected by the \"erasure after 7 days\" restriction. Please consider adding UoM Assistant to your home screen to avoid this restriction.</p><p>Not all browsers support this feature. Tap \"Continue\" to attempt to obtain a authorisation. The final outcome will be determined by the browser in conjunction with the site usage and there is no guarantee that persistent stroage will be authorized.</p>",
         "continue": "Continue",
-        "persist_stroage_unsupported": "This browser does not support persistent storage."
+        "persist_stroage_unsupported": "This browser does not support persistent storage.",
+        "reset_dialog": "Reset UoM Assistant",
+        "reset_dialog_body": "Are you sure you want to clear all data UoM Assistant stored in this browser and completely reset UoM Assistant? This action is unrecoverable."
     },
     "zh": {
         "backend_settings": "后端设置",
@@ -1251,7 +1302,9 @@ export default {
         "persist_stroage": "持续存储",
         "persist_stroage_text": "<p>启用持续存储后，浏览器在可用空间不足时将不会主动清除曼大助手存储的数据。这将降低快速笔记等重要数据意外丢失的可能性。</p><p>在 Safari 中，你的数据可能仍然受 7 天清除限制的影响。请考虑将曼大助手添加到主屏幕以避开此限制。</p><p>并非所有浏览器都支持此特性。点按「继续」以尝试获取持续存储授权，最终授权结果将由浏览器结合网站使用状况决定，无法保证获得授权。</p>",
         "continue": "继续",
-        "persist_stroage_unsupported": "此浏览器不支持持续存储。"
+        "persist_stroage_unsupported": "此浏览器不支持持续存储。",
+        "reset_dialog": "重置曼大助手",
+        "reset_dialog_body": "你确认要清除浏览器中曼大助手保存的所有数据并完全重置曼大助手吗？此操作不可恢复。"
     },
     "es": {
         "backend_settings": "Configuración de back-end",
