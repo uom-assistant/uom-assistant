@@ -5,7 +5,7 @@
         outlined
     >
         <div class="plugin-outer">
-            <h2 class="handle" :class="{ shadow: headerShadow }">
+            <h2 class="handle" :class="{ shadow: headerShadow, short: expanded }">
                 <span class="h2-title">{{ $t('plugins') }}</span>
                 <v-progress-circular
                     indeterminate
@@ -15,12 +15,16 @@
                     class="loading ml-3"
                     v-show="loading"
                 ></v-progress-circular>
-                <v-btn icon small @click.stop="toggleExpanded" class="float-right mr-4 plugin-expand-btn" :title="expanded ? $t('collapse') : $t('expand')">
+                <v-btn icon small @click.stop="toggleExpanded" class="float-right mr-4 plugin-expand-btn" :title="expanded ? $t('collapse') : $t('expand')" v-show="!expanded">
                     <v-icon>{{ expanded ? 'mdi-unfold-less-vertical' : 'mdi-unfold-more-vertical' }}</v-icon>
+                </v-btn>
+                <v-btn icon small @click.stop="toggleExpanded" class="float-right mr-2 plugin-always-btn" :class="expanded ? 'mr-4' : 'mr-2'" :title="$t('allowed_plugins')">
+                    <v-icon>mdi-playlist-check</v-icon>
                 </v-btn>
             </h2>
             <v-skeleton-loader
                 class="mx-auto"
+                :class="{ 'skeleton-expanded': expanded }"
                 type="list-item-avatar-three-line@3"
                 v-if="!init && loading && widgetShown"
             ></v-skeleton-loader>
@@ -95,7 +99,7 @@
                             left
                         >
                             <template v-slot:activator="{ on, attrs }">
-                                <v-btn icon small v-show="tab !== undefined && tabs[tab] && tabs[tab].state === 'running'" class="float-right mr-2" :title="$t('plugin_info')" v-on="on" v-bind="attrs">
+                                <v-btn icon small v-show="tab !== undefined && tabs[tab] && tabs[tab].state === 'running'" class="float-right mr-2 plugin-info-btn" :title="$t('plugin_info')" v-on="on" v-bind="attrs">
                                     <v-icon>mdi-information-outline</v-icon>
                                 </v-btn>
                             </template>
@@ -117,11 +121,11 @@
                                         v-if="tabs[tab].verified"
                                         class="mr-5 mt-1"
                                     >
-                                        <v-avatar :color="$vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2'" :size="80">
+                                        <v-avatar :color="$vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2'" :size="70">
                                             <v-img :src="`/plugins/plugins/${tabs[tab].id}/avatar.jpg`"></v-img>
                                         </v-avatar>
                                     </v-badge>
-                                    <v-avatar v-else :color="$vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2'" :size="80" class="mr-5 mt-1">
+                                    <v-avatar v-else :color="$vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2'" :size="70" class="mr-5 mt-1">
                                         <v-img :src="`/plugins/plugins/${tabs[tab].id}/avatar.jpg`"></v-img>
                                     </v-avatar>
                                     <div class="d-flex flex-column align-start">
@@ -146,7 +150,7 @@
                                                     mdi-account
                                                 </v-icon><span class="mr-3" v-if="tabs[tab].authorUrl === ''">{{ tabs[tab].author }}</span><a class="mr-3" v-else :href="tabs[tab].authorUrl" target="_blank">{{ tabs[tab].author }}</a>
                                             </span>
-                                            <span v-if="tabs[tab].type === 'local'" class="d-inline-block mb-1">
+                                            <span v-if="tabs[tab].type === 'local' && tabs[tab].version !== 'soon'" class="d-inline-block mb-1">
                                                 <v-icon
                                                     small
                                                     color="primary"
@@ -155,7 +159,7 @@
                                                     mdi-pound-box
                                                 </v-icon>{{ tabs[tab].version }}
                                             </span>
-                                            <span v-else class="d-inline-block mb-1">
+                                            <span v-if="tabs[tab].type !== 'local'" class="d-inline-block mb-1">
                                                 <v-icon
                                                     small
                                                     color="primary"
@@ -167,6 +171,9 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="running-notice">
+                                    <v-icon small class="mr-1">mdi-play-circle-outline</v-icon> {{ $t('running_plugin') }}
+                                </div>
                             </v-card>
                         </v-menu>
                     </h2>
@@ -177,9 +184,10 @@
                     >
                         <v-tab
                             v-for="(tab, index) in tabs"
-                            :key="`tab-${tab.id}-${tab.state}`"
+                            :key="`tab-${tab.id}`"
                         >
                             <v-icon x-small class="info-icon" color="grey" v-if="tab.state === 'unconfirmed' || tab.state === 'broken'">mdi-information-outline</v-icon>
+                            <v-icon x-small class="info-icon" color="grey" v-if="tab.state === 'running'">mdi-play-circle-outline</v-icon>
                             {{ tab.name }}
                             <v-btn icon x-small class="ml-1" @click.stop="closeTab(index)" :title="$t('close')">
                                 <v-icon>mdi-close</v-icon>
@@ -235,7 +243,7 @@
                                                         mdi-account
                                                     </v-icon><span class="mr-3" v-if="tab.authorUrl === ''">{{ tab.author }}</span><a class="mr-3" v-else :href="tab.authorUrl" target="_blank">{{ tab.author }}</a>
                                                 </span>
-                                                <span v-if="tab.type === 'local'" class="d-inline-block mb-1">
+                                                <span v-if="tab.type === 'local' && tab.version !== 'soon'" class="d-inline-block mb-1">
                                                     <v-icon
                                                         small
                                                         color="primary"
@@ -244,7 +252,7 @@
                                                         mdi-pound-box
                                                     </v-icon>{{ tab.version }}
                                                 </span>
-                                                <span v-else class="d-inline-block mb-1">
+                                                <span v-if="tab.type !== 'local'" class="d-inline-block mb-1">
                                                     <v-icon
                                                         small
                                                         color="primary"
@@ -256,11 +264,12 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="d-flex align-self-start mt-8 px-3 run-btns">
+                                    <div class="d-flex align-self-start mt-8 px-3 run-btns" v-if="!(tab.type === 'local' && tab.version === 'soon')">
                                         <v-btn
                                             outlined
                                             color="primary"
                                             class="run-btn"
+                                            @click="runPlugin(tab.id, true)"
                                         >
                                         {{ $t('allow_run') }}
                                         </v-btn>
@@ -268,8 +277,18 @@
                                             depressed
                                             color="primary"
                                             class="run-btn"
+                                            @click="runPlugin(tab.id, false)"
                                         >
                                         {{ $t('run_once') }}
+                                        </v-btn>
+                                    </div>
+                                    <div class="d-flex align-self-start mt-8 px-3 run-btns" v-else>
+                                        <v-btn
+                                            depressed
+                                            disabled
+                                            class="run-btn-full"
+                                        >
+                                        {{ $t('coming_soon') }}
                                         </v-btn>
                                     </div>
                                     <p class="text--disabled allow-notice px-3 mt-3">{{ tab.type === 'local' ? $t('allow_notice') : $t('allow_notice_cloud') }}</p>
@@ -399,6 +418,25 @@
                                         {{ $t('plugin_broken') }}
                                     </v-alert>
                                 </div>
+                                <div class="iframe-container" v-show="tab.state === 'running' && tab.type === 'remote'">
+                                    <iframe
+                                        v-if="tab.state === 'running' && tab.type === 'remote'"
+                                        :src="tab.entry"
+                                        frameborder="0"
+                                        referrerpolicy="no-referrer"
+                                        sandbox="allow-forms allow-popups allow-popups-to-escape-sandbox allow-scripts allow-same-origin"
+                                    ></iframe>
+                                </div>
+                                <div class="iframe-container" v-show="tab.state === 'running' && tab.type === 'local'">
+                                    <iframe
+                                        v-if="tab.state === 'running' && tab.type === 'local'"
+                                        :src="`${origin}/plugins/plugins/${tab.id}${tab.dist}index.html?origin=${tab.origin}&dark=${tab.dark}&locale=${tab.lang}`"
+                                        :ref="`iframe-${tab.id}`"
+                                        frameborder="0"
+                                        referrerpolicy="no-referrer"
+                                        sandbox="allow-forms allow-popups allow-popups-to-escape-sandbox allow-scripts allow-same-origin"
+                                    ></iframe>
+                                </div>
                             </v-card>
                         </v-tab-item>
                     </v-tabs-items>
@@ -523,6 +561,7 @@ export default {
             timer: null,
             widthChecker: null,
             lastUpdated: -1,
+            origin: '',
         };
     },
     methods: {
@@ -587,6 +626,7 @@ export default {
             this.loading = false;
             this.init = true;
             this.lastUpdated = new Date().valueOf();
+            this.origin = response.origin;
             this.plugins = response.plugins.sort((a, b) => (a.name < b.name ? -1 : 1));
             this.$nextTick(() => {
                 if (this.$refs.scrollTarget) {
@@ -872,7 +912,10 @@ export default {
                         pluginHomepage: plugin.pluginHomepage,
                         entry: plugin.entry,
                         scope: plugin.scope,
-                        state: 'confirmed',
+                        state: 'running',
+                        origin: window.origin,
+                        lang: this.$i18n.locale,
+                        dark: this.$vuetify.theme.dark,
                     });
                     this.$nextTick(() => {
                         this.tab = this.tabs.length - 1;
@@ -961,10 +1004,59 @@ export default {
             }
             return /^(https?):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?$/.test(url);
         },
+        runPlugin(id, always) {
+            const plugin = this.tabs.findIndex((plug) => plug.id === id);
+            if (always) {
+                this.installedPlugins.push({
+                    name: this.tabs[plugin].name,
+                    id: this.tabs[plugin].id,
+                    version: this.tabs[plugin].version,
+                    description: this.tabs[plugin].description,
+                    author: this.tabs[plugin].author,
+                    authorUrl: this.tabs[plugin].author_url,
+                    verified: this.tabs[plugin].verified,
+                    verifiedMessage: this.tabs[plugin].verified_message,
+                    type: this.tabs[plugin].type,
+                    dist: this.tabs[plugin].dist,
+                    foreground: this.tabs[plugin].foreground,
+                    background: this.tabs[plugin].background,
+                    rawPermissions: this.tabs[plugin].rawPermissions,
+                    permissions: this.tabs[plugin].permissions,
+                    privacyPolicy: this.tabs[plugin].privacyPolicy,
+                    pluginHomepage: this.tabs[plugin].pluginHomepage,
+                    entry: this.tabs[plugin].entry,
+                    scope: this.tabs[plugin].scope,
+                });
+            }
+            if (plugin !== -1 && this.tabs[plugin].state === 'unconfirmed') {
+                this.tabs[plugin].state = 'running';
+                this.tabs[plugin].origin = window.origin;
+                this.tabs[plugin].lang = this.$i18n.locale;
+                this.tabs[plugin].dark = this.$vuetify.theme.dark;
+            }
+        },
     },
     watch: {
         locale() {
             this.$i18n.locale = this.locale;
+            for (const tab of this.tabs) {
+                if (tab.state === 'running' && tab.type === 'local') {
+                    this.$refs[`iframe-${tab.id}`].contentWindow.postMessage(JSON.stringify([{
+                        type: 'locale',
+                        payload: this.locale,
+                    }]), this.origin);
+                }
+            }
+        },
+        darkMode() {
+            for (const tab of this.tabs) {
+                if (tab.state === 'running' && tab.type === 'local') {
+                    this.$refs[`iframe-${tab.id}`].contentWindow.postMessage(JSON.stringify([{
+                        type: 'dark',
+                        payload: this.darkMode,
+                    }]), this.origin);
+                }
+            }
         },
         widgetShown() {
             // Update plugin list if needed
@@ -979,6 +1071,7 @@ export default {
             packery: (state) => state.packery,
             rerender: (state) => state.rerender,
             widgets: (state) => state.widgets,
+            darkMode: (state) => state.darkMode,
         }),
         /**
          * Whether the widget is shown
@@ -1046,6 +1139,9 @@ export default {
         &.shadow {
             box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 10%), 0px 4px 5px 0px rgba(0, 0, 0, 7%), 0px 1px 10px 0px rgba(0, 0, 0, 6%)!important;
         }
+        &.short {
+            width: 280px;
+        }
     }
     .scroll {
         height: 500px;
@@ -1097,6 +1193,9 @@ export default {
             padding-left: 14px;
             padding-bottom: 8px;
             background-color: #F4F4F4;
+            &.hidden {
+                display: none;
+            }
         }
         .v-tab {
             font-size: 9px;
@@ -1115,6 +1214,7 @@ export default {
         .v-tabs-bar {
             height: 32px;
             background-color: #F5F5F5;
+            border-bottom: 1px solid rgba(128, 128, 128, .3);
         }
         .v-slide-group__prev, .v-slide-group__next {
             min-width: 30px;
@@ -1181,6 +1281,9 @@ export default {
                         margin-left: 0;
                     }
                 }
+                .run-btn-full {
+                    width: 100%;
+                }
             }
             .allow-notice {
                 font-size: 12px;
@@ -1229,6 +1332,18 @@ export default {
                 font-size: 12px;
             }
         }
+        .iframe-container {
+            width: 100%;
+            height: 480px;
+            position: relative;
+            iframe {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+        }
     }
     .plugin-outer {
         width: 100%;
@@ -1259,6 +1374,13 @@ export default {
         .scroll {
             width: 280px;
             .list {
+                background-color: #F8F8F8;
+            }
+        }
+        .skeleton-expanded {
+            width: 280px;
+            margin-left: 0!important;
+            .v-skeleton-loader__list-item-avatar-three-line {
                 background-color: #F8F8F8;
             }
         }
@@ -1295,6 +1417,7 @@ export default {
                 }
             }
             .v-tabs-bar {
+                height: 36px;
                 background-color: #F0F0F0;
             }
             .detail-screen {
@@ -1315,14 +1438,14 @@ export default {
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    padding: 15px 10px;
+    padding: 20px 15px 45px 15px;
     overflow-x: hidden;
     overflow-y: auto;
     width: 380px;
     .plugin-detail {
         width: calc(100% - 20px);
         .text-h5 {
-            font-size: 1.4rem!important;
+            font-size: 1.3rem!important;
             line-height: 25px;
             padding-bottom: 6px;
         }
@@ -1346,10 +1469,34 @@ export default {
             }
         }
     }
+    .running-notice {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 35px;
+        color: rgb(76, 175, 80);
+        font-size: 14px;
+        background-color: rgba(76, 175, 80, .12)!important;
+        i {
+            color: rgb(76, 175, 80)!important;
+        }
+    }
 }
 @media (max-width: 670px) {
-    .plugin-expand-btn {
-        visibility: hidden;
+    .plugin-container {
+        .plugin-expand-btn {
+            display: none;
+        }
+        .plugin-always-btn {
+            margin-right: 16px!important;
+        }
+        .plugin-info-btn {
+            margin-right: 16px!important;
+        }
     }
 }
 #app.theme--dark .plugin-container {
@@ -1370,7 +1517,6 @@ export default {
             background-color: #262626;
         }
         .v-tabs-bar {
-            height: 32px;
             background-color: #252525;
         }
         .detail-screen {
@@ -1383,6 +1529,11 @@ export default {
         background-color: #272727;
         .scroll {
             .list {
+                background-color: #272727;
+            }
+        }
+        .skeleton-expanded {
+            .v-skeleton-loader__list-item-avatar-three-line {
                 background-color: #272727;
             }
         }
@@ -1453,9 +1604,12 @@ export default {
         "privacy_policy": "Plug-in Privacy Policy",
         "plugin_broken": "Unable to load plug-in, because the plug-in's profile is broken.",
         "tracking_note": "Corresponds to your UoM account but does not contain any sensitive information",
-        "scope_notice": "This plug-in cannot access any website outside of this list.",
+        "scope_notice": "This plug-in may access to sites outside of this list, so please take care to identify them.",
         "plugin_info": "Plug-in Info",
-        "nothing_opened": "No plug-in opened"
+        "nothing_opened": "No plug-in opened",
+        "coming_soon": "Coming Soon",
+        "running_plugin": "This plug-in is running",
+        "allowed_plugins": "Always allowed plug-ins"
     },
     "zh": {
         "plugins": "插件",
@@ -1507,9 +1661,12 @@ export default {
         "privacy_policy": "插件隐私政策",
         "plugin_broken": "无法载入插件，因为此插件的配置文件已损坏。",
         "tracking_note": "与曼大账户对应，但不包含任何敏感信息",
-        "scope_notice": "插件无法访问此列表以外的任何网站。",
+        "scope_notice": "插件可能会访问此列表以外的网站，请注意辨别。",
         "plugin_info": "插件信息",
-        "nothing_opened": "没有打开的插件"
+        "nothing_opened": "没有打开的插件",
+        "coming_soon": "即将推出",
+        "running_plugin": "此插件正在运行",
+        "allowed_plugins": "总是允许运行的插件"
     },
     "es": {
         "plugins": "Complementos",
@@ -1560,7 +1717,7 @@ export default {
         "privacy_policy": "Pólitica de Privacidad de los Complementos",
         "plugin_broken": "No ha sido posible cargar el complemento porque el archivo de perfil del complemento está dañado.",
         "tracking_note": "Corresponde a su cuenta de UoM pero no contiene ninguna información sensible.",
-        "scope_notice": "Este complemento no visitará ninguna web fuera de la lista señalada.",
+        "scope_notice": "",
         "plugin_info": "Información del complemento",
         "nothing_opened": "No complementos en ejecución"
     },
@@ -1615,7 +1772,7 @@ export default {
         "privacy_policy": "プラグインのプライバシーポリシー",
         "plugin_broken": "設定ファイルが壊れたから、プラグインを実行できません。",
         "tracking_note": "大学アカウントに関してるけど、何も機密権限が含まれません。",
-        "scope_notice": "プラグインはこのリスト以外のサイトをアクセスできません",
+        "scope_notice": "",
         "plugin_info": "プラグイン情報",
         "nothing_opened": "開いたプラグインがありません"
     }
