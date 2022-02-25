@@ -188,6 +188,7 @@
                         >
                             <v-icon x-small class="info-icon" color="grey" v-if="tab.state === 'unconfirmed' || tab.state === 'broken'">mdi-information-outline</v-icon>
                             <v-icon x-small class="info-icon" color="grey" v-if="tab.state === 'running'">mdi-play-circle-outline</v-icon>
+                            <v-icon x-small class="info-icon" color="grey" v-if="tab.state === 'loading'">mdi-puzzle-outline</v-icon>
                             {{ tab.name }}
                             <v-btn icon x-small class="ml-1" @click.stop="closeTab(index)" :title="$t('close')">
                                 <v-icon>mdi-close</v-icon>
@@ -1041,7 +1042,7 @@ export default {
             this.$i18n.locale = this.locale;
             for (const tab of this.tabs) {
                 if (tab.state === 'running' && tab.type === 'local') {
-                    this.$refs[`iframe-${tab.id}`].contentWindow.postMessage(JSON.stringify([{
+                    this.$refs[`iframe-${tab.id}`][0].contentWindow.postMessage(JSON.stringify([{
                         type: 'locale',
                         payload: this.locale,
                     }]), this.origin);
@@ -1051,7 +1052,7 @@ export default {
         darkMode() {
             for (const tab of this.tabs) {
                 if (tab.state === 'running' && tab.type === 'local') {
-                    this.$refs[`iframe-${tab.id}`].contentWindow.postMessage(JSON.stringify([{
+                    this.$refs[`iframe-${tab.id}`][0].contentWindow.postMessage(JSON.stringify([{
                         type: 'dark',
                         payload: this.darkMode,
                     }]), this.origin);
