@@ -1105,6 +1105,7 @@ export default {
             if (this.timerHour.substr(0, 2) === '00' || new Date().getDate() !== this.nowDate) {
                 this.nowDate = new Date().getDate();
                 this.refreshId = new Date().valueOf();
+                this.updateCurrentDate();
                 this.updateTime();
             }
         },

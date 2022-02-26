@@ -18,9 +18,49 @@
                 <v-btn icon small @click.stop="toggleExpanded" class="float-right mr-4 plugin-expand-btn" :title="expanded ? $t('collapse') : $t('expand')" v-show="!expanded">
                     <v-icon>{{ expanded ? 'mdi-unfold-less-vertical' : 'mdi-unfold-more-vertical' }}</v-icon>
                 </v-btn>
-                <v-btn icon small @click.stop="toggleExpanded" class="float-right mr-2 plugin-always-btn" :class="expanded ? 'mr-4' : 'mr-2'" :title="$t('allowed_plugins')">
-                    <v-icon>mdi-playlist-check</v-icon>
-                </v-btn>
+                <v-menu
+                    offset-y
+                    bottom
+                    left
+                    transition="slide-y-transition"
+                    nudge-bottom="5"
+                >
+                    <template v-slot:activator="{ on, attrs }">
+                        <v-btn icon small class="float-right mr-2 plugin-always-btn" :class="expanded ? 'mr-4' : 'mr-2'" :title="$t('allowed_plugins')" v-on="on" v-bind="attrs">
+                            <v-icon>mdi-playlist-check</v-icon>
+                        </v-btn>
+                    </template>
+                    <v-list class="pt-0 pb-2">
+                        <div class="text-body-2 pa-4 pb-1 text--secondary" v-if="installedPlugins.length !== 0">{{ $t('allowed_plugins') }}</div>
+                        <div class="text-body-2 pa-4 pb-1 text--secondary" v-else><v-icon small class="mr-2">mdi-layers-off-outline</v-icon>{{ $t('no_allowed_plugin') }}</div>
+                        <v-list-item class="installed-list" v-for="plugin in installedPlugins" :key="`installed-${plugin.id}`" @click="openPlugin(plugin.id)">
+                            <v-badge
+                                avatar
+                                bordered
+                                color="green"
+                                dot
+                                overlap
+                                bottom
+                                offset-x="18"
+                                offset-y="12"
+                                v-if="(tabs.find((tab) => tab.id === plugin.id) || {}).state === 'running'"
+                            >
+                                <v-avatar size="27" class="mr-3">
+                                    <v-img :src="`/plugins/plugins/${plugin.id}/avatar.jpg`"></v-img>
+                                </v-avatar>
+                            </v-badge>
+                            <v-avatar v-else size="27" class="mr-3">
+                                <v-img :src="`/plugins/plugins/${plugin.id}/avatar.jpg`"></v-img>
+                            </v-avatar>
+                            <v-list-item-content class="py-2">
+                                <v-list-item-title>{{ plugin.name }}</v-list-item-title>
+                            </v-list-item-content>
+                            <v-list-item-action class="my-1 ml-2 mr-n2">
+                                <v-btn x-small icon @click="removeInstalled(plugin.id)"><v-icon small>mdi-close</v-icon></v-btn>
+                            </v-list-item-action>
+                        </v-list-item>
+                    </v-list>
+                </v-menu>
             </h2>
             <v-skeleton-loader
                 class="mx-auto"
@@ -30,7 +70,7 @@
             ></v-skeleton-loader>
             <div class="scroll" v-if="plugins.length > 0" @scroll.passive="scrollHandler" ref="scrollTarget">
                 <v-list flat class="list" three-line>
-                    <v-list-item v-for="(item, index) in plugins" :key="item.id" @click="openPlugin(index)">
+                    <v-list-item v-for="item in plugins" :key="item.id" @click="openPlugin(item.id)">
                         <v-badge
                             avatar
                             bordered
@@ -131,7 +171,7 @@
                                     <div class="d-flex flex-column align-start">
                                         <h3 class="text-h5">{{ tabs[tab].name }}</h3>
                                         <p class="text--secondary">{{ tabs[tab].description }}</p>
-                                        <p class="primary--text font-weight-bold verified" v-if="tabs[tab].verified && tabs[tab].verifiedMessage !==''">
+                                        <p class="primary--text font-weight-bold verified" v-if="tabs[tab].verified && tabs[tab].verifiedMessage !== ''">
                                             <v-icon
                                                 small
                                                 color="primary"
@@ -422,7 +462,7 @@
                                 <div class="iframe-container" v-show="tab.state === 'running' && tab.type === 'remote'">
                                     <iframe
                                         v-if="tab.state === 'running' && tab.type === 'remote'"
-                                        :src="tab.entry"
+                                        :src="`${tab.entry}${tab.entry.includes('?') ? '&' : '?'}dark=${tab.dark}&locale=${tab.lang}`"
                                         frameborder="0"
                                         referrerpolicy="no-referrer"
                                         sandbox="allow-forms allow-popups allow-popups-to-escape-sandbox allow-scripts allow-same-origin"
@@ -880,12 +920,12 @@ export default {
         },
         /**
          *  Open a plugin based on plugin index
-         * @param {number} index plugin index
+         * @param {string} id plugin id
          */
-        openPlugin(index) {
+        openPlugin(id) {
             // If already opened, just display it
             for (const tab of this.tabs) {
-                if (tab.id === this.plugins[index].id) {
+                if (tab.id === id) {
                     this.tab = this.tabs.indexOf(tab);
                     this.shownTabs = true;
                     return;
@@ -893,16 +933,16 @@ export default {
             }
             // If installed, just use known info
             for (const plugin of this.installedPlugins) {
-                if (plugin.id === this.plugins[index].id) {
+                if (plugin.id === id) {
                     this.tabs.push({
                         name: plugin.name,
                         id: plugin.id,
                         version: plugin.version,
                         description: plugin.description,
                         author: plugin.author,
-                        authorUrl: plugin.author_url,
+                        authorUrl: plugin.authorUrl,
                         verified: plugin.verified,
-                        verifiedMessage: plugin.verified_message,
+                        verifiedMessage: plugin.verifiedMessage,
                         type: plugin.type,
                         dist: plugin.dist,
                         foreground: plugin.foreground,
@@ -925,16 +965,17 @@ export default {
                     return;
                 }
             }
+            const plugin = this.plugins.find((item) => item.id === id);
             // New plugin, show loading and load plugin profile
             this.tabs.push({
-                name: this.plugins[index].name,
-                id: this.plugins[index].id,
+                name: plugin.name,
+                id: plugin.id,
                 version: '',
-                description: this.plugins[index].description,
+                description: plugin.description,
                 author: '',
                 authorUrl: '',
-                verified: this.plugins[index].verified,
-                verifiedMessage: this.plugins[index].verified_message,
+                verified: plugin.verified,
+                verifiedMessage: plugin.verified_message,
                 type: '',
                 dist: '',
                 foreground: false,
@@ -951,7 +992,7 @@ export default {
                 this.tab = this.tabs.length - 1;
             });
             this.shownTabs = true;
-            this.loadPluginInfo(this.plugins[index].id);
+            this.loadPluginInfo(id);
         },
         /**
          *  CLose a tab based on index
@@ -1005,6 +1046,11 @@ export default {
             }
             return /^(https?):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?$/.test(url);
         },
+        /**
+         * Run plugin by ID
+         * @param {string} id plugin id
+         * @param {boolean} always whether the plugin should be installed
+         */
         runPlugin(id, always) {
             const plugin = this.tabs.findIndex((plug) => plug.id === id);
             if (always) {
@@ -1014,9 +1060,9 @@ export default {
                     version: this.tabs[plugin].version,
                     description: this.tabs[plugin].description,
                     author: this.tabs[plugin].author,
-                    authorUrl: this.tabs[plugin].author_url,
+                    authorUrl: this.tabs[plugin].authorUrl,
                     verified: this.tabs[plugin].verified,
-                    verifiedMessage: this.tabs[plugin].verified_message,
+                    verifiedMessage: this.tabs[plugin].verifiedMessage,
                     type: this.tabs[plugin].type,
                     dist: this.tabs[plugin].dist,
                     foreground: this.tabs[plugin].foreground,
@@ -1028,6 +1074,7 @@ export default {
                     entry: this.tabs[plugin].entry,
                     scope: this.tabs[plugin].scope,
                 });
+                this.saveInstalled();
             }
             if (plugin !== -1 && this.tabs[plugin].state === 'unconfirmed') {
                 this.tabs[plugin].state = 'running';
@@ -1035,6 +1082,21 @@ export default {
                 this.tabs[plugin].lang = this.$i18n.locale;
                 this.tabs[plugin].dark = this.$vuetify.theme.dark;
             }
+        },
+        /**
+         * Remove a installed plugin by ID
+         * @param {string} id plugin id
+         */
+        removeInstalled(id) {
+            this.closeTab(this.tabs.findIndex((tab) => tab.id === id));
+            this.installedPlugins.splice(this.installedPlugins.findIndex((plug) => plug.id === id), 1);
+            this.saveInstalled();
+        },
+        /**
+         * Save changes for installed plugins list to local storage
+         */
+        saveInstalled() {
+            localStorage.setItem('installedPlugins', JSON.stringify(this.installedPlugins));
         },
     },
     watch: {
@@ -1087,6 +1149,9 @@ export default {
 
         // Initialize widget width
         this.expanded = (localStorage.getItem('plugin_expanded') || 'false') === 'true';
+
+        // Initialize installed plugins
+        this.installedPlugins = JSON.parse(localStorage.getItem('installedPlugins') || '[]');
 
         // Update plugin list every day
         this.timer = setInterval(() => {
@@ -1335,7 +1400,7 @@ export default {
         }
         .iframe-container {
             width: 100%;
-            height: 480px;
+            height: 475px;
             position: relative;
             iframe {
                 width: 100%;
@@ -1418,7 +1483,6 @@ export default {
                 }
             }
             .v-tabs-bar {
-                height: 36px;
                 background-color: #F0F0F0;
             }
             .detail-screen {
@@ -1431,6 +1495,9 @@ export default {
                         margin-left: 14px;
                     }
                 }
+            }
+            .iframe-container {
+                height: 480px;
             }
         }
     }
@@ -1499,6 +1566,10 @@ export default {
             margin-right: 16px!important;
         }
     }
+}
+.installed-list {
+    min-height: 36px;
+    max-width: 350px;
 }
 #app.theme--dark .plugin-container {
     .v-list-item {
@@ -1572,7 +1643,7 @@ export default {
         "allow_notice": "You haven't allowed this plugin to run. Please check the permissions declared before authorising this plugin to run.",
         "allow_notice_cloud": "You haven't allowed this plugin to run. Plug-ins on cloud cannot read your data and thus doesn't require any permissions.",
         "declared_permission": "Declared Permissions",
-        "permission_notice": "The permissions declared <strong>CANNOT</strong> limit the scope of data accessible for the plugin, the list is for reference only. Please ensure that you trust the plugin before running it.",
+        "permission_notice": "This plug-in will only be able to read or modify data as declared above. Please ensure that you trust the plugin before running it.",
         "global/account": "{0} your UoM account info",
         "global/backend": "{0} your backend login info",
         "global/notification": "Send notifications",
@@ -1610,7 +1681,8 @@ export default {
         "nothing_opened": "No plug-in opened",
         "coming_soon": "Coming Soon",
         "running_plugin": "This plug-in is running",
-        "allowed_plugins": "Always allowed plug-ins"
+        "allowed_plugins": "Always allowed plug-ins",
+        "no_allowed_plugin": "No always allowed plug-in"
     },
     "zh": {
         "plugins": "插件",
@@ -1629,7 +1701,7 @@ export default {
         "allow_notice": "你尚未允许此插件运行。在授权允许插件运行之前，请务必检查此插件声明的权限。",
         "allow_notice_cloud": "你尚未允许此插件运行。云端插件无法读取你的数据，因此不需要任何权限。",
         "declared_permission": "声明的权限",
-        "permission_notice": "插件声明的权限<strong>不能</strong>限制插件读取数据的范围，权限列表仅供参考。在运行插件之前，请确保你信任此插件。",
+        "permission_notice": "插件将仅能使用声明的权限读取或修改数据。在运行插件之前，请确保你信任此插件。",
         "global/account": "{0}你的曼大账户信息",
         "global/backend": "{0}你的后端信息",
         "global/notification": "向你发送通知",
@@ -1667,7 +1739,8 @@ export default {
         "nothing_opened": "没有打开的插件",
         "coming_soon": "即将推出",
         "running_plugin": "此插件正在运行",
-        "allowed_plugins": "总是允许运行的插件"
+        "allowed_plugins": "总是允许运行的插件",
+        "no_allowed_plugin": "没有总是允许运行的插件"
     },
     "es": {
         "plugins": "Complementos",
@@ -1686,7 +1759,7 @@ export default {
         "allow_notice": "No ha permitido que se ejecute este complemento. Verifique los permisos declarados antes de autorizar la ejecución de este complemento.",
         "allow_notice_cloud": "No ha permitido que se ejecute este complemento. Los complementos en la nube no pueden leer sus datos y no requieren ningún permiso.",
         "declared_permission": "Permisiones declaradas",
-        "permission_notice": "Los permisos declarados <strong>NO PUEDEN</strong> limitar la accesibilidad de los datos del complemento, la lista es solo de referencia. Asegúrese de confiar en el complemento antes de ejecutarlo.",
+        "permission_notice": "",
         "global/account": "{0} su cuenta de UoM",
         "global/backend": "{0} su información de inicio de sesión",
         "global/notification": "Enviar notificaciones",
@@ -1720,7 +1793,11 @@ export default {
         "tracking_note": "Corresponde a su cuenta de UoM pero no contiene ninguna información sensible.",
         "scope_notice": "",
         "plugin_info": "Información del complemento",
-        "nothing_opened": "No complementos en ejecución"
+        "nothing_opened": "No complementos en ejecución",
+        "coming_soon": "",
+        "running_plugin": "",
+        "allowed_plugins": "",
+        "no_allowed_plugin": ""
     },
     "ja": {
         "plugins": "プラグイン",
@@ -1739,7 +1816,7 @@ export default {
         "allow_notice": "このプラグインを実行することがまだ許可されない。プラグインを授権する前に、このプラグインを宣言された権限をご検討ください。",
         "allow_notice_cloud": "このプラグインを実行することがまだ許可されない。クラウドプラグインはあなたの情報が読み込めませんから、いかなる権限が必要ありません。",
         "declared_permission": "宣言された権限",
-        "permission_notice": "プラグイン宣言の権限は、プラグインが情報を読み取る範囲を制限できません、権限リストは参考用のみです。プラグインを実行する前に、このプラグインが信頼したことをご確認ください。",
+        "permission_notice": "",
         "global/account": "大学アカウント情報を{0}",
         "global/backend": "バックエンド情報を{0}",
         "global/notification": "あなたに通知を送信する",
@@ -1775,7 +1852,11 @@ export default {
         "tracking_note": "大学アカウントに関してるけど、何も機密権限が含まれません。",
         "scope_notice": "",
         "plugin_info": "プラグイン情報",
-        "nothing_opened": "開いたプラグインがありません"
+        "nothing_opened": "開いたプラグインがありません",
+        "coming_soon": "",
+        "running_plugin": "",
+        "allowed_plugins": "",
+        "no_allowed_plugin": ""
     }
 }
 </i18n>
