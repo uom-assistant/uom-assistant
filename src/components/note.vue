@@ -1425,6 +1425,10 @@ export default {
                     }
                 }
                 @import (less) "../../backend/css/md.css";
+                img {
+                    margin: 0 auto;
+                    display: block;
+                }
                 [mask] {
                     background-color: #1E1E1E;
                     color: #1E1E1E;
