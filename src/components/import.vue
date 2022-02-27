@@ -345,7 +345,7 @@ export default {
                 }
 
                 // Check export data format version
-                if (firstThree[2] !== 0) {
+                if (firstThree[2] !== 1) {
                     this.notSupportedDialog = true;
                     return;
                 }
@@ -366,7 +366,7 @@ export default {
                     const binLen = new DataView(await list[0].slice(pointer, pointer + 4).arrayBuffer()).getUint32(0, true);
                     pointer += 4;
                     // eslint-disable-next-line no-await-in-loop
-                    exportBinaryList.push(new Blob([await list[0].slice(pointer, pointer + binLen).arrayBuffer()]));
+                    exportBinaryList.push(await list[0].slice(pointer, pointer + binLen).arrayBuffer());
                     pointer += binLen;
                 }
 
@@ -446,8 +446,8 @@ export default {
             }
 
             // Import header image
-            if (parsedJSON.headerImg !== undefined && exportBinaryList[parsedJSON.headerImg]) {
-                localforage.setItem('header_img', exportBinaryList[parsedJSON.headerImg]);
+            if (parsedJSON.headerImg !== undefined && exportBinaryList[parsedJSON.headerImg[0]]) {
+                localforage.setItem('header_img', new Blob([exportBinaryList[parsedJSON.headerImg[0]]], { type: parsedJSON.headerImg[1] }));
             }
             this.step = 4;
         },

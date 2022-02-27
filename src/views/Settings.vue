@@ -965,7 +965,7 @@ export default {
 
             // Export format version
             const backupVersion = new Uint8Array(new ArrayBuffer(1));
-            backupVersion[0] = 0;
+            backupVersion[0] = 1;
 
             // Export localStorage
             const settingsList = {};
@@ -995,7 +995,7 @@ export default {
                 new DataView(headerImageLen).setUint32(0, headerImage.size, true);
                 binaryFiles.push(headerImageLen);
                 binaryFiles.push(headerImage);
-                settingsList.headerImg = 0;
+                settingsList.headerImg = [0, headerImage.type];
             }
 
             // Number of binary files
