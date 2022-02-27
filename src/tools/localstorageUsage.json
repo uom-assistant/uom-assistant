@@ -24,5 +24,6 @@
     "plugin_expanded",
     "tasks",
     "layout",
-    "current_timezone"
+    "current_timezone",
+    "installedPlugins"
 ]

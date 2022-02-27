@@ -225,6 +225,7 @@
                     depressed
                     color="primary"
                     class="mb-3 mr-3"
+                    @click="exportData"
                 >
                     <v-icon class="mr-2">mdi-export</v-icon>
                     {{ $t('export') }}
@@ -233,6 +234,7 @@
                     depressed
                     color="primary"
                     class="mb-3"
+                    @click="$refs.importDialog.openDialog()"
                 >
                     <v-icon class="mr-2">mdi-import</v-icon>
                     {{ $t('import') }}
@@ -655,6 +657,7 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        <importDialog ref="importDialog"></importDialog>
     </div>
 </template>
 
@@ -662,9 +665,11 @@
 import { mapState } from 'vuex';
 import { customAlphabet } from 'nanoid';
 import localForage from 'localforage';
+import { saveAs } from 'file-saver';
 
 import a11y from '@/components/a11y.vue';
 import settings from '@/components/settings.vue';
+import importDialog from '@/components/import.vue';
 
 import betterFetch from '../tools/betterFetch';
 import * as localStorageUsage from '../tools/localstorageUsage.json';
@@ -674,6 +679,7 @@ export default {
     components: {
         a11y,
         settings,
+        importDialog,
     },
     data() {
         return {
@@ -948,6 +954,73 @@ export default {
             await localForage.clear();
             window.location.reload(true);
         },
+        /**
+         * Export data
+         */
+        async exportData() {
+            // Magic number for identifying the file
+            const magicNumber = new Uint8Array(new ArrayBuffer(2));
+            magicNumber[0] = 0x34;
+            magicNumber[1] = 0x0B;
+
+            // Export format version
+            const backupVersion = new Uint8Array(new ArrayBuffer(1));
+            backupVersion[0] = 0;
+
+            // Export localStorage
+            const settingsList = {};
+            for (const item of localStorageUsage.default) {
+                if (item !== 'current_timezone' && item !== 'update_frontend') {
+                    if (localStorage.getItem(item) !== null) {
+                        settingsList[item] = localStorage.getItem(item);
+                    }
+                }
+            }
+            // Hash password
+            if (settingsList.account) {
+                const account = JSON.parse(settingsList.account) || {};
+                if (account.password) {
+                    account.password = await this.hash(account.password);
+                }
+                settingsList.account = JSON.stringify(account);
+            }
+
+            // Add binary files to the backup
+            const binaryFiles = [];
+            const headerImage = await localForage.getItem('header_img');
+            if (headerImage !== null) {
+                const headerImageLen = new ArrayBuffer(4);
+                new DataView(headerImageLen).setUint32(0, headerImage.size, true);
+                binaryFiles.push(headerImageLen);
+                binaryFiles.push(headerImage);
+                settingsList.headerImg = 0;
+            }
+
+            // Number of binary files
+            const binaryFilesLen = new ArrayBuffer(1);
+            new DataView(binaryFilesLen).setUint8(0, binaryFiles.length / 2, true);
+
+            // Export IndexedDB
+            const notes = await localForage.getItem('notes');
+            if (notes !== null) {
+                settingsList.notes = notes;
+            }
+            const settingsData = new Blob([JSON.stringify(settingsList)]);
+
+            // Calculate JSON size
+            const settingsLen = new ArrayBuffer(4);
+            new DataView(settingsLen).setUint32(0, settingsData.size, true);
+
+            // Calculate file name
+            const now = new Date();
+            const fileName = `uoma-backup-${`${now.getFullYear()}`.padStart(2, '0')}-${`${now.getMonth() + 1}`.padStart(2, '0')}-${`${now.getDate()}`.padStart(2, '0')}-${`${now.getHours()}`.padStart(2, '0')}-${`${now.getMinutes()}`.padStart(2, '0')}-${`${now.getSeconds()}`.padStart(2, '0')}.uomadata`;
+
+            saveAs(new Blob([magicNumber, backupVersion, settingsLen, settingsData, binaryFilesLen, ...binaryFiles]), fileName);
+        },
+        async hash(message, method = 'SHA-256') {
+            const msgUint8 = new TextEncoder().encode(message);
+            return Array.from(new Uint8Array(await crypto.subtle.digest(method, msgUint8))).map((b) => b.toString(16).padStart(2, '0')).join('');
+        },
     },
     watch: {
         locale() {
@@ -1161,10 +1234,10 @@ export default {
         "network_proxy": "Network Proxy",
         "proxy_address": "Proxy Address",
         "proxy_port": "Proxy Port",
-        "export": "Export Settings",
-        "import": "Import Settings",
+        "export": "Export Data",
+        "import": "Import Data",
         "reset": "Clear And Reset",
-        "data_settings_text": "You can export the current settings and import them on another devices.",
+        "data_settings_text": "You can export data UoM Assistant stored in this browser and import them on another devices.",
         "clear_text": "Clear all data saved in your browser by UoM Assistant and completely reset UoM Assistant.",
         "backend_url": "Backend URL",
         "backend_maintenance": "The backend is under maintenance or backend version not supported",
@@ -1240,10 +1313,10 @@ export default {
         "network_proxy": "网络代理",
         "proxy_address": "代理地址",
         "proxy_port": "代理端口",
-        "export": "导出设置",
-        "import": "导入设置",
+        "export": "导出数据",
+        "import": "导入数据",
         "reset": "清除并重置",
-        "data_settings_text": "你可以导出当前设置以便在另一个设备上导入。",
+        "data_settings_text": "你可以导出曼大助手在此浏览器中保存的数据以便在另一个设备上导入。",
         "clear_text": "清除浏览器中曼大助手保存的所有数据并完全重置曼大助手。",
         "backend_url": "后端 URL",
         "backend_maintenance": "不支持的后端版本或后端正在维护，暂时无法连接",
@@ -1375,7 +1448,9 @@ export default {
         "persist_stroage": "",
         "persist_stroage_text": "",
         "continue": "",
-        "persist_stroage_unsupported": ""
+        "persist_stroage_unsupported": "",
+        "reset_dialog": "",
+        "reset_dialog_body": ""
     },
     "ja": {
         "backend_settings": "",
@@ -1445,7 +1520,9 @@ export default {
         "persist_stroage": "",
         "persist_stroage_text": "",
         "continue": "",
-        "persist_stroage_unsupported": ""
+        "persist_stroage_unsupported": "",
+        "reset_dialog": "",
+        "reset_dialog_body": ""
     }
 }
 </i18n>

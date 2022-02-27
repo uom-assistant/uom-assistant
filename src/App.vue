@@ -300,7 +300,7 @@
                         depressed
                         small
                         class="second-btn"
-                        @click="skip"
+                        @click="$refs.importDialog.openDialog()"
                     >
                         {{ $t('import') }}
                     </v-btn>
@@ -590,6 +590,7 @@
                 </v-card-text>
             </v-card>
         </v-dialog>
+        <importDialog ref="importDialog"></importDialog>
         <div id="alert-space" v-show="displayErrors.length > 0" :style="{ bottom: updateReady ? '135px' : '5px' }">
             <v-alert
                 v-for="(item, index) in displayErrors"
@@ -654,6 +655,7 @@ import taskSearch from '@/components/search/task.vue';
 import mailSearch from '@/components/search/mail.vue';
 import gradeSearch from '@/components/search/grade.vue';
 import clockSearch from '@/components/search/clock.vue';
+import importDialog from '@/components/import.vue';
 
 import checkBackendVersion from '@/tools/checkBackendVersion';
 import betterFetch from '@/tools/betterFetch';
@@ -717,6 +719,7 @@ export default {
         mailSearch,
         gradeSearch,
         clockSearch,
+        importDialog,
     },
     data: () => ({
         showSettingsMenu: false,
@@ -2672,7 +2675,7 @@ code, kbd, pre, samp {
         "done": "",
         "account_notice_title": "",
         "account_notice_body": "",
-        "cancel": "",
+        "cancel": "キャンセル",
         "setup_done": "",
         "network_error": "",
         "backend_error": "",

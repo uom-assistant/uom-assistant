@@ -247,8 +247,9 @@ export default {
             if (!e.target.files) {
                 return;
             }
-            this.selectFile(e.target.files);
-            e.target.value = '';
+            this.selectFile(e.target.files).then(() => {
+                e.target.value = '';
+            });
         },
         /**
          * Handle file drop event
@@ -405,12 +406,14 @@ export default {
             }
         } else if (data.type === 'custom') {
             const blob = await localForage.getItem('header_img');
-            this.customURL = URL.createObjectURL(blob);
-            this.selected = '';
-            this.$emit('change', {
-                image: this.customURL,
-                position: this.selectedPosition,
-            });
+            if (blob) {
+                this.customURL = URL.createObjectURL(blob);
+                this.selected = '';
+                this.$emit('change', {
+                    image: this.customURL,
+                    position: this.selectedPosition,
+                });
+            }
         }
 
         // Set B&W mode
