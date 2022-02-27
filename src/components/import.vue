@@ -313,7 +313,6 @@ export default {
          * @param {Event} e file drop event
          */
         handleFileDrop(e) {
-            console.log(e);
             this.isDragOver = false;
             if (!e.dataTransfer.files) {
                 return;
@@ -403,13 +402,22 @@ export default {
                 return;
             }
             const account = JSON.parse(parsedJSON.account) || {};
-            if (account.password && await this.hash(this.inputPassword) === account.password) {
-                // Hash verified
-                account.password = this.inputPassword;
-                parsedJSON.account = JSON.stringify(account);
-                this.step = 3;
+            if (account.password) {
+                if (account.salt) {
+                    if ((await this.hash(`${this.inputPassword}${account.salt}`)) === account.password) {
+                        // Hash verified
+                        account.password = this.inputPassword;
+                        delete account.salt;
+                        parsedJSON.account = JSON.stringify(account);
+                        this.step = 3;
+                    } else {
+                        this.wrongPassword = true;
+                    }
+                } else {
+                    this.notSupportedDialog = true;
+                }
             } else {
-                this.wrongPassword = true;
+                this.step = 3;
             }
         },
         /**
@@ -579,7 +587,7 @@ export default {
         "continue": "Continue",
         "import": "Import",
         "choose_file": "Choose a file",
-        "choose_file_text": "Choose a UoM Assistant data file to be imported.",
+        "choose_file_text": "Choose a UoM Assistant data file to import.",
         "confirm_import": "Confirm import",
         "confirm_import_text": "Are you sure you want to import this file? Any data previously stored in this browser by UoM Assistant will be overwritten and this cannot be undone.",
         "verify_password": "Verify password",

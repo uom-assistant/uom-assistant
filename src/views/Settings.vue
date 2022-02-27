@@ -663,7 +663,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import { customAlphabet } from 'nanoid';
+import { customAlphabet, nanoid } from 'nanoid';
 import localForage from 'localforage';
 import { saveAs } from 'file-saver';
 
@@ -980,7 +980,9 @@ export default {
             if (settingsList.account) {
                 const account = JSON.parse(settingsList.account) || {};
                 if (account.password) {
-                    account.password = await this.hash(account.password);
+                    const salt = nanoid(10);
+                    account.password = await this.hash(`${account.password}${salt}`);
+                    account.salt = salt;
                 }
                 settingsList.account = JSON.stringify(account);
             }
