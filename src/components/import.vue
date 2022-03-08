@@ -294,6 +294,7 @@ export default {
             parsedJSON = null;
             exportBinaryList = [];
             this.selectedFileName = '';
+            this.inputPassword = '';
             this.step = 1;
         },
         /**
@@ -328,7 +329,7 @@ export default {
                 this.tooManyDialog = true;
                 return;
             }
-            if (list[0].size > 7 && list[0].name.match(/.uomadata$/i)) {
+            if (list[0].size > 7 && list[0].name.match(/.uomadata/i)) {
                 // Check if it's a dir
                 try {
                     await list[0].slice(0, 1).arrayBuffer();
@@ -464,6 +465,7 @@ export default {
             if (!this.open) {
                 parsedJSON = null;
                 exportBinaryList = [];
+                this.inputPassword = '';
             }
         },
         step(newVal, oldVal) {

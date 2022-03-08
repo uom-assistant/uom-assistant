@@ -991,6 +991,7 @@ export default {
                     method: 'POST',
                     body: JSON.stringify({
                         username: this.$refs.settingsField.username,
+                        email: `${this.$refs.settingsField.email}.manchester.ac.uk`,
                         password: this.$refs.settingsField.password,
                         token: backendToken || '',
                     }),
