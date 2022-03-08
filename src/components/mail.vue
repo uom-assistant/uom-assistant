@@ -1156,6 +1156,9 @@ const untrustedKeyWords = {
                 'dissertation',
                 'assignment',
                 'degree',
+                'moduels',
+                'moduel',
+                'marketing',
             ], 0.3,
         ],
         [
@@ -1202,6 +1205,7 @@ const untrustedKeyWords = {
                 '评分',
                 '助你',
                 '交稿',
+                '全网最全',
             ], 0.4,
         ],
         [
@@ -1212,6 +1216,10 @@ const untrustedKeyWords = {
                 '科目',
                 '免费',
                 '预定',
+                '专属',
+                '独家',
+                '均分',
+                '学霸',
             ], 0.3,
         ],
         [
