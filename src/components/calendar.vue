@@ -872,11 +872,11 @@ export default {
             const lines = details.split('\n');
             for (const line of lines) {
                 const linePart = line.split(': ').map((item) => item.trim());
-                if (linePart[0].toLowerCase() === 'map link' && linePart[1]) {
+                if (linePart[0].toLowerCase() === 'map link' && /^\[Google Maps\]\(/.test(linePart[1])) {
                     // Parse URL
                     let urlQuery;
                     try {
-                        urlQuery = new URLSearchParams(new URL(linePart[1]).search);
+                        urlQuery = new URLSearchParams(new URL(linePart[1].slice(14, -1)).search);
                     } catch (e) { return ''; }
                     if (urlQuery.get('query_place_id') !== null) {
                         return `<iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAn46nX_pMvKfKcp5_Nqc4C3GCKj8CHJ7M&amp;q=place_id:${urlQuery.get('query_place_id')}" frameborder="0" style="border:0;" allowfullscreen></iframe>`;

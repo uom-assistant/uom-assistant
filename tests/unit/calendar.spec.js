@@ -153,6 +153,6 @@ describe('calendar.vue', () => {
 
         expect(wrapper.vm.showMap('Location Name: Engineering Building A	\nUnit Code: COMP000000	\nParadigms	\n')).toMatch('');
         expect(wrapper.vm.showMap('Location Name: Engineering Building A	\nUnit Code: COMP000000	\nParadigms	\nLocation: 	\nMap Link: 	\nDirections: 	\nDirections: 	\n')).toMatch('');
-        expect(wrapper.vm.showMap('Location Name: Engineering Building A	\nUnit Code: COMP000000	\nParadigms	\nLocation: https://www.google.com/maps/search/?api=1&query=53.467335,-2.234203&query_place_id=ChIJeziKgJKxe0gR8qUIiSmWKJo	\nMap Link: https://www.google.com/maps/search/?api=1&query=53.467335,-2.234203&query_place_id=ChIJeziKgJKxe0gR8qUIiSmWKJo	\nDirections: Kilburn Building.	\nDirections: Kilburn Building.	\n')).toContain('src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAn46nX_pMvKfKcp5_Nqc4C3GCKj8CHJ7M&amp;q=place_id:ChIJeziKgJKxe0gR8qUIiSmWKJo"');
+        expect(wrapper.vm.showMap('Location Name: Engineering Building A	\nUnit Code: COMP000000	\nParadigms	\nLocation: https://www.google.com/maps/search/?api=1&query=53.467335,-2.234203&query_place_id=ChIJeziKgJKxe0gR8qUIiSmWKJo	\nMap Link:  [Google Maps](https://www.google.com/maps/search/?api=1&query=53.467335,-2.234203&query_place_id=ChIJeziKgJKxe0gR8qUIiSmWKJo)	\nDirections: Kilburn Building.	\nDirections: Kilburn Building.	\n')).toContain('src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAn46nX_pMvKfKcp5_Nqc4C3GCKj8CHJ7M&amp;q=place_id:ChIJeziKgJKxe0gR8qUIiSmWKJo"');
     });
 });
