@@ -116,7 +116,7 @@ export default {
                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit',
-                timeZone: this.timeZone,
+                timeZone: this.timezone,
             });
 
             this.updateRemoteDiff(new Date());
@@ -127,12 +127,6 @@ export default {
         ...mapState({
             locale: (state) => state.locale,
         }),
-        otherMin() {
-            return `${this.otherObj.getMinutes()}`.padStart(2, '0');
-        },
-        otherHour() {
-            return `${this.otherObj.getHours()}`.padStart(2, '0');
-        },
     },
     mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
@@ -144,7 +138,7 @@ export default {
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit',
-            timeZone: this.timeZone,
+            timeZone: this.timezone,
         });
 
         this.updateRemoteDiff(new Date());
