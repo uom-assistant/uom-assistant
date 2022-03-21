@@ -748,7 +748,7 @@ export default {
                             const lines = item[1][0][3].split('\n').map((line) => line.trim().split(': ').map((part) => part.trim()));
                             const unitCode = lines.find((line) => line[0] === 'Unit Code');
                             if (unitCode !== undefined && unitCode[1] === titleName) {
-                                const unitName = lines.find((line) => line[0] === 'Unit Description');
+                                const unitName = lines.find((line) => line[0] === 'Description');
                                 if (unitName !== undefined) {
                                     guessedName = unitName[1];
                                 }
