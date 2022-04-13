@@ -889,6 +889,8 @@ export default [
                     date: 1613981814,
                     flagged: false,
                     unseen: false,
+                    importance: 'm',
+                    confirm: false,
                 },
                 {
                     subject: 'COMP11212 Fundamentals of Computation 2077-78 2nd Semester: Week X Activities',
@@ -903,6 +905,8 @@ export default [
                     date: 1613982016,
                     flagged: false,
                     unseen: false,
+                    importance: 'm',
+                    confirm: false,
                 },
                 {
                     subject: 'Submission received',
@@ -922,6 +926,8 @@ export default [
                     date: 1613993764,
                     flagged: false,
                     unseen: false,
+                    importance: 'm',
+                    confirm: false,
                 },
                 {
                     subject: false,
@@ -941,6 +947,8 @@ export default [
                     date: 1614884503,
                     flagged: true,
                     unseen: false,
+                    importance: 'm',
+                    confirm: false,
                 },
                 {
                     subject: 'Teams Mail',
@@ -960,6 +968,8 @@ export default [
                     date: 1614884543,
                     flagged: false,
                     unseen: false,
+                    importance: 'm',
+                    confirm: false,
                 },
                 {
                     subject: 'My Manchester News',
@@ -979,6 +989,8 @@ export default [
                     date: 1614885543,
                     flagged: false,
                     unseen: false,
+                    importance: 'm',
+                    confirm: false,
                 },
                 {
                     subject: 'Why can\'t it be something?',
@@ -1011,6 +1023,8 @@ export default [
                     date: 1614903893,
                     flagged: false,
                     unseen: true,
+                    importance: 'm',
+                    confirm: false,
                 },
                 {
                     subject: '[SOMETHING] Some event Today',
@@ -1035,6 +1049,8 @@ export default [
                     date: 1614936196,
                     flagged: false,
                     unseen: false,
+                    importance: 'm',
+                    confirm: false,
                 },
                 {
                     subject: 'COMP13212 Data Science 2077-78 2nd Semester: Hi there',
@@ -1049,6 +1065,8 @@ export default [
                     date: 1614941395,
                     flagged: false,
                     unseen: false,
+                    importance: 'l',
+                    confirm: false,
                 },
                 {
                     subject: 'COMP16412 Programming 2 2077-78 2nd Semester',
@@ -1063,6 +1081,8 @@ export default [
                     date: 1614945516,
                     flagged: false,
                     unseen: false,
+                    importance: 'h',
+                    confirm: false,
                 },
                 {
                     subject: 'COMP15212 Programming 2 2077-78 2nd Semester: Week N Materials for COMP16412 now available',
@@ -1077,6 +1097,8 @@ export default [
                     date: 1614948560,
                     flagged: false,
                     unseen: true,
+                    importance: 'h',
+                    confirm: 'aaaaa.bbbbb@manchester.ac.uk',
                 },
                 {
                     subject: 'COMP11120 Mathematical Techniques for Computer Science 2020-21 Full Year: COMP111 this week',
@@ -1091,6 +1113,8 @@ export default [
                     date: 1614948760,
                     flagged: false,
                     unseen: false,
+                    importance: 'm',
+                    confirm: false,
                 },
             ],
         },

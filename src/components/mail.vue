@@ -117,25 +117,57 @@
                                         </v-icon>
                                         <span :title="mail.fromAddress">{{ mail.from ? getShortSenderName(mail.from) : mail.fromAddress }}</span>
                                     </span>
-                                    <v-icon
-                                        small
-                                        class="time-icon mr-1"
-                                    >
-                                        mdi-clock-outline
-                                    </v-icon>
-                                    <span :title="getDate(new Date(mail.date * 1000))" :key="timeUpdate(mail.date * 1000) ? `${keyMin}-${index}` : `mail-key-${index}`" class="relative-time">{{ displayDate(new Date(mail.date * 1000)) }}</span>
-                                    <v-icon
-                                        small
-                                        color="primary"
-                                        class="time-icon ml-2"
-                                        :title="$t('flagged')"
-                                        v-if="mail.flagged"
-                                    >
-                                        mdi-flag
-                                    </v-icon>
-                                    <span v-if="getSubjectId(mail.subject, mail.from) !== false" class="ml-3">
-                                        <span :class="subjectColor(getSubjectId(mail.subject, mail.from))" class="subject-color-samll"></span>
-                                        {{ subjectNameMap(getSubjectId(mail.subject, mail.from)) }}
+                                    <span class="d-flex justify-space-between">
+                                        <span class="flex-grow-1 flex-no-overflow text-truncate d-inline-block">
+                                            <v-icon
+                                                small
+                                                class="time-icon mr-1"
+                                            >
+                                                mdi-clock-outline
+                                            </v-icon>
+                                            <span :title="getDate(new Date(mail.date * 1000))" :key="timeUpdate(mail.date * 1000) ? `${keyMin}-${index}` : `mail-key-${index}`" class="relative-time">{{ displayDate(new Date(mail.date * 1000)) }}</span>
+                                            <v-icon
+                                                small
+                                                color="primary"
+                                                class="time-icon ml-2"
+                                                :title="$t('flagged')"
+                                                v-if="mail.flagged"
+                                            >
+                                                mdi-flag
+                                            </v-icon>
+                                            <span v-if="getSubjectId(mail.subject, mail.from) !== false" class="ml-3">
+                                                <span :class="subjectColor(getSubjectId(mail.subject, mail.from))" class="subject-color-samll"></span>
+                                                {{ subjectNameMap(getSubjectId(mail.subject, mail.from)) }}
+                                            </span>
+                                        </span>
+                                        <v-tooltip top v-if="mail.importance === 'h'">
+                                            <template v-slot:activator="{ on, attrs }">
+                                                <v-icon
+                                                    small
+                                                    color="red"
+                                                    class="important-icon flex-shrink-0 flex-no-overflow"
+                                                    v-bind="attrs"
+                                                    v-on="on"
+                                                >
+                                                    mdi-exclamation-thick
+                                                </v-icon>
+                                            </template>
+                                            <span>{{ $t('importance_high') }}</span>
+                                        </v-tooltip>
+                                        <v-tooltip top v-if="mail.importance === 'l'">
+                                            <template v-slot:activator="{ on, attrs }">
+                                                <v-icon
+                                                    small
+                                                    color="grey"
+                                                    class="important-icon flex-shrink-0 flex-no-overflow"
+                                                    v-bind="attrs"
+                                                    v-on="on"
+                                                >
+                                                    mdi-circle-outline
+                                                </v-icon>
+                                            </template>
+                                            <span>{{ $t('importance_low') }}</span>
+                                        </v-tooltip>
                                     </span>
                                 </v-list-item-subtitle>
                             </v-list-item-content>
@@ -228,6 +260,13 @@
             </h2>
             <v-divider></v-divider>
             <div class="viewer" ref="viewerDom">
+                <div class="mail-confirm mx-5 mt-3 mb-n1 d-flex align-start" v-if="viewer.confirm !== false">
+                    <v-icon small class="confirm-info-icon">mdi-information-outline</v-icon>
+                    <div class="flex-grow-1">
+                        {{ $t('confirm_mail') }}
+                        <span class="primary--text font-weight-bold float-right confirm-click" @click="confirmMailDialog = true">{{ $t('more') }}</span>
+                    </div>
+                </div>
                 <h1 class="text-subtitle-1 px-5 py-3 mail-view-subject"><span v-if="viewer.subject !== false">{{ viewer.translateState !== 'translated' ? viewer.subject : viewer.translatedSubject }}</span><em v-else>{{ $t('no_subject') }}</em></h1>
                 <div v-show="viewer.courseId !== ''" class="subject-subtitle mx-5 text--disabled text-body-2 pb-3 text-truncate">
                     <v-menu
@@ -334,9 +373,9 @@
                         </v-card>
                     </v-menu>
                 </div>
-                <div class="mail-detail mx-5 pa-3 pr-2">
+                <div class="mail-detail mx-5">
                     <div class="mail-from-line">
-                        <v-icon class="mr-1" :title="$t('from')">mdi-account-arrow-right</v-icon>
+                        <v-icon class="mr-1 mail-head-icon" :title="$t('from')">mdi-account-arrow-right</v-icon>
                         <v-tooltip top v-if="viewer.from && getShortSenderName(viewer.from) !== viewer.fromAddress" open-delay="400">
                             <template v-slot:activator="{ on, attrs }">
                                 <v-chip close-icon="mdi-content-copy" close small v-on="on" v-bind="attrs" @click:close="doCopy(viewer.from ? `${viewer.from} <${viewer.fromAddress}>` : viewer.fromAddress)">{{ viewer.from ? getShortSenderName(viewer.from) : viewer.fromAddress }}</v-chip>
@@ -351,7 +390,7 @@
                     <v-expand-transition>
                         <div class="expand" v-show="viewDetailExpanded">
                             <div class="mail-to-line mt-1">
-                                <v-icon class="mt-2 mr-1" :title="$t('to')">mdi-account-arrow-left-outline</v-icon>
+                                <v-icon class="mt-2 mr-1 mail-head-icon" :title="$t('to')">mdi-account-arrow-left-outline</v-icon>
                                 <span v-for="(item, index) in viewer.to" :key="`to-${index}`" v-show="viewer.to.length > 0">
                                     <v-tooltip top v-if="item.name && getShortSenderName(item.name) !== item.address" open-delay="400">
                                         <template v-slot:activator="{ on, attrs }">
@@ -369,7 +408,7 @@
                                 </v-tooltip>
                             </div>
                             <div class="mail-to-line mt-1" v-show="viewer.cc.length > 0">
-                                <v-icon class="mt-2 mr-1" :title="$t('cc')">mdi-closed-caption-outline</v-icon>
+                                <v-icon class="mt-2 mr-1 mail-head-icon" :title="$t('cc')">mdi-closed-caption-outline</v-icon>
                                 <span v-for="(item, index) in viewer.cc" :key="`to-${index}`">
                                     <v-tooltip top v-if="item.name && getShortSenderName(item.name) !== item.address" open-delay="400">
                                         <template v-slot:activator="{ on, attrs }">
@@ -382,29 +421,41 @@
                             </div>
                             <div class="mail-time-line mt-1">
                                 <span class="text-body-2 mt-2">
-                                    <v-icon class="mr-2" :title="$t('time')">mdi-clock-outline</v-icon>
+                                    <v-icon class="mr-2 mail-head-icon" :title="$t('time')">mdi-clock-outline</v-icon>
                                     {{ getDate(new Date(viewer.date * 1000), true) }}
+                                </span>
+                            </div>
+                            <div class="mail-time-line" v-if="viewer.importance === 'h'">
+                                <span class="text-body-2 red--text mt-2">
+                                    <v-icon class="mr-2 mail-head-icon" color="red">mdi-exclamation</v-icon>
+                                    {{ $t('importance_high') }}
+                                </span>
+                            </div>
+                            <div class="mail-time-line" v-if="viewer.importance === 'l'">
+                                <span class="text-body-2 grey--text mt-2">
+                                    <v-icon class="mr-2 mail-head-icon" color="grey">mdi-circle-outline</v-icon>
+                                    {{ $t('importance_low') }}
                                 </span>
                             </div>
                             <div class="mail-time-line" v-show="trustedSender(viewer.fromAddress)">
                                 <span class="text-body-2 green--text mt-2">
-                                    <v-icon class="mr-2" color="green">mdi-check</v-icon>
+                                    <v-icon class="mr-2 mail-head-icon" color="green">mdi-check</v-icon>
                                     {{ $t('trusted_sender') }}
                                 </span>
                             </div>
                             <div class="mail-time-line" v-show="internalSender(viewer.fromAddress)">
                                 <span class="text-body-2 mt-2">
-                                    <v-icon class="mr-2">mdi-bank-outline</v-icon>
+                                    <v-icon class="mr-2 mail-head-icon">mdi-bank-outline</v-icon>
                                     {{ $t('internal_sender') }}
                                 </span>
                             </div>
                         </div>
                     </v-expand-transition>
                 </div>
-                <div class="mail-detail mx-5 pa-3 pr-2 mt-2" v-show="viewer.attachments.length > 0">
+                <div class="mail-detail mx-5 mail-head-expand" v-show="viewer.attachments.length > 0">
                     <div class="mail-from-line">
                         <span class="text-body-2 mt-2">
-                            <v-icon class="mr-1">mdi-paperclip</v-icon>
+                            <v-icon class="mail-clip-adjust mail-head-icon">mdi-paperclip</v-icon>
                             {{ $tc('attachment_num', viewer.attachments.length, [viewer.attachments.length]) }}
                         </span>
                         <v-btn icon @click.stop="viewAttachmentExpanded = !viewAttachmentExpanded" small class="float-right expand-btn" :title="$t('expand')">
@@ -464,9 +515,9 @@
                         </div>
                     </v-expand-transition>
                 </div>
-                <div class="mail-translation mx-5 pa-3 pr-2 mt-2" v-if="translateEnabled && viewer.translator && viewer.textContent !== '' && viewer.sourceLang !== 'und' && languageMap[viewer.sourceLang] && viewer.sourceLang !== preferredTranslateTo[0] && preferredTranslateTo[1][viewer.translator] !== false && !(!loadingBody && (!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML && viewer.bodyRawHTML !== '')">
+                <div class="mail-translation mx-5 mail-head-expand" v-if="translateEnabled && viewer.translator && viewer.textContent !== '' && viewer.sourceLang !== 'und' && languageMap[viewer.sourceLang] && viewer.sourceLang !== preferredTranslateTo[0] && preferredTranslateTo[1][viewer.translator] !== false && !(!loadingBody && (!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML && viewer.bodyRawHTML !== '')">
                     <div class="translation-notice">
-                        <v-icon class="mr-2">mdi-translate</v-icon>
+                        <v-icon class="mr-2 mail-head-icon">mdi-translate</v-icon>
                         <span class="text-body-2">{{ $t('in_language', [Array.isArray(languageMap[viewer.sourceLang]) ? $t(`lang_${viewer.sourceLang}`) : getLanguageName(languageMap[viewer.sourceLang])]) }}</span>
                         <v-btn icon @click.stop="viewTranslationExpanded = !viewTranslationExpanded" small class="float-right expand-btn" :title="$t('more')">
                             <v-icon :class="{ 'detail-expanded': viewTranslationExpanded }">mdi-chevron-down</v-icon>
@@ -811,6 +862,30 @@
                         color="primary"
                         text
                         @click="tooManyAttachments = false"
+                    >
+                        {{ $t('ok') }}
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog
+            v-model="confirmMailDialog"
+            max-width="500"
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    {{ $t('mail_confirm_title') }}
+                </v-card-title>
+                <v-card-text>
+                    <p>{{ $t('mail_confirm_body', [viewer.confirm]) }}</p>
+                    <p class="mb-0">{{ $t('mail_confirm_body_next') }}</p>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="confirmMailDialog = false"
                     >
                         {{ $t('ok') }}
                     </v-btn>
@@ -1317,6 +1392,7 @@ export default {
             lastUpdated: -1,
             deletingDialog: false,
             beingDeletedId: -1,
+            confirmMailDialog: false,
             viewer: {
                 subject: '',
                 from: false,
@@ -1342,6 +1418,8 @@ export default {
                 translatedBody: '',
                 translatedBodyRaw: '',
                 translator: false,
+                importance: '',
+                confirm: false,
             },
             languageMap: {
                 cmn: [
@@ -2257,6 +2335,8 @@ export default {
             this.viewer.translatedBody = '';
             this.viewer.translatedBodyRaw = '';
             this.viewer.translator = false;
+            this.viewer.importance = mail.importance;
+            this.viewer.confirm = mail.confirm;
             this.$refs.viewerDom.scrollTop = 0;
             this.viewer.courseId = this.getSubjectId(mail.subject, mail.from) || '';
             this.$nextTick(() => {
@@ -3934,9 +4014,24 @@ export default {
             line-height: 1.7rem;
             opacity: .9;
         }
+        .mail-confirm {
+            background-color: #F3F3F3;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 12px;
+            .confirm-info-icon{
+                margin-right: 6px;
+                margin-top: 1px;
+            }
+            .confirm-click {
+                cursor: pointer;
+            }
+        }
         .mail-detail {
             background-color: #F3F3F3;
             border-radius: 8px;
+            padding: 10px;
+            padding-right: 6px;
             .mail-from-line {
                 position: relative;
                 white-space: nowrap;
@@ -4010,7 +4105,7 @@ export default {
                 .attachment-item {
                     user-select: none;
                     width: calc(50% - 6px);
-                    height: 55px;
+                    height: 50px;
                     border-radius: 6px;
                     border: 1px solid #E0E0E0;
                     transition: background-color .2s;
@@ -4063,9 +4158,25 @@ export default {
                 }
             }
         }
+        .mail-head-icon {
+            font-size: 20px!important;
+        }
+        .mail-detail {
+            .mail-from-line {
+                .mail-clip-adjust {
+                    margin-left: -2px!important;
+                    margin-right: 7px!important;
+                }
+            }
+        }
+        .mail-head-expand {
+            margin-top: 6px;
+        }
         .mail-translation {
             background-color: #F3F3F3;
             border-radius: 8px;
+            padding: 10px;
+            padding-right: 6px;
             .translation-notice {
                 position: relative;
                 white-space: nowrap;
@@ -4305,6 +4416,13 @@ export default {
         .time-icon {
             vertical-align: text-top;
         }
+        .flex-no-overflow {
+            min-width: 0;
+        }
+        .important-icon {
+            margin-top: -1px;
+            margin-left: 4px;
+        }
         .relative-time {
             display: inline-block;
             &::first-letter {
@@ -4445,7 +4563,7 @@ export default {
         }
     }
     .viewer-layer {
-        .mail-detail {
+        .mail-detail, .mail-confirm {
             background-color: #2C2C2C;
         }
         .mail-translation {
@@ -4639,6 +4757,13 @@ export default {
         "ok": "OK",
         "drop_file": "Drop your files here",
         "preview": "Preview",
+        "importance_high": "High Importance",
+        "importance_low": "Low Importance",
+        "confirm_mail": "A read receipt was requested for this email, which has been ignored.",
+        "more": "More",
+        "mail_confirm_title": "Read receipt",
+        "mail_confirm_body": "This email requests a read receipt to mailbox {0} after you have opened the email to see if you have read it. As this feature is often abused by malicious emails, email clients will usually ignore this request.",
+        "mail_confirm_body_next": "UoM Assistant has ignored the read receipt request for this email so no receipt has been sent. If you would like the sender to know whether you have read the email, you can reply to this email manually.",
         "translation_settings": "Translation settings",
         "translation_tip": "When enabled, the translation panel will be displayed if the email can be translated. The content of the email will be sent to a third-party translation service. By using the translation service you are agreeing to their Terms of Service. The translation service provider can be found at the bottom left of the translation panel.",
         "language_unsupported_tip": "This language may not be supported by the translation service provided by the backend. The translation panel will not be displayed if the language is not supported.",
@@ -4768,6 +4893,13 @@ export default {
         "ok": "好",
         "drop_file": "在此放下文件",
         "preview": "预览",
+        "importance_high": "高优先级",
+        "importance_low": "低优先级",
+        "confirm_mail": "此邮件请求已读回执。已忽略该请求。",
+        "more": "更多",
+        "mail_confirm_title": "已读回执",
+        "mail_confirm_body": "此邮件请求在你打开邮件后向邮箱 {0} 发送已读回执以了解你是否已经阅读了邮件。由于此功能常被恶意邮件滥用，邮件客户端通常会忽略此请求。",
+        "mail_confirm_body_next": "曼大助手已忽略此邮件的已读回执请求且没有发送回执。如你希望发件方了解你是否已经阅读了邮件，可以主动回复此邮件。",
         "translation_settings": "翻译设置",
         "translation_tip": "启用邮件翻译后，在邮件可被翻译时将会显示翻译面板。翻译邮件需要将邮件内容发送至第三方翻译服务，使用翻译即代表你同意此服务的使用条款。具体的翻译服务提供商可以在翻译面板的左下方找到。",
         "language_unsupported_tip": "后端提供的翻译服务可能不支持此语言。当此语言不受支持时，翻译面板将不会显示。",
@@ -4897,6 +5029,12 @@ export default {
         "ok": "OK",
         "drop_file": "Arrastra tus archivos aquí",
         "preview": "Vista prevía",
+        "importance_high": "",
+        "importance_low": "",
+        "confirm_mail": "",
+        "more": "",
+        "mail_confirm_title": "",
+        "mail_confirm_body": "",
         "translation_settings": "Ajustes de traducción",
         "translation_tip": "Cuando está habilitado la traducción, el panel de traducción se mostrará cuando el correo electrónico esté disponible para traducir. El contenido del correo se enviará a un servicio de traducción de terceros. Al utilizar la traducción, acepta los Términos de Servicio del tercero. El proveedor de servicios de traducción se puede encontrar en la parte inferior izquierda del panel de traducción.",
         "language_unsupported_tip": "Es posible que este idioma no sea compatible con el servicio de traducción proporcionado por el back-end. Si no se admite este idioma, no se mostrará el panel de traducción.",
@@ -5030,6 +5168,12 @@ export default {
         "ok": "はい",
         "drop_file": "ここでファイルを置いてください",
         "preview": "プレビューを表示",
+        "importance_high": "",
+        "importance_low": "",
+        "confirm_mail": "",
+        "more": "",
+        "mail_confirm_title": "",
+        "mail_confirm_body": "",
         "translation_settings": "翻訳設定",
         "translation_tip": "メール翻訳機能を有効にすると、メールが翻訳可能の時に翻訳パネルが表示されます。メールの翻訳機能は、第三者の翻訳サービスに内容を送信する必要があります。この翻訳を利用すると、このサービスの利用規約に同意したことになります。具体的な翻訳サービス提供は、翻訳パネルの左下に表示されます。",
         "language_unsupported_tip": "バックエンドが提供する翻訳サービスが、この言語が支援されない可能性があります。そんな時たら、翻訳パネルが表示されません。",

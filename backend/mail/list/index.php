@@ -108,6 +108,23 @@ function mime_encode($string) {
     return $newString;
 }
 
+/**
+ * Find a header value from a header array.
+ *
+ * @param string $header The header is looking for
+ * @param array $raw The headers array
+ * @return mixed The value of the header or false if not found
+ */
+function get_header($header, $raw) {
+    $header = strtolower($header);
+    foreach ($raw as $line) {
+        if (strpos(strtolower($line) , $header.':') === 0) {
+            return trim(explode(':', $line, 2)[1]);
+        }
+    }
+    return false;
+}
+
 if ($user['email'] === false) {
     rest_die('Invalid request.', $conn);
 }
@@ -136,6 +153,7 @@ if ($cached_response !== false) {
     $headers = [];
     foreach ($all as $item) {
         $mail_header = json_decode(json_encode(imap_headerinfo($imap, $item)), true);
+        $mail_raw_header = preg_split("/\R/", imap_fetchheader($imap, $item));
         $to = [];
         if (isset($mail_header['to'])) {
             foreach ($mail_header['to'] as $item) {
@@ -144,6 +162,49 @@ if ($cached_response !== false) {
                     'address' => trim($item['mailbox']).'@'.trim($item['host'])
                 );
             }
+        }
+
+        $importance = 'm';
+        $h_importance = strtolower(get_header('Importance', $mail_raw_header));
+        $h_priority = strtolower(get_header('Priority', $mail_raw_header));
+        $h_x_priority = strtolower(get_header('X-Priority', $mail_raw_header));
+        $h_x_msmail_priority = strtolower(get_header('X-MSMail-Priority', $mail_raw_header));
+        if ($h_importance) {
+            if ($h_importance === 'low') {
+                $importance = 'l';
+            } elseif ($h_importance === 'high') {
+                $importance = 'h';
+            }
+        } elseif ($h_priority) {
+            if ($h_priority === 'non-urgent') {
+                $importance = 'l';
+            } elseif ($h_priority === 'urgent') {
+                $importance = 'h';
+            }
+        } elseif ($h_x_priority) {
+            if ($h_priority === '4' || $h_priority === '5') {
+                $importance = 'l';
+            } elseif ($h_priority === '1' || $h_priority === '2') {
+                $importance = 'h';
+            }
+        } elseif ($h_x_msmail_priority) {
+            if ($h_x_msmail_priority === 'low') {
+                $importance = 'l';
+            } elseif ($h_x_msmail_priority === 'high') {
+                $importance = 'h';
+            }
+        }
+
+        $confirm = false;
+        $h_x_confirm_reading_to = trim(strtolower(get_header('X-Confirm-Reading-To', $mail_raw_header)), '<>');
+        $h_return_receipt_to = trim(strtolower(get_header('Return-Receipt-To', $mail_raw_header)), '<>');
+        $h_read_receipt_to = trim(strtolower(get_header('Read-Receipt-To', $mail_raw_header)), '<>');
+        if ($h_x_confirm_reading_to) {
+            $confirm = $h_x_confirm_reading_to;
+        } elseif ($h_return_receipt_to) {
+            $confirm = $h_return_receipt_to;
+        } elseif ($h_read_receipt_to) {
+            $confirm = $h_read_receipt_to;
         }
 
         $cc = [];
@@ -157,7 +218,7 @@ if ($cached_response !== false) {
         }
         $headers[] = array(
             'subject' => isset($mail_header['subject']) ? mime_encode(trim($mail_header['subject'])) : false,
-            'from' => trim($mail_header['from'][0]['personal']) === '' ? false : mime_encode(trim($mail_header['from'][0]['personal'])),
+            'from' => ((!isset($mail_header['from'][0]['personal'])) || trim($mail_header['from'][0]['personal']) === '') ? false : mime_encode(trim($mail_header['from'][0]['personal'])),
             'fromAddress' => trim($mail_header['from'][0]['mailbox']).'@'.trim($mail_header['from'][0]['host']),
             'replyTo' => isset($mail_header['reply_to'][0]['personal']) ? mime_encode(trim($mail_header['reply_to'][0]['personal'])) : false,
             'replyToAddress' => isset($mail_header['reply_to'][0]) ? trim($mail_header['reply_to'][0]['mailbox']).'@'.trim($mail_header['reply_to'][0]['host']) : false,
@@ -167,7 +228,9 @@ if ($cached_response !== false) {
             'messageId' => (isset($mail_header['message_id']) && strlen(trim($mail_header['message_id'])) > 7) ? str_replace('"', '', (trim($mail_header['message_id']))) : false,
             'date' => $mail_header['udate'],
             'flagged' => $mail_header['Flagged'] === 'F',
-            'unseen' => $mail_header['Unseen'] === 'U' || $mail_header['Recent'] === 'N'
+            'unseen' => $mail_header['Unseen'] === 'U' || $mail_header['Recent'] === 'N',
+            'importance' => $importance,
+            'confirm' => $confirm,
         );
     }
 
