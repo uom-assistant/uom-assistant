@@ -577,7 +577,7 @@ export default {
 <i18n>
 {
     "en": {
-        "import_data": "Import Data",
+        "import_data": "Import data",
         "upload": "Click or drag & drop to select",
         "too_many": "Too many files",
         "too_many_body": "You can only choose one file at a time.",

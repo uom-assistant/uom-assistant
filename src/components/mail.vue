@@ -95,15 +95,26 @@
                 >
                     <template v-slot:default="{ item: mail, index }">
                         <v-list-item :key="mail.id" @click.stop="openMail(mail.id)" :class="{ flaged: mail.flagged, unseen: mail.unseen }" @contextmenu.prevent="(e) => showListMenu(e, mail.id)">
-                            <v-list-item-avatar :color="(mail.flagged || mail.unseen) ? 'uomthemelight' : ($vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2')" v-if="getSubjectId(mail.subject, mail.from) === false" :class="{ 'black--text': ((mail.flagged || mail.unseen) && $vuetify.theme.dark) }">
-                                <span v-if="getMailAvatar(mail.subject, mail.from, mail.fromAddress) === false">{{ getTwoLetterSenderName(mail.from ? mail.from : mail.fromAddress) }}</span>
-                                <img v-else :src="require(`@/assets/img/mail-avatars/${getMailAvatar(mail.subject, mail.from, mail.fromAddress)}`)">
-                            </v-list-item-avatar>
-
-                            <v-list-item-avatar :color="subjectColor(getSubjectId(mail.subject, mail.from))" v-else>
-                                <v-icon color="white" v-if="getMailAvatar(mail.subject, mail.from, mail.fromAddress) === false">mdi-book-outline</v-icon>
-                                <img v-else :src="require(`@/assets/img/mail-avatars/${getMailAvatar(mail.subject, mail.from, mail.fromAddress)}`)">
-                            </v-list-item-avatar>
+                            <v-badge
+                                avatar
+                                bordered
+                                color="primary"
+                                overlap
+                                bottom
+                                offset-x="27"
+                                offset-y="22"
+                                :icon="checkReFwd(mail.subject)"
+                                :class="{ 'hide-badge': checkReFwd(mail.subject) === '' }"
+                            >
+                                <v-list-item-avatar :color="(mail.flagged || mail.unseen) ? 'uomthemelight' : ($vuetify.theme.dark ? 'grey darken-1' : 'grey lighten-2')" :class="{ 'black--text': ((mail.flagged || mail.unseen) && $vuetify.theme.dark) }" v-if="getSubjectId(mail.subject, mail.from) === false">
+                                    <span v-if="getMailAvatar(mail.subject, mail.from, mail.fromAddress) === false">{{ getTwoLetterSenderName(mail.from ? mail.from : mail.fromAddress) }}</span>
+                                    <img v-else :src="require(`@/assets/img/mail-avatars/${getMailAvatar(mail.subject, mail.from, mail.fromAddress)}`)">
+                                </v-list-item-avatar>
+                                <v-list-item-avatar :color="subjectColor(getSubjectId(mail.subject, mail.from))" v-else>
+                                    <v-icon color="white" v-if="getMailAvatar(mail.subject, mail.from, mail.fromAddress) === false">mdi-book-outline</v-icon>
+                                    <img v-else :src="require(`@/assets/img/mail-avatars/${getMailAvatar(mail.subject, mail.from, mail.fromAddress)}`)">
+                                </v-list-item-avatar>
+                            </v-badge>
 
                             <v-list-item-content>
                                 <v-list-item-title :class="{ 'primary--text': mail.unseen }"><span v-if="mail.subject" :title="mail.subject">{{ mail.subject }}</span><em v-else>{{ $t('no_subject') }}</em></v-list-item-title>
@@ -3526,6 +3537,24 @@ export default {
         getLanguageName(language) {
             return this.$t(`lang_${language.locale}`);
         },
+        /**
+         * Check and get forward or reply icon
+         * @param {string} subject mail subject
+         * @returns {string} icon name or empty string
+         */
+        checkReFwd(subject) {
+            if (typeof subject !== 'string') {
+                return '';
+            }
+            const lowerSubject = subject.toLowerCase();
+            if (lowerSubject.startsWith('re:')) {
+                return 'mdi-reply';
+            }
+            if (lowerSubject.startsWith('fw:') || lowerSubject.startsWith('fwd:')) {
+                return 'mdi-share';
+            }
+            return '';
+        },
     },
     watch: {
         locale() {
@@ -3800,6 +3829,32 @@ export default {
     }
     .v-skeleton-loader .v-skeleton-loader__list-item-avatar-three-line {
         height: 79px;
+    }
+    .hide-badge .v-badge__badge {
+        display: none;
+    }
+    .v-list {
+        .v-badge__badge::after {
+            transition: border-color 0.2s;
+        }
+        .v-list-item:hover {
+            .v-badge__badge::after {
+                border-color: #F5F5F5;
+            }
+        }
+        .flaged, .unseen {
+            .v-badge__badge::after {
+                border-color: #ECE0F3;
+            }
+        }
+        .flaged, .unseen:hover {
+            .v-badge__badge::after {
+                border-color: #E0CCEB;
+            }
+        }
+    }
+    .v-badge .v-avatar {
+        margin-left: 0!important;
     }
     .viewer-layer-mask, .editor-layer-mask, .expand-layer-mask {
         position: absolute;
@@ -4560,6 +4615,26 @@ export default {
     h2 {
         .num-badge {
             background-color: #3E3E3E;
+        }
+    }
+    .v-list .v-badge__badge .v-icon {
+        color: #1E1E1E;
+    }
+    .v-list {
+        .v-list-item:hover {
+            .v-badge__badge::after {
+                border-color: #272727;
+            }
+        }
+        .flaged, .unseen {
+            .v-badge__badge::after {
+                border-color: #332D35;
+            }
+        }
+        .flaged, .unseen:hover {
+            .v-badge__badge::after {
+                border-color: #423745;
+            }
         }
     }
     .viewer-layer {

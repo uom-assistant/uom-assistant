@@ -1085,7 +1085,7 @@ export default [
                     confirm: false,
                 },
                 {
-                    subject: 'COMP15212 Programming 2 2077-78 2nd Semester: Week N Materials for COMP16412 now available',
+                    subject: 'Fw: Programming 2 2077-78 2nd Semester: Week N Materials for COMP16412 now available',
                     from: 'Aaaaa Bbbbb - aaaaa.bbbbb@manchester.ac.uk',
                     fromAddress: 'do-not-reply@blackboard.com',
                     replyTo: 'Aaaaa Bbbbb - aaaaa.bbbbb@manchester.ac.uk',
@@ -1101,7 +1101,7 @@ export default [
                     confirm: 'aaaaa.bbbbb@manchester.ac.uk',
                 },
                 {
-                    subject: 'COMP11120 Mathematical Techniques for Computer Science 2020-21 Full Year: COMP111 this week',
+                    subject: 'RE: COMP11120 Mathematical Techniques for Computer Science 2020-21 Full Year: COMP111 this week',
                     from: 'Aaaaa Ccccc',
                     fromAddress: 'aaaaa.cccccc@hotmail.com',
                     replyTo: 'Aaaaa Ccccc',
