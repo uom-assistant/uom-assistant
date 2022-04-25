@@ -1128,6 +1128,7 @@ export default {
         setFirstDay() {
             this.setttingsDialog = true;
             this.editingFirstDay = this.firstDay;
+            this.holidaySetting = this.showHoliday ? 0 : undefined;
         },
         /**
          * Save the first day of the week
@@ -1365,6 +1366,9 @@ export default {
     padding-right: 0;
     overflow: hidden;
     contain: strict;
+    div[data-date]:not(.v-event) {
+        display: none;
+    }
     .loading {
         margin-left: 10px;
     }
