@@ -1366,7 +1366,7 @@ export default {
     padding-right: 0;
     overflow: hidden;
     contain: strict;
-    div[data-date]:not(.v-event) {
+    div[data-date]:not(.v-event):not(.v-event-more) {
         display: none;
     }
     .loading {
@@ -1554,8 +1554,11 @@ export default {
         .v-card__text {
             width: fit-content;
             min-width: 350px;
+            max-width: 70vw;
             pre {
                 font-family: Roboto, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif;
+                white-space: pre-wrap;
+                width: max-content;
             }
         }
         .map-container {
@@ -1602,9 +1605,11 @@ export default {
         overscroll-behavior: contain;
         .v-card__text {
             width: 100%;
+            max-width: 100%;
             pre {
                 white-space: pre-wrap;
                 word-break: break-word;
+                width: 100%;
             }
         }
         .v-toolbar {
