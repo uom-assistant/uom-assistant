@@ -160,7 +160,7 @@
                         {{ $t('title') }}
                     </v-list-item-title>
                     <v-list-item-subtitle>
-                        By Axton
+                        By hugo.prp
                     </v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>
@@ -2408,7 +2408,7 @@ code, kbd, pre, samp {
 <i18n>
 {
     "en": {
-        "title": "UoM Assistant",
+        "title": "Tasky Assistant",
         "front_end_update_ready": "New version of the frontend is now available",
         "front_end_update": "Update",
         "front_end_ignore": "Ignore",
