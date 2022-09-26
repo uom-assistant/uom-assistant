@@ -11,23 +11,26 @@
             class="loading"
             v-show="loading"
         ></v-progress-circular>
-        <div class="task-outer">
+        <div class="task-outer" v-shortkey="['alt', 't']" @shortkey="focusInput">
             <h2 class="handle">
                 {{ $t('task') }}
                 <span class="num-badge" v-show="(tasks.length - ifTasks.length) > 0">{{ tasks.length - ifTasks.length }}</span>
-                <v-btn icon small class="float-right mr-4" :title="$t('quick_add')" @click="courseworkList = true">
+                <v-btn icon small class="float-right mr-4" :title="$t('quick_add')" @click="openAhead">
                     <v-icon>mdi-playlist-plus</v-icon>
                 </v-btn>
             </h2>
-            <v-text-field
-                :label="$t('add_task')"
-                outlined
-                class="input"
-                prepend-inner-icon="mdi-format-list-checks"
-                clearable
-                v-model.trim="addText"
-                @keypress.enter="addOne"
-            ></v-text-field>
+            <div class="input-container">
+                <v-text-field
+                    :label="$t('add_task')"
+                    outlined
+                    class="input"
+                    prepend-inner-icon="mdi-format-list-checks"
+                    clearable
+                    v-model.trim="addText"
+                    @keypress.enter="addOne"
+                    ref="addInput"
+                ></v-text-field>
+            </div>
             <div class="date-expend" :class="{ expended: addText && addText.length > 0 }">
                 <v-menu
                     v-model="dateMenu"
@@ -73,7 +76,7 @@
                         <v-text-field
                             v-model="time"
                             :label="$t('ddl_time')"
-                            prepend-inner-icon="mdi-clock-time-four-outline"
+                            prepend-inner-icon="mdi-clock-outline"
                             class="time-input"
                             readonly
                             v-bind="attrs"
@@ -133,68 +136,130 @@
                     </v-icon>
                 </v-btn>
             </div>
-            <v-list flat class="list" :key="updateListKey">
-                <v-list-item-group
-                    v-model="ifTasks"
-                    multiple
-                    active-class="done"
-                >
-                    <v-list-item v-for="(task, index) in tasks" :key="index">
-                        <template v-slot:default="{ active }">
-                            <v-list-item-action>
-                                <v-checkbox :input-value="active"></v-checkbox>
-                            </v-list-item-action>
+            <div class="list-conatiner-head" :class="{ shadow: headerShadow }"></div>
+            <div class="list-conatiner" @scroll.passive="scrollHandler" ref="scrollTarget">
+                <v-list flat class="list" :key="updateListKey">
+                    <v-list-item-group
+                        v-model="ifTasks"
+                        multiple
+                        active-class="done"
+                    >
+                        <v-list-item v-for="(task, index) in tasks" :key="index">
+                            <template v-slot:default="{ active }">
+                                <v-list-item-action>
+                                    <v-checkbox :input-value="active"></v-checkbox>
+                                </v-list-item-action>
 
-                            <v-list-item-content>
-                                <v-list-item-title><span v-if="task.deadline !== false && displayRemain(task.deadline, index) !== ''" class="d-inline-block time-remain" :class="checkExpired(task.deadline, index)"><v-icon :class="checkUrgent(task.deadline, index)" class="mr-1 urgent-icon" dense>mdi-clock-alert-outline</v-icon>{{ displayRemain(task.deadline, index) }}</span>{{ task.title }}</v-list-item-title>
-                                <v-list-item-subtitle v-if="task.deadline !== false || task.subject !== false">
-                                    <span v-if="task.deadline !== false" class="mr-2">
-                                        <v-icon
-                                            v-if="task.deadline !== false"
-                                            small
-                                        >
-                                            mdi-clock-outline
-                                        </v-icon>
-                                        {{ getDate(new Date(task.deadline)) }}
-                                    </span>
-                                    <span v-if="task.subject !== false">
-                                        <span :class="subjectColor(task.subject)" class="subject-color-samll" v-if="task.subject !== false"></span>
-                                        {{ subjectNameMap(task.subject) }}
-                                    </span>
-                                </v-list-item-subtitle>
-                            </v-list-item-content>
+                                <v-list-item-content>
+                                    <v-list-item-title :title="task.title"><span v-if="task.deadline !== false && displayRemain(task.deadline, index) !== ''" class="d-inline-block time-remain" :class="checkExpired(task.deadline, index)"><v-icon :class="checkUrgent(task.deadline, index)" class="mr-1 urgent-icon" dense>mdi-clock-alert-outline</v-icon>{{ displayRemain(task.deadline, index) }}</span>{{ task.title }}</v-list-item-title>
+                                    <v-list-item-subtitle v-if="task.deadline !== false || task.subject !== false">
+                                        <span v-if="task.deadline !== false" class="mr-2">
+                                            <v-icon
+                                                v-if="task.deadline !== false"
+                                                small
+                                            >
+                                                mdi-clock-outline
+                                            </v-icon>
+                                            {{ getDate(new Date(task.deadline)) }}
+                                        </span>
+                                        <span v-if="task.subject !== false">
+                                            <span :class="subjectColor(task.subject)" class="subject-color-samll" v-if="task.subject !== false && subjectColor(task.subject) !== ''"></span>
+                                            {{ subjectNameMap(task.subject) }}
+                                        </span>
+                                    </v-list-item-subtitle>
+                                </v-list-item-content>
 
-                            <v-list-item-action class="delete">
-                                <v-btn icon @click.stop="removeTask(index)">
-                                    <v-icon color="grey">mdi-delete-outline</v-icon>
-                                </v-btn>
-                            </v-list-item-action>
-                        </template>
-                    </v-list-item>
-                </v-list-item-group>
-            </v-list>
+                                <v-list-item-action class="delete" v-if="task.source !== 'auto' || ahead === -1 || checkExpiredBool(task.deadline)">
+                                    <v-btn icon @click.stop="removeTask(index)">
+                                        <v-icon color="grey">mdi-delete-outline</v-icon>
+                                    </v-btn>
+                                </v-list-item-action>
+                            </template>
+                        </v-list-item>
+                    </v-list-item-group>
+                </v-list>
+            </div>
             <div class="empty" v-if="tasks.length === 0">
                 <v-icon color="grey" x-large>mdi-check-all</v-icon>
             </div>
         </div>
         <v-dialog
             v-model="courseworkList"
-            max-width="500"
+            max-width="600"
+            :fullscreen="$vuetify.breakpoint.xs"
+            :transition="$vuetify.breakpoint.xs ? 'slide-y-reverse-transition' : 'dialog-transition'"
         >
-            <v-card>
+            <v-card class="auto-add-dialog" :class="$vuetify.breakpoint.xs ? 'rounded-0' : ''">
                 <v-card-title class="headline">
                     {{ $t('coursework_list') }}
                 </v-card-title>
-                <v-card-text></v-card-text>
+                <v-card-text class="pb-2">
+                    <p>{{ $t('auto_add_text') }}</p>
+                    <v-select
+                        v-model="editingAhead"
+                        :items="aheadItems()"
+                        :label="$t('add_ahead')"
+                        hide-details
+                        dense
+                        outlined
+                    ></v-select>
+                </v-card-text>
                 <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
-                    color="primary"
-                    text
-                    @click="courseworkList = false"
-                >
-                    {{ $t('close') }}
-                </v-btn>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="saveAhead"
+                    >
+                        {{ $t('save') }}
+                    </v-btn>
+                </v-card-actions>
+                <v-card-text class="pb-1">
+                    <v-divider class="mt-1 mb-4"></v-divider>
+                    <p>{{ $t('man_add_text') }}</p>
+                    <v-simple-table class="coursework-table rounded-0">
+                        <template v-slot:default>
+                            <thead>
+                                <tr>
+                                    <th class="text-left pl-0" scope="col">
+                                        {{ $t('coursework') }}
+                                    </th>
+                                    <th class="text-left" scope="col">
+                                        {{ $t('deadline') }}
+                                    </th>
+                                    <th class="text-right pr-0" scope="col">
+                                        {{ $t('action') }}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    v-for="(item, index) in upcomingCourseworks"
+                                    :key="`${index}-cwk`"
+                                >
+                                    <td class="text-left pl-0">
+                                        <v-icon class="mr-1 formative" dense :title="$t('formative')" v-if="!item.summative">mdi-bookmark-off-outline</v-icon>{{ item.name }}<br><span v-if="subjectColor(item.course) !== ''" :class="subjectColor(item.course)" class="subject-color-samll mr-2"></span><span class="subject-id">{{ subjectNameMap(item.course) }}</span><v-icon x-small class="ml-2 mr-1" v-if="item.tag">mdi-tag-outline</v-icon><span class="subject-id" v-if="item.tag">{{ item.tag }}</span>
+                                    </td>
+                                    <td>{{ item.ddlTime === -1 ? $t('na') : getDate(new Date(item.ddlTime)) }}</td>
+                                    <td class="text-right pr-0">
+                                        <v-btn icon :title="$t('add')" @click="addCoursework(item, index, 'manual')" :disabled="checkExist(item.name) || added.includes(index)">
+                                            <v-icon>{{ (checkExist(item.name) || added.includes(index)) ? 'mdi-check' : 'mdi-plus' }}</v-icon>
+                                        </v-btn>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </template>
+                    </v-simple-table>
+                    <div class="d-flex justify-center align-center no-coursework" v-if="upcomingCourseworks.length === 0">{{ $t('no_coursework') }}</div>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        text
+                        @click="courseworkList = false"
+                    >
+                        {{ $t('close') }}
+                    </v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -203,6 +268,9 @@
 
 <script>
 import { mapState } from 'vuex';
+
+import scroll from '@/mixins/scroll';
+
 import formatDateTime from '@/tools/formatDateTime';
 
 export default {
@@ -210,6 +278,7 @@ export default {
     props: {
         searchid: Number,
     },
+    mixins: [scroll],
     data() {
         return {
             loading: false,
@@ -225,6 +294,9 @@ export default {
             updateDatePickerKey: 0,
             courseworkList: false,
             timer: null,
+            editingAhead: -1,
+            ahead: -1,
+            added: [],
         };
     },
     methods: {
@@ -263,6 +335,9 @@ export default {
                     title: this.addText,
                     deadline,
                     subject: this.addingSubject === null || this.addingSubject.length === 0 ? false : this.addingSubject,
+                    source: 'manual',
+                    synced: false,
+                    updated: new Date().valueOf(),
                 });
                 // Clear inputs
                 this.addText = '';
@@ -282,18 +357,18 @@ export default {
         removeTask(index) {
             // Create a copy to protect the original array
             const ifTasksCopy = [];
-            for (let i = 0; i < this.ifTasks.length; i += 1) {
-                ifTasksCopy.push(this.ifTasks[i]);
+            for (const idx of this.ifTasks) {
+                ifTasksCopy.push(idx);
             }
 
-            // Remove the index and update the remaining
+            // Update task status
+            const indexPosition = ifTasksCopy.indexOf(index);
+            if (indexPosition !== -1) {
+                ifTasksCopy.splice(indexPosition, 1);
+            }
             for (let i = 0; i < ifTasksCopy.length; i += 1) {
-                if (ifTasksCopy[i] === index) {
-                    ifTasksCopy.splice(i, 1);
-                } else {
-                    if (ifTasksCopy[i] > index) {
-                        ifTasksCopy[i] -= 1;
-                    }
+                if (ifTasksCopy[i] > index) {
+                    ifTasksCopy[i] -= 1;
                 }
             }
             this.ifTasks = ifTasksCopy;
@@ -313,7 +388,61 @@ export default {
             localStorage.setItem('tasks', JSON.stringify({
                 tasks: this.tasks,
                 ifTasks: this.ifTasks,
+                ahead: this.ahead,
             }));
+        },
+        /**
+         * Add a coursework to the task list
+         * @param {Object} courswork coursework object
+         * @param {number} index coursework index in the upcoming courseworks list
+         * @param { 'manual' | 'auto' } source coursework source
+         */
+        addCoursework(courswork, index, source = 'manual') {
+            this.tasks.push({
+                title: courswork.name,
+                deadline: courswork.ddlTime === -1 ? false : courswork.ddlTime,
+                subject: courswork.course,
+                source,
+                synced: false,
+                updated: new Date().valueOf(),
+            });
+            if (index !== -1) {
+                this.added.push(index);
+            }
+
+            // Update layout
+            this.$nextTick(() => {
+                this.packery.shiftLayout();
+            });
+        },
+        /**
+         * Open the coursework list dialog
+         */
+        openAhead() {
+            this.added = [];
+            this.editingAhead = this.ahead;
+            this.courseworkList = true;
+        },
+        /**
+         * Save audo-add option and close the coursework list dialog
+         */
+        saveAhead() {
+            this.ahead = this.editingAhead;
+            this.store();
+            this.courseworkList = false;
+        },
+        /**
+         * Check whether a task exists by its name
+         * @param {string} name task name
+         * @returns {boolean} whether the task exists
+         */
+        checkExist(name) {
+            for (const task of this.tasks) {
+                if (task.title === name) {
+                    return true;
+                }
+            }
+            return false;
         },
         /**
          * Map from subject ID to subject color
@@ -447,6 +576,18 @@ export default {
             return 'text--secondary';
         },
         /**
+         * Check if the task is expired
+         * @param {number} deadline deadline
+         * @returns {boolean} if the task is expired
+         */
+        checkExpiredBool(deadline) {
+            const now = new Date().valueOf();
+            if (deadline - now < 0) {
+                return true;
+            }
+            return false;
+        },
+        /**
          * Generate and broadcast task deadline tasks
          */
         storeTasks() {
@@ -505,6 +646,51 @@ export default {
                 },
             });
         },
+        /**
+         * Build options for auto-add
+         * @returns {array} options list for auto-add
+         */
+        aheadItems() {
+            return [-1, 3, 4, 5, 6, 7, 14, 21, 30].map((item) => ({
+                text: item === -1 ? this.$t('dont_auto_add') : this.showDate(item),
+                value: item === -1 ? -1 : item * 24 * 3600 * 1000,
+            }));
+        },
+        /**
+         * Format the number of days to a string
+         * @param {number} days number of days
+         * @returns {string} formatted string
+         */
+        showDate(days) {
+            if (days < 7) {
+                return this.$tc('n_days', days, [days]);
+            }
+            if (days < 30) {
+                return this.$tc('n_weeks', days / 7, [days / 7]);
+            }
+            return this.$tc('n_months', 1, [1]);
+        },
+        /**
+         * Automatically add courseworks to task list
+         */
+        autoAdd() {
+            if (this.ahead !== -1) {
+                for (const coursework of this.upcomingCourseworks) {
+                    if (typeof coursework.ddlTime === 'number' && coursework.ddlTime > 0) {
+                        const dlt = coursework.ddlTime - new Date().valueOf();
+                        if (dlt >= 0 && dlt < (this.ahead + 24 * 3600 * 1000) && !this.checkExist(coursework.name)) {
+                            this.addCoursework(coursework, -1, 'auto');
+                        }
+                    }
+                }
+            }
+        },
+        /**
+         * Focus the input
+         */
+        focusInput() {
+            this.$refs.addInput.focus();
+        },
     },
     watch: {
         locale() {
@@ -516,8 +702,18 @@ export default {
             this.storeTasks();
             this.buildSearchIndex();
         },
-        ifTasks() {
-            // Store data when task state changed
+        ifTasks(newVal, oldVal) {
+            for (const item of newVal) {
+                if (!oldVal.includes(item) && this.tasks[item]) {
+                    this.tasks[item].updated = new Date().valueOf();
+                }
+            }
+            for (const item of oldVal) {
+                if (!newVal.includes(item) && this.tasks[item]) {
+                    this.tasks[item].updated = new Date().valueOf();
+                }
+            }
+            // Store data when task status changed
             this.store();
             this.storeTasks();
             this.buildSearchIndex();
@@ -527,6 +723,12 @@ export default {
         },
         timerHour() {
             this.updateDatePickerKey = new Date().valueOf();
+        },
+        upcomingCourseworks() {
+            this.autoAdd();
+        },
+        ahead() {
+            this.autoAdd();
         },
         searchNotification() {
             // Handle search actions
@@ -560,13 +762,30 @@ export default {
             timerMin: (state) => state.timerMin,
             timerHour: (state) => state.timerHour,
             searchNotification: (state) => state.searchNotification,
+            upcomingCourseworks: (state) => state.upcomingCourseworks,
+            widgets: (state) => state.widgets,
         }),
+        /**
+         * Whether the widget is shown
+         * @returns {boolean} whether the widget is shown
+         */
+        widgetShown() {
+            return this.widgets ? this.widgets.includes(this.searchid) : true;
+        },
+        /**
+         * Get all courses that not hidden
+         * @returns {array} all courses that not hidden
+         */
         allSubjects() {
             if (!this.subjects) {
                 return [];
             }
             return this.subjects.filter((subject) => !subject.hide);
         },
+        /**
+         * Get ISO locale name
+         * @returns {string} ISO locale name
+         */
         selectLocale() {
             return this.localeDetail === null ? 'en' : this.localeDetail.iso;
         },
@@ -580,12 +799,16 @@ export default {
             const storagedTasks = JSON.parse(storaged);
             this.tasks = storagedTasks.tasks;
             this.ifTasks = storagedTasks.ifTasks;
+            this.ahead = storagedTasks.ahead;
+            this.editingAhead = storagedTasks.ahead;
         }
 
         this.buildSearchIndex();
     },
     beforeDestroy() {
-        clearInterval(this.timer);
+        if (this.timer !== null) {
+            clearInterval(this.timer);
+        }
     },
 };
 </script>
@@ -618,19 +841,25 @@ export default {
             margin-left: 3px;
         }
     }
-    .input {
-        width: 92%;
-        margin-left: 4%!important;
-        margin-top: 15px!important;
-        margin-bottom: -20px!important;
+    .input-container {
+        position: relative;
+        z-index: 3;
+        background-color: white;
+        height: 58px;
+        .input {
+            width: 92%;
+            margin-left: 4%!important;
+            margin-top: 15px!important;
+            margin-bottom: -28px!important;
+        }
     }
     .date-expend {
         position: absolute;
-        top: 127px;
+        top: 126px;
         background-color: white;
         left: 0;
-        z-index: 2;
-        border-radius: 8px;
+        z-index: 4;
+        border-radius: 0 0 8px 8px;
         transform: scaleY(0);
         transform-origin: top;
         overflow: visible;
@@ -680,6 +909,22 @@ export default {
                 transition: opacity .3s .3s;
             }
         }
+    }
+    .list-conatiner-head {
+        width: 100%;
+        height: 12px;
+        position: relative;
+        z-index: 2;
+        transition: all .2s;
+        &.shadow {
+            box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 10%), 0px 4px 5px 0px rgba(0, 0, 0, 7%), 0px 1px 10px 0px rgba(0, 0, 0, 6%)!important;
+        }
+    }
+    .list-conatiner {
+        position: relative;
+        z-index: 1;
+        max-height: 430px;
+        overflow-y: auto;
     }
     .list {
         padding-top: 0;
@@ -750,11 +995,43 @@ export default {
         min-height: 260px;
     }
 }
+.auto-add-dialog {
+    .subject-id {
+        opacity: .5;
+        font-size: 13px;
+    }
+    .subject-color-samll {
+        width: 10px;
+        height: 10px;
+        display: inline-block;
+        border-radius: 50%;
+        margin: 0;
+        margin-right: 2px;
+    }
+    .no-coursework {
+        opacity: .5;
+        font-size: 15px;
+        height: 100px;
+    }
+    .formative {
+        vertical-align: middle;
+        font-size: 16px;
+    }
+    tr {
+        background-color: transparent!important;
+        &:hover {
+            background-color: transparent!important;
+        }
+    }
+}
 #app.theme--dark .task-container {
     h2 {
         .num-badge {
             background-color: #3E3E3E;
         }
+    }
+    .input-container {
+        background-color: #1E1E1E;
     }
     .v-list-item {
         &:hover, &:focus {
@@ -787,7 +1064,22 @@ export default {
         "remain_min": "{0} min | {0} mins",
         "expired": "Overdue",
         "quick_add": "Coursework quick adding",
-        "coursework_list": "Coursework list",
+        "coursework_list": "Add coursework",
+        "save": "Save",
+        "auto_add_text": "UoM Assistant can automatically add courseworks to the task list at a specified time before their due time. Automatically added courseworks cannot be deleted manually until the coursework expires or auto-add is turned off.",
+        "man_add_text": "You can also add courseworks manually. The list is synchronised from SPOT, please check the accuracy of the list yourself.",
+        "add_ahead": "Auto-add … in advance",
+        "dont_auto_add": "Don't auto-add",
+        "n_days": "{0} day | {0} days",
+        "n_weeks": "{0} week | {0} weeks",
+        "n_months": "{0} month | {0} months",
+        "coursework": "Coursework",
+        "deadline": "Deadline",
+        "action": "Action",
+        "na": "N/A",
+        "add": "Add to task list",
+        "no_coursework": "No upcoming coursework",
+        "formative": "Formative",
         "close": "Close"
     },
     "zh": {
@@ -802,7 +1094,22 @@ export default {
         "remain_min": "{0} 分钟 | {0} 分钟",
         "expired": "已过期",
         "quick_add": "快速添加作业",
-        "coursework_list": "作业列表",
+        "coursework_list": "添加作业",
+        "save": "保存",
+        "auto_add_text": "曼大助手可以在作业到期前指定时间时自动添加作业到任务列表。自动添加的作业无法被手动删除，直到作业到期或自动添加被关闭。",
+        "man_add_text": "你也可以手动添加作业任务。作业列表同步自 SPOT，请自行确认信息准确性。",
+        "add_ahead": "提前…自动添加",
+        "dont_auto_add": "不要自动添加",
+        "n_days": "{0} 天 | {0} 天",
+        "n_weeks": "{0} 周 | {0} 周",
+        "n_months": "{0} 个月 | {0} 个月",
+        "coursework": "作业",
+        "deadline": "截止时间",
+        "action": "操作",
+        "na": "未知",
+        "add": "添加到任务列表",
+        "no_coursework": "没有即将到来的作业",
+        "formative": "不计分作业",
         "close": "关闭"
     },
     "es": {
@@ -816,8 +1123,23 @@ export default {
         "remain_hour": "{0} hora | {0} horas",
         "remain_min": "{0} minuto | {0} minutos",
         "expired": "Atrasado",
-        "quick_add": "",
+        "quick_add": "Adición rápida de trabajo de asignatura",
         "coursework_list": "",
+        "save": "Guardar",
+        "auto_add_text": "",
+        "man_add_text": "",
+        "add_ahead": "",
+        "dont_auto_add": "",
+        "n_days": "",
+        "n_weeks": "",
+        "n_months": "",
+        "coursework": "",
+        "deadline": "",
+        "action": "",
+        "na": "",
+        "add": "",
+        "no_coursework": "",
+        "formative": "",
         "close": "Cerrar"
     },
     "ja": {
@@ -833,6 +1155,21 @@ export default {
         "expired": "期限切れた",
         "quick_add": "",
         "coursework_list": "",
+        "save": "保存",
+        "auto_add_text": "",
+        "man_add_text": "",
+        "add_ahead": "",
+        "dont_auto_add": "",
+        "n_days": "",
+        "n_weeks": "",
+        "n_months": "",
+        "coursework": "",
+        "deadline": "",
+        "action": "",
+        "na": "",
+        "add": "",
+        "no_coursework": "",
+        "formative": "",
         "close": "閉じる"
     }
 }

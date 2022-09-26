@@ -30,12 +30,12 @@
                 ></v-select>
             </h2>
             <v-skeleton-loader
-                v-if="!init && loading"
+                v-if="!init && loading && widgetShown"
                 class="mx-auto loading-tab"
                 type="heading"
             ></v-skeleton-loader>
             <div class="loading-view" v-if="(!init && loading) || (!init && !loading) || (init && gradeListFlat.length === 0)" :class="{ 'not-inited-yet': (!init && !loading) || (init && gradeListFlat.length === 0) }">
-                <v-card class="loading-bg mx-auto mb-2" v-if="!init && loading" outlined>
+                <v-card class="loading-bg mx-auto mb-2" v-if="!init && loading && widgetShown" outlined>
                     <v-skeleton-loader
                         class="mx-auto"
                         type="list-item-two-line, divider, list-item-two-line, list-item"
@@ -435,6 +435,7 @@ export default {
             expendingSubTree: [],
             subRefreshKey: 0,
             blackboardUpdated: 0,
+            lastUpdated: -1,
         };
     },
     methods: {
@@ -442,9 +443,10 @@ export default {
          * Update grade data from backend
          */
         async updateGrade(tryCount = 1) {
-            if (!this.backend.url || !this.account.username || !this.account.password) {
+            if (!this.widgetShown || !this.backend.url || !this.account.username || !this.account.password) {
                 return;
             }
+
             this.loading = true;
             let requestFailed = false;
             // Send request
@@ -454,8 +456,8 @@ export default {
                     username: this.account.username,
                     password: this.account.password,
                     token: this.backend.token ? this.backend.token : '',
-                }, true),
-            }).catch(() => {
+                }),
+            }, true).catch(() => {
                 if (tryCount < 2) {
                     // Retry
                     setTimeout(() => {
@@ -474,12 +476,18 @@ export default {
             });
 
             if (requestFailed) {
+                this.$nextTick(() => {
+                    this.relocate();
+                });
                 return;
             }
 
             // Check response
             if (!this.checkResponse(response)) {
                 this.loading = false;
+                this.$nextTick(() => {
+                    this.relocate();
+                });
                 return;
             }
 
@@ -494,12 +502,17 @@ export default {
                     this.$store.commit('setBackendStatus', false);
                 }
                 this.loading = false;
+                this.$nextTick(() => {
+                    this.relocate();
+                });
                 return;
             }
 
             // Update data
             this.$store.commit('setBackendStatus', true);
+            this.$store.commit('setUpcomingCourseworks', this.buildUpcomingCourseworks(response.data.data));
             this.loading = false;
+            this.lastUpdated = new Date().valueOf();
             this.blackboardUpdated = response.data.blackboardUpdated;
             this.allGrades = response.data.data;
             this.selectedGradeList = this.selectedGradeList === '' ? response.data.data[response.data.data.length - 1].year : this.selectedGradeList;
@@ -519,6 +532,48 @@ export default {
             this.$nextTick(() => {
                 this.relocate();
             });
+        },
+        /**
+         * Build upcoming coursework list for task
+         * @returns {array} upcoming coursework list
+         */
+        buildUpcomingCourseworks(data) {
+            const upcomingCourseworks = [];
+            if (!data.length) {
+                return upcomingCourseworks;
+            }
+            for (const semester of data[data.length - 1].grade) {
+                for (const course of semester.data) {
+                    for (const cwk of course.detail) {
+                        if (Array.isArray(cwk)) {
+                            // Similiar coursework list
+                            for (const item of cwk) {
+                                if (item.ddlTime > Date.now().valueOf() || item.status === 'upcoming') {
+                                    upcomingCourseworks.push({
+                                        name: item.name,
+                                        course: course.subject,
+                                        summative: item.summative,
+                                        tag: item.tag,
+                                        ddlTime: item.ddlTime,
+                                    });
+                                }
+                            }
+                        } else {
+                            // Single coursework
+                            if (cwk.ddlTime > Date.now().valueOf() || cwk.status === 'upcoming') {
+                                upcomingCourseworks.push({
+                                    name: cwk.name,
+                                    course: course.subject,
+                                    summative: cwk.summative,
+                                    tag: cwk.tag,
+                                    ddlTime: cwk.ddlTime,
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            return upcomingCourseworks.sort((a, b) => a.ddlTime - b.ddlTime);
         },
         /**
          * Update view
@@ -824,6 +879,12 @@ export default {
                 this.openDetailFromSearch(this.searchNotification.payload.index, this.searchNotification.payload.tab, this.searchNotification.payload.year, this.searchNotification.payload.subject);
             }
         },
+        widgetShown() {
+            // Update grade info if needed
+            if (this.widgetShown && !this.loading && new Date().valueOf() - this.lastUpdated > 10800000) {
+                this.updateGrade();
+            }
+        },
     },
     computed: {
         ...mapState({
@@ -835,7 +896,15 @@ export default {
             subjects: (state) => state.subjects,
             searchNotification: (state) => state.searchNotification,
             rerender: (state) => state.rerender,
+            widgets: (state) => state.widgets,
         }),
+        /**
+         * Whether the widget is shown
+         * @returns {boolean} whether the widget is shown
+         */
+        widgetShown() {
+            return this.widgets ? this.widgets.includes(this.searchid) : true;
+        },
         yearList() {
             return this.allGrades.map((year) => year.year);
         },
@@ -1362,13 +1431,14 @@ export default {
         "more_info": "Más",
         "etc": "etc.",
         "total": "{0} en total",
-        "formative": "Formativa",
-        "Semester 1": "",
-        "Semester 2": "",
-        "All Year": "",
-        "waiting": "",
+        "formative": "",
+        "Semester 1": "Semestre 1",
+        "Semester 2": "Semestre 2",
+        "All Year": "Todo el año",
+        "waiting": "En espera",
         "na": "N/A",
-        "empty": ""
+        "empty": "No hay datos",
+        "copy": "Clic para copiar"
     },
     "ja":
     {

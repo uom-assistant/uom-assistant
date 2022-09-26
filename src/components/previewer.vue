@@ -16,7 +16,7 @@
                     <v-btn icon small class="float-right mr-3" :title="$t('close')" @click="closePreview">
                         <v-icon>mdi-close</v-icon>
                     </v-btn>
-                    <v-btn icon small class="float-right mr-1 download-btn" :title="$t('download')" :href="blob" :download="name">
+                    <v-btn icon small class="float-right mr-1 download-btn" :title="$t('download')" :href="blob" :download="download || name">
                         <v-icon>mdi-arrow-collapse-down</v-icon>
                     </v-btn>
                     <span class="float-right mr-2 ml-0" :class="$vuetify.theme.dark ? 'grey--text text--darken-2' : 'grey--text text--lighten-2'" v-show="((type === 'svg' || type === 'markdown' || type === 'csv' || type === 'code' || type === 'text') && (rawView || !$vuetify.breakpoint.smAndDown)) || ((type === 'svg' || type === 'markdown' || type === 'csv') && $vuetify.breakpoint.smAndDown)">|</span>
@@ -139,6 +139,7 @@ import scss from 'highlight.js/lib/languages/scss';
 import yaml from 'highlight.js/lib/languages/yaml';
 import docker from 'highlight.js/lib/languages/dockerfile';
 import csvLang from '@/tools/csvHighlight';
+
 import formatDateTime from '@/tools/formatDateTime';
 
 import 'viewerjs/dist/viewer.css';
@@ -205,6 +206,7 @@ export default {
         content: String,
         blob: String,
         type: String,
+        download: String,
         name: String,
         icon: String,
     },
@@ -513,10 +515,13 @@ export default {
             rowspan: true,
             headerless: true,
         });
-        this.md.use(mdContainer, 'info');
-        this.md.use(mdContainer, 'success');
-        this.md.use(mdContainer, 'warning');
-        this.md.use(mdContainer, 'error');
+
+        const containerRender = (type) => (tokens, idx) => (tokens[idx].nesting === 1 ? `<div class="${type}"><div>\n` : '</div></div>\n');
+
+        this.md.use(mdContainer, 'info', { render: containerRender('info') });
+        this.md.use(mdContainer, 'success', { render: containerRender('success') });
+        this.md.use(mdContainer, 'warning', { render: containerRender('warning') });
+        this.md.use(mdContainer, 'error', { render: containerRender('error') });
     },
     beforeDestroy() {
         // Revoke blob URLs
@@ -753,6 +758,10 @@ export default {
                             }
                         }
                         @import (less) "../../backend/css/md.css";
+                        img {
+                            margin: 0 auto;
+                            display: block;
+                        }
                         [mask] {
                             background-color: #1E1E1E;
                             color: #1E1E1E;

@@ -21,12 +21,12 @@
             <div v-else>
                 <div v-for="item in data" :key="item.cat">
                     <h1 class="text-h6">{{ $t(item.name) }}</h1>
-                    <h2 class="text-body-1 text--disabled" v-if="item.subtitle">{{ item.subtitle }}</h2>
+                    <h2 class="text-body-1 text--disabled mt-n1" v-if="item.subtitle">{{ item.subtitle }}</h2>
                     <div class="mb-5">
                         <v-btn
                             v-for="i in item.num"
                             :key="`${item.cat}-${i}`"
-                            :style="{ backgroundImage: `url(https://cdn.jsdelivr.net/gh/uom-assistant/uoma-wallpapers/images/thumbnails/${item.cat}-${i}.jpg)` }"
+                            :style="{ backgroundImage: `url(https://cdn.jsdelivr.net/gh/uom-assistant/uoma-wallpapers/images/thumbnails/${item.cat}-${i}.jpg)`, backgroundPosition: `50% ${item.positions[i - 1] }%` }"
                             :class="{ selected: selected === `${item.cat}-${i}`, bw }"
                             @click="changePreDefined(item.cat, i, item.positions[i - 1])"
                             class="mr-3 mt-2 bg-btn"
@@ -247,8 +247,9 @@ export default {
             if (!e.target.files) {
                 return;
             }
-            this.selectFile(e.target.files);
-            e.target.value = '';
+            this.selectFile(e.target.files).then(() => {
+                e.target.value = '';
+            });
         },
         /**
          * Handle file drop event
@@ -405,12 +406,14 @@ export default {
             }
         } else if (data.type === 'custom') {
             const blob = await localForage.getItem('header_img');
-            this.customURL = URL.createObjectURL(blob);
-            this.selected = '';
-            this.$emit('change', {
-                image: this.customURL,
-                position: this.selectedPosition,
-            });
+            if (blob) {
+                this.customURL = URL.createObjectURL(blob);
+                this.selected = '';
+                this.$emit('change', {
+                    image: this.customURL,
+                    position: this.selectedPosition,
+                });
+            }
         }
 
         // Set B&W mode

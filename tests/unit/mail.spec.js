@@ -244,7 +244,7 @@ describe('mail.vue', () => {
         wrapper.vm.mails = [];
     });
 
-    it('should delete one mail', () => {
+    it('should not delete one mail', () => {
         const wrapper = getShallowWapper(Mail, { searchid: 8 });
 
         wrapper.vm.mails = [
@@ -265,6 +265,37 @@ describe('mail.vue', () => {
             },
         ];
         wrapper.vm.deleteMail(0);
+
+        expect(wrapper.vm.mails.find((item) => item.id === -1)).toBeTruthy();
+        expect(wrapper.vm.mails.find((item) => item.id === 0)).toBeTruthy();
+        expect(wrapper.vm.mails.find((item) => item.id === 1)).toBeTruthy();
+        expect(wrapper.vm.mails).toHaveLength(3);
+
+        wrapper.vm.mails = [];
+    });
+
+    it('should delete one mail', () => {
+        const wrapper = getShallowWapper(Mail, { searchid: 8 });
+
+        wrapper.vm.mails = [
+            {
+                id: -1,
+                subject: false,
+                from: false,
+            },
+            {
+                id: 0,
+                subject: false,
+                from: false,
+            },
+            {
+                id: 1,
+                subject: false,
+                from: false,
+            },
+        ];
+        wrapper.vm.beingDeletedId = 0;
+        wrapper.vm.deleteMailConfirm();
 
         expect(wrapper.vm.mails.find((item) => item.id === -1)).toBeTruthy();
         expect(wrapper.vm.mails.find((item) => item.id === 0)).toBeUndefined();

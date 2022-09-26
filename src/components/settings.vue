@@ -234,7 +234,7 @@ export default {
 
         this.calendarURL = account.calendar === '' ? '' : `https://scientia-eu-v3-3-0-api-d3-02.azurewebsites.net/api/ical/${account.calendar}/timetable.ics`;
         this.username = account.username;
-        this.password = account.password;
+        this.password = '';
         this.email = account.email.replace(/\.manchester\.ac\.uk$/, '');
 
         this.refreshKey = new Date().valueOf();

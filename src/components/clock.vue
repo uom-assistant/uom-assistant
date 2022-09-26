@@ -513,6 +513,10 @@ p {
         }
     }
 }
+.easy-read .time-label {
+    font-size: 28px;
+    line-height: 35px;
+}
 #app.theme--dark .gray-container {
     background-color: #1E1E1E;
     .settings-bg {
@@ -609,7 +613,7 @@ p {
         "The Valley": "The Valley",
         "Thule": "Thule",
         "Willemstad": "Willemstad",
-        "Santa Cruz de la Sierra": "Santa Cruz de la Sierra",
+        "La Paz": "La Paz",
         "Santiago": "Santiago",
         "Georgetown": "Georgetown",
         "Asunción": "Asunción",
@@ -624,7 +628,7 @@ p {
         "Saint-Pierre": "Saint-Pierre",
         "Paramaribo": "Paramaribo",
         "Montevideo": "Montevideo",
-        "Godthab": "Godthab",
+        "Nuuk": "Nuuk",
         "Noronha": "Noronha",
         "Grytviken": "Grytviken",
         "Ponta Delgada": "Ponta Delgada",
@@ -752,6 +756,7 @@ p {
         "Nairobi": "Nairobi",
         "Minsk": "Minsk",
         "Moscow": "Moscow",
+        "Sevastopol": "Sevastopol",
         "Syowa": "Syowa",
         "Istanbul": "Istanbul",
         "Tehran": "Tehran",
@@ -846,7 +851,7 @@ p {
         "Mata-Utu": "Mata-Utu",
         "Chatham": "Chatham",
         "Apia": "Apia",
-        "Enderbury": "Enderbury",
+        "Kanton": "Kanton",
         "Fakaofo": "Fakaofo",
         "Nuku‘alofa": "Nuku‘alofa",
         "Kiritimati": "Kiritimati"
@@ -932,7 +937,7 @@ p {
         "The Valley": "瓦利",
         "Thule": "卡纳克",
         "Willemstad": "威廉斯塔德",
-        "Santa Cruz de la Sierra": "圣克鲁斯-德拉谢拉",
+        "La Paz": "拉巴斯",
         "Santiago": "圣地亚哥",
         "Georgetown": "乔治城",
         "Asunción": "亚松森",
@@ -947,7 +952,7 @@ p {
         "Saint-Pierre": "圣皮埃尔",
         "Paramaribo": "帕拉马里博",
         "Montevideo": "蒙得维的亚",
-        "Godthab": "努克",
+        "Nuuk": "努克",
         "Noronha": "费尔南多·迪诺罗尼亚群岛",
         "Grytviken": "古利德维肯",
         "Ponta Delgada": "蓬塔德尔加达",
@@ -1075,6 +1080,7 @@ p {
         "Nairobi": "内罗毕",
         "Minsk": "明斯克",
         "Moscow": "莫斯科",
+        "Sevastopol": "塞瓦斯托波尔",
         "Syowa": "昭和站",
         "Istanbul": "伊斯坦布尔",
         "Tehran": "德黑兰",
@@ -1169,7 +1175,7 @@ p {
         "Mata-Utu": "马塔乌图",
         "Chatham": "查塔姆",
         "Apia": "阿皮亚",
-        "Enderbury": "恩德伯里",
+        "Kanton": "坎顿",
         "Fakaofo": "法卡福",
         "Nuku‘alofa": "努库阿洛法",
         "Kiritimati": "基里蒂马蒂"
@@ -1225,6 +1231,7 @@ p {
         "Sanaa": "Saná",
         "Djibouti": "Yibuti",
         "Moscow": "Moscú",
+        "Sevastopol": "Sebastopol",
         "Syowa": "Showa",
         "Male": "Malé",
         "Yekaterinburg": "Ekaterimburgo",
@@ -1325,7 +1332,7 @@ p {
         "The Valley": "ザ・バレー",
         "Thule": "トゥール",
         "Willemstad": "ウィレムスタッド",
-        "Santa Cruz de la Sierra": "サンタ・クルス・デ・ラ・シエラ",
+        "La Paz": "ラパス",
         "Santiago": "サンティアゴ",
         "Georgetown": "ジョージタウン",
         "Asunción": "アスンシオン",
@@ -1340,7 +1347,7 @@ p {
         "Saint-Pierre": "サンピエール",
         "Paramaribo": "パラマリボ",
         "Montevideo": "モンテビデオ",
-        "Godthab": "ヌーク",
+        "Nuuk": "ヌーク",
         "Noronha": "ノローニャ",
         "Grytviken": "グリトビケン",
         "Ponta Delgada": "ポンタ・デルガダ",
@@ -1468,6 +1475,7 @@ p {
         "Nairobi": "ナイロビ",
         "Minsk": "ミンスク",
         "Moscow": "モスクワ",
+        "Sevastopol": "セヴァストポリ",
         "Syowa": "ショーワ",
         "Istanbul": "イスタンブール",
         "Tehran": "テヘラン",
@@ -1561,7 +1569,7 @@ p {
         "Mata-Utu": "マタウチュ",
         "Chatham": "チャタム",
         "Apia": "アピア",
-        "Enderbury": "エンダーベリー"
+        "Kanton": "カントン"
     }
 }
 </i18n>

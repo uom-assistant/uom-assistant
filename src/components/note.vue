@@ -16,7 +16,7 @@
                 <h2 class="handle" v-show="!multi">
                     {{ $t('note') }}
                     <v-icon class="ml-1 md-icon" :title="$t('md_support')">mdi-language-markdown</v-icon>
-                    <v-btn icon small class="float-right mr-4" :title="$t('new')" @click="addOne(false)">
+                    <v-btn icon small class="float-right mr-4" :title="$t('new')" @click="addOne(false)" v-shortkey="['alt', 'n']" @shortkey="addOne(false)">
                         <v-icon>mdi-plus</v-icon>
                     </v-btn>
                     <v-btn icon small class="float-right mr-2" :title="$t('select')" @click="multi = true" v-show="notes.length > 0">
@@ -134,6 +134,15 @@
                         <v-divider></v-divider>
                         <div
                             class="note-id"
+                            v-ripple
+                            @click="openExpand"
+                        >
+                            <span>{{ $t('expand_view') }}</span>
+                            <v-icon small class="copy-icon">mdi-arrow-expand</v-icon>
+                        </div>
+                        <v-divider></v-divider>
+                        <div
+                            class="note-id"
                             :class="{ 'copy-success': copySuccess }"
                             v-ripple
                             v-clipboard:copy="noteId"
@@ -172,6 +181,7 @@
             <codemirror v-model="code" :options="cmOption" class="md-editor" v-show="mode === 'edit'" :key="cmRefresh" ref="codemirror" @scroll.passive="onScroll"></codemirror>
             <div class="render-result" v-show="mode === 'view'" @scroll.passive="onScrollView" ref="renderScroll"><div ref="render" @click="checkNoteLink" @keypress.enter="checkNoteLink" id="note-render"></div></div>
         </div>
+        <previewer :content="previewerConfig.content" type="markdown" :blob="previewerConfig.blob" :name="previewerConfig.name" :download="previewerConfig.download" icon="file-document-edit-outline" ref="filePreviewer"></previewer>
         <v-menu
             v-model="listMenu"
             :position-x="listMenuX"
@@ -339,6 +349,7 @@ import less from 'highlight.js/lib/languages/less';
 import scss from 'highlight.js/lib/languages/scss';
 import yaml from 'highlight.js/lib/languages/yaml';
 import docker from 'highlight.js/lib/languages/dockerfile';
+import csv from '@/tools/csvHighlight';
 
 import 'codemirror/mode/markdown/markdown';
 import 'codemirror/mode/python/python';
@@ -351,13 +362,14 @@ import 'codemirror/addon/selection/active-line';
 import 'codemirror/addon/edit/closebrackets';
 import 'codemirror/addon/edit/matchbrackets';
 
+import previewer from '@/components/previewer.vue';
+
 import scroll from '@/mixins/scroll';
 import clipboard from '@/mixins/clipboard';
 
 import betterFetch from '@/tools/betterFetch';
 import formatDateTime from '@/tools/formatDateTime';
 import debounce from '@/tools/debounce';
-import csv from '@/tools/csvHighlight';
 import SmoothScrollTo from '@/tools/smoothScrollTo';
 
 import 'codemirror/theme/xq-light.css';
@@ -413,6 +425,7 @@ export default {
     name: 'note',
     components: {
         codemirror,
+        previewer,
     },
     props: {
         searchid: Number,
@@ -447,6 +460,12 @@ export default {
             listMenu: false,
             listMenuX: -1,
             listMenuY: -1,
+            previewerConfig: {
+                content: '',
+                name: '',
+                blob: '',
+                download: '',
+            },
             cmOption: {
                 tabSize: 4,
                 indentUnit: 4,
@@ -496,6 +515,9 @@ export default {
          * @param {boolean} skip whether to skip the "too many" warning
          */
         addOne(skip) {
+            if (this.$route.path !== '/' || this.layerOpened) {
+                return;
+            }
             // Disable the button if just clicked
             if (this.disableNew) {
                 return;
@@ -1007,10 +1029,12 @@ export default {
                 response = await betterFetch('https://cdn.jsdelivr.net/gh/uom-assistant/uom-assistant/github_assets/markdown/en/markdown_guide.md').catch(() => false);
             }
 
+            const mdId = this.generateUniqueId();
+
             if (typeof response === 'string') {
                 // Add a note
                 this.notes.unshift({
-                    id: this.generateUniqueId(),
+                    id: mdId,
                     title: this.$t('markdown_guide'),
                     content: response,
                     update: new Date().valueOf(),
@@ -1031,7 +1055,7 @@ export default {
                 this.notes.unshift({
                     id: this.generateUniqueId(),
                     title: this.$t('uoma_guide'),
-                    content: response,
+                    content: response.replace(/\]\(:000000\)/g, `](:${mdId})`),
                     update: new Date().valueOf(),
                 });
                 this.previews.unshift(this.buildPreviews(0));
@@ -1039,6 +1063,16 @@ export default {
 
             // Mark as downloaded
             localStorage.setItem('uoma_note_guide', 'true');
+        },
+        openExpand() {
+            this.previewerConfig.blob = URL.createObjectURL(new Blob([this.notes[this.editing].content], { type: 'text/plain;charset=utf-8' }));
+            this.previewerConfig.content = this.notes[this.editing].content;
+            this.previewerConfig.name = this.notes[this.editing].title || this.$t('untitled');
+            this.previewerConfig.download = `${this.previewerConfig.name}.md`;
+
+            setTimeout(() => {
+                this.$refs.filePreviewer.openPreview();
+            }, 0);
         },
     },
     watch: {
@@ -1192,10 +1226,13 @@ export default {
             rowspan: true,
             headerless: true,
         });
-        this.md.use(mdContainer, 'info');
-        this.md.use(mdContainer, 'success');
-        this.md.use(mdContainer, 'warning');
-        this.md.use(mdContainer, 'error');
+
+        const containerRender = (type) => (tokens, idx) => (tokens[idx].nesting === 1 ? `<div class="${type}"><div>\n` : '</div></div>\n');
+
+        this.md.use(mdContainer, 'info', { render: containerRender('info') });
+        this.md.use(mdContainer, 'success', { render: containerRender('success') });
+        this.md.use(mdContainer, 'warning', { render: containerRender('warning') });
+        this.md.use(mdContainer, 'error', { render: containerRender('error') });
 
         const slugify = (text) => encodeURIComponent(`uoma-note-${String(text).trim().toLowerCase().replace(/\s+/g, '-')}`);
 
@@ -1246,7 +1283,6 @@ export default {
         padding-top: 18px;
         padding-bottom: 15px;
         margin-left: 20px;
-        height: 27px;
         .md-icon {
             padding-bottom: 2px;
         }
@@ -1326,7 +1362,8 @@ export default {
                     margin: 0;
                     font-weight: bold;
                     border-bottom: 1px solid #eaecef;
-                    padding-bottom: 2.2rem;
+                    opacity: 1;
+                    height: auto;
                 }
                 h3 {
                     font-size: 1.25em;
@@ -1388,6 +1425,10 @@ export default {
                     }
                 }
                 @import (less) "../../backend/css/md.css";
+                img {
+                    margin: 0 auto;
+                    display: block;
+                }
                 [mask] {
                     background-color: #1E1E1E;
                     color: #1E1E1E;
@@ -1402,31 +1443,6 @@ export default {
                         filter: blur(0);
                     }
                 }
-                div.success, div.info, div.warning, div.error {
-                    display: flex;
-                    &:before {
-                        font-family: 'Material Design Icons';
-                        font-size: 20px;
-                        height: 20px;
-                        line-height: 20px;
-                    }
-                    & > p {
-                        margin-left: 10px;
-                        line-height: 20px;
-                    }
-                }
-                div.success:before {
-                    content: '\F05E1';
-                }
-                div.info:before {
-                    content: '\F02FD';
-                }
-                div.warning:before {
-                    content: '\F002A';
-                }
-                div.error:before {
-                    content: '\F05D6';
-                }
             }
         }
         .md-editor {
@@ -1434,7 +1450,7 @@ export default {
             .CodeMirror {
                 height: 500px;
                 padding: 0;
-                font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
+                font-family: "Roboto Mono", Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
                 line-height: 22px;
                 overscroll-behavior: contain;
                 pre.CodeMirror-line, pre.CodeMirror-line-like {
@@ -1564,9 +1580,13 @@ export default {
         padding-bottom: 2px;
         opacity: 0.8;
     }
+    .v-ripple__container {
+        opacity: 0.15!important;
+        transition: opacity .2s;
+    }
     .note-toc-container {
         padding-bottom: 10px;
-        max-height: 400px;
+        max-height: 390px;
         overflow: auto;
         overscroll-behavior-y: contain;
         ol {
@@ -1782,6 +1802,7 @@ export default {
         "hl_error": "Error when highlighting code",
         "error_at": "{0} at {1}",
         "toc": "Table of contents",
+        "expand_view": "Expand view",
         "note_id": "Note ID",
         "copy_note_id": "Copy note ID",
         "note_id_help": "Use <code>[Link name](:&lt;Note ID&gt;)</code> in other notes to link to this note, i.e. <code>[Link name](:{0})</code>",
@@ -1815,13 +1836,14 @@ export default {
         "cancel": "取消",
         "ok": "好",
         "want_remove": "你确定要删除选中的 {0} 个笔记吗？ | 你确定要删除选中的 {0} 个笔记吗？",
-        "want_remove_single": "你确定要删除笔记“{0}”吗？",
+        "want_remove_single": "你确定要删除笔记「{0}」吗？",
         "remove_all": "你确定要删除所有笔记吗？",
         "too_many_title": "太多笔记了",
         "too_many_body": "这不是一个错误。你正在创建超过 50 个笔记，这不是一个好主意。请考虑将它们移动到笔记管理应用等更合适的地方。无论如何，你仍然可以继续使用快速笔记。",
         "hl_error": "在创建代码高亮时出错",
         "error_at": "{0} 于 {1}",
         "toc": "目录",
+        "expand_view": "展开视图",
         "note_id": "笔记 ID",
         "copy_note_id": "复制笔记 ID",
         "note_id_help": "在其他笔记中使用 <code>[链接名称](:&lt;笔记 ID&gt;)</code> 来链接到此笔记，即 <code>[链接名称](:{0})</code>。",
@@ -1862,6 +1884,7 @@ export default {
         "hl_error": "Error cuando intenta subrayar al código",
         "error_at": "{0} en {1}",
         "toc": "Tabla de contenidos",
+        "expand_view": "",
         "note_id": "Apunte ID",
         "copy_note_id": "Copiar apunte ID",
         "note_id_help": "Usa <code>[Nombre de enlace](:&lt;Apunte ID&gt;)</code> en otros apuntes para enlazar a este apunte, e.g. <code>[Nombre de enlace](:{0})</code>",
@@ -1869,7 +1892,7 @@ export default {
         "editing_toc": "Tabla de contenidos no es visible cuando en edición",
         "switch_to_view": "Cambiar a modo vista",
         "switch_to_edit": "Cambiar a modo edición",
-        "uoma_guide": "",
+        "uoma_guide": "Visita rápida UoM Assistant",
         "markdown_guide": "📎 Apuntes Rápidos Markdown: Guía de sintaxis extendida"
     },
     "ja": {
@@ -1902,6 +1925,7 @@ export default {
         "hl_error": "コードハイライトをするうちにエラー発生しました。",
         "error_at": "{1} に {0} 発生",
         "toc": "目録",
+        "expand_view": "",
         "note_id": "ノートID",
         "copy_note_id": "ノートIDをコピーする",
         "note_id_help": "他のメモアプリにこのノートにリンクするのため、このコード <code>[リンク名](:&lt;ノート ID&gt;)</code> を利用してください、つまり即 <code>[リンク名](:{0})</code>。",

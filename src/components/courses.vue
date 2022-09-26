@@ -14,10 +14,10 @@
         <div class="subjects-outer">
             <h2 class="mr-5 handle">
                 {{ $t('courses') }}
-                <v-btn icon @click.stop="addSubject" small class="float-right header-icon" :title="$t('add_subject')">
+                <v-btn icon @click.stop="addSubject" small class="float-right header-icon" :title="$t('add_subject')" v-shortkey="['alt', 'u']" @shortkey="addSubject">
                     <v-icon>mdi-plus</v-icon>
                 </v-btn>
-                <v-btn icon @click.stop="toggleFilter" small class="float-right header-icon mr-1" v-if="shownSubjects.length < subjects.length" :title="$t('filter_course')">
+                <v-btn icon @click.stop="toggleFilter" small class="float-right header-icon mr-1" v-if="shownSubjects.length < subjects.length" :title="$t('filter_course')" v-shortkey="['alt', 'f']" @shortkey="toggleFilter">
                     <v-icon>{{ filter ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
                 </v-btn>
             </h2>
@@ -388,6 +388,9 @@ export default {
          * Open a dialog for adding a subject
          */
         addSubject() {
+            if (this.$route.path !== '/' || this.dialog) {
+                return;
+            }
             this.editingMode = 'add';
             this.editingIndex = -1;
             this.editingName = '';
@@ -432,6 +435,8 @@ export default {
                         hide: this.editingHide,
                         sessionLinks: this.editingSessionLinks,
                         color: this.editingColor,
+                        synced: false,
+                        updated: new Date().valueOf(),
                     });
                 } else {
                     // Update a subject
@@ -443,6 +448,8 @@ export default {
                         hide: this.editingHide,
                         sessionLinks: this.editingSessionLinks,
                         color: this.editingColor,
+                        synced: this.subjects[this.editingIndex].synced,
+                        updated: new Date().valueOf(),
                     };
                     this.subjects.splice(this.editingIndex, 1, editedItem);
                 }
@@ -471,6 +478,9 @@ export default {
          * Toggle filter
          */
         toggleFilter() {
+            if (this.$route.path !== '/') {
+                return;
+            }
             this.filter = !this.filter;
             localStorage.setItem('course_filter', this.filter);
         },
@@ -498,7 +508,12 @@ export default {
         ...mapState({
             locale: (state) => state.locale,
             packery: (state) => state.packery,
+            widgets: (state) => state.widgets,
         }),
+        /**
+         * Whether the widget is shown
+         * @returns {boolean} whether the widget is shown
+         */
         shownSubjects() {
             // Filter out hidden subjects
             return this.subjects.filter((subject) => !subject.hide);

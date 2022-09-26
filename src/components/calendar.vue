@@ -12,6 +12,8 @@
                             :class="$vuetify.breakpoint.xs ? 'mr-1' : 'mr-2'"
                             :color="$vuetify.theme.dark ? 'grey lighten-1' : 'grey darken-3'"
                             @click="focus = ''"
+                            v-shortkey="['alt', 'home']"
+                            @shortkey="$route.path === '/' ? (() => { focus = '' })() : null"
                         >
                             {{ $t('today') }}
                         </v-btn>
@@ -21,6 +23,8 @@
                             max-height="36"
                             class="mr-1"
                             @click="prev"
+                            v-shortkey="['alt', 'pageup']"
+                            @shortkey="$route.path === '/' ? prev() : null"
                         >
                             <v-icon>
                                 mdi-chevron-left
@@ -32,6 +36,8 @@
                             max-height="36"
                             class="mr-1"
                             @click="next"
+                            v-shortkey="['alt', 'pagedown']"
+                            @shortkey="$route.path === '/' ? next() : null"
                         >
                             <v-icon>
                                 mdi-chevron-right
@@ -82,6 +88,9 @@
                                 <v-list-item @click="type = 'day'">
                                     <v-list-item-title>{{ $t('day') }}</v-list-item-title>
                                 </v-list-item>
+                                <v-list-item @click="type = 'custom-daily'">
+                                    <v-list-item-title>{{ $t('custom-daily') }}</v-list-item-title>
+                                </v-list-item>
                                 <v-list-item @click="type = 'week'">
                                     <v-list-item-title>{{ $t('week') }}</v-list-item-title>
                                 </v-list-item>
@@ -97,13 +106,17 @@
                         ref="calendar"
                         v-model="focus"
                         color="primary"
-                        :events="events"
+                        :events="allEvents"
                         :event-color="getEventColor"
                         :type="type"
                         :locale="calendarLocale"
                         :weekdays="weekDays"
                         :key="`calendar-${refreshId}-${rerender}`"
                         :interval-height="40"
+                        :interval-width="48"
+                        :interval-format="intervalFormat"
+                        :start="type === 'custom-daily' ? (customStart || undefined) : undefined"
+                        :end="type === 'custom-daily' ? (customEnd || undefined) : undefined"
                         @click:event="showEvent"
                         @click:more="viewDay"
                         @click:date="viewDay"
@@ -111,12 +124,12 @@
                     >
                         <template v-slot:day-body="{ date, week }">
                             <div
-                            class="v-current-time"
-                            :class="{
-                                first: (date === week[0].date && type === 'day') || (date === currentDate && type === 'week'),
-                                week: date !== currentDate && type === 'week',
-                            }"
-                            :style="{ top: nowY }"
+                                class="v-current-time"
+                                :class="{
+                                    first: (date === week[0].date && type === 'day') || (date === currentDate && (type === 'week' || type === 'custom-daily')),
+                                    week: date !== currentDate && (type === 'week' || type === 'custom-daily'),
+                                }"
+                                :style="{ top: nowY }"
                             ></div>
                         </template>
                         <template v-slot:day-label="{ date, day, present }">
@@ -197,17 +210,18 @@
                                 {{ dateText(date, day) }}
                             </v-btn>
                         </template>
-                        <template v-slot:event="{ eventSummary, event, day }">
+                        <template v-slot:event="{ timeSummary, event, day }">
                             <div
                                 class="pl-1 event-block"
-                                :class="{ 'text--disabled': event.selfStudy }"
-                                v-html="eventSummary()"
+                                :class="{ 'text--disabled': event.selfStudy, holiday: event.holiday }"
+                                v-html="getEventSummary(timeSummary(), event)"
                             >
                             </div>
                             <div
                                 class="event-block-overlay"
+                                v-if="!event.holiday"
                                 :style="{
-                                    width: type === 'day' || type === 'week' ? '100%' : getEevntPercentage(event.start, event.end, day),
+                                    width: type === 'day' || type === 'week' || type === 'custom-daily' ? '100%' : getEevntPercentage(event.start, event.end, day),
                                     height: type === 'month' ? '100%' : getEevntPercentage(event.start, event.end, day),
                                 }"
                             ></div>
@@ -224,17 +238,19 @@
                     >
                         <v-card
                             class="event-card"
+                            :class="$vuetify.breakpoint.xs ? 'd-flex flex-column' : ''"
                             min-width="350px"
                             flat
                         >
                             <v-toolbar
+                                :class="$vuetify.breakpoint.xs ? 'flex-grow-0' : ''"
                                 color="#ffffff"
                                 height="64"
                                 flat
                             >
                                 <v-toolbar-title :class="selectedEvent.titleColor ? `${selectedEvent.titleColor.split(' ')[0] === 'uomtheme' ? 'primary' : selectedEvent.titleColor.split(' ')[0]}--text${selectedEvent.titleColor.split(' ').length > 1 ? ` text--${selectedEvent.titleColor.split(' ')[1]}` : ''}` : ''" class="calendar-selected-name">
-                                    {{ selectedEvent.details === 'Coursework Deadline' ? selectedEvent.name : (selectedEvent.subjectName === '' ? selectedEvent.name.split('/')[0] : selectedEvent.subjectName) }}<br>
-                                    <span class="text--disabled calendar-smaller-font">{{ selectedEvent.details === 'Coursework Deadline' ? (selectedEvent.subjectName === '' ? $t('coursework') : selectedEvent.subjectName) : selectedEvent.rawTitle }}{{ selectedEvent.selfStudy ? $t('self_study') : '' }}</span>
+                                    {{ selectedEvent.details === 'Coursework Deadline' ? selectedEvent.name : (selectedEvent.holiday ? selectedEvent.name : selectedEvent.subjectName === '' ? selectedEvent.name.split('/')[0] : selectedEvent.subjectName) }}<br>
+                                    <span class="text--disabled calendar-smaller-font mt-1 d-inline-block"><span class="session-tag rounded" :class="selectedEvent.titleColor ? `${selectedEvent.titleColor.split(' ')[0] === 'uomtheme' ? 'primary' : selectedEvent.titleColor.split(' ')[0]}${selectedEvent.titleColor.split(' ').length > 1 ? ` ${selectedEvent.titleColor.split(' ')[1]}` : ''}` : ''" v-if="selectedEvent.selfStudy || selectedEvent.online || selectedEvent.lab || selectedEvent.team"><v-icon x-small v-if="selectedEvent.online || selectedEvent.lab || selectedEvent.team">mdi-{{ selectedEvent.online ? 'broadcast' : (selectedEvent.team ? 'account-multiple' : 'flask-empty-outline') }}</v-icon>{{ selectedEvent.selfStudy ? $t('self_study') : (selectedEvent.online ? $t('online') : (selectedEvent.team ? $t('team_study') : 'Lab')) }}</span>{{ selectedEvent.details === 'Coursework Deadline' ? (selectedEvent.subjectName === '' ? $t('coursework') : selectedEvent.subjectName) : (selectedEvent.holiday ? $t('holiday') : selectedEvent.rawTitle) }}</span>
                                 </v-toolbar-title>
                                 <v-spacer></v-spacer>
                                 <v-tooltip top v-if="selectedEvent.subjectId !== '' && subjectLinks(selectedEvent.subjectId).homeLink !== false">
@@ -265,25 +281,43 @@
                                     <v-icon>mdi-chevron-down</v-icon>
                                 </v-btn>
                             </v-toolbar>
-                            <v-card-text>
-                                <span v-if="currentTimeZone === 'Europe/London'">
-                                    <span v-if="selectedEvent.details !== 'Coursework Deadline'">
-                                        {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(selectedEvent.end, false) : '' }}<br>
+                            <v-card-text :class="$vuetify.breakpoint.xs ? 'flex-grow-0' : ''">
+                                <div class="detail-flex">
+                                    <v-icon>mdi-clock-outline</v-icon>
+                                    <span v-if="currentTimeZone === 'Europe/London'">
+                                        <span v-if="selectedEvent.holiday">
+                                            {{ selectedEvent.start ? getDateOnly(selectedEvent.start) : '' }}<span v-if="selectedEvent.start && selectedEvent.end && getDateOnly(selectedEvent.start) !== getDateOnly(selectedEvent.end)">-{{ getDateOnly(selectedEvent.end) }}</span><br>
+                                        </span>
+                                        <span v-else-if="selectedEvent.details !== 'Coursework Deadline'">
+                                            {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(selectedEvent.end, false) : '' }}<br>
+                                        </span>
+                                        <span v-else>
+                                            {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}<br>
+                                        </span>
                                     </span>
                                     <span v-else>
-                                        {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}<br>
+                                        <span v-if="selectedEvent.holiday">
+                                            {{ selectedEvent.start ? getDateOnly(selectedEvent.start) : '' }}<span v-if="selectedEvent.start && selectedEvent.end && getDateOnly(selectedEvent.start) !== getDateOnly(selectedEvent.end)">-{{ getDateOnly(selectedEvent.end) }}</span>{{ $t('uk_time') }}<br>
+                                        </span>
+                                        <span v-else-if="selectedEvent.details !== 'Coursework Deadline'">
+                                            {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(selectedEvent.end, false) : '' }}{{ $t('local_time') }}<br>
+                                            {{ selectedEvent.start ? getDate(convertTimeZone(selectedEvent.start), false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(convertTimeZone(selectedEvent.end), false) : '' }}{{ $t('uk_time') }}<br>
+                                        </span>
+                                        <span v-else>
+                                            {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ $t('local_time') }}<br>
+                                            {{ selectedEvent.start ? getDate(convertTimeZone(selectedEvent.start), false) : '' }}{{ $t('uk_time') }}<br>
+                                        </span>
                                     </span>
-                                </span>
-                                <span v-else>
-                                    <span v-if="selectedEvent.details !== 'Coursework Deadline'">
-                                        {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(selectedEvent.end, false) : '' }}{{ $t('local_time') }}<br>
-                                        {{ selectedEvent.start ? getDate(convertTimeZone(selectedEvent.start), false) : '' }}{{ selectedEvent.start && selectedEvent.end ? ' – ' : '' }}{{ selectedEvent.end ? getDate(convertTimeZone(selectedEvent.end), false) : '' }}{{ $t('uk_time') }}<br>
+                                </div>
+                                <div class="detail-flex mt-1" v-if="checkDetail('location', selectedEvent.details)">
+                                    <v-icon class="bigger">mdi-map-marker-outline</v-icon>
+                                    <span>
+                                        {{ showLocation(selectedEvent.details) }}
+                                        <span v-if="checkDetail('directions', selectedEvent.details)">
+                                            <br>{{ showDirections(selectedEvent.details) }}
+                                        </span>
                                     </span>
-                                    <span v-else>
-                                        {{ selectedEvent.start ? getDate(selectedEvent.start, false) : '' }}{{ $t('local_time') }}<br>
-                                        {{ selectedEvent.start ? getDate(convertTimeZone(selectedEvent.start), false) : '' }}{{ $t('uk_time') }}<br>
-                                    </span>
-                                </span>
+                                </div>
                                 <br>
                                 <v-list flat class="list" v-if="selectedEvent.details !== 'Coursework Deadline' && selectedEvent.subjectId !== '' && subjectLinks(selectedEvent.subjectId).sessionLinks.length > 0">
                                     <v-list-item-group>
@@ -339,9 +373,12 @@
                                         </v-list-item>
                                     </v-list-item-group>
                                 </v-list>
-                                <pre v-html="selectedEvent.details === 'Coursework Deadline' ? $t('course_ddl') : linkify(selectedEvent.details)"></pre>
-                                <div v-html="selectedEvent.details ? showMap(selectedEvent.details) : ''" v-if="selectedEvent.details && selectedEvent.details !== 'Coursework Deadline'"></div>
+                                <div class="detail-flex">
+                                    <v-icon>mdi-calendar-text-outline</v-icon>
+                                    <pre v-html="selectedEvent.details === 'Coursework Deadline' ? $t('course_ddl') : linkify(selectedEvent.details)"></pre>
+                                </div>
                             </v-card-text>
+                            <div v-html="showMap(selectedEvent.details)" v-if="(!selectedEvent.details || selectedEvent.details !== 'Coursework Deadline') && checkDetail('map link', selectedEvent.details)" class="map-container flex-shrink-0" :class="$vuetify.breakpoint.xs ? 'flex-grow-1' : ''"></div>
                         </v-card>
                     </v-menu>
                 </v-sheet>
@@ -353,16 +390,32 @@
         >
             <v-card>
                 <v-card-title class="headline">
-                    {{ $t('first_day_settings') }}
+                    {{ $t('calendar_settings') }}
                 </v-card-title>
-                <v-card-text>
+                <v-card-text class="pb-0">
                     <v-select
                         v-model="editingFirstDay"
                         :items="weekDaysItems()"
+                        :label="$t('first_day_settings')"
                         hide-details
                         dense
                         outlined
+                        class="mt-3"
                     ></v-select>
+                     <v-list flat multiple>
+                        <v-list-item-group v-model="holidaySetting">
+                            <v-list-item class="pa-0" :ripple="false">
+                                <template v-slot:default="{ active }">
+                                    <v-list-item-content>
+                                        <v-list-item-title class="mt-1 d-flex align-center a11y-title">{{ $t('uk_holiday') }}</v-list-item-title>
+                                    </v-list-item-content>
+                                    <v-list-item-action>
+                                        <v-switch :input-value="active"></v-switch>
+                                    </v-list-item-action>
+                                </template>
+                            </v-list-item>
+                        </v-list-item-group>
+                    </v-list>
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
@@ -395,8 +448,10 @@ import checkResponse from '@/mixins/checkResponse';
 import liveLinks from '@/mixins/liveLinks';
 import clipboard from '@/mixins/clipboard';
 
+import formatDate from '@/tools/formatDate';
 import formatDateTime from '@/tools/formatDateTime';
 import betterFetch from '@/tools/betterFetch';
+import escapeHTML from '@/tools/escapeHTML';
 
 const timezoneConverter = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
@@ -435,6 +490,9 @@ export default {
             editingFirstDay: 0,
             nowDate: new Date().getDate(),
             currentTimeZone: 'Europe/London',
+            holiday: [],
+            holidaySetting: undefined,
+            showHoliday: false,
         };
     },
     methods: {
@@ -459,20 +517,27 @@ export default {
          * Move the calendar a page back
          */
         prev() {
-            this.$refs.calendar.prev();
+            if (this.type === 'custom-daily') {
+                this.focus = this.getISODate(new Date((this.focus ? new Date(this.focus) : new Date()).valueOf() - 24 * 3600 * 1000));
+            } else {
+                this.$refs.calendar.prev();
+            }
         },
         /**
          * Move the calendar a page forward
          */
         next() {
-            this.$refs.calendar.next();
+            if (this.type === 'custom-daily') {
+                this.focus = this.getISODate(new Date((this.focus ? new Date(this.focus) : new Date()).valueOf() + 24 * 3600 * 1000));
+            } else {
+                this.$refs.calendar.next();
+            }
         },
         /**
          * Show the detail card for an event
          * @param {object} events click event and the selected event
          * @param {Event} events.nativeEvent event object
          * @param {object} events.event event object
-         * @returns {string} event color
          */
         showEvent({ nativeEvent, event }) {
             const open = () => {
@@ -499,11 +564,11 @@ export default {
         updateRange(data) {
             this.today = data.start.date;
             this.$nextTick(() => {
-                if (this.type === 'day' || this.type === 'week') {
+                if (this.type === 'day' || this.type === 'week' || this.type === 'custom-daily') {
                     this.updateTime();
                     if (this.$refs.calendar) {
                         const todayObj = new Date();
-                        if ((this.type === 'day' && this.today === this.currentDate) || (this.type === 'week' && this.today === this.currentWeekStart)) {
+                        if ((this.type === 'day' && this.today === this.currentDate) || (this.type === 'week' && this.today === this.currentWeekStart) || (this.type === 'custom-daily' && (this.today === this.getISODate(new Date(todayObj.valueOf() - 2 * 24 * 3600 * 1000)) || this.today === this.getISODate(todayObj) || this.today === this.getISODate(new Date(todayObj.valueOf() - 24 * 3600 * 1000))))) {
                             let hour = todayObj.getHours();
                             let minute = todayObj.getMinutes();
                             if (hour < 6) {
@@ -543,6 +608,13 @@ export default {
                 } else {
                     this.nowY = '-10px';
                 }
+            } else if (this.type === 'custom-daily') {
+                const todayObj = new Date();
+                if ((this.today === this.getISODate(new Date(todayObj.valueOf() - 2 * 24 * 3600 * 1000)) || this.today === this.getISODate(todayObj) || this.today === this.getISODate(new Date(todayObj.valueOf() - 24 * 3600 * 1000))) && this.$refs.calendar && this.$refs.calendar.timeToY) {
+                    this.nowY = `${this.$refs.calendar.timeToY(this.$refs.calendar.times.now)}px`;
+                } else {
+                    this.nowY = '-10px';
+                }
             } else {
                 this.nowY = '-10px';
             }
@@ -553,16 +625,8 @@ export default {
          */
         updateCurrentDate(todayObj = new Date()) {
             const thisWeekStartFromObj = new Date(todayObj.valueOf() - (this.weekDays.indexOf(todayObj.getDay()) * 24 * 3600 * 1000));
-
-            const dd = String(todayObj.getDate()).padStart(2, '0');
-            const mm = String(todayObj.getMonth() + 1).padStart(2, '0');
-            const yyyy = todayObj.getFullYear();
-            const ddWeek = String(thisWeekStartFromObj.getDate()).padStart(2, '0');
-            const mmWeek = String(thisWeekStartFromObj.getMonth() + 1).padStart(2, '0');
-            const yyyyWeek = thisWeekStartFromObj.getFullYear();
-
-            this.currentDate = `${yyyy}-${mm}-${dd}`;
-            this.currentWeekStart = `${yyyyWeek}-${mmWeek}-${ddWeek}`;
+            this.currentDate = this.getISODate(todayObj);
+            this.currentWeekStart = this.getISODate(thisWeekStartFromObj);
         },
         /**
          * Get event percentage passed
@@ -599,7 +663,7 @@ export default {
          * @returns {string} event details with links
          */
         linkify(text) {
-            return typeof text === 'string' ? linkifyStr(text, {
+            return typeof text === 'string' ? linkifyStr(text.trim(), {
                 rel: 'noopener nofollow',
                 target: '_blank',
                 format: (value, type) => {
@@ -625,8 +689,8 @@ export default {
                 body: JSON.stringify({
                     subid: this.account.calendar,
                     token: this.backend.token ? this.backend.token : '',
-                }, true),
-            }).catch(() => {
+                }),
+            }, true).catch(() => {
                 if (tryCount < 2) {
                     // Retry
                     setTimeout(() => {
@@ -685,8 +749,8 @@ export default {
                 });
             }
 
-            this.events = [];
-            this.classEvents = [];
+            this.events.splice(0);
+            this.classEvents.splice(0);
 
             // Update events
             const nowDate = new Date().valueOf();
@@ -711,7 +775,7 @@ export default {
                             const lines = item[1][0][3].split('\n').map((line) => line.trim().split(': ').map((part) => part.trim()));
                             const unitCode = lines.find((line) => line[0] === 'Unit Code');
                             if (unitCode !== undefined && unitCode[1] === titleName) {
-                                const unitName = lines.find((line) => line[0] === 'Unit Description');
+                                const unitName = lines.find((line) => line[0] === 'Description');
                                 if (unitName !== undefined) {
                                     guessedName = unitName[1];
                                 }
@@ -739,6 +803,10 @@ export default {
                             subjectName: `${subjectLongMap[titleName] ? subjectLongMap[titleName] : ''}`,
                             subjectId: subjectIdList.includes(titleName) ? titleName : '',
                             selfStudy,
+                            online: item[1][0][3].toUpperCase().includes('EVENT TYPE: ONLINE LECTURE'),
+                            lab: item[1][0][3].toUpperCase().includes('EVENT TYPE: LABORATORY'),
+                            team: item[1][0][3].toUpperCase().includes('EVENT TYPE: TEAM STUDY'),
+                            holiday: false,
                         };
                         this.classEvents.push(event);
                     }
@@ -759,15 +827,131 @@ export default {
             // Broadcast latest events
             this.updateTodayEvents();
             this.updateNextDayFirstEvent();
+
+            this.checkHolidayUpdate();
+        },
+        /**
+         * Update holiday from backend
+         */
+        async checkHolidayUpdate(tryCount = 1) {
+            if (!this.backend.url || !this.account.calendar) {
+                return;
+            }
+            this.loading = true;
+            let requestFailed = false;
+            // Send request
+            const response = await betterFetch(`https://${this.backend.url}/calendar/holiday/`, {
+                method: 'GET',
+            }, true).catch(() => {
+                if (tryCount < 2) {
+                    // Retry
+                    setTimeout(() => {
+                        this.checkHolidayUpdate(tryCount + 1);
+                    }, 8000);
+                } else {
+                    // Network error
+                    this.$store.commit('addError', {
+                        title: this.$t('network_error'),
+                        content: this.$t('network_error_body'),
+                        type: 'warning',
+                    });
+                    this.loading = false;
+                    this.updateTime();
+                    this.$refs.calendar.checkChange();
+                    this.refreshId = new Date().valueOf();
+                }
+                requestFailed = true;
+            });
+
+            if (requestFailed) {
+                return;
+            }
+
+            // Check response
+            if (!this.checkResponse(response)) {
+                this.loading = false;
+                return;
+            }
+
+            // Parse ical file
+            let rawData = [[], [], []];
+            try {
+                rawData = parse(response.data);
+                this.$store.commit('setBackendStatus', true);
+            } catch (icalerr) {
+                this.$store.commit('addError', {
+                    title: this.$t('ical_error'),
+                    content: this.$t('error_at', [`${icalerr.name}: ${icalerr.message}`, this.getDate(new Date())]),
+                    type: 'error',
+                });
+            }
+
+            this.holiday.splice(0);
+
+            // Update events
+            for (const item of rawData[2]) {
+                if (item[0] === 'vevent') {
+                    const startTime = new Date(`${item[1][0][3]}T00:00:00`);
+                    // Get event title, adapted to events with locations
+                    const title = item[1][10][3].replace(/\(England\)$/g, '').replace(/\(regional holiday\)$/g, '');
+
+                    if (title !== 'Daylight Saving Time ends' && title !== 'Daylight Saving Time starts' && (!title.endsWith(')' || title.endsWith('(England)') || title.endsWith('(regional holiday)')))) {
+                        const event = {
+                            name: title,
+                            details: item[1][6][3].startsWith('Observance') ? 'Public holiday' : item[1][6][3],
+                            start: startTime,
+                            end: new Date(new Date(`${item[1][1][3]}T00:00:00`).valueOf() - 1),
+                            color: 'teal darken-2',
+                            titleColor: 'teal darken-2',
+                            timed: false,
+                            rawTitle: title,
+                            subjectName: false,
+                            subjectId: false,
+                            selfStudy: false,
+                            online: false,
+                            lab: false,
+                            team: false,
+                            holiday: true,
+                        };
+                        this.holiday.push(event);
+                    }
+                }
+            }
+            await localForage.setItem('calendar_holiday', this.holiday);
+
+            // Refresh calendar
+            this.loading = false;
+            this.updateTime();
+            if (this.$refs.calendar) {
+                this.$refs.calendar.checkChange();
+            }
+            this.refreshId = new Date().valueOf();
         },
         /**
          * Format a date object to a string based on locale
          * @param {Date} dateObj Date object
          * @param {boolean} seconds whether to show seconds
-         * @returns {string} formatted a date string
+         * @returns {string} formatted date string
          */
         getDate(dateObj, seconds = true) {
             return formatDateTime(dateObj, this.locale, window.uomaTimeFormatters, seconds);
+        },
+        /**
+         * Format a date object to a string based on locale
+         * @param {Date} dateObj Date object
+         * @param {boolean} seconds whether to show seconds
+         * @returns {string} formatted date string
+         */
+        getDateOnly(dateObj) {
+            return formatDate(dateObj, this.locale, window.uomaTimeFormatters, false, 'auto');
+        },
+        /**
+         * Format a date object to a ISO date string
+         * @param {Date} dateObj Date object
+         * @returns {string} formatted date string
+         */
+        getISODate(dateObj) {
+            return `${dateObj.getFullYear()}-${`${dateObj.getMonth() + 1}`.padStart(2, '0')}-${`${dateObj.getDate()}`.padStart(2, '0')}`;
         },
         /**
          * Convert a Date object to a specified time zone
@@ -818,26 +1002,87 @@ export default {
         },
         /**
          * Check if there is a location link in the details of an event and show the Google map if needed
+         * @returns {string} map iframe string or empty string
          */
         showMap(details) {
             const lines = details.split('\n');
             for (const line of lines) {
                 const linePart = line.split(': ').map((item) => item.trim());
-                if (linePart[0] === 'Map Link' && linePart[1]) {
+                if (linePart[0].toLowerCase() === 'map link' && /^\[Google Maps\]\(/.test(linePart[1])) {
                     // Parse URL
                     let urlQuery;
                     try {
-                        urlQuery = new URLSearchParams(new URL(linePart[1]).search);
+                        urlQuery = new URLSearchParams(new URL(linePart[1].slice(14, -1)).search);
                     } catch (e) { return ''; }
                     if (urlQuery.get('query_place_id') !== null) {
-                        return `<iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAn46nX_pMvKfKcp5_Nqc4C3GCKj8CHJ7M&amp;q=place_id:${urlQuery.get('query_place_id')}" width="100%" height="300" frameborder="0" style="border:0;" allowfullscreen></iframe>`;
+                        return `<iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAn46nX_pMvKfKcp5_Nqc4C3GCKj8CHJ7M&amp;q=place_id:${urlQuery.get('query_place_id')}" frameborder="0" style="border:0;" allowfullscreen></iframe>`;
                     }
                     if (urlQuery.get('query') !== null) {
-                        return `<iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAn46nX_pMvKfKcp5_Nqc4C3GCKj8CHJ7M&amp;q=${urlQuery.get('query')}" width="100%" height="300" frameborder="0" style="border:0;" allowfullscreen></iframe>`;
+                        return `<iframe src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAn46nX_pMvKfKcp5_Nqc4C3GCKj8CHJ7M&amp;q=${urlQuery.get('query')}" frameborder="0" style="border:0;" allowfullscreen></iframe>`;
                     }
                 }
             }
             return '';
+        },
+        /**
+         * Check if there is a location string in the details of an event and show it
+         * @returns {string} location string or empty string
+         */
+        showLocation(details) {
+            const lines = details.split('\n');
+            for (const line of lines) {
+                const linePart = line.split(': ').map((item) => item.trim());
+                if (linePart[0].toLowerCase() === 'location' && linePart[1]) {
+                    let location = linePart[1];
+
+                    if (linePart[1].includes('_')) {
+                        const parts = linePart[1].split('_');
+                        const building = parts.shift();
+                        const room = parts.join('_');
+                        location = `${room}, ${building}`;
+                    }
+
+                    return location;
+                }
+            }
+            return '';
+        },
+        /**
+         * Check if there is a direction string in the details of an event and show it
+         * @returns {string} direction string or empty string
+         */
+        showDirections(details) {
+            const lines = details.split('\n');
+            for (const line of lines) {
+                const linePart = line.split(': ').map((item) => item.trim());
+                if (linePart[0].toLowerCase() === 'directions' && linePart[1]) {
+                    if (linePart[1].indexOf('.') === linePart[1].length - 1 || linePart[1].indexOf(',') === -1 || linePart[1].indexOf(';') === -1) {
+                        return linePart[1].slice(0, -1);
+                    }
+                    return linePart[1];
+                }
+            }
+            return '';
+        },
+        /**
+         * Check if there is a line of required attribute in the details of an event
+         * @returns {boolean} true if there is a line of required attribute
+         */
+        checkDetail(attr, details) {
+            if (typeof details !== 'string') {
+                return false;
+            }
+            if (details === 'Coursework Deadline') {
+                return false;
+            }
+            const lines = details.split('\n');
+            for (const line of lines) {
+                const linePart = line.split(': ').map((item) => item.trim());
+                if (linePart[0].toLowerCase() === attr && linePart[1]) {
+                    return true;
+                }
+            }
+            return false;
         },
         /**
          * Map from subject ID to subject links
@@ -859,11 +1104,31 @@ export default {
             };
         },
         /**
+         * Get the summary of an event
+         * @param {string} time event time string
+         * @param {object} event event object
+         * @returns {string} HTML summary
+         */
+        getEventSummary(time, event) {
+            const iconStr = `${event.online ? '<i class="v-icon notranslate mdi mdi-broadcast"></i>' : ''}${event.lab ? '<i class="v-icon notranslate mdi mdi-flask-empty-outline"></i>' : ''}${event.team ? '<i class="v-icon notranslate mdi mdi-account-multiple"></i>' : ''}${event.holiday ? '<i class="v-icon notranslate mdi mdi-palm-tree"></i>' : ''}`;
+            if (event.holiday) {
+                return `<span class="v-event-summary">${iconStr}${escapeHTML(event.name)}</span>`;
+            }
+            if (this.type === 'month') {
+                return `<span class="v-event-summary"><strong>${time.split('-')[0].trim()}</strong> ${iconStr}${escapeHTML(event.name)}</span>`;
+            }
+            if (event.end && event.end.valueOf() - event.start.valueOf() >= 3600 * 1000) {
+                return `<span class="v-event-summary">${iconStr}<strong>${escapeHTML(event.name)}</strong><br>${time}</span>`;
+            }
+            return `<span class="v-event-summary">${iconStr}<strong>${escapeHTML(event.name)}</strong>, ${time}</span>`;
+        },
+        /**
          * Open the settings to set the first day of the week
          */
         setFirstDay() {
             this.setttingsDialog = true;
             this.editingFirstDay = this.firstDay;
+            this.holidaySetting = this.showHoliday ? 0 : undefined;
         },
         /**
          * Save the first day of the week
@@ -871,6 +1136,7 @@ export default {
         saveFirstDay() {
             this.setttingsDialog = false;
             this.firstDay = this.editingFirstDay;
+            this.showHoliday = this.holidaySetting === 0;
             this.store();
             this.updateCurrentDate();
         },
@@ -887,6 +1153,7 @@ export default {
             localStorage.setItem('calendar', JSON.stringify({
                 firstDay: this.firstDay,
                 type: this.type,
+                holiday: this.showHoliday,
             }));
         },
         /**
@@ -899,6 +1166,13 @@ export default {
                 text: window.uomaTimeFormatters.date.formatToParts(new Date(base + 3600000 * 24 * (-4 + item))).find((part) => part.type === 'weekday').value,
                 value: item,
             }));
+        },
+        /**
+         * Format calendar interval
+         * @returns {string} formatted interval
+         */
+        intervalFormat(interval) {
+            return `${interval.hour > 12 ? interval.hour - 12 : interval.hour} ${interval.hour >= 12 ? 'PM' : 'AM'}`;
         },
     },
     watch: {
@@ -973,6 +1247,7 @@ export default {
             if (this.timerHour.substr(0, 2) === '00' || new Date().getDate() !== this.nowDate) {
                 this.nowDate = new Date().getDate();
                 this.refreshId = new Date().valueOf();
+                this.updateCurrentDate();
                 this.updateTime();
             }
         },
@@ -1015,6 +1290,15 @@ export default {
         weekDays() {
             return [...Array(7)].map((item, index) => (index + this.firstDay) % 7);
         },
+        customStart() {
+            return (this.focus ? new Date(this.focus).valueOf() : new Date().valueOf()) - 24 * 3600 * 1000;
+        },
+        customEnd() {
+            return this.customStart + 2 * 24 * 3600 * 1000;
+        },
+        allEvents() {
+            return this.showHoliday ? [...this.events, ...this.holiday] : this.events;
+        },
     },
     async mounted() {
         this.$i18n.locale = localStorage.getItem('language') || 'en';
@@ -1023,11 +1307,19 @@ export default {
         const settings = JSON.parse(localStorage.getItem('calendar') || '{"firstDay":0,"type":"month"}');
         this.type = settings.type;
         this.firstDay = settings.firstDay;
+        if (settings.holiday !== false) {
+            this.showHoliday = true;
+            this.holidaySetting = 0;
+        }
 
         // Restore events from indexeddb
         const storaged = await localForage.getItem('calendar');
         if (storaged !== null) {
             this.events = storaged;
+        }
+        const storagedHoliday = await localForage.getItem('calendar_holiday');
+        if (storagedHoliday !== null) {
+            this.holiday = storagedHoliday;
         }
 
         // Check if updating
@@ -1074,6 +1366,9 @@ export default {
     padding-right: 0;
     overflow: hidden;
     contain: strict;
+    div[data-date]:not(.v-event):not(.v-event-more) {
+        display: none;
+    }
     .loading {
         margin-left: 10px;
     }
@@ -1082,8 +1377,28 @@ export default {
         padding-right: 11px;
         padding-bottom: 11px;
     }
+    .v-calendar-daily_head-day .v-event {
+        width: calc(100% - 2px)!important;
+        margin-left: 1px!important;
+    }
     .event-block {
         pointer-events: none;
+        &.holiday {
+            background-color: #FFFFFF;
+            border: 1px solid #00897B;
+            height: 100%;
+            border-radius: 4px;
+            color: #00897B;
+            line-height: 19px;
+            .v-event-summary .v-icon {
+                margin: 2px 4px 0 2px;
+            }
+        }
+    }
+    .v-outside .event-block {
+        &.holiday {
+            background-color: #F7F7F7;
+        }
     }
     .event-block-overlay {
         position: absolute;
@@ -1094,6 +1409,13 @@ export default {
         opacity: 0.6;
         background-color: white;
         pointer-events: none;
+    }
+    .v-event-summary {
+        .v-icon {
+            font-size: 14px;
+            margin: 3px 4px 0 2px;
+            float: right;
+        }
     }
     .v-calendar-weekly__week {
         button.v-btn.v-size--small {
@@ -1140,13 +1462,13 @@ export default {
     }
     .v-calendar-daily__interval-text {
         top: -8px;
-        padding-right: 2px;
+        padding-right: 5px;
     }
     .v-calendar-daily__interval {
         padding-right: 3px;
     }
     .v-calendar-daily__interval::after {
-        width: 3px;
+        width: 4px;
     }
     .v-btn.v-btn--has-bg.v-btn--round.v-size--default.primary {
         height: 50px;
@@ -1169,11 +1491,25 @@ export default {
                 font-size: 0.875rem;
             }
         }
+        .session-tag {
+            font-size: 12px;
+            padding: 1px 5px;
+            color: white;
+            margin-right: 4px;
+            margin-top: -1px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            .v-icon {
+                font-size: 12px;
+                margin-right: 3px;
+                color: white;
+            }
+        }
         .list {
             margin-bottom: 20px;
             background-color: #f3f3f3;
             border-radius: 6px;
-            max-width: 800px;
             .v-list-item {
                 cursor: default;
                 min-height: 28px;
@@ -1196,7 +1532,7 @@ export default {
                 margin: 0;
                 margin-left: 8px!important;
                 .v-btn {
-                    font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
+                    font-family: "Roboto Mono", Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
                     margin-right: -4px;
                     position: relative;
                     .v-icon--left {
@@ -1218,8 +1554,38 @@ export default {
         .v-card__text {
             width: fit-content;
             min-width: 350px;
+            max-width: 70vw;
             pre {
                 font-family: Roboto, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif;
+                white-space: pre-wrap;
+                width: max-content;
+            }
+        }
+        .map-container {
+            min-height: 300px;
+            line-height: 0;
+            margin-top: 3px;
+            background-color: rgba(127, 127, 127, .2);
+            position: relative;
+            iframe {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+            }
+        }
+        .detail-flex {
+            display: flex;
+            align-items: flex-start;
+            i {
+                margin-right: 8px;
+                font-size: 19px;
+                &.bigger {
+                    margin-left: -1px;
+                    margin-right: 7px;
+                    font-size: 20px;
+                }
             }
         }
     }
@@ -1239,9 +1605,11 @@ export default {
         overscroll-behavior: contain;
         .v-card__text {
             width: 100%;
+            max-width: 100%;
             pre {
                 white-space: pre-wrap;
                 word-break: break-word;
+                width: 100%;
             }
         }
         .v-toolbar {
@@ -1261,12 +1629,31 @@ export default {
         .v-toolbar {
             background-color: #1E1E1E!important;
         }
+        .map-container {
+            filter: brightness(0.85);
+        }
+        .session-tag.primary {
+            color: #1E1E1E;
+            i {
+                color: #1E1E1E;
+            }
+        }
     }
 }
 #app.theme--dark .v-calendar-events .v-event-more {
     margin-left: 1px;
 }
 #app.theme--dark .calendar-container {
+    .event-block {
+        &.holiday {
+            background-color: #303030;
+        }
+    }
+    .v-outside .event-block {
+        &.holiday {
+            background-color: #202020;
+        }
+    }
     .event-block-overlay {
         background-color: #303030;
     }
@@ -1285,6 +1672,7 @@ export default {
     "en": {
         "today": "Today",
         "day": "Day",
+        "custom-daily": "3 Days",
         "week": "Week",
         "month": "Month",
         "course_ddl": "Coursework Deadline",
@@ -1294,20 +1682,26 @@ export default {
         "quick_zoom": "Zoom meeting quick start",
         "quick_teams": "Teams meeting quick start",
         "copy_passcode": "Copy passcode",
-        "self_study": " (Independent Study)",
+        "self_study": "Indep. Study",
+        "online": "Online",
+        "team_study": "Team Study",
         "ical_error": "Error when parsing the calendar file",
         "error_at": "{0} at {1}",
+        "calendar_settings": "Calendar settings",
         "first_day_settings": "First day of weeks",
         "cancel": "Cancel",
         "save": "Save",
         "clock_change_pos": "Clock changes on this day. Go forward {0} minutes.",
         "clock_change_neg": "Clock changes on this day. Go back {0} minutes.",
         "local_time": " (local)",
-        "uk_time": " (UK)"
+        "uk_time": " (UK)",
+        "holiday": "Holiday",
+        "uk_holiday": "Show England holidays"
     },
     "zh": {
         "today": "今天",
         "day": "日视图",
+        "custom-daily": "三日视图",
         "week": "周视图",
         "month": "月视图",
         "course_ddl": "作业到期",
@@ -1317,20 +1711,26 @@ export default {
         "quick_zoom": "快速启动 Zoom 会议",
         "quick_teams": "快速启动 Teams 会议",
         "copy_passcode": "复制密码",
-        "self_study": "（自学）",
+        "self_study": "自学",
+        "online": "在线",
+        "team_study": "团队学习",
         "ical_error": "解析日历文件时发生错误",
         "error_at": "{0} 于 {1}",
+        "calendar_settings": "日历设置",
         "first_day_settings": "每周第一天",
         "cancel": "取消",
         "save": "保存",
         "clock_change_pos": "当日有时钟变更。前进 {0} 分钟。",
         "clock_change_neg": "当日有时钟变更。后退 {0} 分钟。",
         "local_time": "（本地）",
-        "uk_time": "（英国）"
+        "uk_time": "（英国）",
+        "holiday": "假期",
+        "uk_holiday": "显示英格兰假期"
     },
     "es": {
         "today": "Hoy",
         "day": "Día",
+        "custom-daily": "",
         "week": "Semana",
         "month": "Mes",
         "course_ddl": "Fecha límite para trabajo de asignatura",
@@ -1340,20 +1740,26 @@ export default {
         "quick_zoom": "Acceder a Zoom",
         "quick_teams": "Acceder a Teams",
         "copy_passcode": "Copiar contraseña",
-        "self_study": " (Autoestudio)",
+        "self_study": "Autoestudio",
+        "online": "",
+        "team_study": "",
         "ical_error": "Error al analizar el archivo de calendario",
         "error_at": "{0} en {1}",
-        "first_day_settings": "",
+        "calendar_settings": "",
+        "first_day_settings": "Primer día de la semana",
         "cancel": "Cancelar",
         "save": "Guardar",
-        "clock_change_pos": "",
-        "clock_change_neg": "",
-        "local_time": "",
-        "uk_time": ""
+        "clock_change_pos": "Cambio de hora en este día. Avanza {0} minutos.",
+        "clock_change_neg": "Cambio de hora en este día. Retrocede {0} minutos.",
+        "local_time": " (local)",
+        "uk_time": " (Reino Unido)",
+        "holiday": "",
+        "uk_holiday": ""
     },
     "ja": {
         "today": "今日",
         "day": "日",
+        "custom-daily": "",
         "week": "周",
         "month": "月",
         "course_ddl": "課題の締め切り",
@@ -1363,16 +1769,21 @@ export default {
         "quick_zoom": "Zoomミーティングを起動する",
         "quick_teams": "Teamsミーティングを起動する",
         "copy_passcode": "パスワードをコピーする",
-        "self_study": "（独学）",
+        "self_study": "独学",
+        "online": "",
+        "team_study": "",
         "ical_error": "icalファイル解析不能",
         "error_at": "{1} に {0} 発生",
+        "calendar_settings": "",
         "first_day_settings": "毎週の初日",
         "cancel": "キャンセル",
         "save": "保存",
         "clock_change_pos": "",
         "clock_change_neg": "",
         "local_time": "",
-        "uk_time": ""
+        "uk_time": "",
+        "holiday": "",
+        "uk_holiday": ""
     }
 }
 </i18n>

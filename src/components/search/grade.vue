@@ -299,7 +299,6 @@ export default {
     padding-left: 0;
     padding-right: 0;
     overflow: hidden;
-    background-color: #F8F8F8!important;
     border-color: #E0E0E0!important;
     contain: layout paint;
     .subject-summary {
@@ -396,7 +395,6 @@ export default {
     }
 }
 #app.theme--dark .search-grade-container {
-    background-color: #1E1E1E!important;
     border-color: #393939;
     .grade-item {
         background-color: #272727;
@@ -433,13 +431,13 @@ export default {
     },
     "es": {
         "more_info": "Ver asignatura",
-        "formative": "Formativo",
-        "Semester 1": "",
-        "Semester 2": "",
-        "All Year": "",
-        "waiting": "",
+        "formative": "",
+        "Semester 1": "Semestre 1",
+        "Semester 2": "Semestre 2",
+        "All Year": "Todo el año",
+        "waiting": "En espera",
         "na": "N/A",
-        "copy": ""
+        "copy": "Clic para copiar"
     },
     "ja": {
         "more_info": "この科目を表示",
