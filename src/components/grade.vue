@@ -1381,13 +1381,14 @@ export default {
         "more_info": "詳細",
         "etc": "等々",
         "total": "合計 {0} 件",
-        "formative": "",
-        "Semester 1": "",
-        "Semester 2": "",
-        "All Year": "",
-        "waiting": "",
-        "na": "",
-        "empty": ""
+        "formative": "最終成績には含まれない",
+        "Semester 1": "第一学期",
+        "Semester 2": "第二学期",
+        "All Year": "学年",
+        "waiting": "採点中",
+        "na": "不明",
+        "empty": "データ無し",
+        "copy": "クリックしてコピー"
     }
 }
 </i18n>
