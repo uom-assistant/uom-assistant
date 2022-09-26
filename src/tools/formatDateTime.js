@@ -4,6 +4,7 @@ import localeList from '../locales/localeList';
  * Format date time based on locale
  * @param {Date} date Date object
  * @param {string} locale locale name
+ * @param {array} timeFormatters time formatter list
  * @param {boolean?} seconds whether to contain seconds
  * @param {boolean | string?} year whether to force contain year. Could be true, false or 'auto'
  * @returns {string} formated date time string

@@ -8,7 +8,7 @@ table ul, table ol {
     text-align: left;
 }
 img {
-    margin: 0 auto;
+    margin: 0;
     max-width: 100%;
     height: auto;
 }
@@ -84,9 +84,10 @@ div.success, div.info, div.warning, div.error {
     border-radius: 6px;
     margin: 12px 0;
 }
-div.success > p, div.info > p, div.warning > p, div.error > p {
+div.success > div, div.info > div, div.warning > div, div.error > div {
     margin: 0;
     word-break: break-word;
+    margin-bottom: -12px;
 }
 div.success {
     color: rgb(76, 175, 80);
@@ -103,4 +104,29 @@ div.warning {
 div.error {
     color: rgb(244, 67, 54);
     background-color: rgba(244, 67, 54, .12)!important;
+}
+div.success, div.info, div.warning, div.error {
+    display: flex;
+}
+div.success:before, div.info:before, div.warning:before, div.error:before {
+    font-family: 'Material Design Icons';
+    font-size: 20px;
+    height: 20px;
+    line-height: 20px;
+}
+div.success > div, div.info > div, div.warning > div, div.error > div {
+    margin-left: 10px;
+    line-height: 20px;
+}
+div.success:before {
+    content: '\F05E1';
+}
+div.info:before {
+    content: '\F02FD';
+}
+div.warning:before {
+    content: '\F002A';
+}
+div.error:before {
+    content: '\F05D6';
 }

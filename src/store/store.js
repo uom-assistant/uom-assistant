@@ -23,9 +23,13 @@ export default {
         attendance: false,
         attendanceUpdated: 0,
         darkMode: false,
+        autoDark: false,
         classBell: true,
         layoutLock: false,
         rerender: 0,
+        upcomingCourseworks: [],
+        quickCommands: [],
+        visibility: true,
     },
     mutations: {
         setLocale(state, language) {
@@ -92,6 +96,9 @@ export default {
         setDarkMode(state, darkMode) {
             state.darkMode = darkMode;
         },
+        setAutoDark(state, autoDark) {
+            state.autoDark = autoDark;
+        },
         setClassBell(state, classBell) {
             state.classBell = classBell;
         },
@@ -100,6 +107,12 @@ export default {
         },
         setRerender(state, rerender) {
             state.rerender = rerender;
+        },
+        setUpcomingCourseworks(state, upcomingCourseworks) {
+            state.upcomingCourseworks = upcomingCourseworks;
+        },
+        setVisibility(state, visibility) {
+            state.visibility = visibility;
         },
     },
     actions: {},

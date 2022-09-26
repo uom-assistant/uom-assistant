@@ -20,19 +20,19 @@
                         v-bind="attrs"
                         v-on="on"
                         v-show="$route.path === '/'"
-                        v-shortkey="['ctrl', 'm']"
-                        @shortkey="toggleDark"
+                        v-shortkey="{ theme: ['ctrl', 'm'], layout: ['ctrl', 'b'] }"
+                        @shortkey="toggleAttr"
                     >
                         <v-icon>mdi-tune</v-icon>
                     </v-btn>
                 </template>
                 <v-list flat class="shown-list">
-                    <v-list-item class="daynight" @click="toggleDark">
+                    <v-list-item class="daynight" @click="toggleDark(false)">
                         <v-list-item-icon>
-                            <v-icon>{{ $vuetify.theme.dark ? 'mdi-white-balance-sunny' : 'mdi-weather-night' }}</v-icon>
+                            <v-icon>{{ theme === 'dark' ? 'mdi-weather-night' : (theme === 'auto' ? 'mdi-theme-light-dark' : 'mdi-white-balance-sunny') }}</v-icon>
                         </v-list-item-icon>
                         <v-list-item-content>
-                            <v-list-item-title>{{ $vuetify.theme.dark ? $t('light_mode') : $t('dark_mode') }}</v-list-item-title>
+                            <v-list-item-title>{{ theme === 'dark' ? $t('theme_dark') : (theme === 'auto' ? $t('theme_auto') : $t('theme_light')) }}</v-list-item-title>
                         </v-list-item-content>
                     </v-list-item>
                     <v-list-item @click="layoutLock = !layoutLock" class="daynight">
@@ -74,9 +74,9 @@
             <v-btn
                 icon
                 v-show="$route.path !== '/'"
-                @click="toggleDark"
+                @click="toggleDark(false)"
             >
-                <v-icon>{{ $vuetify.theme.dark ? 'mdi-weather-night' : 'mdi-white-balance-sunny' }}</v-icon>
+                <v-icon>{{ theme === 'dark' ? 'mdi-weather-night' : (theme === 'auto' ? 'mdi-theme-light-dark' : 'mdi-white-balance-sunny') }}</v-icon>
             </v-btn>
             <v-menu
                 offset-y
@@ -124,26 +124,26 @@
         </v-app-bar>
         <div id="search-result" class="elevation-3" :class="{ open: searchOpened }" v-show="searching !== '' && searching !== null && searchIndexFiltered.filter((item) => item).flat().length > 0">
             <div>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0">
+                <div class="overline mb-1 text--secondary" v-if="ifWidgets.includes(7) && searchIndexFiltered[7] && searchIndexFiltered[7].length > 0">
                     {{ $t('note') }}
                 </div>
-                <noteSearch :notes="searchIndexFiltered[7]" v-if="searchIndexFiltered[7] && searchIndexFiltered[7].length > 0"></noteSearch>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[5] && searchIndexFiltered[5].length > 0">
+                <noteSearch :notes="searchIndexFiltered[7]" v-if="ifWidgets.includes(7) && searchIndexFiltered[7] && searchIndexFiltered[7].length > 0"></noteSearch>
+                <div class="overline mb-1 text--secondary" v-if="ifWidgets.includes(5) && searchIndexFiltered[5] && searchIndexFiltered[5].length > 0">
                     {{ $t('task') }}
                 </div>
-                <taskSearch :tasks="searchIndexFiltered[5]" v-if="searchIndexFiltered[5] && searchIndexFiltered[5].length > 0"></taskSearch>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[8] && searchIndexFiltered[8].length > 0">
+                <taskSearch :tasks="searchIndexFiltered[5]" v-if="ifWidgets.includes(5) && searchIndexFiltered[5] && searchIndexFiltered[5].length > 0"></taskSearch>
+                <div class="overline mb-1 text--secondary" v-if="ifWidgets.includes(8) && searchIndexFiltered[8] && searchIndexFiltered[8].length > 0">
                     {{ $t('mail') }}
                 </div>
-                <mailSearch :mails="searchIndexFiltered[8]" v-if="searchIndexFiltered[8] && searchIndexFiltered[8].length > 0"></mailSearch>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[9] && searchIndexFiltered[9].length > 0">
+                <mailSearch :mails="searchIndexFiltered[8]" v-if="ifWidgets.includes(8) && searchIndexFiltered[8] && searchIndexFiltered[8].length > 0"></mailSearch>
+                <div class="overline mb-1 text--secondary" v-if="ifWidgets.includes(9) && searchIndexFiltered[9] && searchIndexFiltered[9].length > 0">
                     {{ $t('grade') }}
                 </div>
-                <gradeSearch :grades="searchIndexFiltered[9]" v-if="searchIndexFiltered[9] && searchIndexFiltered[9].length > 0"></gradeSearch>
-                <div class="overline mb-1 text--secondary" v-if="searchIndexFiltered[0] && searchIndexFiltered[0].length > 0">
+                <gradeSearch :grades="searchIndexFiltered[9]" v-if="ifWidgets.includes(9) && searchIndexFiltered[9] && searchIndexFiltered[9].length > 0"></gradeSearch>
+                <div class="overline mb-1 text--secondary" v-if="ifWidgets.includes(0) && searchIndexFiltered[0] && searchIndexFiltered[0].length > 0">
                     {{ $t('clock') }}
                 </div>
-                <clockSearch v-if="searchIndexFiltered[0] && searchIndexFiltered[0].length > 0" :city="searchIndexFiltered[0][0].display" :timezone="searchIndexFiltered[0][0].code"></clockSearch>
+                <clockSearch :city="searchIndexFiltered[0][0].display" :timezone="searchIndexFiltered[0][0].code" v-if="ifWidgets.includes(0) && searchIndexFiltered[0] && searchIndexFiltered[0].length > 0"></clockSearch>
             </div>
         </div>
         <v-navigation-drawer
@@ -200,11 +200,36 @@
             <v-container fluid>
                 <v-slide-y-reverse-transition leave-absolute>
                     <keep-alive include="Home">
-                            <router-view ref="view" :key="`router-${routerRefreshKey}`"></router-view>
+                        <router-view ref="view"></router-view>
                     </keep-alive>
                 </v-slide-y-reverse-transition>
             </v-container>
         </v-main>
+        <div
+            id="quick-command"
+            :class="{ shown: showCommand }"
+            class="justify-center align-center"
+            v-shortkey="['ctrl', 'q']"
+            @shortkey="toggleCommand"
+        >
+            <div class="elevation-12">
+                <v-text-field
+                    solo
+                    :placeholder="$t('what_to_do')"
+                    v-click-outside="{
+                        handler: () => {
+                            showCommand = false;
+                        },
+                        closeConditional: showCommand,
+                    }"
+                    flat
+                    hide-details="auto"
+                    prepend-inner-icon="mdi-lightning-bolt"
+                    ref="commandInput"
+                ></v-text-field>
+                <ul></ul>
+            </div>
+        </div>
         <v-dialog
             v-model="welcome"
             persistent
@@ -275,7 +300,7 @@
                         depressed
                         small
                         class="second-btn"
-                        @click="skip"
+                        @click="$refs.importDialog.openDialog()"
                     >
                         {{ $t('import') }}
                     </v-btn>
@@ -344,6 +369,8 @@
                             outlined
                             :label="$t('backend_token')"
                             :class="{ shown: needToken }"
+                            :disabled="!needToken"
+                            :readonly="loading"
                             :hint="$t('need_token')"
                             :error="tokenError"
                             :error-messages="tokenError ? $t('wrong_token') : []"
@@ -546,6 +573,24 @@
                 </v-card-text>
             </v-card>
         </v-dialog>
+        <v-dialog
+            v-model="initing"
+            max-width="400"
+            persistent
+        >
+            <v-card>
+                <v-card-title class="headline text-center d-block">
+                    {{ $t('loading') }}
+                </v-card-title>
+                <v-card-text>
+                    <v-progress-linear
+                        indeterminate
+                        color="primary"
+                    ></v-progress-linear>
+                </v-card-text>
+            </v-card>
+        </v-dialog>
+        <importDialog ref="importDialog"></importDialog>
         <div id="alert-space" v-show="displayErrors.length > 0" :style="{ bottom: updateReady ? '135px' : '5px' }">
             <v-alert
                 v-for="(item, index) in displayErrors"
@@ -594,6 +639,7 @@
                 </v-btn>
             </template>
         </v-snackbar>
+        <v-snackbar v-model="darkKeyBoardTip" timeout="2000" content-class="theme-tip-content">{{ darkKeyBoardTipText }}</v-snackbar>
     </v-app>
 </template>
 
@@ -609,6 +655,7 @@ import taskSearch from '@/components/search/task.vue';
 import mailSearch from '@/components/search/mail.vue';
 import gradeSearch from '@/components/search/grade.vue';
 import clockSearch from '@/components/search/clock.vue';
+import importDialog from '@/components/import.vue';
 
 import checkBackendVersion from '@/tools/checkBackendVersion';
 import betterFetch from '@/tools/betterFetch';
@@ -672,6 +719,7 @@ export default {
         mailSearch,
         gradeSearch,
         clockSearch,
+        importDialog,
     },
     data: () => ({
         showSettingsMenu: false,
@@ -689,7 +737,6 @@ export default {
         loading: false,
         welcomeMessage: '',
         welcomeMessageDialog: false,
-        darkMode: false,
         locale: '',
         localeDetail: null,
         backend: {},
@@ -697,7 +744,6 @@ export default {
         searchOpened: false,
         settingsValid: false,
         accountNotice: false,
-        routerRefreshKey: 0,
         loginError: false,
         loginErrorText: '',
         privacyPolicy: false,
@@ -714,8 +760,8 @@ export default {
             'livelinks',
             'subjects',
             'attendance',
-            'calendar',
             'task',
+            'calendar',
             'note',
             'mail',
             'grade',
@@ -730,6 +776,12 @@ export default {
         updating: false,
         newCourseSound: true,
         layoutLock: false,
+        darkKeyBoardTip: false,
+        darkKeyBoardTipText: '',
+        theme: 'light',
+        autoDarkVal: false,
+        initing: false,
+        showCommand: false,
     }),
     methods: {
         /**
@@ -939,10 +991,11 @@ export default {
                     method: 'POST',
                     body: JSON.stringify({
                         username: this.$refs.settingsField.username,
+                        email: `${this.$refs.settingsField.email}.manchester.ac.uk`,
                         password: this.$refs.settingsField.password,
                         token: backendToken || '',
-                    }, true),
-                }).catch(() => {
+                    }),
+                }, true).catch(() => {
                     // Network error
                     this.loading = false;
                     this.loginError = true;
@@ -1028,9 +1081,11 @@ export default {
             this.$store.commit('setBackendStatus', true);
             this.$store.commit('setAccount', JSON.parse(localStorage.getItem('account')) || {});
             this.welcome = false;
-            if (this.$route.path === '/') {
-                this.routerRefreshKey = new Date().valueOf();
-            }
+            this.initing = true;
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 600);
         },
         /**
          * Dismiss welcome message dialog and go to account settings
@@ -1050,16 +1105,56 @@ export default {
         },
         /**
          * Toggle dark mode globally
+         * @param {Boolean} keyboard whether the toggle is triggered by the keyboard
          */
-        toggleDark() {
-            this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+        toggleDark(keyboard) {
+            let nextVal = false;
+            if (this.theme === 'light') {
+                nextVal = true;
+                this.theme = 'dark';
+            } else if (this.theme === 'dark') {
+                if (this.autoDark) {
+                    nextVal = this.autoDarkVal;
+                    this.theme = 'auto';
+                } else {
+                    nextVal = false;
+                    this.theme = 'light';
+                }
+            } else {
+                nextVal = false;
+                this.theme = 'light';
+            }
+
+            this.$vuetify.theme.dark = nextVal;
             this.$store.commit('setDarkMode', this.$vuetify.theme.dark);
-            localStorage.setItem('dark', this.$vuetify.theme.dark ? 'true' : 'false');
+            localStorage.setItem('uomaTheme', this.theme);
 
             document.querySelector('meta[name="theme-color"]').setAttribute('content', this.$vuetify.theme.dark ? '#272727' : '#F5F5F5');
 
+            // If the toggle is triggered by the keyboard, show a tip about current mode
+            if (keyboard) {
+                this.darkKeyBoardTip = false;
+                this.darkKeyBoardTipText = this.$t(`theme_${this.theme}`);
+                this.$nextTick(() => {
+                    this.darkKeyBoardTip = true;
+                });
+            }
+
+            // Update colour theme for Electron
             if (window.__UOMA_ELECTRON__ && window.__UOMA_ELECTRON_BRIDGE__) {
                 window.__UOMA_ELECTRON_BRIDGE__.setAttr('theme', this.$vuetify.theme.dark ? 'dark' : 'light');
+            }
+        },
+        toggleAttr(event) {
+            if (event.srcKey === 'theme') {
+                this.toggleDark(true);
+            } else {
+                this.layoutLock = !this.layoutLock;
+                this.darkKeyBoardTip = false;
+                this.darkKeyBoardTipText = this.$t(`layout_${this.layoutLock ? 'on' : 'off'}`);
+                this.$nextTick(() => {
+                    this.darkKeyBoardTip = true;
+                });
             }
         },
         /**
@@ -1073,6 +1168,7 @@ export default {
             setTimeout(() => {
                 if (this.searchOpened) {
                     this.$refs.searchInput.focus();
+                    this.$refs.searchInput.$refs.input.select();
                 }
             }, 350);
         },
@@ -1091,6 +1187,19 @@ export default {
                 this.closeSearch();
             } else if (this.$route.path === '/') {
                 this.openSearch();
+            }
+            this.showCommand = false;
+        },
+        /**
+         * Toggle quick command bar
+         */
+        toggleCommand() {
+            this.showCommand = !this.showCommand;
+            if (this.showCommand) {
+                this.$nextTick(() => {
+                    this.$refs.commandInput.focus();
+                    this.$refs.commandInput.$refs.input.select();
+                });
             }
         },
         /**
@@ -1170,6 +1279,9 @@ export default {
             if (this.$route.path === '/' && localStorage.getItem('setup') !== 'true') {
                 this.welcome = true;
             }
+            if (this.$route.path === '/settings' && localStorage.getItem('setup') !== 'true') {
+                this.$router.replace('/');
+            }
         },
     },
     computed: {
@@ -1178,6 +1290,7 @@ export default {
             backendStatus: (state) => state.backendStatus,
             searchIndex: (state) => state.searchIndex,
             searchIndexChecker: (state) => state.searchIndexChecker,
+            autoDark: (state) => state.autoDark,
         }),
         /**
          * Check if the URL field is valid
@@ -1204,6 +1317,15 @@ export default {
         },
     },
     watch: {
+        autoDark() {
+            // Check colour theme when auto dark mode support is changed
+            if (!this.autoDark && this.theme === 'auto') {
+                this.theme = 'light';
+                this.$vuetify.theme.dark = false;
+                this.$store.commit('setDarkMode', false);
+                localStorage.setItem('uomaTheme', this.theme);
+            }
+        },
         ifWidgets() {
             // Store widget status to local storage
             localStorage.setItem('if_widgets', JSON.stringify(this.ifWidgets));
@@ -1363,15 +1485,45 @@ export default {
         this.layoutLock = (localStorage.getItem('lock_layout') || 'false') === 'true';
         this.$store.commit('setLayoutLock', this.layoutLock);
 
-        // Initialize dark mode status
-        const darkMode = localStorage.getItem('dark');
-        this.$vuetify.theme.dark = darkMode ? (darkMode === 'true') : false;
-        this.$store.commit('setDarkMode', this.$vuetify.theme.dark);
+        // Initialize theme status
+        const mql = window.matchMedia('(prefers-color-scheme: dark)');
+        mql.addEventListener('change', (mqlResult) => {
+            this.autoDarkVal = mqlResult.matches;
+            if (this.theme === 'auto') {
+                this.$vuetify.theme.dark = mqlResult.matches;
+            }
+        });
+        this.autoDarkVal = mql.matches;
 
-        document.querySelector('meta[name="theme-color"]').setAttribute('content', this.$vuetify.theme.dark ? '#272727' : '#F5F5F5');
+        this.theme = localStorage.getItem('uomaTheme') || 'light';
+        let dark = this.theme === 'dark';
+        this.$nextTick(() => {
+            if (this.theme === 'auto') {
+                if (this.autoDark) {
+                    dark = this.autoDarkVal;
+                } else {
+                    dark = false;
+                    this.theme = 'light';
+                    localStorage.setItem('uomaTheme', 'light');
+                }
+            }
+            this.$vuetify.theme.dark = dark;
+            this.$store.commit('setDarkMode', dark);
+        });
+
+        // Read UI setting from localStorage
+        const uiConfig = (JSON.parse(localStorage.getItem('misc_settings')) || {});
+        if (uiConfig.blur) {
+            document.documentElement.classList.add('blur-style');
+        } else {
+            document.documentElement.classList.remove('blur-style');
+        }
+        this.$store.commit('setAutoDark', uiConfig.autoDark || false);
+
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#272727' : '#F5F5F5');
 
         if (window.__UOMA_ELECTRON__ && window.__UOMA_ELECTRON_BRIDGE__) {
-            window.__UOMA_ELECTRON_BRIDGE__.setAttr('theme', this.$vuetify.theme.dark ? 'dark' : 'light');
+            window.__UOMA_ELECTRON_BRIDGE__.setAttr('theme', dark ? 'dark' : 'light');
         }
 
         // Initialize backend connection
@@ -1401,6 +1553,15 @@ export default {
             }, 7200000);
         }
 
+        // Apply a11y settings
+        const data = JSON.parse(localStorage.getItem('misc_settings')) || {};
+        if (data.reduceMotion) {
+            document.documentElement.classList.add('reduce-motion');
+        }
+        if (data.easyRead) {
+            document.documentElement.classList.add('easy-read');
+        }
+
         this.$router.onReady(() => {
             this.checkWelcome();
         });
@@ -1409,6 +1570,13 @@ export default {
             if (this.$route.path !== '/' && this.searchOpened) {
                 this.closeSearch();
             }
+        });
+
+        const state = document.visibilityState;
+        this.$store.commit('setVisibility', state === 'visible' || state === 'prerender');
+        document.addEventListener('visibilitychange', () => {
+            const currentState = document.visibilityState;
+            this.$store.commit('setVisibility', currentState === 'visible' || currentState === 'prerender');
         });
     },
     beforeDestroy() {
@@ -1531,8 +1699,52 @@ export default {
     }
 }
 
+@font-face {
+    font-family: 'OpenDyslexic';
+    font-weight: normal;
+    src: url("/fonts/OpenDyslexic3-Regular.woff2") format("woff2"),
+         url("/fonts/OpenDyslexic3-Regular.woff") format("woff"),
+         url("/fonts/OpenDyslexic3-Regular.ttf") format("truetype"),
+}
+@font-face {
+    font-family: 'OpenDyslexic';
+    font-weight: bold;
+    src: url("/fonts/OpenDyslexic3-Bold.woff2") format("woff2"),
+         url("/fonts/OpenDyslexic3-Bold.woff") format("woff"),
+         url("/fonts/OpenDyslexic3-Bold.ttf") format("truetype"),
+}
+@font-face {
+    font-family: 'OpenDyslexicMono';
+    font-weight: bold;
+    src: url("/fonts/OpenDyslexicMono-Regular.woff2") format("woff2"),
+         url("/fonts/OpenDyslexicMono-Regular.woff") format("woff"),
+         url("/fonts/OpenDyslexicMono-Regular.otf") format("opentype"),
+}
+
 html::-webkit-scrollbar {
     width: 0;
+}
+html.reduce-motion *:not(.block) {
+    transition: none!important;
+}
+html.easy-read {
+    .v-application, .v-application * {
+        font-family: OpenDyslexic, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif!important;
+    }
+    .v-application {
+        code, kbd, pre, samp {
+            font-family: OpenDyslexicMono, Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace!important;
+        }
+        .v-list-item__subtitle {
+            font-size: 14px;
+        }
+        .note-container .list .time-icon, .note-search-container .list .time-icon, .mail-container .list .person-icon, .mail-container .list .time-icon, .mail-search-container .list .person-icon, .mail-search-container .list .time-icon, .search-grade-container .list .v-list-item__subtitle > span > i {
+            vertical-align: initial;
+        }
+        .text-h1, .overline, .title, .mail-view-subject > span, .mail-detail .text-body-2, .mail-translation .text-body-2 {
+            font-family: OpenDyslexic, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif!important;
+        }
+    }
 }
 .v-application {
     font-family: Roboto, -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif;
@@ -1853,9 +2065,11 @@ html::-webkit-scrollbar {
                 height: 0;
                 opacity: 0;
                 transition: height .2s, opacity .2s .2s;
+                pointer-events: none;
                 &.shown {
                     height: 87px;
                     opacity: 1;
+                    pointer-events: auto;
                 }
             }
         }
@@ -1912,6 +2126,10 @@ html::-webkit-scrollbar {
         pointer-events: auto;
     }
 }
+.theme-tip-content {
+    margin-right: -8px!important;
+    text-align: center!important;
+}
 #search-result {
     position: absolute;
     top: 64px;
@@ -1956,7 +2174,26 @@ html::-webkit-scrollbar {
     top: -100%;
 }
 code, kbd, pre, samp {
-    font-family: 'Roboto Mono', Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
+    font-family: "Roboto Mono", Consolas, "Liberation Mono", Courier, "Courier New", Monaco, "Courier New SC", "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial,"Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", monospace;
+}
+#quick-command {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .2);
+    z-index: 9999999;
+    display: none;
+    &.shown {
+        display: flex;
+    }
+    & > div {
+        width: 90%;
+        max-width: 600px;
+        border-radius: 6px;
+        overflow: hidden;
+    }
 }
 @media (max-width: 960px) {
     .global-search-input {
@@ -2080,14 +2317,98 @@ code, kbd, pre, samp {
         }
     }
 }
+.blur-style {
+    .v-menu__content {
+        background-color: transparent!important;
+        box-shadow: 0px 5px 5px -3px rgba(0, 0, 0, 0.15), 0px 8px 10px 1px rgba(0, 0, 0, 0.105), 0px 3px 14px 2px rgba(0, 0, 0, 0.09);
+        & > .v-sheet {
+            background-color: rgba(255, 255, 255, .72);
+            backdrop-filter: blur(25px);
+            & > header {
+                background-color: transparent!important;
+            }
+        }
+    }
+    .event-card .v-list {
+        background-color: rgba(213, 213, 213, .3)!important;
+    }
+    .v-picker.v-card {
+        background-color: transparent!important;
+        .v-picker__body {
+            background-color: rgba(255, 255, 255, .72)!important;
+            backdrop-filter: blur(25px);
+        }
+        .v-time-picker-clock {
+            background-color: rgba(184, 184, 184, .3);
+        }
+    }
+    #search-result {
+        background-color: rgba(248, 248, 248, .72)!important;
+        backdrop-filter: blur(25px);
+        box-shadow: 0px 3px 3px -2px rgba(0, 0, 0, .15%), 0px 3px 4px 0px rgba(0, 0, 0, .105), 0px 1px 8px 0px rgba(0, 0, 0, .09) !important;
+        & > div > .v-sheet {
+            background-color: rgba(255, 255, 255, .5)!important;
+            & > .v-sheet {
+                background-color: transparent;
+            }
+        }
+        & > div > .search-grade-container .grade-item {
+            background-color: rgba(255, 255, 255, .5)!important;
+        }
+    }
+    .note-toc-card .note-id {
+        background-color: rgba(210, 210, 210, .3)!important;
+        backdrop-filter: blur(25px);
+    }
+    .v-snack__wrapper {
+        background-color: rgba(21, 21, 21, .72)!important;
+        backdrop-filter: blur(25px);
+    }
+    #app.theme--dark {
+        .v-menu__content {
+            & > .v-sheet {
+                background-color: rgba(30, 30, 30, .72);
+                & > header {
+                    background-color: transparent!important;
+                }
+            }
+        }
+        .event-card .v-list {
+            background-color: rgba(74, 74, 74, .3)!important;
+        }
+        .v-picker.v-card {
+            background-color: transparent!important;
+            .v-picker__body {
+                background-color: rgba(66, 66, 66, .72)!important;
+            }
+            .v-time-picker-clock {
+                background-color: rgba(139, 139, 139, .3);
+            }
+        }
+        #search-result {
+            background-color: rgba(30, 30, 30, .72)!important;
+            & > div > .v-sheet {
+                background-color: rgba(49, 49, 49, .5)!important;
+            }
+            & > div > .search-grade-container .grade-item {
+                background-color: rgba(49, 49, 49, .5)!important;
+            }
+        }
+        .v-snack__wrapper {
+            background-color: rgba(51, 51, 51, .72)!important;
+            backdrop-filter: blur(25px);
+        }
+        .note-toc-card .note-id {
+            background-color: rgba(74, 74, 74, .3)!important;
+        }
+    }
+}
 </style>
 
 <i18n>
 {
     "en": {
         "title": "UoM Assistant",
-        "dark_mode": "Switch to dark mode",
-        "light_mode": "Switch to light mode",
         "front_end_update_ready": "New version of the frontend is now available",
         "front_end_update": "Update",
         "front_end_ignore": "Ignore",
@@ -2153,12 +2474,17 @@ code, kbd, pre, samp {
         "grade": "Grade Summary",
         "plugins": "Plug-ins",
         "new_course_sound": "Check-in Bell",
-        "a11y_settings_title": "Accessibility settings"
+        "a11y_settings_title": "Accessibility settings",
+        "theme_light": "Bright Theme",
+        "theme_dark": "Dark Theme",
+        "theme_auto": "Auto Colour Theme",
+        "loading": "Loading…",
+        "what_to_do": "What would you like to do?",
+        "layout_on": "Layout locked",
+        "layout_off": "Layout unlocked"
     },
     "zh": {
         "title": "曼大助手",
-        "dark_mode": "切换到暗色模式",
-        "light_mode": "切换到亮色模式",
         "front_end_update_ready": "新版本的前端已经可用",
         "front_end_update": "更新",
         "front_end_ignore": "忽略",
@@ -2175,7 +2501,7 @@ code, kbd, pre, samp {
         "a11y_settings": "可访问性设置…",
         "welcome": "欢迎！",
         "not_yet": "看起来你还没有配置你的曼大助手",
-        "press_to_settings": "点按“开始设置”来配置你的个人仪表板",
+        "press_to_settings": "点按「开始设置」来配置你的个人仪表板",
         "continue": "开始设置",
         "next": "下一步",
         "import": "导入…",
@@ -2202,7 +2528,7 @@ code, kbd, pre, samp {
         "account_notice_title": "未设置账户信息",
         "account_notice_body": "你没有设置曼大账户信息，这将会导致成绩概览、出勤统计及邮箱组件不可用。确定要继续吗？",
         "cancel": "取消",
-        "setup_done": "<p>恭喜！你的曼大助手仪表板已经设置完毕，可以使用了。</p><p>现在你可以在“快速笔记”组件中找到名为《曼大助手漫游指南》的笔记。这篇笔记简单介绍了曼大助手的各项功能，你可以通过这篇笔记快速熟悉曼大助手的使用。</p><p>多亏了曼大助手社区志愿者的帮助，你现在可以通过“插件”组件中的 \"Course Info Importer\" 插件尝试寻找并快速导入对应年级的课程数据而无需手动填写课程数据。</p><p>要了解更多有关曼大助手的信息，欢迎访问我们的 <a href=\"https://github.com/uom-assistant/uom-assistant\" target=\"_blank\" rel=\"noopener nofollow\">GitHub</a>。",
+        "setup_done": "<p>恭喜！你的曼大助手仪表板已经设置完毕，可以使用了。</p><p>现在你可以在「快速笔记」组件中找到名为《曼大助手漫游指南》的笔记。这篇笔记简单介绍了曼大助手的各项功能，你可以通过这篇笔记快速熟悉曼大助手的使用。</p><p>多亏了曼大助手社区志愿者的帮助，你现在可以通过「插件」组件中的 \"Course Info Importer\" 插件尝试寻找并快速导入对应年级的课程数据而无需手动填写课程数据。</p><p>要了解更多有关曼大助手的信息，欢迎访问我们的 <a href=\"https://github.com/uom-assistant/uom-assistant\" target=\"_blank\" rel=\"noopener nofollow\">GitHub</a>。",
         "network_error": "网络错误，无法验证你的曼大账户信息，请稍后重试。",
         "backend_error": "后端错误，无法验证你的曼大账户信息，请稍后重试。",
         "backend_maintenance": "后端正在维护，无法验证你的曼大账户信息，请稍后重试。",
@@ -2224,12 +2550,17 @@ code, kbd, pre, samp {
         "grade": "成绩概览",
         "plugins": "插件",
         "new_course_sound": "签到铃",
-        "a11y_settings_title": "可访问性设置"
+        "a11y_settings_title": "可访问性设置",
+        "theme_light": "亮色主题",
+        "theme_dark": "深色主题",
+        "theme_auto": "自动颜色主题",
+        "loading": "正在载入",
+        "what_to_do": "你想做什么？",
+        "layout_on": "布局已锁定",
+        "layout_off": "布局已解锁"
     },
     "es": {
         "title": "UoM Assistant",
-        "dark_mode": "Cambiar a modo oscuro",
-        "light_mode": "Cambiar a modo claro",
         "front_end_update_ready": "Nuava versión de front-end disponible",
         "front_end_update": "Actualizar",
         "front_end_ignore": "Ignorar",
@@ -2268,20 +2599,20 @@ code, kbd, pre, samp {
         "message_from_backend": "Mensaje desde back-end",
         "ok": "OK",
         "account_settings": "Ajustes de la cuenta",
-        "done": "",
-        "account_notice_title": "",
-        "account_notice_body": "",
-        "cancel": "",
-        "setup_done": "",
-        "network_error": "",
-        "backend_error": "",
-        "backend_maintenance": "",
-        "token_required": "",
-        "login_error": "",
-        "login_error_title": "",
-        "privacy_policy_text": "",
-        "lock_layout": "Lock Layout",
-        "unlock_layout": "Unlock Layout",
+        "done": "Hecho",
+        "account_notice_title": "Cuenta UoM no configurada",
+        "account_notice_body": "No ha configurado la información de su cuenta de UM, lo que hará que el resumen de calificaciones, la asistencia y el widget de bandeja de entrada no estén disponibles. Quiere continuar de todas formas?",
+        "cancel": "Cancelar",
+        "setup_done": "<p> ¡Felicitaciones! Su panel de control del UoM Assistant ahora está listo para usar. </p><p> Ahora puede encontrar una nota en el widget \"Notas rápidas\" llamada <em> Visita rápida UoM Assistant </em>. Esta nota proporciona una breve introducción a las funciones que ofrece UoM Assistant, y puede usarla para familiarizarse rápidamente el uso de UoM Assistant.</p><p>Gracias a los voluntariados de la comunidad de UoM Assistant, ahora puede usar el complemento \"Importador de información del curso\" en el widget \"Complementos\" para buscar e importar datos del curso de su año con unos pocos clics, sin tener que completar los datos del curso manualmente.</p><p>Para obtener más información sobre UoM Assistant, visite nuestro <a href=\"https://github.com/uom-assistant/uom-assistant\" target=\"_blank\" rel=\"noopener nofollow\"> GitHub Repo </a></p>",
+        "network_error": "No se ha podido verificar la información de su cuenta de UoM debido a un error de red. Por favor, inténtelo de nuevo más tarde.",
+        "backend_error": "No se ha podido verificar la información de su cuenta de UoM debido a un error de back-end. Por favor, inténtelo de nuevo más tarde.",
+        "backend_maintenance": "Dado que el back-end está en mantenimiento, no podemos verificar la información de su cuenta de UoM. Por favor, inténtelo de nuevo más tarde.",
+        "token_required": "No ha podido verificar la información de su cuenta de UoM debido a un cambio de token de back-end. Por favor, inténtelo de nuevo más tarde.",
+        "login_error": "No se pudo verificar",
+        "login_error_title": "No se ha podido verificar la información de su cuenta de UoM. Compruebe el nombre de usuario y la contraseña y vuelva a intentarlo.",
+        "privacy_policy_text": "<p><strong>No podemos garantizar la seguridad de su información personal si utiliza una instancia no oficial de UoM Assistant. Las instancias de UoM Assistant de terceros pueden tener su propia política de privacidad que usted mismo puede leer.</strong></p><p>Todos sus datos utilizados por UoM Assistant se almacenarán localmente en su dispositivo. UoM Assistant enviará sus datos de inicio de sesión de la Universidad de Manchester al back-end correspondiente de UoM Assistant para obtener datos como sus calificaciones y asistencia cuando sea necesario. El backend de UoM Assistant no retendrá su información personal ni la compartirá con terceros, incluidos, entre otros, la dirección de correo electrónico de la universidad, el nombre de usuario, la contraseña, la cookie de inicio de sesión y el token.</p><p>No podemos garantizar cómo su información será manejada por terceros, por lo tanto, tenga en cuenta cuando utilice complementos y servicios de terceros. No compartiremos su información personal con ningún tercero sin su consentimiento.</p><p>UoM Assistant no rastrea su uso de UoM Assistant de ninguna manera.</p><p>Tenga en cuenta que no somos responsables por cualquier pérdida o corrupción de datos, por lo que se recomienda hacer una copia de seguridad de la información importante, como notas y tareas. Al borrar los datos del sitio, se eliminarán todos los datos almacenados del sitio web, incluida información como su nombre de usuario y contraseña, y UoM Assistant volverá a su estado original. También puede borrar todos los datos almacenados por UoM Assistant en su navegador desde la página de configuración de UoM Assistant.</p>",
+        "lock_layout": "Bloquear diseño",
+        "unlock_layout": "Desbloquear diseño",
         "clock": "Reloj",
         "bblinks": "Enlaces rápidos",
         "livelinks": "Enlaces de sesiones online",
@@ -2293,12 +2624,15 @@ code, kbd, pre, samp {
         "mail": "Correos",
         "grade": "Resumen de notas ",
         "plugins": "Complementos",
-        "new_course_sound": "Campana de clase"
+        "new_course_sound": "Campana de clase",
+        "theme_light": "",
+        "theme_dark": "",
+        "theme_auto": "",
+        "loading": "",
+        "what_to_do": ""
     },
     "ja": {
         "title": "UoMアシスタント",
-        "dark_mode": "ダークモードに変更する",
-        "light_mode": "ライトモードに変更する",
         "front_end_update_ready": "新バージョンのフロントエンドが利用可能です",
         "front_end_update": "アップデート",
         "front_end_ignore": "無視する",

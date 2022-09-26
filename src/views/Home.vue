@@ -223,6 +223,7 @@ export default {
             checkinCourses: [],
             widgetList: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
             init: false,
+            ready: false,
         };
     },
     watch: {
@@ -259,6 +260,11 @@ export default {
         todayEvents() {
             this.updateEvents('event');
         },
+        visibility() {
+            if (this.visibility && this.ready) {
+                this.updateEvents('event');
+            }
+        },
     },
     computed: {
         ...mapState({
@@ -273,6 +279,7 @@ export default {
             classBell: (state) => state.classBell,
             layoutLock: (state) => state.layoutLock,
             timeFormatters: (state) => state.timeFormatters,
+            visibility: (state) => state.visibility,
         }),
     },
     methods: {
@@ -534,9 +541,7 @@ export default {
         }
 
         // Restore widgets' order
-        let indexes = localStorage.getItem('layout') || '[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]';
-        indexes = JSON.parse(indexes);
-        document.getElementById(`index-${indexes.shift()}`).classList.add('layouted');
+        const indexes = JSON.parse(localStorage.getItem('layout') || '[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]');
         const packery = new Packery(document.getElementById('blocks'), {
             itemSelector: '.layouted',
             gutter: 15,
@@ -548,9 +553,12 @@ export default {
             document.getElementById(`index-${index}`).classList.add('layouted');
             packery.appended(document.getElementById(`index-${index}`));
         }
-        for (const ele of document.querySelectorAll('#blocks .block:not(.layouted)')) {
-            ele.classList.add('layouted');
-            packery.appended(ele);
+        for (const ele of document.querySelectorAll('#blocks .block')) {
+            const indexList = indexes.map((index) => `index-${index}`);
+            if (!indexList.includes(ele.id) && ele.id !== 'sizer') {
+                ele.classList.add('layouted');
+                packery.appended(ele);
+            }
         }
         packery.layout();
         packery.on('layoutComplete', this.orderItems);
@@ -560,6 +568,7 @@ export default {
             this.widgetList = this.widgets;
             setTimeout(() => {
                 packery.layout();
+                this.ready = true;
             }, 100);
         });
 

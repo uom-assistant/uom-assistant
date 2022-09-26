@@ -2,7 +2,7 @@
  * A `fetch` wrapper that makes fetch simpler
  * @param {string} url url
  * @param {object?} option `fetch` options
- * @param {boolean} allowElectron whether allow electron to handle the request
+ * @param {boolean?} allowElectron whether allow electron to handle the request
  * @param {string?} targetType target content type, use '' to auto detect
  * @returns {Promise<object|string>} response data or response object when error
  */
