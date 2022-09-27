@@ -822,6 +822,7 @@ export default {
         "link_name": "",
         "delete_subject": "科目を削除する",
         "delete_subject_text": "本当にこの科目 {0} を削除しますか？",
+        "filter_course": "隠れた科目を除外する",
         "error": "保存できません",
         "same_id": "この科目番号はもう他の科目に関していますので、変更が保存されません。",
         "ok": "はい",

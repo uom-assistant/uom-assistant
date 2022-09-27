@@ -1447,17 +1447,18 @@ export default {
         "network_error_body": "",
         "cannot_fetch": "成績情報を取得できません。バックエンドの情報が正しく設定されていないか、バックエンドが許可していない可能性があります。",
         "learn_more": "もっと詳しく",
-        "empty_subject": "まだ成績情報がありない科目",
+        "empty_subject": "まだ成績情報なし科目",
         "more_info": "詳細",
         "etc": "等々",
         "total": "合計 {0} 件",
-        "formative": "",
-        "Semester 1": "",
-        "Semester 2": "",
-        "All Year": "",
-        "waiting": "",
-        "na": "",
-        "empty": ""
+        "formative": "最終成績には含まれない",
+        "Semester 1": "第一学期",
+        "Semester 2": "第二学期",
+        "All Year": "学年",
+        "waiting": "採点中",
+        "na": "不明",
+        "empty": "データ無し",
+        "copy": "クリックしてコピー"
     }
 }
 </i18n>
