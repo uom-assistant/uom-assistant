@@ -227,7 +227,7 @@
     {
         "name": "America/Guayaquil",
         "countryCode": "EC",
-        "mainCity": "Guayaquil"
+        "mainCity": "Quito"
     },
     {
         "name": "America/Lima",
@@ -935,11 +935,6 @@
         "mainCity": "Kaliningrad"
     },
     {
-        "name": "Europe/Kiev",
-        "countryCode": "UA",
-        "mainCity": "Kyiv"
-    },
-    {
         "name": "Europe/Mariehamn",
         "countryCode": "AX",
         "mainCity": "Mariehamn"
@@ -975,6 +970,11 @@
         "mainCity": "Vilnius"
     },
     {
+        "name": "Europe/Zaporozhye",
+        "countryCode": "UA",
+        "mainCity": "Zaporizhzhya"
+    },
+    {
         "name": "Asia/Jerusalem",
         "countryCode": "IL",
         "mainCity": "Jerusalem"
@@ -982,7 +982,7 @@
     {
         "name": "Africa/Johannesburg",
         "countryCode": "ZA",
-        "mainCity": "Cape Town"
+        "mainCity": "Johannesburg"
     },
     {
         "name": "Africa/Mbabane",
@@ -1277,7 +1277,7 @@
     {
         "name": "Asia/Hovd",
         "countryCode": "MN",
-        "mainCity": "Khovd"
+        "mainCity": "Ulaangom"
     },
     {
         "name": "Asia/Bangkok",
@@ -1382,7 +1382,7 @@
     {
         "name": "Asia/Jayapura",
         "countryCode": "ID",
-        "mainCity": "Ambon"
+        "mainCity": "Jayapura"
     },
     {
         "name": "Asia/Tokyo",
@@ -1457,7 +1457,7 @@
     {
         "name": "Asia/Vladivostok",
         "countryCode": "RU",
-        "mainCity": "Vladivostok"
+        "mainCity": "Khabarovsk"
     },
     {
         "name": "Australia/Lord_Howe",
