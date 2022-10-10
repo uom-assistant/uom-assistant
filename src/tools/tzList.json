@@ -1190,9 +1190,9 @@
         "mainCity": "Tashkent"
     },
     {
-        "name": "Asia/Qyzylorda",
+        "name": "Asia/Aqtobe",
         "countryCode": "KZ",
-        "mainCity": "Kyzylorda"
+        "mainCity": "Aktobe"
     },
     {
         "name": "Asia/Yekaterinburg",
@@ -1347,7 +1347,7 @@
     {
         "name": "Asia/Kuala_Lumpur",
         "countryCode": "MY",
-        "mainCity": "Kota Bharu"
+        "mainCity": "Johor Bahru"
     },
     {
         "name": "Asia/Manila",

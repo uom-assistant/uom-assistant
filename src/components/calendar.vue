@@ -250,7 +250,7 @@
                             >
                                 <v-toolbar-title :class="selectedEvent.titleColor ? `${selectedEvent.titleColor.split(' ')[0] === 'uomtheme' ? 'primary' : selectedEvent.titleColor.split(' ')[0]}--text${selectedEvent.titleColor.split(' ').length > 1 ? ` text--${selectedEvent.titleColor.split(' ')[1]}` : ''}` : ''" class="calendar-selected-name">
                                     {{ selectedEvent.details === 'Coursework Deadline' ? selectedEvent.name : (selectedEvent.holiday ? selectedEvent.name : selectedEvent.subjectName === '' ? selectedEvent.name.split('/')[0] : selectedEvent.subjectName) }}<br>
-                                    <span class="text--disabled calendar-smaller-font mt-1 d-inline-block"><span class="session-tag rounded" :class="selectedEvent.titleColor ? `${selectedEvent.titleColor.split(' ')[0] === 'uomtheme' ? 'primary' : selectedEvent.titleColor.split(' ')[0]}${selectedEvent.titleColor.split(' ').length > 1 ? ` ${selectedEvent.titleColor.split(' ')[1]}` : ''}` : ''" v-if="selectedEvent.selfStudy || selectedEvent.online || selectedEvent.lab || selectedEvent.team"><v-icon x-small v-if="selectedEvent.online || selectedEvent.lab || selectedEvent.team">mdi-{{ selectedEvent.online ? 'broadcast' : (selectedEvent.team ? 'account-multiple' : 'flask-empty-outline') }}</v-icon>{{ selectedEvent.selfStudy ? $t('self_study') : (selectedEvent.online ? $t('online') : (selectedEvent.team ? $t('team_study') : 'Lab')) }}</span>{{ selectedEvent.details === 'Coursework Deadline' ? (selectedEvent.subjectName === '' ? $t('coursework') : selectedEvent.subjectName) : (selectedEvent.holiday ? $t('holiday') : selectedEvent.rawTitle) }}</span>
+                                    <span class="text--disabled calendar-smaller-font mt-1 d-inline-block"><span class="session-tag rounded" :class="selectedEvent.titleColor ? `${selectedEvent.titleColor.split(' ')[0] === 'uomtheme' ? 'primary' : selectedEvent.titleColor.split(' ')[0]}${selectedEvent.titleColor.split(' ').length > 1 ? ` ${selectedEvent.titleColor.split(' ')[1]}` : ''}` : ''" v-if="selectedEvent.selfStudy || selectedEvent.online || selectedEvent.lab || selectedEvent.team || selectedEvent.dropin"><v-icon x-small v-if="selectedEvent.online || selectedEvent.lab || selectedEvent.team || selectedEvent.dropin">mdi-{{ selectedEvent.online ? 'broadcast' : (selectedEvent.team ? 'account-multiple' : (selectedEvent.lab ? 'flask-empty-outline' : 'walk')) }}</v-icon>{{ selectedEvent.selfStudy ? $t('self_study') : (selectedEvent.online ? $t('online') : (selectedEvent.team ? $t('team_study') : (selectedEvent.lab ? 'Lab' : 'Drop-in'))) }}</span>{{ selectedEvent.details === 'Coursework Deadline' ? (selectedEvent.subjectName === '' ? $t('coursework') : selectedEvent.subjectName) : (selectedEvent.holiday ? $t('holiday') : selectedEvent.rawTitle) }}</span>
                                 </v-toolbar-title>
                                 <v-spacer></v-spacer>
                                 <v-tooltip top v-if="selectedEvent.subjectId !== '' && subjectLinks(selectedEvent.subjectId).homeLink !== false">
@@ -278,7 +278,7 @@
                                     color="grey"
                                     @click="selectedOpen = false"
                                 >
-                                    <v-icon>mdi-chevron-down</v-icon>
+                                    <v-icon>mdi-close</v-icon>
                                 </v-btn>
                             </v-toolbar>
                             <v-card-text :class="$vuetify.breakpoint.xs ? 'flex-grow-0' : ''">
@@ -806,6 +806,7 @@ export default {
                             online: item[1][0][3].toUpperCase().includes('EVENT TYPE: ONLINE LECTURE'),
                             lab: item[1][0][3].toUpperCase().includes('EVENT TYPE: LABORATORY'),
                             team: item[1][0][3].toUpperCase().includes('EVENT TYPE: TEAM STUDY'),
+                            dropin: item[1][0][3].toUpperCase().includes('EVENT TYPE: DROP-IN'),
                             holiday: false,
                         };
                         this.classEvents.push(event);
@@ -1110,7 +1111,7 @@ export default {
          * @returns {string} HTML summary
          */
         getEventSummary(time, event) {
-            const iconStr = `${event.online ? '<i class="v-icon notranslate mdi mdi-broadcast"></i>' : ''}${event.lab ? '<i class="v-icon notranslate mdi mdi-flask-empty-outline"></i>' : ''}${event.team ? '<i class="v-icon notranslate mdi mdi-account-multiple"></i>' : ''}${event.holiday ? '<i class="v-icon notranslate mdi mdi-palm-tree"></i>' : ''}`;
+            const iconStr = `${event.online ? '<i class="v-icon notranslate mdi mdi-broadcast"></i>' : ''}${event.lab ? '<i class="v-icon notranslate mdi mdi-flask-empty-outline"></i>' : ''}${event.team ? '<i class="v-icon notranslate mdi mdi-account-multiple"></i>' : ''}${event.holiday ? '<i class="v-icon notranslate mdi mdi-palm-tree"></i>' : ''}${event.dropin ? '<i class="v-icon notranslate mdi mdi-walk"></i>' : ''}`;
             if (event.holiday) {
                 return `<span class="v-event-summary">${iconStr}${escapeHTML(event.name)}</span>`;
             }

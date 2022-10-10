@@ -4,5 +4,8 @@
     ],
     "compilerOptions":{
         "resolveJsonModule": true
+    },
+    "vueCompilerOptions": {
+        "target": 2.7
     }
 }

@@ -16,7 +16,7 @@
                 {{ $t('task') }}
                 <span class="num-badge" v-show="(tasks.length - ifTasks.length) > 0">{{ tasks.length - ifTasks.length }}</span>
                 <v-btn icon small class="float-right mr-4" :title="$t('quick_add')" @click="openAhead">
-                    <v-icon>mdi-playlist-plus</v-icon>
+                    <v-icon>mdi-file-document-plus-outline</v-icon>
                 </v-btn>
             </h2>
             <div class="input-container">
@@ -127,9 +127,20 @@
                 </v-autocomplete>
                 <v-btn
                     depressed
+                    class="add-expand"
+                    @click="expandForm"
+                    :title="$t('expand')"
+                >
+                    <v-icon dark>
+                        mdi-arrow-expand
+                    </v-icon>
+                </v-btn>
+                <v-btn
+                    depressed
                     color="primary"
                     class="add-submit"
                     @click="addOne"
+                    :title="$t('add_task_btn')"
                 >
                     <v-icon dark>
                         mdi-check
@@ -263,6 +274,282 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        <v-dialog
+            v-model="expanded"
+            max-width="600"
+            :fullscreen="$vuetify.breakpoint.xs"
+            :transition="$vuetify.breakpoint.xs ? 'slide-y-reverse-transition' : 'dialog-transition'"
+        >
+            <v-card class="add-expand-dialog" :class="$vuetify.breakpoint.xs ? 'rounded-0' : ''">
+                <v-card-title class="headline">
+                    {{ $t('add_task_btn') }}
+                </v-card-title>
+                <v-card-text class="pb-2 pt-3">
+                    <v-text-field
+                        :label="$t('task_name')"
+                        outlined
+                        class="input"
+                        prepend-inner-icon="mdi-format-list-checks"
+                        clearable
+                        v-model.trim="addText"
+                        @keypress.enter="addOne"
+                        ref="addInput"
+                        hide-details
+                    ></v-text-field>
+                    <v-divider class="mt-4 mb-4"></v-divider>
+                    <div class="d-flex justify-space-between ">
+                        <v-select
+                            v-model="repeat"
+                            class="event-settings"
+                            :items="repeatItems"
+                            :label="$t('repeat')"
+                            hide-details
+                            prepend-inner-icon="mdi-repeat"
+                            outlined
+                        ></v-select>
+                        <v-select
+                            v-model="repeatTime"
+                            class="event-settings"
+                            :items="repeatTimeItems"
+                            :label="$t('repeat_time')"
+                            :disabled="repeat === 0"
+                            hide-details
+                            prepend-inner-icon="mdi-counter"
+                            outlined
+                        ></v-select>
+                        <div class="event-settings-check d-flex justify-start align-center">
+                            <v-checkbox
+                                class="ma-0 pa-0"
+                                v-model="allday"
+                                hide-details
+                                :label="$t('all_day')"
+                            ></v-checkbox>
+                        </div>
+                    </div>
+                    <v-divider class="mt-4 mb-4"></v-divider>
+                    <div class="d-flex justify-space-between mb-3">
+                        <v-menu
+                            v-model="dateMenuStart"
+                            :close-on-content-click="false"
+                            :nudge-top="25"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="auto"
+                        >
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-text-field
+                                    v-model="date"
+                                    :label="$t('ddl_date')"
+                                    prepend-inner-icon="mdi-calendar"
+                                    class="date-input"
+                                    readonly
+                                    v-bind="attrs"
+                                    v-on="on"
+                                    outlined
+                                    clearable
+                                    hide-details
+                                ></v-text-field>
+                            </template>
+                            <v-date-picker
+                                v-model="date"
+                                color="primary"
+                                @input="dateMenuStart = false"
+                                :locale="selectLocale"
+                                :key="`date-picker-${updateDatePickerKey}`"
+                            ></v-date-picker>
+                        </v-menu>
+                        <v-menu
+                            ref="timeMenuStart"
+                            v-model="timeMenuStart"
+                            :close-on-content-click="false"
+                            :nudge-top="25"
+                            :return-value.sync="time"
+                            transition="scale-transition"
+                            offset-y
+                            max-width="290px"
+                            min-width="290px"
+                        >
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-text-field
+                                    v-model="time"
+                                    :label="$t('ddl_time')"
+                                    :disabled="allday"
+                                    prepend-inner-icon="mdi-clock-outline"
+                                    class="time-input"
+                                    readonly
+                                    v-bind="attrs"
+                                    v-on="on"
+                                    outlined
+                                    clearable
+                                    hide-details
+                                ></v-text-field>
+                            </template>
+                            <v-time-picker
+                                v-if="timeMenuStart"
+                                v-model="time"
+                                format="24hr"
+                                color="primary"
+                                :scrollable="true"
+                                @click:minute="$refs.timeMenuStart.save(time)"
+                                @click:hour="time === null || time.length === 0 ? false: $refs.timeMenuStart.save(time)"
+                            ></v-time-picker>
+                        </v-menu>
+                    </div>
+                    <div class="pa-4 d-flex justify-center time-span-note">
+                        {{ $t('span', [timeSpan]) }}
+                    </div>
+                    <div class="d-flex mt-3">
+                        <v-menu
+                            v-model="dateMenuEnd"
+                            :close-on-content-click="false"
+                            :nudge-top="25"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="auto"
+                        >
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-text-field
+                                    v-model="dateEnd"
+                                    :label="$t('end_date')"
+                                    :disabled="(date === null || date === false || date.length === 0) && (time === null || time === false || time.length === 0)"
+                                    prepend-inner-icon="mdi-calendar-outline"
+                                    class="date-input mr-2"
+                                    readonly
+                                    v-bind="attrs"
+                                    v-on="on"
+                                    outlined
+                                    clearable
+                                    hide-details
+                                ></v-text-field>
+                            </template>
+                            <v-date-picker
+                                v-model="dateEnd"
+                                color="primary"
+                                @input="dateMenuEnd = false"
+                                :locale="selectLocale"
+                                :key="`date-picker-${updateDatePickerKey}`"
+                            ></v-date-picker>
+                        </v-menu>
+                        <v-menu
+                            ref="timeMenuEnd"
+                            v-model="timeMenuEnd"
+                            :close-on-content-click="false"
+                            :nudge-top="25"
+                            :return-value.sync="timeEnd"
+                            transition="scale-transition"
+                            offset-y
+                            max-width="290px"
+                            min-width="290px"
+                        >
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-text-field
+                                    v-model="timeEnd"
+                                    :label="$t('end_time')"
+                                    :disabled="allday || (date === null || date === false || date.length === 0) && (time === null || time === false || time.length === 0)"
+                                    prepend-inner-icon="mdi-clock-time-eight-outline"
+                                    class="time-input ml-2"
+                                    readonly
+                                    v-bind="attrs"
+                                    v-on="on"
+                                    outlined
+                                    clearable
+                                    hide-details
+                                ></v-text-field>
+                            </template>
+                            <v-time-picker
+                                v-if="timeMenuEnd"
+                                v-model="timeEnd"
+                                format="24hr"
+                                color="primary"
+                                :scrollable="true"
+                                @click:minute="$refs.timeMenuEnd.save(timeEnd)"
+                                @click:hour="timeEnd === null || timeEnd.length === 0 ? false: $refs.timeMenuEnd.save(timeEnd)"
+                            ></v-time-picker>
+                        </v-menu>
+                    </div>
+                    <v-divider class="mt-4 mb-4"></v-divider>
+                    <div class="d-flex">
+                        <v-autocomplete
+                            class="select-subject mr-2"
+                            prepend-inner-icon="mdi-book"
+                            v-model="addingSubject"
+                            clearable
+                            outlined
+                            hide-details
+                            item-text="id"
+                            item-value="id"
+                            :items="allSubjects"
+                            :label="$t('subject')"
+                            :no-data-text="$t('no_subject')"
+                            :menu-props="{
+                                closeOnClick: false,
+                                closeOnContentClick: false,
+                                disableKeys: true,
+                                openOnClick: false,
+                                maxHeight: 304,
+                                offsetY: true,
+                                offsetOverflow: true,
+                                transition: 'slide-y-transition'
+                            }"
+                        >
+                            <template v-slot:item="data">
+                                <v-list-item-avatar :color="data.item.color" v-if="data.item.color" size="20"></v-list-item-avatar>
+                                <v-list-item-content>
+                                    <v-list-item-title>{{ data.item.id }}</v-list-item-title>
+                                    <v-list-item-subtitle>{{ data.item.name }}</v-list-item-subtitle>
+                                </v-list-item-content>
+                            </template>
+                        </v-autocomplete>
+                        <v-autocomplete
+                            class="select-subject ml-2"
+                            prepend-inner-icon="mdi-file-document-edit-outline"
+                            v-model="noteId"
+                            clearable
+                            outlined
+                            hide-details
+                            item-text="id"
+                            item-value="id"
+                            :items="allNotes"
+                            :label="$t('note')"
+                            :no-data-text="$t('no_note')"
+                            :menu-props="{
+                                closeOnClick: false,
+                                closeOnContentClick: false,
+                                disableKeys: true,
+                                openOnClick: false,
+                                maxHeight: 304,
+                                offsetY: true,
+                                offsetOverflow: true,
+                                transition: 'slide-y-transition'
+                            }"
+                        >
+                            <template v-slot:item="data">
+                                <v-list-item-content>
+                                    <v-list-item-title>{{ data.item.name }}</v-list-item-title>
+                                    <v-list-item-subtitle>ID: <code>{{ data.item.id }}</code></v-list-item-subtitle>
+                                </v-list-item-content>
+                            </template>
+                        </v-autocomplete>
+                    </div>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        text
+                        @click="closeExpand"
+                    >
+                        {{ $t('close') }}
+                    </v-btn>
+                    <v-btn
+                        text
+                        color="primary"
+                        @click="addOne"
+                    >
+                        {{ $t('add_task_btn') }}
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-card>
 </template>
 
@@ -297,6 +584,17 @@ export default {
             editingAhead: -1,
             ahead: -1,
             added: [],
+            timeMenuStart: false,
+            dateMenuStart: false,
+            timeMenuEnd: false,
+            timeEnd: '',
+            dateMenuEnd: false,
+            dateEnd: '',
+            noteId: '',
+            expanded: false,
+            repeat: 0,
+            repeatTime: 0,
+            allday: false,
         };
     },
     methods: {
@@ -329,8 +627,46 @@ export default {
                         // Time later than current time, set to today
                         nowDate = `${todayObj.getFullYear()}-${String(todayObj.getMonth() + 1).padStart(2, '0')}-${String(todayObj.getDate()).padStart(2, '0')}`;
                     }
-                    deadline = new Date(`${nowDate} ${this.time}`).valueOf();
+                    deadline = new Date(`${nowDate}T${this.time}`).valueOf();
                 }
+
+                let end = false;
+                if (deadline !== false) {
+                    if (this.dateEnd !== null && this.dateEnd.length > 0) {
+                        if (this.timeEnd !== null && this.timeEnd.length > 0) {
+                            end = new Date(`${this.dateEnd}T${this.timeEnd}`).valueOf();
+                        } else {
+                            // If time is missing, set to 00:00
+                            end = new Date(`${this.dateEnd}T00:00`).valueOf();
+                        }
+                    } else if (this.timeEnd !== null && this.timeEnd.length > 0) {
+                        // If date is missing
+                        const todayObj = new Date();
+                        const nowHour = todayObj.getHours();
+                        const nowMin = todayObj.getMinutes();
+                        const timeSplit = this.timeEnd.split(':');
+
+                        let nowDate = '';
+                        if (parseInt(timeSplit[0], 10) < nowHour || (parseInt(timeSplit[0], 10) === nowHour && parseInt(timeSplit[1], 10) < nowMin)) {
+                            // Time earlier than current time, set to tomorrow
+                            nowDate = `${todayObj.getFullYear()}-${String(todayObj.getMonth() + 1).padStart(2, '0')}-${String(todayObj.getDate() + 1).padStart(2, '0')}`;
+                        } else {
+                            // Time later than current time, set to today
+                            nowDate = `${todayObj.getFullYear()}-${String(todayObj.getMonth() + 1).padStart(2, '0')}-${String(todayObj.getDate()).padStart(2, '0')}`;
+                        }
+                        end = new Date(`${nowDate}T${this.timeEnd}`).valueOf();
+
+                        while (end < deadline) {
+                            // If end time is earlier than start time, set end time forwards
+                            end += 86400000;
+                        }
+                    }
+
+                    if (end <= deadline) {
+                        end = false;
+                    }
+                }
+
                 this.tasks.push({
                     title: this.addText,
                     deadline,
@@ -338,12 +674,25 @@ export default {
                     source: 'manual',
                     synced: false,
                     updated: new Date().valueOf(),
+                    end,
+                    noteId: this.noteId === null || this.noteId.length === 0 ? false : this,
                 });
+
                 // Clear inputs
                 this.addText = '';
-                this.date = '';
-                this.time = '';
-                this.addingSubject = '';
+                this.expanded = false;
+
+                setTimeout(() => {
+                    this.date = '';
+                    this.time = '';
+                    this.addingSubject = '';
+                    this.noteId = '';
+                    this.dateEnd = '';
+                    this.timeEnd = '';
+                    this.repeat = 0;
+                    this.repeatTime = 0;
+                    this.allday = false;
+                }, 300);
                 // Update layout
                 this.$nextTick(() => {
                     this.packery.shiftLayout();
@@ -405,6 +754,8 @@ export default {
                 source,
                 synced: false,
                 updated: new Date().valueOf(),
+                end: false,
+                noteId: false,
             });
             if (index !== -1) {
                 this.added.push(index);
@@ -634,6 +985,8 @@ export default {
                     id: `task-${i}`,
                     rawIndex: i,
                     done: this.ifTasks.includes(i),
+                    end: this.tasks[i].end,
+                    noteId: this.tasks[i].noteId,
                 });
             }
             this.$store.commit('setSearchIndex', {
@@ -690,6 +1043,42 @@ export default {
          */
         focusInput() {
             this.$refs.addInput.focus();
+        },
+        formatTimeSpan(span) {
+            let spanRemain = span;
+            let res = '';
+            if (span >= 86400000 - 59000) {
+                const day = Math.floor((span) / 86400000);
+                res += this.$tc('remain_day', day, [day]);
+                res += ' ';
+                spanRemain -= day * 86400000;
+            }
+            // More than 1 hour
+            if (spanRemain >= 3600000 - 59000) {
+                const hour = Math.floor((spanRemain) / 3600000);
+                res += this.$tc('remain_hour', hour, [hour]);
+                res += ' ';
+                spanRemain -= hour * 3600000;
+            }
+            // Less than 1 hour
+            if (spanRemain > 0) {
+                const mins = Math.floor((spanRemain) / 60000);
+                res += this.$tc('remain_min', mins, [mins]);
+            }
+            return res.trim() || 0;
+        },
+        expandForm() {
+            this.dateEnd = this.date;
+            this.timeEnd = this.time;
+            this.expanded = true;
+        },
+        closeExpand() {
+            this.expanded = false;
+            this.dateEnd = '';
+            this.timeEnd = '';
+            this.allday = false;
+            this.repeat = 0;
+            this.repeatTime = 0;
         },
     },
     watch: {
@@ -759,6 +1148,7 @@ export default {
             localeDetail: (state) => state.localeDetail,
             packery: (state) => state.packery,
             subjects: (state) => state.subjects,
+            notes: (state) => state.notes,
             timerMin: (state) => state.timerMin,
             timerHour: (state) => state.timerHour,
             searchNotification: (state) => state.searchNotification,
@@ -783,11 +1173,173 @@ export default {
             return this.subjects.filter((subject) => !subject.hide);
         },
         /**
+         * Get all notes
+         * @returns {array} all notes
+         */
+        allNotes() {
+            if (!this.notes) {
+                return [];
+            }
+            return this.notes;
+        },
+        /**
          * Get ISO locale name
          * @returns {string} ISO locale name
          */
         selectLocale() {
             return this.localeDetail === null ? 'en' : this.localeDetail.iso;
+        },
+        repeatItems() {
+            return [
+                {
+                    text: this.$t('repeat_none'),
+                    value: 0,
+                },
+                {
+                    text: this.$t('repeat_day'),
+                    value: 1,
+                },
+                {
+                    text: this.$t('repeat_2_days'),
+                    value: 2,
+                },
+                {
+                    text: this.$t('repeat_3_days'),
+                    value: 3,
+                },
+                {
+                    text: this.$t('repeat_4_days'),
+                    value: 4,
+                },
+                {
+                    text: this.$t('repeat_5_days'),
+                    value: 5,
+                },
+                {
+                    text: this.$t('repeat_6_days'),
+                    value: 6,
+                },
+                {
+                    text: this.$t('repeat_week'),
+                    value: 10,
+                },
+                {
+                    text: this.$t('repeat_2_weeks'),
+                    value: 20,
+                },
+                {
+                    text: this.$t('repeat_3_weeks'),
+                    value: 30,
+                },
+                {
+                    text: this.$t('repeat_4_weeks'),
+                    value: 40,
+                },
+                {
+                    text: this.$t('repeat_month'),
+                    value: 100,
+                },
+                {
+                    text: this.$t('repeat_2_months'),
+                    value: 200,
+                },
+                {
+                    text: this.$t('repeat_3_months'),
+                    value: 300,
+                },
+            ];
+        },
+        repeatTimeItems() {
+            const res = Array(50).fill(null).map((_, i) => ({
+                text: i + 1,
+                value: i + 1,
+            }));
+
+            res.unshift({
+                text: this.$t('unlimited'),
+                value: 0,
+            });
+
+            return res;
+        },
+        timeSpan() {
+            let start = false;
+            if (this.date !== null && this.date.length > 0) {
+                if (this.time !== null && this.time.length > 0) {
+                    start = new Date(`${this.date}T${this.time}`).valueOf();
+                } else {
+                    // If time is missing, set to 00:00
+                    start = new Date(`${this.date}T00:00`).valueOf();
+                }
+            } else if (this.time !== null && this.time.length > 0) {
+                // If date is missing
+                const todayObj = new Date();
+                const nowHour = todayObj.getHours();
+                const nowMin = todayObj.getMinutes();
+                const timeSplit = this.time.split(':');
+
+                let nowDate = '';
+                if (parseInt(timeSplit[0], 10) < nowHour || (parseInt(timeSplit[0], 10) === nowHour && parseInt(timeSplit[1], 10) < nowMin)) {
+                    // Time earlier than current time, set to tomorrow
+                    nowDate = `${todayObj.getFullYear()}-${String(todayObj.getMonth() + 1).padStart(2, '0')}-${String(todayObj.getDate() + 1).padStart(2, '0')}`;
+                } else {
+                    // Time later than current time, set to today
+                    nowDate = `${todayObj.getFullYear()}-${String(todayObj.getMonth() + 1).padStart(2, '0')}-${String(todayObj.getDate()).padStart(2, '0')}`;
+                }
+                start = new Date(`${nowDate}T${this.time}`).valueOf();
+            }
+
+            if (start === false) {
+                return 0;
+            }
+
+            let end = false;
+            if (this.dateEnd !== null && this.dateEnd.length > 0) {
+                if (this.timeEnd !== null && this.timeEnd.length > 0) {
+                    end = new Date(`${this.dateEnd}T${this.timeEnd}`).valueOf();
+                } else {
+                    // If time is missing, set to 00:00
+                    end = new Date(`${this.dateEnd}T00:00`).valueOf();
+                }
+            } else if (this.timeEnd !== null && this.timeEnd.length > 0) {
+                // If date is missing
+                const todayObj = new Date();
+                const nowHour = todayObj.getHours();
+                const nowMin = todayObj.getMinutes();
+                const timeSplit = this.timeEnd.split(':');
+
+                let nowDate = '';
+                if (parseInt(timeSplit[0], 10) < nowHour || (parseInt(timeSplit[0], 10) === nowHour && parseInt(timeSplit[1], 10) < nowMin)) {
+                    // Time earlier than current time, set to tomorrow
+                    nowDate = `${todayObj.getFullYear()}-${String(todayObj.getMonth() + 1).padStart(2, '0')}-${String(todayObj.getDate() + 1).padStart(2, '0')}`;
+                } else {
+                    // Time later than current time, set to today
+                    nowDate = `${todayObj.getFullYear()}-${String(todayObj.getMonth() + 1).padStart(2, '0')}-${String(todayObj.getDate()).padStart(2, '0')}`;
+                }
+                end = new Date(`${nowDate}T${this.timeEnd}`).valueOf();
+
+                while (end < start) {
+                    // If end time is earlier than start time, set end time forwards
+                    end += 86400000;
+                }
+            }
+
+            if (end === false && this.allday) {
+                return this.$tc('remain_day', 1, [1]);
+            }
+
+            if (end === false) {
+                return 0;
+            }
+
+            if (end < start) {
+                end = start;
+            }
+
+            if (this.allday) {
+                end += 86400000;
+            }
+            return this.formatTimeSpan(end - start);
         },
     },
     mounted() {
@@ -884,10 +1436,18 @@ export default {
         }
         .select-subject {
             display: inline-block;
-            width: calc(92% - 65px);
+            width: calc(92% - 65px - 65px);
             margin-left: 16px!important;
             margin-top: 0!important;
             margin-bottom: -15px !important;
+            opacity: 0;
+            transition: opacity .3s;
+        }
+        .add-expand {
+            height: 56px;
+            min-width: 56px;
+            margin-top: -11px;
+            margin-left: 10px;
             opacity: 0;
             transition: opacity .3s;
         }
@@ -904,7 +1464,7 @@ export default {
             transform: scaleY(1);
             height: auto;
             transition: all .3s;
-            .date-input, .time-input, .add-submit, .select-subject {
+            .date-input, .time-input, .add-expand, .add-submit, .select-subject {
                 opacity: 1;
                 transition: opacity .3s .3s;
             }
@@ -1024,6 +1584,24 @@ export default {
         }
     }
 }
+.add-expand-dialog {
+    .date-input, .time-input, .select-subject {
+        width: calc(50% - 8px);
+        flex-grow: 0;
+    }
+    .event-settings {
+        width: calc(40% - 12px);
+        flex-grow: 0;
+    }
+    .event-settings-check {
+        width: calc(21% - 12px);
+        flex-grow: 0;
+    }
+    .time-span-note {
+        background-color: rgba(127, 127, 127, .1);
+        border-radius: 6px;
+    }
+}
 #app.theme--dark .task-container {
     h2 {
         .num-badge {
@@ -1055,10 +1633,15 @@ export default {
     "en": {
         "task": "Task",
         "add_task": "Add a task",
-        "ddl_date": "Due Date",
-        "ddl_time": "Time",
+        "task_name": "Task Name",
+        "ddl_date": "Task Date",
+        "ddl_time": "Task Time",
+        "end_date": "End Date",
+        "end_time": "End Time",
         "subject": "Course Unit",
         "no_subject": "No course found",
+        "note": "Linked Note",
+        "no_note": "No note found",
         "remain_day": "{0} day | {0} days",
         "remain_hour": "{0} hour | {0} hours",
         "remain_min": "{0} min | {0} mins",
@@ -1080,15 +1663,41 @@ export default {
         "add": "Add to task list",
         "no_coursework": "No upcoming coursework",
         "formative": "Formative",
-        "close": "Close"
+        "close": "Close",
+        "expand": "Expand Form",
+        "add_task_btn": "Add task",
+        "span": "Task takes {0}",
+        "repeat": "Repeat",
+        "repeat_none": "No repeat",
+        "repeat_day": "Every day",
+        "repeat_2_days": "Every 2 days",
+        "repeat_3_days": "Every 3 days",
+        "repeat_4_days": "Every 4 days",
+        "repeat_5_days": "Every 5 days",
+        "repeat_6_days": "Every 6 days",
+        "repeat_week": "Every week",
+        "repeat_2_weeks": "Every 2 weeks",
+        "repeat_3_weeks": "Every 3 weeks",
+        "repeat_4_weeks": "Every 4 weeks",
+        "repeat_month": "Every month",
+        "repeat_2_months": "Every 2 months",
+        "repeat_3_months": "Every 3 months",
+        "repeat_time": "Repeat Times",
+        "unlimited": "Unlimited",
+        "all_day": "All day"
     },
     "zh": {
         "task": "任务",
         "add_task": "添加一个任务",
-        "ddl_date": "到期日期",
-        "ddl_time": "到期时间",
-        "subject": "科目",
+        "task_name": "任务名称",
+        "ddl_date": "任务日期",
+        "ddl_time": "任务时间",
+        "end_date": "结束日期",
+        "end_time": "结束时间",
+        "subject": "关联科目",
         "no_subject": "找不到科目",
+        "note": "关联笔记",
+        "no_note": "找不到笔记",
         "remain_day": "{0} 天 | {0} 天",
         "remain_hour": "{0} 小时 | {0} 小时",
         "remain_min": "{0} 分钟 | {0} 分钟",
@@ -1110,15 +1719,39 @@ export default {
         "add": "添加到任务列表",
         "no_coursework": "没有即将到来的作业",
         "formative": "不计分作业",
-        "close": "关闭"
+        "close": "关闭",
+        "expand": "展开表单",
+        "add_task_btn": "添加任务",
+        "span": "任务用时 {0}",
+        "repeat": "重复",
+        "repeat_none": "不重复",
+        "repeat_day": "每天",
+        "repeat_2_days": "每 2 天",
+        "repeat_3_days": "每 3 天",
+        "repeat_4_days": "每 4 天",
+        "repeat_5_days": "每 5 天",
+        "repeat_6_days": "每 6 天",
+        "repeat_week": "每周",
+        "repeat_2_weeks": "每 2 周",
+        "repeat_3_weeks": "每 3 周",
+        "repeat_4_weeks": "每 4 周",
+        "repeat_month": "每月",
+        "repeat_2_months": "每 2 个月",
+        "repeat_3_months": "每 3 个月",
+        "repeat_time": "重复次数",
+        "unlimited": "无限",
+        "all_day": "全天"
     },
     "es": {
         "task": "Tarea",
         "add_task": "Añadir tarea",
-        "ddl_date": "Fecha límite",
-        "ddl_time": "Hora límite",
+        "task_name": "",
+        "ddl_date": "",
+        "ddl_time": "",
         "subject": "Asignatura",
         "no_subject": "Asignatura no encontrada",
+        "note": "",
+        "no_note": "",
         "remain_day": "{0} día | {0} días",
         "remain_hour": "{0} hora | {0} horas",
         "remain_min": "{0} minuto | {0} minutos",
@@ -1140,15 +1773,38 @@ export default {
         "add": "",
         "no_coursework": "",
         "formative": "",
-        "close": "Cerrar"
+        "close": "Cerrar",
+        "expand": "",
+        "add_task_btn": "",
+        "repeat": "",
+        "repeat_none": "",
+        "repeat_day": "",
+        "repeat_2_days": "",
+        "repeat_3_days": "",
+        "repeat_4_days": "",
+        "repeat_5_days": "",
+        "repeat_6_days": "",
+        "repeat_week": "",
+        "repeat_2_weeks": "",
+        "repeat_3_weeks": "",
+        "repeat_4_weeks": "",
+        "repeat_month": "",
+        "repeat_2_months": "",
+        "repeat_3_months": "",
+        "repeat_time": "",
+        "unlimited": "",
+        "all_day": ""
     },
     "ja": {
         "task": "タスク",
         "add_task": "タスクを追加する",
-        "ddl_date": "締め切り日",
-        "ddl_time": "締め切り時間",
+        "task_name": "",
+        "ddl_date": "",
+        "ddl_time": "",
         "subject": "科目",
         "no_subject": "科目が見つかりません",
+        "note": "",
+        "no_note": "",
         "remain_day": "{0} 日 | {0} 日",
         "remain_hour": "{0} 時間 | {0} 時間",
         "remain_min": "{0} 分 | {0} 分",
@@ -1170,7 +1826,27 @@ export default {
         "add": "",
         "no_coursework": "",
         "formative": "",
-        "close": "閉じる"
+        "close": "閉じる",
+        "expand": "",
+        "add_task_btn": "",
+        "repeat": "",
+        "repeat_none": "",
+        "repeat_day": "",
+        "repeat_2_days": "",
+        "repeat_3_days": "",
+        "repeat_4_days": "",
+        "repeat_5_days": "",
+        "repeat_6_days": "",
+        "repeat_week": "",
+        "repeat_2_weeks": "",
+        "repeat_3_weeks": "",
+        "repeat_4_weeks": "",
+        "repeat_month": "",
+        "repeat_2_months": "",
+        "repeat_3_months": "",
+        "repeat_time": "",
+        "unlimited": "",
+        "all_day": ""
     }
 }
 </i18n>

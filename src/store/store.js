@@ -30,6 +30,7 @@ export default {
         upcomingCourseworks: [],
         quickCommands: [],
         visibility: true,
+        notes: [],
     },
     mutations: {
         setLocale(state, language) {
@@ -113,6 +114,9 @@ export default {
         },
         setVisibility(state, visibility) {
             state.visibility = visibility;
+        },
+        setNotes(state, notes) {
+            state.notes = notes;
         },
     },
     actions: {},

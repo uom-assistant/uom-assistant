@@ -809,6 +809,10 @@ export default {
                     data: this.getSearchIndexArray(),
                 },
             });
+            this.$store.commit('setNotes', this.notes.map((item) => ({
+                name: item.title,
+                id: item.id,
+            })));
         },
         /**
          * Get search index array
