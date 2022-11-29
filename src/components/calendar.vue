@@ -141,7 +141,7 @@
                                 offset-y="10"
                                 v-if="new Date(date).getTimezoneOffset() != new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset()"
                             >
-                                <v-tooltip top max-width="200">
+                                <v-tooltip top max-width="230">
                                     <template v-slot:activator="{ on, attrs }">
                                         <v-btn
                                             fab
@@ -155,7 +155,7 @@
                                             {{ dateText(date, day) }}
                                         </v-btn>
                                     </template>
-                                    <span>{{ $t((new Date(date).getTimezoneOffset() - new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset() > 0 ? 'clock_change_pos' : 'clock_change_neg'), [Math.abs(new Date(date).getTimezoneOffset() - new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset())]) }}</span>
+                                    <span>{{ $t('clock_change', [formatClockChange(Math.abs(new Date(date).getTimezoneOffset() - new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset()))]) }}</span>
                                 </v-tooltip>
                             </v-badge>
                             <v-btn
@@ -178,7 +178,7 @@
                                 offset-y="12"
                                 v-if="new Date(date).getTimezoneOffset() != new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset()"
                             >
-                                <v-tooltip top max-width="200">
+                                <v-tooltip top max-width="230">
                                     <template v-slot:activator="{ on, attrs }">
                                         <v-btn
                                             fab
@@ -194,7 +194,7 @@
                                             {{ dateText(date, day) }}
                                         </v-btn>
                                     </template>
-                                    <span>{{ $t((new Date(date).getTimezoneOffset() - new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset() > 0 ? 'clock_change_pos' : 'clock_change_neg'), [Math.abs(new Date(date).getTimezoneOffset() - new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset())]) }}</span>
+                                    <span>{{ $t('clock_change', [formatClockChange(Math.abs(new Date(date).getTimezoneOffset() - new Date(new Date(date).valueOf() + 24 * 3600000).getTimezoneOffset()))]) }}</span>
                                 </v-tooltip>
                             </v-badge>
                             <v-btn
@@ -767,7 +767,7 @@ export default {
                         const titleSplit = title.replace('_', '').split('/');
                         const titleName = titleSplit[0];
                         titleSplit.shift();
-                        const titleRemain = `/${titleSplit.join('/')}`;
+                        const titleRemain = titleSplit.length > 0 ? `/${titleSplit.join('/')}` : '';
 
                         // Try to guess event name from event description
                         let guessedName = titleName;
@@ -1174,6 +1174,31 @@ export default {
          */
         intervalFormat(interval) {
             return `${interval.hour > 12 ? interval.hour - 12 : interval.hour} ${interval.hour >= 12 ? 'PM' : 'AM'}`;
+        },
+        formatClockChange(time) {
+            let spanRemain = Math.abs(time * 60 * 1000);
+            let res = '';
+            if (spanRemain >= 86400000 - 59000) {
+                const day = Math.floor((spanRemain) / 86400000);
+                res += this.$tc('remain_day', day, [day]);
+                res += ' ';
+                spanRemain -= day * 86400000;
+            }
+            // More than 1 hour
+            if (spanRemain >= 3600000 - 59000) {
+                const hour = Math.floor((spanRemain) / 3600000);
+                res += this.$tc('remain_hour', hour, [hour]);
+                res += ' ';
+                spanRemain -= hour * 3600000;
+            }
+            // Less than 1 hour
+            if (spanRemain > 0) {
+                const mins = Math.floor((spanRemain) / 60000);
+                res += this.$tc('remain_min', mins, [mins]);
+            }
+            res = res.trim() || this.$tc('remain_min', 0, [0]);
+
+            return this.$t(time <= 0 ? 'clock_change_pos' : 'clock_change_neg', [res]);
         },
     },
     watch: {
@@ -1692,12 +1717,16 @@ export default {
         "first_day_settings": "First day of weeks",
         "cancel": "Cancel",
         "save": "Save",
-        "clock_change_pos": "Clock changes on this day. Go forward {0} minutes.",
-        "clock_change_neg": "Clock changes on this day. Go back {0} minutes.",
+        "clock_change": "Clock changes on this day. {0}",
+        "clock_change_pos": "Go forward {0}.",
+        "clock_change_neg": "Go back {0}.",
         "local_time": " (local)",
         "uk_time": " (UK)",
         "holiday": "Holiday",
-        "uk_holiday": "Show England holidays"
+        "uk_holiday": "Show England holidays",
+        "remain_day": "{0} day | {0} days",
+        "remain_hour": "{0} hour | {0} hours",
+        "remain_min": "{0} min | {0} mins"
     },
     "zh": {
         "today": "今天",
@@ -1721,12 +1750,16 @@ export default {
         "first_day_settings": "每周第一天",
         "cancel": "取消",
         "save": "保存",
-        "clock_change_pos": "当日有时钟变更。前进 {0} 分钟。",
-        "clock_change_neg": "当日有时钟变更。后退 {0} 分钟。",
+        "clock_change": "当日有时钟变更。{0}",
+        "clock_change_pos": "前进 {0}。",
+        "clock_change_neg": "后退 {0}。",
         "local_time": "（本地）",
         "uk_time": "（英国）",
         "holiday": "假期",
-        "uk_holiday": "显示英格兰假期"
+        "uk_holiday": "显示英格兰假期",
+        "remain_day": "{0} 天 | {0} 天",
+        "remain_hour": "{0} 小时 | {0} 小时",
+        "remain_min": "{0} 分钟 | {0} 分钟"
     },
     "es": {
         "today": "Hoy",
@@ -1750,12 +1783,16 @@ export default {
         "first_day_settings": "Primer día de la semana",
         "cancel": "Cancelar",
         "save": "Guardar",
-        "clock_change_pos": "Cambio de hora en este día. Avanza {0} minutos.",
-        "clock_change_neg": "Cambio de hora en este día. Retrocede {0} minutos.",
+        "clock_change": "Cambio de hora en este día. {0}",
+        "clock_change_pos": "Avanza {0}.",
+        "clock_change_neg": "Retrocede {0}.",
         "local_time": " (local)",
         "uk_time": " (Reino Unido)",
         "holiday": "",
-        "uk_holiday": ""
+        "uk_holiday": "",
+        "remain_day": "{0} día | {0} días",
+        "remain_hour": "{0} hora | {0} horas",
+        "remain_min": "{0} minuto | {0} minutos"
     },
     "ja": {
         "today": "今日",
@@ -1779,12 +1816,16 @@ export default {
         "first_day_settings": "毎週の初日",
         "cancel": "キャンセル",
         "save": "保存",
+        "clock_change": "",
         "clock_change_pos": "",
         "clock_change_neg": "",
         "local_time": "",
         "uk_time": "",
         "holiday": "",
-        "uk_holiday": ""
+        "uk_holiday": "",
+        "remain_day": "{0} 日 | {0} 日",
+        "remain_hour": "{0} 時間 | {0} 時間",
+        "remain_min": "{0} 分 | {0} 分"
     }
 }
 </i18n>

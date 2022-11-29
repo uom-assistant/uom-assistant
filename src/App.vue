@@ -103,6 +103,15 @@
             <v-btn
                 icon
                 v-show="$route.path === '/'"
+                v-shortkey="['ctrl', 'f']"
+                @click="notificationPanel = true"
+                @shortkey="notificationPanel = true"
+            >
+                <v-icon>mdi-bell-outline</v-icon>
+            </v-btn>
+            <v-btn
+                icon
+                v-show="$route.path === '/'"
                 v-shortkey="['ctrl', 'k']"
                 @click="openSearch"
                 @shortkey="toggleSearch"
@@ -148,6 +157,58 @@
         </div>
         <v-navigation-drawer
             v-model="drawer"
+            temporary
+            fixed
+        >
+            <v-list-item>
+                <v-list-item-avatar tile size="37">
+                    <img :src="$vuetify.theme.dark ? '/img/logo-dark.svg' : '/img/logo.svg'">
+                </v-list-item-avatar>
+                <v-list-item-content class="not-selectable ml-1">
+                    <v-list-item-title class="title">
+                        {{ $t('title') }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle>
+                        By Axton
+                    </v-list-item-subtitle>
+                </v-list-item-content>
+            </v-list-item>
+
+            <v-divider></v-divider>
+
+            <v-list
+                nav
+                dense
+            >
+                <v-list-item-group
+                    v-model="group"
+                    active-class="primary--text"
+                >
+                    <v-list-item to="/">
+                        <v-list-item-icon>
+                            <v-icon>mdi-view-dashboard</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title>{{ $t('dashboard') }}</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item to="/settings">
+                        <v-list-item-icon>
+                            <v-icon>mdi-cog-outline</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title>{{ $t('settings') }}</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item to="/about">
+                        <v-list-item-icon>
+                            <v-icon>mdi-information-outline</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title>{{ $t('about') }}</v-list-item-title>
+                    </v-list-item>
+                </v-list-item-group>
+            </v-list>
+        </v-navigation-drawer>
+        <v-navigation-drawer
+            v-model="notificationPanel"
+            width="340"
+            right
             temporary
             fixed
         >
@@ -725,6 +786,7 @@ export default {
         showSettingsMenu: false,
         welcome: false,
         drawer: false,
+        notificationPanel: false,
         group: 0,
         stage: 0,
         backendURL: '',

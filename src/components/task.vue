@@ -276,6 +276,7 @@
         </v-dialog>
         <v-dialog
             v-model="expanded"
+            persistent
             max-width="600"
             :fullscreen="$vuetify.breakpoint.xs"
             :transition="$vuetify.breakpoint.xs ? 'slide-y-reverse-transition' : 'dialog-transition'"
@@ -297,36 +298,12 @@
                         hide-details
                     ></v-text-field>
                     <v-divider class="mt-4 mb-4"></v-divider>
-                    <div class="d-flex justify-space-between ">
-                        <v-select
-                            v-model="repeat"
-                            class="event-settings"
-                            :items="repeatItems"
-                            :label="$t('repeat')"
-                            hide-details
-                            prepend-inner-icon="mdi-repeat"
-                            outlined
-                        ></v-select>
-                        <v-select
-                            v-model="repeatTime"
-                            class="event-settings"
-                            :items="repeatTimeItems"
-                            :label="$t('repeat_time')"
-                            :disabled="repeat === 0"
-                            hide-details
-                            prepend-inner-icon="mdi-counter"
-                            outlined
-                        ></v-select>
-                        <div class="event-settings-check d-flex justify-start align-center">
-                            <v-checkbox
-                                class="ma-0 pa-0"
-                                v-model="allday"
-                                hide-details
-                                :label="$t('all_day')"
-                            ></v-checkbox>
-                        </div>
-                    </div>
-                    <v-divider class="mt-4 mb-4"></v-divider>
+                    <v-checkbox
+                        class="ma-0 pa-0 mb-5"
+                        v-model="allday"
+                        hide-details
+                        :label="$t('all_day')"
+                    ></v-checkbox>
                     <div class="d-flex justify-space-between mb-3">
                         <v-menu
                             v-model="dateMenuStart"
@@ -467,10 +444,60 @@
                             ></v-time-picker>
                         </v-menu>
                     </div>
-                    <v-divider class="mt-4 mb-4"></v-divider>
-                    <div class="d-flex">
+                    <v-divider class="mt-4"></v-divider>
+                    <div class="d-flex justify-space-between event-settings-container">
+                        <div class="event-settings-check d-flex justify-start align-center mt-4">
+                            <v-checkbox
+                                class="ma-0 pa-0"
+                                v-model="allowRepeat"
+                                :disabled="(date === null || date === false || date.length === 0) && (time === null || time === false || time.length === 0)"
+                                hide-details
+                                :label="$t('repeat')"
+                            ></v-checkbox>
+                        </div>
+                        <v-text-field
+                            v-model="repeat"
+                            type="number"
+                            min="1"
+                            max="200"
+                            step="1"
+                            class="event-settings repeat-cycle mt-4"
+                            :label="$t('repeat')"
+                            :disabled="!allowRepeat || ((date === null || date === false || date.length === 0) && (time === null || time === false || time.length === 0))"
+                            hide-details
+                            outlined
+                        >
+                            <template v-slot:append>
+                                <v-select
+                                    v-model="repeatCycle"
+                                    :items="repeatItems"
+                                    :disabled="!allowRepeat || ((date === null || date === false || date.length === 0) && (time === null || time === false || time.length === 0))"
+                                    dense
+                                    hide-details
+                                ></v-select>
+                            </template>
+                            <template v-slot:prepend-inner>
+                                <div class="v-input__icon v-input__icon--prepend-inner mr-1">
+                                    <v-icon>mdi-repeat</v-icon>
+                                </div>
+                                <div class="d-flex justify-center align-center mr-1">{{ $t('every') }}</div>
+                            </template>
+                        </v-text-field>
+                        <v-select
+                            v-model="repeatTime"
+                            class="event-settings mt-4"
+                            :items="repeatTimeItems"
+                            :label="$t('repeat_time')"
+                            :disabled="!allowRepeat || ((date === null || date === false || date.length === 0) && (time === null || time === false || time.length === 0))"
+                            hide-details
+                            prepend-inner-icon="mdi-counter"
+                            outlined
+                        ></v-select>
+                    </div>
+                    <v-divider class="mt-4"></v-divider>
+                    <div class="d-flex flex-vertical">
                         <v-autocomplete
-                            class="select-subject mr-2"
+                            class="select-subject mr-2 mt-4"
                             prepend-inner-icon="mdi-book"
                             v-model="addingSubject"
                             clearable
@@ -501,7 +528,7 @@
                             </template>
                         </v-autocomplete>
                         <v-autocomplete
-                            class="select-subject ml-2"
+                            class="select-subject ml-2 mt-4"
                             prepend-inner-icon="mdi-file-document-edit-outline"
                             v-model="noteId"
                             clearable
@@ -543,6 +570,7 @@
                     <v-btn
                         text
                         color="primary"
+                        :disabled="addText === '' || addText === null || addText === false || ((repeat > 200 || repeat < 1) && allowRepeat && !((date === null || date === false || date.length === 0) && (time === null || time === false || time.length === 0)))"
                         @click="addOne"
                     >
                         {{ $t('add_task_btn') }}
@@ -592,9 +620,11 @@ export default {
             dateEnd: '',
             noteId: '',
             expanded: false,
-            repeat: 0,
+            repeat: 1,
+            repeatCycle: 'd',
             repeatTime: 0,
             allday: false,
+            allowRepeat: false,
         };
     },
     methods: {
@@ -633,13 +663,13 @@ export default {
                 let end = false;
                 if (deadline !== false) {
                     if (this.dateEnd !== null && this.dateEnd.length > 0) {
-                        if (this.timeEnd !== null && this.timeEnd.length > 0) {
+                        if (!this.allday && this.timeEnd !== null && this.timeEnd.length > 0) {
                             end = new Date(`${this.dateEnd}T${this.timeEnd}`).valueOf();
                         } else {
                             // If time is missing, set to 00:00
                             end = new Date(`${this.dateEnd}T00:00`).valueOf();
                         }
-                    } else if (this.timeEnd !== null && this.timeEnd.length > 0) {
+                    } else if (!this.allday && this.timeEnd !== null && this.timeEnd.length > 0) {
                         // If date is missing
                         const todayObj = new Date();
                         const nowHour = todayObj.getHours();
@@ -689,10 +719,13 @@ export default {
                     this.noteId = '';
                     this.dateEnd = '';
                     this.timeEnd = '';
-                    this.repeat = 0;
+                    this.repeat = 1;
+                    this.repeatCycle = 'd';
                     this.repeatTime = 0;
+                    this.allowRepeat = false;
                     this.allday = false;
                 }, 300);
+
                 // Update layout
                 this.$nextTick(() => {
                     this.packery.shiftLayout();
@@ -1074,11 +1107,15 @@ export default {
         },
         closeExpand() {
             this.expanded = false;
-            this.dateEnd = '';
-            this.timeEnd = '';
-            this.allday = false;
-            this.repeat = 0;
-            this.repeatTime = 0;
+            setTimeout(() => {
+                this.dateEnd = '';
+                this.timeEnd = '';
+                this.allday = false;
+                this.repeat = 1;
+                this.repeatCycle = 'd';
+                this.repeatTime = 0;
+                this.allowRepeat = false;
+            }, 300);
         },
     },
     watch: {
@@ -1192,67 +1229,27 @@ export default {
         repeatItems() {
             return [
                 {
-                    text: this.$t('repeat_none'),
-                    value: 0,
+                    text: this.$tc('n_no_days', this.repeat),
+                    value: 'd',
                 },
                 {
-                    text: this.$t('repeat_day'),
-                    value: 1,
+                    text: this.$tc('n_no_weeks', this.repeat),
+                    value: 'w',
                 },
                 {
-                    text: this.$t('repeat_2_days'),
-                    value: 2,
+                    text: this.$tc('n_no_months', this.repeat),
+                    value: 'm',
                 },
                 {
-                    text: this.$t('repeat_3_days'),
-                    value: 3,
-                },
-                {
-                    text: this.$t('repeat_4_days'),
-                    value: 4,
-                },
-                {
-                    text: this.$t('repeat_5_days'),
-                    value: 5,
-                },
-                {
-                    text: this.$t('repeat_6_days'),
-                    value: 6,
-                },
-                {
-                    text: this.$t('repeat_week'),
-                    value: 10,
-                },
-                {
-                    text: this.$t('repeat_2_weeks'),
-                    value: 20,
-                },
-                {
-                    text: this.$t('repeat_3_weeks'),
-                    value: 30,
-                },
-                {
-                    text: this.$t('repeat_4_weeks'),
-                    value: 40,
-                },
-                {
-                    text: this.$t('repeat_month'),
-                    value: 100,
-                },
-                {
-                    text: this.$t('repeat_2_months'),
-                    value: 200,
-                },
-                {
-                    text: this.$t('repeat_3_months'),
-                    value: 300,
+                    text: this.$tc('n_no_year', this.repeat),
+                    value: 'y',
                 },
             ];
         },
         repeatTimeItems() {
-            const res = Array(50).fill(null).map((_, i) => ({
-                text: i + 1,
-                value: i + 1,
+            const res = Array(69).fill(null).map((_, i) => ({
+                text: i + 2,
+                value: i + 2,
             }));
 
             res.unshift({
@@ -1295,13 +1292,13 @@ export default {
 
             let end = false;
             if (this.dateEnd !== null && this.dateEnd.length > 0) {
-                if (this.timeEnd !== null && this.timeEnd.length > 0) {
+                if (!this.allday && this.timeEnd !== null && this.timeEnd.length > 0) {
                     end = new Date(`${this.dateEnd}T${this.timeEnd}`).valueOf();
                 } else {
                     // If time is missing, set to 00:00
                     end = new Date(`${this.dateEnd}T00:00`).valueOf();
                 }
-            } else if (this.timeEnd !== null && this.timeEnd.length > 0) {
+            } else if (!this.allday && this.timeEnd !== null && this.timeEnd.length > 0) {
                 // If date is missing
                 const todayObj = new Date();
                 const nowHour = todayObj.getHours();
@@ -1590,7 +1587,7 @@ export default {
         flex-grow: 0;
     }
     .event-settings {
-        width: calc(40% - 12px);
+        width: calc(35% - 12px);
         flex-grow: 0;
     }
     .event-settings-check {
@@ -1600,6 +1597,70 @@ export default {
     .time-span-note {
         background-color: rgba(127, 127, 127, .1);
         border-radius: 6px;
+    }
+    .event-settings.repeat-cycle {
+        width: calc(45% - 12px);
+        & > .v-input__control > .v-input__slot .v-input__prepend-inner {
+            .d-flex {
+                color: rgba(0, 0, 0, 0.87);
+            }
+        }
+        & > .v-input__control > .v-input__slot .v-input__append-inner {
+            margin: 0;
+            margin-top: 15px;
+            & > .v-input {
+                margin-top: 0;
+                .v-input__control {
+                    .v-select__selection {
+                        max-width: none;
+                    }
+                    .v-input__append-inner {
+                        padding-left: 0;
+                    }
+                    & > .v-input__slot:after, & > .v-input__slot:before {
+                        display: none;
+                    }
+                    & > .v-input__slot .v-input__append-inner {
+                        margin-top: 2px;
+                    }
+                    input[type="text"] {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+    .event-settings.repeat-cycle.v-input--is-disabled {
+        & > .v-input__control > .v-input__slot .v-input__prepend-inner {
+            .d-flex {
+                color: rgba(0, 0, 0, 0.38);
+            }
+            .v-icon {
+                color: rgba(0, 0, 0, 0.38);
+            }
+        }
+    }
+    &.rounded-0 {
+        .event-settings-container {
+            flex-wrap: wrap;
+            .event-settings {
+                width: 100%;
+            }
+            .event-settings.repeat-cycle {
+                width: calc(60% - 8px);
+            }
+            .event-settings-check {
+                width: calc(40% - 8px);
+            }
+        }
+        .flex-vertical {
+            flex-direction: column;
+            .date-input, .time-input, .select-subject {
+                width: 100%;
+                margin-left: 0!important;
+                margin-right: 0!important;
+            }
+        }
     }
 }
 #app.theme--dark .task-container {
@@ -1624,6 +1685,25 @@ export default {
     }
     .done {
         color: rgba(255, 255, 255, 0.4);
+    }
+}
+#app.theme--dark .add-expand-dialog {
+    .event-settings.repeat-cycle {
+        & > .v-input__control > .v-input__slot .v-input__prepend-inner {
+            .d-flex {
+                color: white;
+            }
+        }
+    }
+    .event-settings.repeat-cycle.v-input--is-disabled {
+        & > .v-input__control > .v-input__slot .v-input__prepend-inner {
+            .d-flex {
+                color: rgba(255, 255, 255, 0.5);
+            }
+            .v-icon {
+                color: rgba(255, 255, 255, 0.5);
+            }
+        }
     }
 }
 </style>
@@ -1656,6 +1736,10 @@ export default {
         "n_days": "{0} day | {0} days",
         "n_weeks": "{0} week | {0} weeks",
         "n_months": "{0} month | {0} months",
+        "n_no_days": "day | days",
+        "n_no_weeks": "week | weeks",
+        "n_no_months": "month | months",
+        "n_no_year": "year | years",
         "coursework": "Coursework",
         "deadline": "Deadline",
         "action": "Action",
@@ -1669,22 +1753,10 @@ export default {
         "span": "Task takes {0}",
         "repeat": "Repeat",
         "repeat_none": "No repeat",
-        "repeat_day": "Every day",
-        "repeat_2_days": "Every 2 days",
-        "repeat_3_days": "Every 3 days",
-        "repeat_4_days": "Every 4 days",
-        "repeat_5_days": "Every 5 days",
-        "repeat_6_days": "Every 6 days",
-        "repeat_week": "Every week",
-        "repeat_2_weeks": "Every 2 weeks",
-        "repeat_3_weeks": "Every 3 weeks",
-        "repeat_4_weeks": "Every 4 weeks",
-        "repeat_month": "Every month",
-        "repeat_2_months": "Every 2 months",
-        "repeat_3_months": "Every 3 months",
         "repeat_time": "Repeat Times",
         "unlimited": "Unlimited",
-        "all_day": "All day"
+        "all_day": "All day",
+        "every": "Every"
     },
     "zh": {
         "task": "任务",
@@ -1712,6 +1784,10 @@ export default {
         "n_days": "{0} 天 | {0} 天",
         "n_weeks": "{0} 周 | {0} 周",
         "n_months": "{0} 个月 | {0} 个月",
+        "n_no_days": "天 | 天",
+        "n_no_weeks": "周 | 周",
+        "n_no_months": "月 | 月",
+        "n_no_year": "年 | 年",
         "coursework": "作业",
         "deadline": "截止时间",
         "action": "操作",
@@ -1725,22 +1801,10 @@ export default {
         "span": "任务用时 {0}",
         "repeat": "重复",
         "repeat_none": "不重复",
-        "repeat_day": "每天",
-        "repeat_2_days": "每 2 天",
-        "repeat_3_days": "每 3 天",
-        "repeat_4_days": "每 4 天",
-        "repeat_5_days": "每 5 天",
-        "repeat_6_days": "每 6 天",
-        "repeat_week": "每周",
-        "repeat_2_weeks": "每 2 周",
-        "repeat_3_weeks": "每 3 周",
-        "repeat_4_weeks": "每 4 周",
-        "repeat_month": "每月",
-        "repeat_2_months": "每 2 个月",
-        "repeat_3_months": "每 3 个月",
         "repeat_time": "重复次数",
         "unlimited": "无限",
-        "all_day": "全天"
+        "all_day": "全天",
+        "every": "每"
     },
     "es": {
         "task": "Tarea",
@@ -1766,6 +1830,10 @@ export default {
         "n_days": "",
         "n_weeks": "",
         "n_months": "",
+        "n_no_days": "",
+        "n_no_weeks": "",
+        "n_no_months": "",
+        "n_no_year": "",
         "coursework": "",
         "deadline": "",
         "action": "",
@@ -1778,22 +1846,10 @@ export default {
         "add_task_btn": "",
         "repeat": "",
         "repeat_none": "",
-        "repeat_day": "",
-        "repeat_2_days": "",
-        "repeat_3_days": "",
-        "repeat_4_days": "",
-        "repeat_5_days": "",
-        "repeat_6_days": "",
-        "repeat_week": "",
-        "repeat_2_weeks": "",
-        "repeat_3_weeks": "",
-        "repeat_4_weeks": "",
-        "repeat_month": "",
-        "repeat_2_months": "",
-        "repeat_3_months": "",
         "repeat_time": "",
         "unlimited": "",
-        "all_day": ""
+        "all_day": "",
+        "every": ""
     },
     "ja": {
         "task": "タスク",
@@ -1819,6 +1875,10 @@ export default {
         "n_days": "",
         "n_weeks": "",
         "n_months": "",
+        "n_no_days": "",
+        "n_no_weeks": "",
+        "n_no_months": "",
+        "n_no_year": "",
         "coursework": "",
         "deadline": "",
         "action": "",
@@ -1846,7 +1906,8 @@ export default {
         "repeat_3_months": "",
         "repeat_time": "",
         "unlimited": "",
-        "all_day": ""
+        "all_day": "",
+        "every": ""
     }
 }
 </i18n>

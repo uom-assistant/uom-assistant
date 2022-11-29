@@ -669,6 +669,26 @@
                     :height="`${sandboxHeight < 10 ? 0 : (sandboxHeight + 16)}px`"
                     @load="updateSandboxHeight"
                 />
+                <div
+                    class="quick-reply-list"
+                    v-show="!(loadingBody || (!((!trustedSender(viewer.fromAddress) && !normalSender(viewer.fromAddress) && !internalSender(viewer.fromAddress)) && !viewer.allowHTML) && sandboxHeight < 10))"
+                >
+                    <h1 class="text-subtitle-1"><v-icon class="mr-1" small>mdi-lightning-bolt</v-icon>{{ $t('quick_reply') }}</h1>
+                    <ul>
+                        <li class="mt-2">
+                            <v-skeleton-loader type="list-item"></v-skeleton-loader>
+                        </li>
+                        <li class="mt-2">
+                            <v-skeleton-loader type="list-item"></v-skeleton-loader>
+                        </li>
+                        <li class="mt-2">
+                            <v-skeleton-loader type="list-item"></v-skeleton-loader>
+                        </li>
+                        <li class="mt-2">
+                            <v-skeleton-loader type="list-item"></v-skeleton-loader>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="editor-layer-mask" :class="{ opened: layerOpened }"></div>
@@ -1032,183 +1052,11 @@ import fetchDownload from '@/tools/fetchDownload';
 import formatDateTime from '@/tools/formatDateTime';
 import debounce from '@/tools/debounce';
 import { mailCss, mailDarkCss, mailTextCss } from '@/tools/mailCss';
+import { fileIconMap, previewMap } from '@/tools/fileTypes';
 
 import 'codemirror/theme/xq-light.css';
 import 'codemirror/lib/codemirror.css';
 
-const fileIconMap = {
-    pdf: 'file-pdf-box',
-    zip: 'zip-box-outline',
-    rar: 'zip-box-outline',
-    '7z': 'zip-box-outline',
-    gz: 'zip-box-outline',
-    tar: 'zip-box-outline',
-    mp4: 'play-box-outline',
-    m4v: 'play-box-outline',
-    webm: 'play-box-outline',
-    flv: 'play-box-outline',
-    ogv: 'play-box-outline',
-    mpeg: 'play-box-outline',
-    avi: 'play-box-outline',
-    mov: 'play-box-outline',
-    mp3: 'music-note-outline',
-    wav: 'music-note-outline',
-    flac: 'music-note-outline',
-    ape: 'music-note-outline',
-    dsd: 'music-note-outline',
-    ogg: 'music-note-outline',
-    oga: 'music-note-outline',
-    aac: 'music-note-outline',
-    jpg: 'image',
-    jpeg: 'image',
-    png: 'image',
-    bmp: 'image',
-    gif: 'image',
-    webp: 'image',
-    nef: 'image',
-    raw: 'image',
-    ppt: 'microsoft-powerpoint',
-    pptx: 'microsoft-powerpoint',
-    pptm: 'microsoft-powerpoint',
-    pps: 'microsoft-powerpoint',
-    ppsx: 'microsoft-powerpoint',
-    ppsm: 'microsoft-powerpoint',
-    pot: 'microsoft-powerpoint',
-    potx: 'microsoft-powerpoint',
-    potm: 'microsoft-powerpoint',
-    doc: 'microsoft-word',
-    docx: 'microsoft-word',
-    docm: 'microsoft-word',
-    dot: 'microsoft-word',
-    dotx: 'microsoft-word',
-    dotm: 'microsoft-word',
-    xls: 'microsoft-excel',
-    xlsx: 'microsoft-excel',
-    xlsm: 'microsoft-excel',
-    xlsb: 'microsoft-excel',
-    xlt: 'microsoft-excel',
-    xltx: 'microsoft-excel',
-    xltm: 'microsoft-excel',
-    txt: 'file-document-outline',
-    py: 'language-python',
-    pyc: 'language-python',
-    java: 'language-java',
-    jar: 'language-java',
-    class: 'language-java',
-    js: 'language-javascript',
-    mjs: 'language-javascript',
-    ts: 'language-typescript',
-    jsx: 'react',
-    tsx: 'react',
-    json: 'code-json',
-    c: 'language-c',
-    h: 'language-c',
-    cpp: 'language-cpp',
-    hpp: 'language-cpp',
-    r: 'language-r',
-    rs: 'language-rust',
-    go: 'language-go',
-    hs: 'language-haskell',
-    lhs: 'language-haskell',
-    sass: 'sass',
-    scss: 'sass',
-    lua: 'language-lua',
-    rb: 'language-ruby',
-    erb: 'language-ruby',
-    gemfile: 'language-ruby',
-    html: 'language-html5',
-    htm: 'language-html5',
-    xml: 'xml',
-    md: 'language-markdown-outline',
-    php: 'language-php',
-    css: 'language-css3',
-    vue: 'vuejs',
-    dockerfile: 'docker',
-    dockerignore: 'docker',
-    gitignore: 'git',
-    npmignore: 'npm',
-    psd: 'drawing-box',
-    svg: 'svg',
-    woff: 'format-size',
-    woff2: 'format-size',
-    ttf: 'format-size',
-    otf: 'format-size',
-    vsix: 'microsoft-visual-studio-code',
-    csv: 'file-table-outline',
-    sql: 'database-search',
-    ipynb: 'notebook-outline',
-    yml: 'file-cog-outline',
-    yaml: 'file-cog-outline',
-    conf: 'file-cog-outline',
-    exe: 'console-line',
-    apk: 'android',
-    dmg: 'package-down',
-    deb: 'debian',
-    ics: 'calendar-month-outline',
-    c4d: 'cube-outline',
-    fbx: 'cube-outline',
-    tex: 'format-text',
-    dtx: 'format-text',
-    ins: 'format-text',
-    sty: 'format-text',
-};
-const previewMap = {
-    png: 'image',
-    jpg: 'image',
-    jpeg: 'image',
-    bmp: 'image',
-    gif: 'image',
-    webp: 'image',
-    svg: 'svg',
-    mp3: 'audio',
-    wav: 'audio',
-    ogg: 'audio',
-    oga: 'audio',
-    aac: 'audio',
-    flac: 'audio',
-    mp4: 'video',
-    m4v: 'video',
-    ogv: 'video',
-    webm: 'video',
-    pdf: 'pdf',
-    csv: 'csv',
-    txt: 'text',
-    dockerignore: 'text',
-    gitignore: 'text',
-    npmignore: 'text',
-    md: 'markdown',
-    dockerfile: 'code',
-    js: 'code',
-    py: 'code',
-    php: 'code',
-    sh: 'code',
-    c: 'code',
-    cpp: 'code',
-    css: 'code',
-    go: 'code',
-    html: 'code',
-    htm: 'code',
-    xml: 'code',
-    vue: 'code',
-    hs: 'code',
-    json: 'code',
-    java: 'code',
-    tex: 'code',
-    dtx: 'code',
-    ins: 'code',
-    sty: 'code',
-    lisp: 'code',
-    lua: 'code',
-    rs: 'code',
-    ts: 'code',
-    v: 'code',
-    rb: 'code',
-    sql: 'code',
-    less: 'code',
-    scss: 'code',
-    yml: 'code',
-    yaml: 'code',
-};
 const untrustedKeyWords = {
     tokenlized: [
         [
@@ -2929,9 +2777,13 @@ export default {
             }
 
             // If it's a normal name
-            const nameSplited = name.split(' ').filter((val) => val !== '');
-            if (nameSplited.length >= 2) {
-                return `${nameSplited[0][0]}${nameSplited[nameSplited.length - 1][0]}`.toUpperCase();
+            const nameSplited1 = name.split(', ').filter((val) => val !== '');
+            if (nameSplited1.length === 2) {
+                return `${nameSplited1[1][0]}${nameSplited1[0][0]}`.toUpperCase();
+            }
+            const nameSplited2 = name.split(' ').filter((val) => val !== '');
+            if (nameSplited2.length >= 2) {
+                return `${nameSplited2[0][0]}${nameSplited2[nameSplited2.length - 1][0]}`.toUpperCase();
             }
             return `${name[0]}${name[1]}`.toUpperCase();
         },
@@ -4301,6 +4153,22 @@ export default {
             overflow: visible;
             margin-bottom: 7px!important;
         }
+        .quick-reply-list {
+            background-color: #F3F3F3;
+            padding: 15px 20px;
+            ul {
+                padding: 0;
+                list-style: none;
+                display: flex;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                li {
+                    width: calc(50% - 6px);
+                    border-radius: 6px;
+                    border: 1px solid #E0E0E0;
+                }
+            }
+        }
     }
     .editor-layer {
         z-index: 6;
@@ -4662,6 +4530,18 @@ export default {
                 }
             }
         }
+        .quick-reply-list {
+            background-color: #2C2C2C;
+            ul {
+                li {
+                    overflow: hidden;
+                    border: 1px solid #414141;
+                    .v-skeleton-loader__list-item {
+                        background-color: transparent;
+                    }
+                }
+            }
+        }
     }
     .viewer-layer, .editor-layer, .expand-layer {
         background-color: #1E1E1E;
@@ -4848,6 +4728,7 @@ export default {
         "delete_mail": "Delete email",
         "delete_mail_body": "Are you sure you want to delete this email? This action is unrecoverable.",
         "delete_btn": "Delete",
+        "quick_reply": "Quick reply",
         "powered_by": "Powered by {0}",
         "enable_translate": "Enable mail translation",
         "translate": "Translate",
@@ -4984,6 +4865,7 @@ export default {
         "delete_mail": "删除邮件",
         "delete_mail_body": "你确定要删除此邮件吗？邮件删除后将不可恢复。",
         "delete_btn": "删除",
+        "quick_reply": "快速回复",
         "powered_by": "由 {0} 翻译",
         "enable_translate": "启用邮件翻译",
         "translate": "翻译",

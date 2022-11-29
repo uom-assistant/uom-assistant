@@ -68,6 +68,7 @@
                                                 mdi-clock-outline
                                             </v-icon>
                                             {{ getDate(new Date(note.update)) }}
+                                            <span v-if="note.attachments && note.attachments.length > 0"><v-icon class="time-icon ml-1" small>mdi-paperclip</v-icon>{{ note.attachments.length }}</span>
                                         </span>
                                         <div class="text-truncate" v-if="previews[index] !== ''">{{ previews[index] }}</div>
                                     </v-list-item-subtitle>
@@ -95,11 +96,33 @@
         <div class="editor-layer-mask" :class="{ opened: layerOpened }"></div>
         <div class="editor-layer" :class="{ opened: layerOpened }">
             <h2 class="handle">
-                <v-icon class="mr-2 md-icon">
-                    mdi-file-document-edit-outline
-                </v-icon>
+                <v-menu
+                    v-model="iconOpened"
+                    offset-y
+                    bottom
+                    right
+                    transition="slide-y-transition"
+                    nudge-bottom="5"
+                    :close-on-content-click="false"
+                    :close-on-click="true"
+                >
+                    <template v-slot:activator="{ on, attrs }">
+                        <v-btn icon v-on="on" v-bind="attrs" @click="tocOpened = false; attachmentOpened = false" small class="title-icon" :title="$t('custom_icon')">
+                            <v-icon class="md-icon" v-on="on" v-bind="attrs">
+                                mdi-file-document-edit-outline
+                            </v-icon>
+                        </v-btn>
+                    </template>
+                    <v-card class="note-toc-card" tile elevation="0">
+                        <div class="justify-center align-center flex-column toc-empty-state">
+                            <v-icon x-large>mdi-playlist-edit</v-icon>
+                            <span class="text--secondary mt-4">{{ $t('editing_toc') }}</span>
+                            <v-btn outlined color="primary" small class="mt-4" @click="mode = 'view'">{{ $t('switch_to_view') }}</v-btn>
+                        </div>
+                    </v-card>
+                </v-menu>
                 <input type="text" v-model.trim="editingTitle" class="title-input" v-if="notes[editing]" :placeholder="$t('title_placeholder')">
-                <v-btn icon @click="layerOpened = false; tocOpened = false" small class="float-right mr-4">
+                <v-btn icon @click="layerOpened = false; tocOpened = false; attachmentOpened = false; iconOpened = false" small class="float-right mr-4">
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
                 <v-menu
@@ -167,6 +190,29 @@
                                 <code>{{ noteId }}</code>
                             </span>
                             <v-icon small :color="copySuccess ? 'success' : ''" class="copy-icon" :class="{ 'copy-success-icon': copySuccess }">mdi-{{ copySuccess ? 'check' : 'content-copy' }}</v-icon>
+                        </div>
+                    </v-card>
+                </v-menu>
+                <v-menu
+                    v-model="attachmentOpened"
+                    offset-y
+                    bottom
+                    left
+                    transition="slide-y-transition"
+                    nudge-bottom="5"
+                    :close-on-content-click="false"
+                    :close-on-click="true"
+                >
+                    <template v-slot:activator="{ on, attrs }">
+                        <v-btn icon v-on="on" v-bind="attrs" @click="tocOpened = false; iconOpened = false" small class="float-right mr-1" :title="$t('note_attachments')">
+                            <v-icon>mdi-paperclip</v-icon>
+                        </v-btn>
+                    </template>
+                    <v-card class="note-toc-card" tile elevation="0">
+                        <div class="justify-center align-center flex-column toc-empty-state">
+                            <v-icon x-large>mdi-playlist-edit</v-icon>
+                            <span class="text--secondary mt-4">{{ $t('editing_toc') }}</span>
+                            <v-btn outlined color="primary" small class="mt-4" @click="mode = 'view'">{{ $t('switch_to_view') }}</v-btn>
                         </div>
                     </v-card>
                 </v-menu>
@@ -371,6 +417,7 @@ import betterFetch from '@/tools/betterFetch';
 import formatDateTime from '@/tools/formatDateTime';
 import debounce from '@/tools/debounce';
 import SmoothScrollTo from '@/tools/smoothScrollTo';
+// import { fileIconMap, previewMap } from '@/tools/fileTypes';
 
 import 'codemirror/theme/xq-light.css';
 import 'codemirror/lib/codemirror.css';
@@ -456,6 +503,8 @@ export default {
             tocHTML: '',
             titleOffest: {},
             tocOpened: false,
+            attachmentOpened: false,
+            iconOpened: false,
             selectedId: -1,
             listMenu: false,
             listMenuX: -1,
@@ -540,6 +589,7 @@ export default {
                 title: this.$t('new_note'),
                 content: '',
                 update: new Date().valueOf(),
+                attachments: [],
             });
             this.previews.unshift('');
             this.code = '';
@@ -943,6 +993,8 @@ export default {
          * Update scroll position in TOC when TOC is opened at the first time
          */
         updateTOCScrollTimeOut() {
+            this.attachmentOpened = false;
+            this.iconOpened = false;
             setTimeout(this.updateTOCScroll, 150);
         },
         /**
@@ -1068,6 +1120,9 @@ export default {
             // Mark as downloaded
             localStorage.setItem('uoma_note_guide', 'true');
         },
+        /**
+         * Open expanded view window
+         */
         openExpand() {
             this.previewerConfig.blob = URL.createObjectURL(new Blob([this.notes[this.editing].content], { type: 'text/plain;charset=utf-8' }));
             this.previewerConfig.content = this.notes[this.editing].content;
@@ -1290,6 +1345,11 @@ export default {
         .md-icon {
             padding-bottom: 2px;
         }
+        .title-icon {
+            margin-left: -2px;
+            margin-top: -2px;
+            margin-right: 7px;
+        }
     }
     .scroll {
         position: relative;
@@ -1332,7 +1392,7 @@ export default {
             padding-bottom: 0;
             .title-input {
                 -webkit-appearance: none;
-                width: calc(100% - 150px);
+                width: calc(100% - 172px);
                 outline: transparent;
             }
             .note-toc-btn {
@@ -1815,7 +1875,9 @@ export default {
         "switch_to_view": "Go view",
         "switch_to_edit": "Go edit",
         "uoma_guide": "✨ UoM Assistant Quick Tour",
-        "markdown_guide": "📎 Quick Notes Markdown Extension Syntax Guide"
+        "markdown_guide": "📎 Quick Notes Markdown Extension Syntax Guide",
+        "note_attachments": "Note Attachments",
+        "custom_icon": "Custom Note Icon"
     },
     "zh": {
         "note": "快速笔记",
@@ -1856,7 +1918,9 @@ export default {
         "switch_to_view": "切换到查看视图",
         "switch_to_edit": "切换到编辑视图",
         "uoma_guide": "✨ 曼大助手漫游指南",
-        "markdown_guide": "📎 快速笔记 Markdown 扩展语法指北"
+        "markdown_guide": "📎 快速笔记 Markdown 扩展语法指北",
+        "note_attachments": "笔记附件",
+        "custom_icon": "自定义笔记图标"
     },
     "es": {
         "note": "Apuntes rápidos",
@@ -1897,7 +1961,9 @@ export default {
         "switch_to_view": "Cambiar a modo vista",
         "switch_to_edit": "Cambiar a modo edición",
         "uoma_guide": "Visita rápida UoM Assistant",
-        "markdown_guide": "📎 Apuntes Rápidos Markdown: Guía de sintaxis extendida"
+        "markdown_guide": "📎 Apuntes Rápidos Markdown: Guía de sintaxis extendida",
+        "note_attachments": "",
+        "custom_icon": ""
     },
     "ja": {
         "note": "クイックノート",
@@ -1938,7 +2004,9 @@ export default {
         "switch_to_view": "プレビューに変更する",
         "switch_to_edit": "編集ビューに変更する",
         "uoma_guide": "",
-        "markdown_guide": ""
+        "markdown_guide": "",
+        "note_attachments": "",
+        "custom_icon": ""
     }
 }
 </i18n>

@@ -16,7 +16,7 @@ body {
     overflow-x: auto;
     overflow-y: hidden;
     background: none transparent;
-    font-family: -apple-system,  sans-serif;
+    font-family: -apple-system, sans-serif;
 }
 img {
     max-width: 100%;
@@ -25,6 +25,9 @@ img {
 a {
     color: #660099;
     word-break: break-word;
+}
+input {
+    pointer-events: none!important;
 }
 body.render > div > table.GcContainer *[style*="width: 600px"], body.general table.container[style*="width: 600px"] {
     width: 100%!important;
