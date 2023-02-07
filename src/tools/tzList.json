@@ -70,19 +70,14 @@
         "mainCity": "Adamstown"
     },
     {
-        "name": "America/Hermosillo",
+        "name": "America/Mazatlan",
         "countryCode": "MX",
-        "mainCity": "Hermosillo"
+        "mainCity": "Culiacán"
     },
     {
         "name": "America/Edmonton",
         "countryCode": "CA",
         "mainCity": "Calgary"
-    },
-    {
-        "name": "America/Ojinaga",
-        "countryCode": "MX",
-        "mainCity": "Ciudad Juárez"
     },
     {
         "name": "America/Denver",
@@ -123,6 +118,11 @@
         "name": "America/Mexico_City",
         "countryCode": "MX",
         "mainCity": "Mexico City"
+    },
+    {
+        "name": "America/Matamoros",
+        "countryCode": "MX",
+        "mainCity": "Reynosa"
     },
     {
         "name": "America/Costa_Rica",
@@ -885,16 +885,6 @@
         "mainCity": "Maputo"
     },
     {
-        "name": "Asia/Damascus",
-        "countryCode": "SY",
-        "mainCity": "Aleppo"
-    },
-    {
-        "name": "Asia/Amman",
-        "countryCode": "JO",
-        "mainCity": "Amman"
-    },
-    {
         "name": "Europe/Athens",
         "countryCode": "GR",
         "mainCity": "Athens"
@@ -935,6 +925,11 @@
         "mainCity": "Kaliningrad"
     },
     {
+        "name": "Europe/Kyiv",
+        "countryCode": "UA",
+        "mainCity": "Kyiv"
+    },
+    {
         "name": "Europe/Mariehamn",
         "countryCode": "AX",
         "mainCity": "Mariehamn"
@@ -968,11 +963,6 @@
         "name": "Europe/Vilnius",
         "countryCode": "LT",
         "mainCity": "Vilnius"
-    },
-    {
-        "name": "Europe/Zaporozhye",
-        "countryCode": "UA",
-        "mainCity": "Zaporizhzhya"
     },
     {
         "name": "Asia/Jerusalem",
@@ -1010,19 +1000,29 @@
         "mainCity": "Doha"
     },
     {
+        "name": "Asia/Riyadh",
+        "countryCode": "SA",
+        "mainCity": "Jeddah"
+    },
+    {
         "name": "Asia/Bahrain",
         "countryCode": "BH",
         "mainCity": "Manama"
     },
     {
-        "name": "Asia/Riyadh",
-        "countryCode": "SA",
-        "mainCity": "Riyadh"
-    },
-    {
         "name": "Asia/Aden",
         "countryCode": "YE",
         "mainCity": "Sanaa"
+    },
+    {
+        "name": "Asia/Amman",
+        "countryCode": "JO",
+        "mainCity": "Amman"
+    },
+    {
+        "name": "Asia/Damascus",
+        "countryCode": "SY",
+        "mainCity": "Aleppo"
     },
     {
         "name": "Africa/Addis_Ababa",

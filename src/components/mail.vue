@@ -676,16 +676,12 @@
                     <h1 class="text-subtitle-1"><v-icon class="mr-1" small>mdi-lightning-bolt</v-icon>{{ $t('quick_reply') }}</h1>
                     <ul>
                         <li class="mt-2">
-                            <v-skeleton-loader type="list-item"></v-skeleton-loader>
+                            <v-skeleton-loader type="list-item" v-if="viewer.suggestions.length === 0"></v-skeleton-loader>
+                            <div v-else class="px-5 py-3">{{ viewer.suggestions[0] }}</div>
                         </li>
                         <li class="mt-2">
-                            <v-skeleton-loader type="list-item"></v-skeleton-loader>
-                        </li>
-                        <li class="mt-2">
-                            <v-skeleton-loader type="list-item"></v-skeleton-loader>
-                        </li>
-                        <li class="mt-2">
-                            <v-skeleton-loader type="list-item"></v-skeleton-loader>
+                            <v-skeleton-loader type="list-item" v-if="viewer.suggestions.length === 0"></v-skeleton-loader>
+                            <div v-else class="px-5 py-3">{{ viewer.suggestions[1] }}</div>
                         </li>
                     </ul>
                 </div>
@@ -1279,6 +1275,7 @@ export default {
                 translator: false,
                 importance: '',
                 confirm: false,
+                suggestions: [],
             },
             languageMap: {
                 cmn: [
@@ -1910,6 +1907,7 @@ export default {
                     this.viewer.plainContent = response.data.plainContent;
                     this.viewer.sourceLang = franc(this.viewer.textContent);
                     this.viewer.translator = response.data.translator;
+                    this.viewer.suggestions = response.data.suggestions;
 
                     // Check if the content is untrusted
                     this.viewer.untrust = this.checkUntrust(this.viewer.textContent);
@@ -2196,6 +2194,7 @@ export default {
             this.viewer.translator = false;
             this.viewer.importance = mail.importance;
             this.viewer.confirm = mail.confirm;
+            this.viewer.suggestions = [];
             this.$refs.viewerDom.scrollTop = 0;
             this.viewer.courseId = this.getSubjectId(mail.subject, mail.from) || '';
             this.$nextTick(() => {
@@ -2258,6 +2257,7 @@ export default {
                         this.viewer.sourceLang = franc(this.viewer.textContent);
                         this.viewer.translator = false;
                         this.viewer.translated = cachedMail.translated;
+                        this.viewer.suggestions = cachedMail.suggestions;
                         this.checkTranslator();
                     }
                     this.viewer.attachments = cachedMail.attachments;

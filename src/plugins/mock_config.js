@@ -1136,6 +1136,10 @@ export default [
                 content: '<div>hhh</div><p>testest</p>   \n\n\n\n       <style>p{color:red}</style><p>testest</p><p>testest <a href="https://github.com">GitHub</a></p><img src="https://www.bing.com/th?id=OHR.HinterseeRamsau_ROW5331031469_1920x1080.jpg&rf=LaDigue_1920x1080.jpg"><p>Lorem ipsum dolor sit amet, eu duo noster maluisset incorrupte, zril dolor ex est. Doming vocibus accusamus sed te. Ea aperiam theophrastus eos, soluta integre at vim, ex diceret aliquando voluptatum vel. Eam cu error eripuit dolorum. Per vero tractatos ad.</p>   <style>p{color:blue}</style>    <div style="width: 600px;">hhh</div>',
                 plainContent: 'hhh\ntestest\ntestest\ntestest GitHub\nLorem ipsum dolor sit amet, eu duo noster maluisset incorrupte, zril dolor ex est. Doming vocibus accusamus sed te. Ea aperiam theophrastus eos, soluta integre at vim, ex diceret aliquando voluptatum vel. Eam cu error eripuit dolorum. Per vero tractatos ad.\nhhh',
                 translator: 'deepl',
+                suggestions: [
+                    'Okay test1',
+                    'Sure test2',
+                ],
             },
         },
         after: 3000,
