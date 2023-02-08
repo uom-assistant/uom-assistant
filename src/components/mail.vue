@@ -195,7 +195,8 @@
                 {{ $t('nothing') }}
             </div>
             <div class="empty" v-if="!loading && !init">
-                <span class="text-center pl-6 pr-6">{{ $t('cannot_fetch') }} <a href="https://github.com/uom-assistant/uom-assistant/wiki" target="_blank" rel="noreferrer noopener">{{ $t('learn_more') }}</a></span>
+                <span class="text-center pl-6 pr-6" v-if="notAllowed">{{ $t('not_allowed') }}</span>
+                <span class="text-center pl-6 pr-6" v-else>{{ $t('cannot_fetch') }} <a href="https://github.com/uom-assistant/uom-assistant/wiki" target="_blank" rel="noreferrer noopener">{{ $t('learn_more') }}</a></span>
             </div>
         </div>
         <div class="viewer-layer-mask" :class="{ opened: viewerOpened }"></div>
@@ -1193,6 +1194,7 @@ export default {
             loading: false,
             loadingBody: false,
             loadingFlag: [],
+            notAllowed: false,
             downloading: '',
             downloadProgress: 0,
             loadingPreview: '',
@@ -1704,7 +1706,7 @@ export default {
          * @param {boolean} update update or fetch
          */
         async updateMailList(update = false, tryCount = 1) {
-            if (!this.widgetShown || !this.backend.url || !this.account.username || !this.account.password || !this.account.email) {
+            if (!this.widgetShown || !this.backend.url || !this.account.username || !this.account.password || !this.account.email || this.notAllowed) {
                 return;
             }
 
@@ -1748,6 +1750,15 @@ export default {
 
             if (requestFailed) {
                 return;
+            }
+
+            if (!response.success) {
+                // Request error
+                if (response.reason === 'Feature not allowed.') {
+                    this.notAllowed = true;
+                    this.loading = false;
+                    return;
+                }
             }
 
             // Check response
@@ -4729,6 +4740,7 @@ export default {
         "delete_mail_body": "Are you sure you want to delete this email? This action is unrecoverable.",
         "delete_btn": "Delete",
         "quick_reply": "Quick reply",
+        "not_allowed": "Cannot fetch mail list for now due to university policy.",
         "powered_by": "Powered by {0}",
         "enable_translate": "Enable mail translation",
         "translate": "Translate",
@@ -4865,6 +4877,7 @@ export default {
         "delete_mail": "删除邮件",
         "delete_mail_body": "你确定要删除此邮件吗？邮件删除后将不可恢复。",
         "delete_btn": "删除",
+        "not_allowed": "由于大学政策，暂时无法获取邮件。",
         "quick_reply": "快速回复",
         "powered_by": "由 {0} 翻译",
         "enable_translate": "启用邮件翻译",
@@ -5001,6 +5014,8 @@ export default {
         "delete_mail": "",
         "delete_mail_body": "",
         "delete_btn": "",
+        "not_allowed": "",
+        "quick_reply": "",
         "powered_by": "Proporcionada por {0}",
         "enable_translate": "Habilitar traducción de correos",
         "translate": "Traducir",
@@ -5140,6 +5155,8 @@ export default {
         "delete_mail": "",
         "delete_mail_body": "",
         "delete_btn": "",
+        "not_allowed": "",
+        "quick_reply": "",
         "powered_by": "翻訳提供: {0}",
         "enable_translate": "翻訳機能を有効化",
         "translate": "翻訳",
