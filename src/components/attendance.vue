@@ -313,11 +313,11 @@ export default {
         "no_data": "Falta datos de asistencia"
     },
     "ja": {
-        "attendance": "出席統計",
+        "attendance": "出勤統計",
         "annual": "今年度",
         "last_month": "先月",
         "nothing": "欠勤記録がありません",
-        "cannot_fetch": "出席データを取得できません。バックエンドの情報が正しく設定されていないか、バックエンドが許可していない可能性があります。",
+        "cannot_fetch": "出勤データを取得できません。バックエンドの情報が正しく設定されていないか、バックエンドが許可していない可能性があります。",
         "learn_more": "もっと知りたい",
         "absent": "欠勤",
         "no_data": "出勤情報がありません"

@@ -1458,7 +1458,7 @@ export default {
         "backend_settings": "バックエンド設定",
         "account_settings": "アカウント設定",
         "ui_settings": "インタフェース設定",
-        "network_settings": "ナイトワーク設定",
+        "network_settings": "ネットワーク設定",
         "a11y_settings": "アクセシビリティ設定",
         "data_settings": "データ管理設定",
         "auto_dark_mode": "自動ダークモード",
