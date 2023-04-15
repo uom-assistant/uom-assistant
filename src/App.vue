@@ -2689,7 +2689,7 @@ code, kbd, pre, samp {
         "lock_layout": "レイアウトをロックする",
         "unlock_layout": "レイアウトをロック解除する",
         "subjects": "科目管理",
-        "attendance": "出席統計",
+        "attendance": "出勤統計",
         "calendar": "カレンダー",
         "task": "タスク",
         "note": "クイックノート",
